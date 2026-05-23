@@ -15,9 +15,7 @@
     ../../common/features/whoami.nix
     # keep-sorted end
 
-    # keep-sorted start
     ./containers
-    # keep-sorted end
 
     # keep-sorted start
     ./alertmanager.nix

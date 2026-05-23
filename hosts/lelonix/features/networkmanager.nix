@@ -1,9 +1,5 @@
 {config, ...}: {
-  imports = [
-    # keep-sorted start
-    ../../common/features/networkmanager.nix
-    # keep-sorted end
-  ];
+  imports = [../../common/features/networkmanager.nix];
 
   sops = {
     secrets."credentials/wireguard/interfaces/wg/private-key" = {};
