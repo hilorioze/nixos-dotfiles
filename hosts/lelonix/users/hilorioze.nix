@@ -9,9 +9,5 @@
     # keep-sorted end
   ];
 
-  home-manager.users.hilorioze.imports = [
-    # keep-sorted start
-    ../../../home/hilorioze/hosts/lelonix
-    # keep-sorted end
-  ];
+  home-manager.users.hilorioze.imports = [../../../home/hilorioze/hosts/lelonix];
 }
