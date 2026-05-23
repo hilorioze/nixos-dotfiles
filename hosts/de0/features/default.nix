@@ -32,6 +32,7 @@
     ./sops.nix
     ./tailscale.nix
     ./traefik.nix
+    ./wireguard-server.nix
     # keep-sorted end
   ];
 }
