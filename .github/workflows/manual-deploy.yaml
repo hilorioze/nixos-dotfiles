@@ -1,0 +1,135 @@
+on:
+  workflow_dispatch:
+    inputs:
+      target-nodes:
+        description: 'Deploy `all` nodes or pass a JSON array like `["de0","hel0"]`'
+
+        type: string
+        required: false
+        default: all
+
+      ping-nodes:
+        description: 'Whether to ping nodes before deployment; set to `false` to skip pings'
+
+        type: boolean
+        required: false
+        default: true
+
+concurrency:
+  # one run at a time; latest completes last
+  group: ${{ github.workflow }}
+
+  cancel-in-progress: true
+
+jobs:
+  collect-targets:
+    outputs:
+      target-nodes: ${{ steps.collect-targets.outputs['target-nodes'] }}
+
+      extra-substituters: ${{ steps.collect-targets.outputs['extra-substituters'] }}
+      extra-trusted-public-keys: ${{ steps.collect-targets.outputs['extra-trusted-public-keys'] }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+        with:
+          extra_nix_config: &extra_nix_config |
+            accept-flake-config = true
+
+            # resolved by follow-up jobs via `*extra_nix_config`; empty strings are safe here
+            extra-substituters = ${{ needs.collect-targets.outputs['extra-substituters'] }}
+            extra-trusted-public-keys = ${{ needs.collect-targets.outputs['extra-trusted-public-keys'] }}
+
+            max-substitution-jobs = 1024
+
+            http-connections = 0 # unlimited
+            download-buffer-size = 8388608 # 8 MiB
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - id: collect-targets
+        env:
+          TARGET_NODES: ${{ inputs['target-nodes'] }}
+        run: |
+          if [ "$TARGET_NODES" = all ]; then
+            target_nodes=$(nix eval --apply builtins.attrNames --json .#deploy.nodes)
+          else
+            target_nodes=$TARGET_NODES
+          fi
+
+          include='[]'
+          for node in $(echo "$target_nodes" | jq -r '.[]'); do
+            system=$(nix eval --raw .#deploy.nodes.${node}.profiles.system.path.system)
+            fqdn=$(nix eval --raw .#deploy.nodes.${node}.hostname)
+
+            # no `ubuntu-latest-arm` alias; pinned to `ubuntu-24.04-arm`
+            # update when a newer image or the alias becomes available
+            case $system in
+              aarch64-linux) runner=ubuntu-24.04-arm ;;
+              x86_64-linux)  runner=ubuntu-latest ;;
+            esac
+
+            include=$(echo "$include" | jq -c --arg node $node --arg runner $runner --arg fqdn $fqdn '. + [{"node": $node, "runner": $runner, "fqdn": $fqdn}]')
+          done
+
+          echo "target-nodes={\"include\":$include}" >> $GITHUB_OUTPUT
+
+          echo "extra-substituters=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')" >> $GITHUB_OUTPUT
+          echo "extra-trusted-public-keys=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')" >> $GITHUB_OUTPUT
+
+  deploy-nodes:
+    needs: collect-targets
+
+    strategy:
+      matrix: ${{ fromJSON(needs.collect-targets.outputs['target-nodes']) }}
+
+      fail-fast: false # don't cancel the matrix if one job fails
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: wimpysworld/nothing-but-nix@687c797a730352432950c707ab493fcc951818d7 # v10
+        with:
+          root-safe-haven: 1024 # halved; logs show 1 GiB free on / suffices
+
+          nix-permission-edict: true
+
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+        with:
+          extra_nix_config: *extra_nix_config
+
+      - uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.2
+        with:
+          authkey: ${{ secrets.DEPLOYER_TAILSCALE_AUTH_KEY }}
+
+          hostname: deploy-${{ matrix.node }}-${{ github.run_number }}
+          args: --login-server ${{ vars.TAILSCALE_LOGIN_SERVER_URL }}
+
+          ping: ${{ inputs['ping-nodes'] && matrix.fqdn || '' }}
+
+      - run: |
+          nix profile add --inputs-from . nixpkgs#attic-client
+
+          attic login --set-default ${{ vars.ATTIC_CACHE }} ${{ vars.ATTIC_SERVER_URL }} ${{ secrets.ATTIC_TOKEN }}
+
+      - run: |
+          install -Dm 600 /dev/stdin ~/.ssh/id_ed25519 <<<"${{ secrets.DEPLOYER_SSH_PRIVATE_KEY }}"
+
+          install -m 600 /dev/stdin ~/.ssh/known_hosts <<<"${{ matrix.fqdn }} $(< hosts/${{ matrix.node }}/ssh_host_ed25519_key.pub)"
+
+      - run: |
+          # uploads built paths to the cache as they enter the store (like cachix daemon mode)
+          attic watch-store ${{ vars.ATTIC_CACHE }} & WATCH_PID=$!
+
+          # build separately to capture the output path for `attic push`
+          RESULT=$(nix build --no-link --print-out-paths --print-build-logs .#deploy.nodes.${{ matrix.node }}.profiles.system.path)
+
+          # ensure the full closure is pushed on exit
+          trap 'kill $WATCH_PID; attic push ${{ vars.ATTIC_CACHE }} $RESULT' EXIT
+
+          nix run --inputs-from . nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}

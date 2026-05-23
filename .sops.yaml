@@ -1,0 +1,110 @@
+stores:
+  yaml:
+    indent: 2
+
+keys:
+  - &hosts
+    # keep-sorted start
+    - &host_de0 age12q27qexpp96vxn7uxe33hzprt4xffx7hmqa5sf9aalhrvmruddpq6z6lch
+    - &host_fakesynology-nixos age1tejdct70lcadgj0xdtgpz0as00y2cz60jj9h0vat5pt2ayf0vqcqcqxqwu
+    - &host_hel0 age1p3frcuge4x5dwz7acaymzkq2jl039uedgw7598j09hnz2zaw94mqd5pzrz
+    - &host_hilonix age1tag1q0xtusdehplrkmqe3aqxh4z5l55ecej04pv90tx7rtq0vdfgt59865fukuj
+    - &host_lelonix age1gss9hutm24tfvj8c4d5z923t6pz2rfqkvn09mz7nmlr5hgd97e2qglcg9w
+    - &host_zikkkix age1tqefr2fmarm4xdfd8kpmskp82fs2hgl6vfuvkqm97g4hvqujr9dq93zlvq
+    # keep-sorted end
+
+  - &users
+    - &user_hilorioze 96715EFAA4FB67F96D3B335258DA93FDD2D02B8D
+
+  - &user_hosts
+    # keep-sorted start
+    - &user_host_hilorioze_de0 age1f604v8uzvdslgq82xrk4pp6t5n3qphlv4t0augekrl7rewhlwy0s76szz3
+    - &user_host_hilorioze_fakesynology-nixos age1hnff3sh0y938afstupvs5dhc98p6fgysa7z4usdfqpqsdz7dr9uslt009f
+    - &user_host_hilorioze_hel0 age1dgcyvwac38vzsjtqfxwq6crnjdx6tg9ayv8uc9ukre9df2g25dcqyw7k3x
+    - &user_host_hilorioze_hilonix age14gmtvd4p9sx4djpvxqsj4gfn4xxqzdjz9tskxydrwtur8qzvr3psg2vaca
+    - &user_host_hilorioze_lelonix age1yn0zj0xzchhrayhzcmtsuaq6vkpe6dccgrsfee5y607gfk0gj3xqec8a46
+    - &user_host_hilorioze_zikkkix age136kdhkaw6kja4ztwqn2cr6eah29j5z3543mhmsfhmrjr4rfqt4psuv0zc0
+    # keep-sorted end
+
+  - &user_hosts_hilorioze
+    # keep-sorted start
+    - *user_host_hilorioze_de0
+    - *user_host_hilorioze_fakesynology-nixos
+    - *user_host_hilorioze_hel0
+    - *user_host_hilorioze_hilonix
+    - *user_host_hilorioze_lelonix
+    - *user_host_hilorioze_zikkkix
+    # keep-sorted end
+
+creation_rules:
+  - path_regex: ^hosts/common/secrets\.yaml$
+    key_groups:
+      - age: *hosts
+        pgp:
+          - *user_hilorioze
+
+  # keep-sorted start block=yes newline_separated=yes
+  - path_regex: ^hosts/de0/secrets\.yaml$
+    key_groups:
+      - age:
+          - *host_de0
+        pgp:
+          - *user_hilorioze
+
+  - path_regex: ^hosts/fakesynology-nixos/secrets\.yaml$
+    key_groups:
+      - age:
+          - *host_fakesynology-nixos
+        pgp:
+          - *user_hilorioze
+
+  - path_regex: ^hosts/hel0/secrets\.yaml$
+    key_groups:
+      - age:
+          - *host_hel0
+        pgp:
+          - *user_hilorioze
+
+  - path_regex: ^hosts/hilonix/secrets\.yaml$
+    key_groups:
+      - age:
+          - *host_hilonix
+        pgp:
+          - *user_hilorioze
+
+  - path_regex: ^hosts/lelonix/secrets\.yaml$
+    key_groups:
+      - age:
+          - *host_lelonix
+        pgp:
+          - *user_hilorioze
+
+  - path_regex: ^hosts/zikkkix/secrets\.yaml$
+    key_groups:
+      - age:
+          - *host_zikkkix
+        pgp:
+          - *user_hilorioze
+  # keep-sorted end
+
+  - path_regex: ^home/hilorioze/secrets\.yaml$
+    key_groups:
+      - pgp:
+          - *user_hilorioze
+        age: *user_hosts_hilorioze
+
+  # keep-sorted start block=yes newline_separated=yes
+  - path_regex: ^home/hilorioze/hosts/hilonix/secrets\.yaml$
+    key_groups:
+      - pgp:
+          - *user_hilorioze
+        age:
+          - *user_host_hilorioze_hilonix
+
+  - path_regex: ^home/hilorioze/hosts/lelonix/secrets\.yaml$
+    key_groups:
+      - pgp:
+          - *user_hilorioze
+        age:
+          - *user_host_hilorioze_lelonix
+  # keep-sorted end

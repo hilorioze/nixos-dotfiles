@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "EditorConfig.EditorConfig",
+    "mkhl.direnv",
+    "jnoortheen.nix-ide"
+  ]
+}

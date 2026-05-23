@@ -1,0 +1,22 @@
+diff --git a/internal/ui/app.go b/internal/ui/app.go
+index cb5230b..a7b100d 100644
+--- a/internal/ui/app.go
++++ b/internal/ui/app.go
+@@ -116,7 +116,7 @@ func (a *App) update(status tsutil.Status) {
+ 		if online && !a.operatorCheck {
+ 			a.operatorCheck = true
+ 			if !status.OperatorIsCurrent() {
+-				a.showOperatorDialog()
++				// a.showOperatorDialog()
+ 			}
+ 		}
+ 
+@@ -309,7 +309,7 @@ func (a *App) onAppActivate(ctx context.Context) {
+ 	loginAction.ConnectActivate(func(p *glib.Variant) {
+ 		status := <-a.poller.GetIPN()
+ 		if !status.OperatorIsCurrent() {
+-			a.showOperatorDialog()
++			// a.showOperatorDialog()
+ 			return
+ 		}
+ 

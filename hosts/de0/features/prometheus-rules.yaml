@@ -1,0 +1,58 @@
+groups:
+  # keep-sorted start block=yes newline_separated=yes
+  - name: gatus
+    rules:
+      - alert: service_down
+
+        expr: gatus_results_endpoint_success == 0
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.name }} is down"
+
+  - name: node
+    rules:
+      # keep-sorted start block=yes newline_separated=yes
+      - alert: disk_space_low
+
+        expr: (1 - node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes) * 100 > 85
+        for: 10m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+
+      - alert: high_cpu_usage
+
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 5m
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+
+      - alert: high_memory_usage
+
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
+        for: 5m
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+
+      - alert: node_down
+
+        expr: up{job="node-exporter"} == 0
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node {{ $labels.instance }} is down"
+      # keep-sorted end
+  # keep-sorted end

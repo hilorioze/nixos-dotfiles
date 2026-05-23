@@ -1,0 +1,79 @@
+local tailnet_server_node_names = {
+@TAILNET_SERVER_NODE_NAMES@
+}
+
+local function dns_question_name(dnsQuestion)
+  return dnsQuestion.qname:toStringNoDot():lower()
+end
+
+local function extract_public_node_name(name)
+  return name:match("^([^.]+)%.hilorioze%.com$")
+end
+
+local function is_tailnet_server_node_name(nodeName)
+  return nodeName ~= nil and tailnet_server_node_names[nodeName] == true
+end
+
+local function is_address_query(queryType)
+  return queryType == pdns.A or queryType == pdns.AAAA or queryType == pdns.ANY
+end
+
+local function reply_with_internal_cname(dnsQuestion, nodeName)
+  dnsQuestion.variable = true
+  dnsQuestion:setRecords({})
+  dnsQuestion:addAnswer(pdns.CNAME, nodeName .. ".internal.")
+  dnsQuestion.rcode = 0
+  dnsQuestion.followupFunction = "followCNAMERecords"
+  return true
+end
+
+function preresolve(dnsQuestion)
+  if not is_address_query(dnsQuestion.qtype) then
+    return false
+  end
+
+  local nodeName = extract_public_node_name(dns_question_name(dnsQuestion))
+
+  if nodeName and is_tailnet_server_node_name(nodeName) then
+    return reply_with_internal_cname(dnsQuestion, nodeName)
+  end
+
+  return false
+end
+
+function postresolve(dnsQuestion)
+  if not is_address_query(dnsQuestion.qtype) then
+    return false
+  end
+
+  local questionName = dns_question_name(dnsQuestion)
+
+  if not questionName:match("^.+%.hilorioze%.com$") then
+    return false
+  end
+
+  -- keep the headscale control plane on public dns; rewrites break control plane connectivity
+  if extract_public_node_name(questionName) == "@HEADSCALE_CONTROL_PLANE_HOST_NAME@" then
+    return false
+  end
+
+  local records = dnsQuestion:getRecords()
+  local targetServerNodeName = nil
+
+  for _, record in ipairs(records) do
+    if record.place == 1 and record.type == pdns.CNAME then
+      local cnameTarget = record:getContent():lower():gsub("%.$", "")
+      local nodeName = extract_public_node_name(cnameTarget)
+
+      if nodeName and is_tailnet_server_node_name(nodeName) then
+        targetServerNodeName = nodeName
+      end
+    end
+  end
+
+  if not targetServerNodeName then
+    return false
+  end
+
+  return reply_with_internal_cname(dnsQuestion, targetServerNodeName)
+end

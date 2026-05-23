@@ -1,0 +1,12 @@
+diff --git a/libkmpris/kded/mprisservice.cpp b/libkmpris/kded/mprisservice.cpp
+index 0b450e1..fb2906e 100644
+--- a/libkmpris/kded/mprisservice.cpp
++++ b/libkmpris/kded/mprisservice.cpp
+@@ -133,6 +133,7 @@ void MprisService::enableGlobalShortcuts()
+     auto addGlobalShortcut = [this](const QString &name, const QString &text, const QKeySequence &keySequence, void (MprisService::*callback)()) {
+         QAction *action = m_actionCollection->addAction(name);
+         action->setText(text);
++        action->setAutoRepeat(false);
+         KGlobalAccel::setGlobalShortcut(action, keySequence);
+         connect(action, &QAction::triggered, this, callback);
+     };

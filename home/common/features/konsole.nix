@@ -1,0 +1,3 @@
+{
+  programs.konsole.enable = true;
+}

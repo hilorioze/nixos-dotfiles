@@ -1,0 +1,13 @@
+diff --git a/src/Gui/CaptureWindow.cpp b/src/Gui/CaptureWindow.cpp
+index 164a698..14be01e 100644
+--- a/src/Gui/CaptureWindow.cpp
++++ b/src/Gui/CaptureWindow.cpp
+@@ -152,7 +152,7 @@ void CaptureWindow::saveAs()
+ 
+ void CaptureWindow::copyImage()
+ {
+-    SelectionEditor::instance()->acceptSelection(ExportManager::CopyImage | ExportManager::UserAction);
++    SelectionEditor::instance()->acceptSelection(ExportManager::Save | ExportManager::CopyImage | ExportManager::UserAction);
+ }
+ 
+ void CaptureWindow::copyLocation()

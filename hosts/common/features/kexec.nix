@@ -1,0 +1,3 @@
+{
+  boot.kexec.enable = true;
+}

@@ -1,0 +1,131 @@
+on:
+  push:
+    branches: &branches
+      - main
+
+    paths: &paths
+      - '.github/workflows/build.yaml'
+
+      - '**/*.nix'
+      - '!devenv.nix'
+      - 'flake.lock'
+
+  pull_request:
+    branches: *branches
+
+    paths: *paths
+
+  workflow_dispatch:
+    inputs:
+      target-configurations:
+        description: 'Build `all` configurations or pass a JSON array like `["de0","hel0"]`'
+
+        type: string
+        required: false
+        default: all
+
+concurrency:
+  # one run per branch; latest completes last
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+  cancel-in-progress: false
+
+jobs:
+  collect-targets:
+    runs-on: ubuntu-latest
+
+    outputs:
+      target-configurations: ${{ steps.collect-targets.outputs['target-configurations'] }}
+
+      extra-substituters: ${{ steps.collect-targets.outputs['extra-substituters'] }}
+      extra-trusted-public-keys: ${{ steps.collect-targets.outputs['extra-trusted-public-keys'] }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+        with:
+          extra_nix_config: &extra_nix_config |
+            accept-flake-config = true
+
+            # resolved by follow-up jobs via `*extra_nix_config`; empty strings are safe here
+            extra-substituters = ${{ needs.collect-targets.outputs['extra-substituters'] }}
+            extra-trusted-public-keys = ${{ needs.collect-targets.outputs['extra-trusted-public-keys'] }}
+
+            max-substitution-jobs = 1024
+
+            http-connections = 0 # unlimited
+            download-buffer-size = 8388608 # 8 MiB
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - id: collect-targets
+        env:
+          TARGET_CONFIGURATIONS: ${{ inputs['target-configurations'] || 'all' }}
+        run: |
+          if [ "$TARGET_CONFIGURATIONS" = all ]; then
+            target_configurations=$(nix eval --apply builtins.attrNames --json .#nixosConfigurations)
+          else
+            target_configurations=$TARGET_CONFIGURATIONS
+          fi
+
+          include='[]'
+          for node in $(echo "$target_configurations" | jq -r '.[]'); do
+            system=$(nix eval --raw .#nixosConfigurations.${node}.config.nixpkgs.hostPlatform.system)
+
+            # no `ubuntu-latest-arm` alias; pinned to `ubuntu-24.04-arm`
+            # update when a newer image or the alias becomes available
+            case $system in
+              aarch64-linux) runner=ubuntu-24.04-arm ;;
+              x86_64-linux)  runner=ubuntu-latest ;;
+            esac
+
+            include=$(echo "$include" | jq -c --arg node $node --arg runner $runner '. + [{"node": $node, "runner": $runner}]')
+          done
+
+          echo "target-configurations={\"include\":$include}" >> $GITHUB_OUTPUT
+
+          echo "extra-substituters=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')" >> $GITHUB_OUTPUT
+          echo "extra-trusted-public-keys=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')" >> $GITHUB_OUTPUT
+
+  build-configurations:
+    needs: collect-targets
+
+    strategy:
+      matrix: ${{ fromJSON(needs.collect-targets.outputs['target-configurations']) }}
+
+      fail-fast: false # don't cancel the matrix if one job fails
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: wimpysworld/nothing-but-nix@687c797a730352432950c707ab493fcc951818d7 # v10
+        with:
+          root-safe-haven: 1024 # halved; logs show 1 GiB free on / suffices
+
+          nix-permission-edict: true
+
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+        with:
+          extra_nix_config: *extra_nix_config
+
+      - if: github.event_name != 'pull_request'
+        run: |
+          nix profile add --inputs-from . nixpkgs#attic-client
+
+          attic login --set-default ${{ vars.ATTIC_CACHE }} ${{ vars.ATTIC_SERVER_URL }} ${{ secrets.ATTIC_TOKEN }}
+
+      - run: |
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            # uploads built paths to the cache as they enter the store (like cachix daemon mode)
+            attic watch-store ${{ vars.ATTIC_CACHE }} & WATCH_PID=$!
+          fi
+
+          RESULT=$(nix build --no-link --print-out-paths --print-build-logs .#nixosConfigurations.${{ matrix.target }}.config.system.build.toplevel)
+
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            # ensure the full closure is pushed
+            kill $WATCH_PID; attic push ${{ vars.ATTIC_CACHE }} $RESULT
+          fi
