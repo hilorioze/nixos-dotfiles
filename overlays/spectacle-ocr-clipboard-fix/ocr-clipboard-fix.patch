@@ -1,0 +1,28 @@
+diff --git a/src/OcrManager.cpp b/src/OcrManager.cpp
+index 84eb789..70618e0 100644
+--- a/src/OcrManager.cpp
++++ b/src/OcrManager.cpp
+@@ -16,10 +16,12 @@
+ #include <QLocale>
+ #include <QMutexLocker>
+ #include <QStandardPaths>
++#include <QMimeData>
+ #include <QStringList>
+ #include <QThread>
+ 
+ #include <KLocalizedString>
++#include <KSystemClipboard>
+ 
+ #include <algorithm>
+ #include <memory>
+@@ -238,7 +240,9 @@ void OcrManager::handleRecognitionComplete(const QString &text, bool success)
+         setStatus(OcrStatus::Ready);
+ 
+         if (!text.isEmpty()) {
+-            QApplication::clipboard()->setText(text);
++            auto data = new QMimeData();
++            data->setText(text);
++            KSystemClipboard::instance()->setMimeData(data, QClipboard::Clipboard);
+         }
+ 
+         Q_EMIT textRecognized(text, m_activeLanguages, true);

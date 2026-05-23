@@ -1,0 +1,3 @@
+{
+  thermalmonitor = import ./thermalmonitor.nix;
+}

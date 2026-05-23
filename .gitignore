@@ -1,0 +1,11 @@
+# Nix build artifacts
+result
+result-*
+
+# Development environment (auto-generated)
+.devenv*
+.direnv/
+/.pre-commit-config.yaml
+
+# User-specific development environment overrides
+devenv.local.nix

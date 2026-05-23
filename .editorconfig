@@ -1,0 +1,26 @@
+root = true
+
+[*]
+charset = utf-8
+
+end_of_line = lf
+
+indent_style = space
+indent_size = 2
+
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# preserve patch as-is so we won't break patch application
+[*.{diff,patch}]
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+
+# preserve markdown hard linebreaks (https://github.github.com/gfm/#hard-line-break)
+[*.md]
+trim_trailing_whitespace = false
+
+# we want `readFile ssh_host_ed25519_key.pub` to return the public key without a newline so we won't need to trim it in the code
+[*.pub]
+insert_final_newline = false

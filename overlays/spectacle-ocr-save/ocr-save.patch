@@ -1,0 +1,12 @@
+diff --git a/src/SpectacleCore.cpp b/src/SpectacleCore.cpp
+index c544795..0aa3270 100644
+--- a/src/SpectacleCore.cpp
++++ b/src/SpectacleCore.cpp
+@@ -170,7 +170,6 @@ SpectacleCore::SpectacleCore(QObject *parent)
+             auto exportActions = actions & ExportManager::AnyAction ? actions : autoExportActions();
+             if (m_ocrExportInProgress) {
+                 if (Settings::closeAfterOcr()) {
+-                    exportActions.setFlag(ExportManager::Action::Save, false);
+                     exportActions.setFlag(ExportManager::Action::CopyPath, false);
+                     m_quitAfterOcr = true;
+                 }

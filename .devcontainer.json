@@ -1,0 +1,18 @@
+{
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "EditorConfig.EditorConfig",
+        "jnoortheen.nix-ide",
+        "mkhl.direnv"
+      ]
+    }
+  },
+  "image": "ghcr.io/cachix/devenv/devcontainer:latest",
+  "mounts": [
+    "source=devcontainer-nix,target=/nix,type=volume"
+  ],
+  "onCreateCommand": "sudo sh -c 'echo \"accept-flake-config = true\" >> /etc/nix/nix.conf'",
+  "overrideCommand": false,
+  "updateContentCommand": "devenv test"
+}
