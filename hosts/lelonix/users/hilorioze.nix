@@ -3,6 +3,7 @@
 
   users.users.hilorioze.extraGroups = [
     # keep-sorted start
+    "dialout"
     "gamemode"
     "networkmanager"
     # keep-sorted end
