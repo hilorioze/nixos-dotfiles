@@ -10,30 +10,22 @@
   sops = {
     secrets = {
       # keep-sorted start
-      "infra/wireguard/interfaces/warp/private-key" = {};
-      "infra/wireguard/interfaces/wg/private-key" = {};
+      "credentials/wireguard/interfaces/warp/private-key" = {};
+      "credentials/wireguard/interfaces/wg/private-key" = {};
       # keep-sorted end
     };
 
-    templates = {
-      "infra/wireguard/interfaces/warp.env".content = ''
-        WARP_WG_PRIVATE_KEY=${config.sops.placeholder."infra/wireguard/interfaces/warp/private-key"}
-      '';
-
-      "infra/wireguard/interfaces/wg.env".content = ''
-        WG_PRIVATE_KEY=${config.sops.placeholder."infra/wireguard/interfaces/wg/private-key"}
-      '';
-    };
+    templates."config/networkmanager.env".content = ''
+      # keep-sorted start
+      WARP_WG_PRIVATE_KEY=${config.sops.placeholder."credentials/wireguard/interfaces/warp/private-key"}
+      WG_PRIVATE_KEY=${config.sops.placeholder."credentials/wireguard/interfaces/wg/private-key"}
+      # keep-sorted end
+    '';
   };
 
   networking.networkmanager = {
     ensureProfiles = {
-      environmentFiles = [
-        # keep-sorted start
-        config.sops.templates."infra/wireguard/interfaces/warp.env".path
-        config.sops.templates."infra/wireguard/interfaces/wg.env".path
-        # keep-sorted end
-      ];
+      environmentFiles = [config.sops.templates."config/networkmanager.env".path];
 
       profiles = {
         # keep-sorted start block=yes newline_separated=yes
