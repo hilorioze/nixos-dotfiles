@@ -16,26 +16,33 @@
       # keep-sorted start block=yes newline_separated=yes
       "Redmi_2.4GHz" = {
         connection = {
-          id = "Redmi_2.4GHz";
           type = "wifi";
+
+          id = "Redmi_2.4GHz";
+
           autoconnect = false;
         };
+
         wifi.ssid = "Redmi_2.4GHz";
       };
 
       Redmi = {
         connection = {
-          id = "Redmi";
           type = "wifi";
+
+          id = "Redmi";
         };
+
         wifi.ssid = "Redmi";
       };
 
       philone = {
         connection = {
-          id = "philone";
           type = "wifi";
+
+          id = "philone";
         };
+
         wifi.ssid = "philone";
       };
 
@@ -44,6 +51,7 @@
           type = "wireguard";
 
           id = "wg";
+
           interface-name = "wg";
 
           autoconnect = false;
