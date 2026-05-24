@@ -1,79 +1,39 @@
-{config, ...}: {
+{
   imports = [../../common/features/networkmanager.nix];
 
-  sops = {
-    secrets."credentials/wireguard/interfaces/wg/private-key" = {};
+  networking.networkmanager.ensureProfiles.profiles = {
+    # keep-sorted start block=yes newline_separated=yes
+    "Redmi_2.4GHz" = {
+      connection = {
+        type = "wifi";
 
-    templates."config/networkmanager.env".content = ''
-      WG_PRIVATE_KEY=${config.sops.placeholder."credentials/wireguard/interfaces/wg/private-key"}
-    '';
-  };
+        id = "Redmi_2.4GHz";
 
-  networking.networkmanager.ensureProfiles = {
-    environmentFiles = [config.sops.templates."config/networkmanager.env".path];
-
-    profiles = {
-      # keep-sorted start block=yes newline_separated=yes
-      "Redmi_2.4GHz" = {
-        connection = {
-          type = "wifi";
-
-          id = "Redmi_2.4GHz";
-
-          autoconnect = false;
-        };
-
-        wifi.ssid = "Redmi_2.4GHz";
+        autoconnect = false;
       };
 
-      Redmi = {
-        connection = {
-          type = "wifi";
-
-          id = "Redmi";
-        };
-
-        wifi.ssid = "Redmi";
-      };
-
-      philone = {
-        connection = {
-          type = "wifi";
-
-          id = "philone";
-        };
-
-        wifi.ssid = "philone";
-      };
-
-      wg = {
-        connection = {
-          type = "wireguard";
-
-          id = "wg";
-
-          interface-name = "wg";
-
-          autoconnect = false;
-        };
-
-        ipv4 = {
-          method = "manual";
-
-          address1 = "10.77.0.11/32";
-        };
-
-        wireguard.private-key = "$WG_PRIVATE_KEY";
-
-        "wireguard-peer.JLuTtcLYah/ZzV4VALE/HYHb1FeeZMdalnmZKzuJzjA=" = {
-          endpoint = "wg.hilorioze.com:51820";
-
-          allowed-ips = "10.77.0.13/32;192.168.1.197/32;192.168.1.157/32;";
-
-          persistent-keepalive = 25;
-        };
-      };
-      # keep-sorted end
+      wifi.ssid = "Redmi_2.4GHz";
     };
+
+    Redmi = {
+      connection = {
+        type = "wifi";
+
+        id = "Redmi";
+      };
+
+      wifi.ssid = "Redmi";
+    };
+
+    philone = {
+      connection = {
+        type = "wifi";
+
+        id = "philone";
+      };
+
+      wifi.ssid = "philone";
+    };
+    # keep-sorted end
   };
 }
