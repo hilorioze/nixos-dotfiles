@@ -43,11 +43,6 @@ jobs:
             extra-substituters = ${{ needs.collect-targets.outputs['extra-substituters'] }}
             extra-trusted-public-keys = ${{ needs.collect-targets.outputs['extra-trusted-public-keys'] }}
 
-            max-substitution-jobs = 1024
-
-            http-connections = 0 # unlimited
-            download-buffer-size = 8388608 # 8 MiB
-
             fsync-metadata = false # performance over durability in CI; store is transient
 
       - id: collect-targets
