@@ -19,7 +19,7 @@ concurrency:
   # one run at a time; latest completes last
   group: ${{ github.workflow }}
 
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   collect-targets:
