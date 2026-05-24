@@ -24,6 +24,12 @@ on:
         required: false
         default: all
 
+concurrency:
+  # one run per branch; latest completes last
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+  cancel-in-progress: false
+
 jobs:
   collect-targets:
     runs-on: ubuntu-latest
