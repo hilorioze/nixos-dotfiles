@@ -4,7 +4,7 @@ on:
       - main
 
     paths: &paths
-      - '.github/workflows/build.yaml'
+      - '.github/workflows/build-nixos.yaml'
 
       - '**/*.nix'
       - '!devenv.nix'
