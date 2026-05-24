@@ -62,6 +62,8 @@
             endpoint = "engage.cloudflareclient.com:2408";
 
             allowed-ips = "0.0.0.0/0;::/0;";
+
+            persistent-keepalive = 25;
           };
         };
 
