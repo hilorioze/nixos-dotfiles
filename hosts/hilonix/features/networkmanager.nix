@@ -31,31 +31,37 @@
         # keep-sorted start block=yes newline_separated=yes
         warp = {
           connection = {
-            id = "warp";
-            interface-name = "warp";
             type = "wireguard";
+
+            id = "warp";
+
+            interface-name = "warp";
+
             autoconnect = false;
           };
+
           ipv4 = {
+            method = "manual";
+
             address1 = "172.16.0.2/32";
+
             dns = "1.1.1.1;1.0.0.1;";
-            dns-search = "~;";
-            method = "manual";
           };
+
           ipv6 = {
-            addr-gen-mode = "default";
-            address1 = "2606:4700:110:804e:1920:9926:d762:ad8a/128";
-            dns = "2606:4700:4700::1111;2606:4700:4700::1001;";
-            dns-search = "~;";
             method = "manual";
+
+            address1 = "2606:4700:110:804e:1920:9926:d762:ad8a/128";
+
+            dns = "2606:4700:4700::1111;2606:4700:4700::1001;";
           };
-          wireguard = {
-            mtu = 1280;
-            private-key = "$WARP_WG_PRIVATE_KEY";
-          };
+
+          wireguard.private-key = "$WARP_WG_PRIVATE_KEY";
+
           "wireguard-peer.bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=" = {
-            allowed-ips = "0.0.0.0/0;::/0;";
             endpoint = "engage.cloudflareclient.com:2408";
+
+            allowed-ips = "0.0.0.0/0;::/0;";
           };
         };
 
