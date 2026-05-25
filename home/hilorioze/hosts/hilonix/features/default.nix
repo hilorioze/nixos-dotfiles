@@ -22,7 +22,6 @@
     ../../../../common/features/idea.nix
     ../../../../common/features/kactivitymanagerd.nix
     ../../../../common/features/kcalc.nix
-    ../../../../common/features/kdeconnect.nix
     ../../../../common/features/kdenlive.nix
     ../../../../common/features/kdialog.nix
     ../../../../common/features/kleopatra.nix
@@ -64,6 +63,7 @@
     ../../../features/dolphin.nix
     ../../../features/haruna.nix
     ../../../features/imhex.nix
+    ../../../features/kdeconnect.nix
     ../../../features/keepassxc.nix
     ../../../features/konsole.nix
     ../../../features/librewolf.nix
@@ -84,6 +84,7 @@
     ./ghidra.nix
     ./git.nix
     ./gpg-agent.nix
+    ./kdeconnect.nix
     ./librewolf.nix
     ./openrazer.nix
     ./plasma.nix
