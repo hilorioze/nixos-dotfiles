@@ -12,8 +12,6 @@
     ../../common/features/home-manager.nix
     ../../common/features/kdeconnect-firewall.nix
     ../../common/features/kdiskmark.nix
-    ../../common/features/kexec-reboot.nix
-    ../../common/features/kexec.nix
     ../../common/features/lenovo-legion-app.nix
     ../../common/features/mangohud.nix
     ../../common/features/networkmanager-wol.nix
