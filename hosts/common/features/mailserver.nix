@@ -16,7 +16,7 @@ in {
 
   mailserver = {
     enable = true;
-    stateVersion = 4;
+    stateVersion = 5;
 
     fqdn = mailHost;
     sendingFqdn = smtpHost;
