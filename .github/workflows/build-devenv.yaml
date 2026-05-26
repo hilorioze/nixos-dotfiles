@@ -1,0 +1,87 @@
+on:
+  push:
+    branches: &branches
+      - main
+
+    paths: &paths
+      - .github/workflows/build-devenv.yaml
+
+      - devenv.nix
+      - devenv.lock
+      - devenv.yaml
+
+      # workflow reads `nixConfig` and uses `--inputs-from .`, so changes to them may affect the result
+      - flake.nix
+      - flake.lock
+
+  pull_request:
+    branches: *branches
+
+    paths: *paths
+
+  workflow_dispatch:
+
+concurrency:
+  # one run per ref; latest cancels older runs
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+  cancel-in-progress: true
+
+jobs:
+  collect-substituters:
+    runs-on: ubuntu-latest
+
+    outputs:
+      extra-substituters: ${{ steps.collect-substituters.outputs['extra-substituters'] }}
+      extra-trusted-public-keys: ${{ steps.collect-substituters.outputs['extra-trusted-public-keys'] }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+        with:
+          extra_nix_config: &extra_nix_config |
+            accept-flake-config = true
+
+            # resolved by follow-up jobs via `*extra_nix_config`; empty strings are safe here
+            extra-substituters = ${{ needs.collect-substituters.outputs['extra-substituters'] }}
+            extra-trusted-public-keys = ${{ needs.collect-substituters.outputs['extra-trusted-public-keys'] }}
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - id: collect-substituters
+        run: |
+          echo "extra-substituters=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')" >> $GITHUB_OUTPUT
+          echo "extra-trusted-public-keys=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')" >> $GITHUB_OUTPUT
+
+  build-devenv:
+    needs: collect-substituters
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+        with:
+          extra_nix_config: *extra_nix_config
+
+      - if: github.event_name != 'pull_request'
+        run: |
+          nix profile add --inputs-from . nixpkgs#attic-client
+
+          attic login --set-default ${{ vars.ATTIC_CACHE }} ${{ vars.ATTIC_SERVER_URL }} ${{ secrets.ATTIC_TOKEN }}
+
+      - run: |
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            # uploads built paths to the cache as they enter the store (like cachix daemon mode)
+            attic watch-store ${{ vars.ATTIC_CACHE }} & WATCH_PID=$!
+          fi
+
+          # stdout must stay JSON-only for `jq`; some build logs may still go to stdout without `--quiet`
+          RESULT=$(nix run --inputs-from . nixpkgs#devenv -- --quiet build shell | jq -r .shell)
+
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            # ensure the full closure is pushed
+            kill $WATCH_PID; attic push ${{ vars.ATTIC_CACHE }} $RESULT
+          fi
