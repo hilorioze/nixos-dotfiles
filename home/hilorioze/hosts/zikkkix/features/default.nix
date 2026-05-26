@@ -6,5 +6,9 @@
     ../../../../common/features/trayscale.nix
     ../../../../common/features/yaas.nix
     # keep-sorted end
+
+    ../../../features/gpg.nix
+
+    ./sops.nix
   ];
 }

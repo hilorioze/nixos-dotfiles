@@ -61,6 +61,7 @@
     ../../../features/bruno.nix
     ../../../features/chromium.nix
     ../../../features/dolphin.nix
+    ../../../features/gpg.nix
     ../../../features/haruna.nix
     ../../../features/imhex.nix
     ../../../features/kdeconnect.nix

@@ -107,4 +107,11 @@ creation_rules:
           - *user_hilorioze
         age:
           - *user_host_hilorioze_lelonix
+
+  - path_regex: ^home/hilorioze/hosts/zikkkix/secrets\.yaml$
+    key_groups:
+      - pgp:
+          - *user_hilorioze
+        age:
+          - *user_host_hilorioze_zikkkix
   # keep-sorted end
