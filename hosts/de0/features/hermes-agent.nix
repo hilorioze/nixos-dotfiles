@@ -156,7 +156,8 @@ in {
           );
           # keep-sorted end
         in {
-          # keep-sorted start block=yes newline_separated=yes
+          # `newline_separated` would move the blank line inside `playwright` to its closing brace
+          # keep-sorted start block=yes
           yt-dlp = {
             command = lib.getExe' pkgs.nodejs "npx";
             args = [
