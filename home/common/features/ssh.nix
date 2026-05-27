@@ -12,6 +12,6 @@
 
     enableDefaultConfig = false; # its default is already deprecated and home-manager recommends setting it to false
 
-    matchBlocks."*".extraOptions.HostKeyAlgorithms = "ssh-ed25519";
+    settings."*".HostKeyAlgorithms = "ssh-ed25519";
   };
 }

@@ -27,25 +27,25 @@
     '';
   };
 
-  programs.ssh.matchBlocks = {
+  programs.ssh.settings = {
     "*" = {
-      serverAliveInterval = 25; # keep NAT entries alive during inactivity
+      ServerAliveInterval = 25; # keep NAT entries alive during inactivity
 
-      extraOptions.XAuthLocation = lib.getExe pkgs.xauth; # required for X11 forwarding (`ssh -Y`)
+      XAuthLocation = lib.getExe pkgs.xauth; # required for X11 forwarding (`ssh -Y`)
     };
 
     "fakesynology.hilorioze.com" = {
-      user = "fakesynology";
+      User = "fakesynology";
 
-      forwardAgent = true; # for git
+      ForwardAgent = true; # for git
     };
-    "${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}".forwardAgent = true; # for git
-    "${outputs.nixosConfigurations.lelonix.config.networking.fqdn}".forwardAgent = true; # for git
-    "${outputs.nixosConfigurations.hilonix.config.networking.fqdn}".forwardAgent = true; # for git
-    "${outputs.nixosConfigurations.zikkkix.config.networking.fqdn}".forwardAgent = true; # for git
-    "${outputs.nixosConfigurations.de0.config.networking.fqdn}".forwardAgent = true; # for git
-    "${outputs.nixosConfigurations.hel0.config.networking.fqdn}".forwardAgent = true; # for git
+    "${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}".ForwardAgent = true; # for git
+    "${outputs.nixosConfigurations.lelonix.config.networking.fqdn}".ForwardAgent = true; # for git
+    "${outputs.nixosConfigurations.hilonix.config.networking.fqdn}".ForwardAgent = true; # for git
+    "${outputs.nixosConfigurations.zikkkix.config.networking.fqdn}".ForwardAgent = true; # for git
+    "${outputs.nixosConfigurations.de0.config.networking.fqdn}".ForwardAgent = true; # for git
+    "${outputs.nixosConfigurations.hel0.config.networking.fqdn}".ForwardAgent = true; # for git
 
-    "node0.rayttage.net".forwardAgent = true; # for git
+    "node0.rayttage.net".ForwardAgent = true; # for git
   };
 }
