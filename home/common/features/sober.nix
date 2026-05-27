@@ -2,7 +2,8 @@
   services.flatpak.packages = [
     {
       appId = "org.vinegarhq.Sober";
-      commit = "42e59a094562d32d1399c2f917cbb6082159ec20d0f44bcbc5d66cd9306bf602"; # 1.6.7
+
+      commit = "299d46e6ca03f0dda3af0fd83cf2412dcb50d1d418a8b4a62a471170df86a051"; # 1.6.9
     }
   ];
 }
