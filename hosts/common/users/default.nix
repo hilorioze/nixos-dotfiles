@@ -1,9 +1,5 @@
 {
-  imports = [
-    # keep-sorted start
-    ./hilorioze.nix
-    # keep-sorted end
-  ];
+  imports = [./hilorioze.nix];
 
   users.mutableUsers = false;
 }

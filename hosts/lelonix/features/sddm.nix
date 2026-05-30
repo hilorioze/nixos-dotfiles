@@ -103,19 +103,11 @@
     PointerAccelerationProfile=1
   '';
 in {
-  imports = [
-    # keep-sorted start
-    ../../common/features/sddm.nix
-    # keep-sorted end
-  ];
+  imports = [../../common/features/sddm.nix];
 
   system.activationScripts = {
     installSddmKwinOutputConfig = {
-      deps = [
-        # keep-sorted start
-        "users"
-        # keep-sorted end
-      ];
+      deps = ["users"];
 
       text = ''
         ${lib.getExe' pkgs.coreutils "install"} \
@@ -133,11 +125,7 @@ in {
     };
 
     installSddmInputConfig = {
-      deps = [
-        # keep-sorted start
-        "users"
-        # keep-sorted end
-      ];
+      deps = ["users"];
 
       text = ''
         ${lib.getExe' pkgs.coreutils "install"} \

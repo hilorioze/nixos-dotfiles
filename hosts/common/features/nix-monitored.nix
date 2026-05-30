@@ -1,14 +1,5 @@
-{
-  # keep-sorted start
-  inputs,
-  # keep-sorted end
-  ...
-}: {
-  imports = [
-    # keep-sorted start
-    inputs.nix-monitored.nixosModules.default
-    # keep-sorted end
-  ];
+{inputs, ...}: {
+  imports = [inputs.nix-monitored.nixosModules.default];
 
   nix.monitored.enable = true;
 }

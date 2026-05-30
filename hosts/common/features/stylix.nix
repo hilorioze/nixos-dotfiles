@@ -1,14 +1,5 @@
-{
-  # keep-sorted start
-  inputs,
-  # keep-sorted end
-  ...
-}: {
-  imports = [
-    # keep-sorted start
-    inputs.stylix.nixosModules.stylix
-    # keep-sorted end
-  ];
+{inputs, ...}: {
+  imports = [inputs.stylix.nixosModules.stylix];
 
   stylix = {
     enable = true;

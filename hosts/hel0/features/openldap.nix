@@ -51,11 +51,7 @@
     (group: lib.attrNames (lib.filterAttrs (_uid: user: builtins.elem group user.groups) users));
 
   # service accounts for applications that need LDAP access
-  serviceAccounts = [
-    # keep-sorted start
-    "mailserver"
-    # keep-sorted end
-  ];
+  serviceAccounts = ["mailserver"];
 
   # custom LDAP schema: separates primary mail from aliases
   mailAccountSchema = pkgs.writeText "mail-account.ldif" ''
@@ -101,9 +97,7 @@
       "description: Service account for ${cn}"
     ];
 in {
-  imports = [
-    ../../common/features/openldap.nix
-  ];
+  imports = [../../common/features/openldap.nix];
 
   sops.secrets =
     lib.mapAttrs' (

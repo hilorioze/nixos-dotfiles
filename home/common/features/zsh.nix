@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  # keep-sorted end
-  ...
-}: {
+{config, ...}: {
   programs.zsh = {
     enable = true;
 

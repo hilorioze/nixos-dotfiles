@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  lib,
-  # keep-sorted end
-  ...
-}: {
+{lib, ...}: {
   systemd.services = {
     prepare-kexec = {
       before = lib.mkAfter ["systemd-reboot.service"];

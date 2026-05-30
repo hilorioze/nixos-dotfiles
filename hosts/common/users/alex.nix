@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  # keep-sorted end
-  ...
-}: {
+{config, ...}: {
   sops.secrets."users/alex/hashed-password".neededForUsers = true;
 
   users.users.alex = {
@@ -12,9 +7,5 @@
     hashedPasswordFile = config.sops.secrets."users/alex/hashed-password".path;
   };
 
-  home-manager.users.alex.imports = [
-    # keep-sorted start
-    ../../../home/alex
-    # keep-sorted end
-  ];
+  home-manager.users.alex.imports = [../../../home/alex];
 }

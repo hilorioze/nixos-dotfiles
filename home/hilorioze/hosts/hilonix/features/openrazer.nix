@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  # keep-sorted end
-  ...
-}: {
+{config, ...}: {
   xdg.configFile = {
     "openrazer/persistence.conf".text = ''
       [PM2112F41300274]

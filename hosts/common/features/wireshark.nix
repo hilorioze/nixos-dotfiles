@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
+{pkgs, ...}: {
   programs.wireshark = {
     enable = true;
     package = pkgs.wireshark;

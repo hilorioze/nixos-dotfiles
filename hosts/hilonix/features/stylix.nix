@@ -1,14 +1,5 @@
-{
-  # keep-sorted start
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
-  imports = [
-    # keep-sorted start
-    ../../common/features/stylix.nix
-    # keep-sorted end
-  ];
+{pkgs, ...}: {
+  imports = [../../common/features/stylix.nix];
 
   stylix = {
     polarity = "dark";

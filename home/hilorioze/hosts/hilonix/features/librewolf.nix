@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  # keep-sorted end
-  ...
-}: {
+{config, ...}: {
   sops = {
     secrets."apps/keepassxc/key" = {};
 

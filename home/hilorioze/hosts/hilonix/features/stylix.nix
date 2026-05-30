@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
+{pkgs, ...}: {
   stylix = {
     image = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/DarkestHour/contents/images/2560x1440.jpg";
 

@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  # keep-sorted end
-  ...
-}: {
+{config, ...}: {
   services.syncthing.settings.folders."Sync" = {
     path = "${config.home.homeDirectory}/Sync";
 

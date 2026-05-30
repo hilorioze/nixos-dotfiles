@@ -1,9 +1,5 @@
 {
-  imports = [
-    # keep-sorted start
-    ../../common/features/silent-sddm.nix
-    # keep-sorted end
-  ];
+  imports = [../../common/features/silent-sddm.nix];
 
   programs.silentSDDM = {
     theme = "catppuccin-macchiato";

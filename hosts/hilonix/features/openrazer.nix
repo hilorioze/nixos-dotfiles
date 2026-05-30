@@ -1,9 +1,5 @@
 {
-  imports = [
-    # keep-sorted start
-    ../../common/features/openrazer.nix
-    # keep-sorted end
-  ];
+  imports = [../../common/features/openrazer.nix];
 
   hardware.openrazer.devicesOffOnScreensaver = false;
 }

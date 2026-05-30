@@ -5,8 +5,6 @@
     ../../../../common/features/gpg-agent-pinentry-curses.nix
     # keep-sorted end
 
-    # keep-sorted start
     ./stylix.nix
-    # keep-sorted end
   ];
 }

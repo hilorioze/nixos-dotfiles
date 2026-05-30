@@ -1,14 +1,5 @@
-{
-  # keep-sorted start
-  inputs,
-  # keep-sorted end
-  ...
-}: {
-  imports = [
-    # keep-sorted start
-    inputs.nix-flatpak.homeManagerModules.nix-flatpak
-    # keep-sorted end
-  ];
+{inputs, ...}: {
+  imports = [inputs.nix-flatpak.homeManagerModules.nix-flatpak];
 
   services.flatpak.enable = true;
 }

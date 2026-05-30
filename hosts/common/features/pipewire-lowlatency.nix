@@ -1,14 +1,5 @@
-{
-  # keep-sorted start
-  inputs,
-  # keep-sorted end
-  ...
-}: {
-  imports = [
-    # keep-sorted start
-    inputs.nix-gaming.nixosModules.pipewireLowLatency
-    # keep-sorted end
-  ];
+{inputs, ...}: {
+  imports = [inputs.nix-gaming.nixosModules.pipewireLowLatency];
 
   services.pipewire.lowLatency.enable = true;
 }

@@ -1,7 +1,3 @@
 {
-  home-manager.users.hilorioze.imports = [
-    # keep-sorted start
-    ../../../home/hilorioze/hosts/de0
-    # keep-sorted end
-  ];
+  home-manager.users.hilorioze.imports = [../../../home/hilorioze/hosts/de0];
 }

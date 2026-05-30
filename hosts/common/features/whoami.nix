@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  # keep-sorted end
-  ...
-}: {
+{config, ...}: {
   services.traefik.dynamicConfigOptions.http = {
     routers.whoami = {
       entryPoints = ["http" "https"];

@@ -1,12 +1,3 @@
-{
-  # keep-sorted start
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
-  home.packages = [
-    # keep-sorted start
-    pkgs.kdePackages.kdialog
-    # keep-sorted end
-  ];
+{pkgs, ...}: {
+  home.packages = [pkgs.kdePackages.kdialog];
 }

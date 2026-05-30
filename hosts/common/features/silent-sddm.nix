@@ -5,11 +5,7 @@
   # keep-sorted end
   ...
 }: {
-  imports = [
-    # keep-sorted start
-    inputs.silent-sddm.nixosModules.default
-    # keep-sorted end
-  ];
+  imports = [inputs.silent-sddm.nixosModules.default];
 
   programs.silentSDDM = {
     enable = true;

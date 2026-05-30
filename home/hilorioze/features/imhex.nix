@@ -1,9 +1,5 @@
 {
-  imports = [
-    # keep-sorted start
-    ../../common/features/imhex.nix
-    # keep-sorted end
-  ];
+  imports = [../../common/features/imhex.nix];
 
   xdg.mimeApps.defaultApplications."application/vnd.imhex.proj" = "imhex.desktop";
 }

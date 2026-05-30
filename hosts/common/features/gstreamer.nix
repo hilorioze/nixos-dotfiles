@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
+{pkgs, ...}: {
   environment = {
     systemPackages = with pkgs.gst_all_1; [
       # keep-sorted start

@@ -1,9 +1,5 @@
 {
-  imports = [
-    # keep-sorted start
-    ../../common/features/mangohud.nix
-    # keep-sorted end
-  ];
+  imports = [../../common/features/mangohud.nix];
 
   programs.mangohud.settings = {
     version = true;

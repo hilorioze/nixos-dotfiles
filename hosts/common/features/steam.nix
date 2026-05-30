@@ -1,9 +1,4 @@
-{
-  # keep-sorted start
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
+{pkgs, ...}: {
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true;

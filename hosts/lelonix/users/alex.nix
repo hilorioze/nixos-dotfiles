@@ -1,9 +1,5 @@
 {
-  imports = [
-    # keep-sorted start
-    ../../common/users/alex.nix
-    # keep-sorted end
-  ];
+  imports = [../../common/users/alex.nix];
 
   users.users.alex.extraGroups = [
     # keep-sorted start
@@ -13,9 +9,5 @@
     # keep-sorted end
   ];
 
-  home-manager.users.alex.imports = [
-    # keep-sorted start
-    ../../../home/alex/hosts/lelonix
-    # keep-sorted end
-  ];
+  home-manager.users.alex.imports = [../../../home/alex/hosts/lelonix];
 }
