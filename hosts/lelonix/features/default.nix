@@ -32,6 +32,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ./automatic-timezoned.nix
     ./i18n.nix
     ./networkmanager.nix
     ./nix-ld.nix
@@ -41,7 +42,6 @@
     ./sops.nix
     ./stylix.nix
     ./tailscale.nix
-    ./time.nix
     # keep-sorted end
   ];
 }
