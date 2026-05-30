@@ -1,3 +1,3 @@
 {
-  time.timeZone = "Europe/Dublin";
+  time.timeZone = "Europe/Rome";
 }
