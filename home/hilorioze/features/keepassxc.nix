@@ -16,7 +16,14 @@
       Browser = {
         Enabled = true;
 
+        AlwaysAllowAccess = true;
+        AlwaysAllowUpdate = true;
+        HttpAuthPermission = true;
+
+        BestMatchOnly = true;
         SearchInAllDatabases = true;
+
+        AllowLocalhostWithPasskeys = true;
       };
 
       FdoSecrets = {
