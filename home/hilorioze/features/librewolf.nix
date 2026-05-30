@@ -13,7 +13,11 @@
 
     templates."apps/keepassxc/storage.js" = {
       content = builtins.toJSON (lib.recursiveUpdate (builtins.fromJSON config.sops.templates."apps/keepassxc/storage-keyring.json".content) {
-        settings.autoFillAndSend = true;
+        settings = {
+          autoFillAndSend = true;
+
+          passkeys = true;
+        };
       });
 
       path = "${config.home.homeDirectory}/.librewolf/default/browser-extension-data/keepassxc-browser@keepassxc.org/storage.js";
