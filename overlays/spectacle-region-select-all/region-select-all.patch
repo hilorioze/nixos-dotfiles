@@ -1,0 +1,17 @@
+diff --git a/src/Gui/SelectionEditor.cpp b/src/Gui/SelectionEditor.cpp
+index 797bda3..2b2414a 100644
+--- a/src/Gui/SelectionEditor.cpp
++++ b/src/Gui/SelectionEditor.cpp
+@@ -572,6 +572,12 @@ void SelectionEditor::keyPressEvent(QQuickItem *item, QKeyEvent *event)
+     case Qt::Key_Shift:
+         d->setShowMagnifier(true);
+         break;
++    case Qt::Key_A:
++        if (event->modifiers().testFlag(Qt::ControlModifier)) {
++            d->selection->setRect(d->screensRect);
++            event->accept();
++        }
++        break;
+     default:
+         break;
+     }

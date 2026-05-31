@@ -20,6 +20,7 @@
   spectacle-copy-save = import ./spectacle-copy-save;
   spectacle-ocr-clipboard-fix = import ./spectacle-ocr-clipboard-fix;
   spectacle-ocr-save = import ./spectacle-ocr-save;
+  spectacle-region-select-all = import ./spectacle-region-select-all;
   trayscale-operator-no-warning = import ./trayscale-operator-no-warning;
   # keep-sorted end
 }
