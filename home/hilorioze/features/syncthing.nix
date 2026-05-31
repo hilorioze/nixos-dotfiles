@@ -1,13 +1,9 @@
 {config, ...}: {
   imports = [../../common/features/syncthing.nix];
 
-  sops.secrets = {
-    "apps/syncthing/certificate" = {};
-    "apps/syncthing/private-key" = {};
-  };
+  sops.secrets."apps/syncthing/private-key" = {};
 
   services.syncthing = {
-    cert = config.sops.secrets."apps/syncthing/certificate".path;
     key = config.sops.secrets."apps/syncthing/private-key".path;
 
     settings.devices = {
