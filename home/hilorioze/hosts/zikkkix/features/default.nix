@@ -11,6 +11,8 @@
     ../../../features/cli-proxy-api.nix
     ../../../features/gpg.nix
     ../../../features/kilocode.nix
+    ../../../features/mcp.nix
+    ../../../features/wakatime.nix
     # keep-sorted end
 
     ./sops.nix

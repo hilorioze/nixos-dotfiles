@@ -14,13 +14,10 @@
 
     # keep-sorted start
     ./git.nix
-    ./mcp.nix
     ./nixos-dotfiles-lazy-git-repo.nix
     ./shell.nix
-    ./sops.nix
     ./ssh.nix
     ./stylix.nix
-    ./wakatime.nix
     ./zsh.nix
     # keep-sorted end
   ];

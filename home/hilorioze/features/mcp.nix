@@ -6,7 +6,7 @@
   # keep-sorted end
   ...
 }: {
-  sops.secrets."apps/context7/api-key".sopsFile = ../secrets.yaml;
+  sops.secrets."apps/context7/api-key" = {};
 
   programs.mcp = {
     enable = true;

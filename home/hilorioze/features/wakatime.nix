@@ -1,5 +1,14 @@
-{
-  imports = [../../common/features/wakatime.nix];
+{config, ...}: {
+  sops = {
+    secrets."apps/wakatime/api-key" = {};
 
-  sops.secrets."apps/wakatime/api-key".sopsFile = ../secrets.yaml;
+    templates."apps/.wakatime.cfg" = {
+      content = ''
+        [settings]
+        api_key = ${config.sops.placeholder."apps/wakatime/api-key"}
+      '';
+
+      path = "${config.home.homeDirectory}/.wakatime.cfg";
+    };
+  };
 }

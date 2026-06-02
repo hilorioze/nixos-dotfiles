@@ -13,14 +13,11 @@ keys:
     - &age_host_zikkkix age1tqefr2fmarm4xdfd8kpmskp82fs2hgl6vfuvkqm97g4hvqujr9dq93zlvq
     # keep-sorted end
 
-  - &age_host_keys_hilorioze
+  - &age_home_keys
     # keep-sorted start
-    - &age_host_hilorioze_de0 age1f604v8uzvdslgq82xrk4pp6t5n3qphlv4t0augekrl7rewhlwy0s76szz3
-    - &age_host_hilorioze_fakesynology-nixos age1hnff3sh0y938afstupvs5dhc98p6fgysa7z4usdfqpqsdz7dr9uslt009f
-    - &age_host_hilorioze_hel0 age1dgcyvwac38vzsjtqfxwq6crnjdx6tg9ayv8uc9ukre9df2g25dcqyw7k3x
-    - &age_host_hilorioze_hilonix age14gmtvd4p9sx4djpvxqsj4gfn4xxqzdjz9tskxydrwtur8qzvr3psg2vaca
-    - &age_host_hilorioze_lelonix age1yn0zj0xzchhrayhzcmtsuaq6vkpe6dccgrsfee5y607gfk0gj3xqec8a46
-    - &age_host_hilorioze_zikkkix age136kdhkaw6kja4ztwqn2cr6eah29j5z3543mhmsfhmrjr4rfqt4psuv0zc0
+    - &age_home_hilorioze_hilonix age14gmtvd4p9sx4djpvxqsj4gfn4xxqzdjz9tskxydrwtur8qzvr3psg2vaca
+    - &age_home_hilorioze_lelonix age1yn0zj0xzchhrayhzcmtsuaq6vkpe6dccgrsfee5y607gfk0gj3xqec8a46
+    - &age_home_hilorioze_zikkkix age136kdhkaw6kja4ztwqn2cr6eah29j5z3543mhmsfhmrjr4rfqt4psuv0zc0
     # keep-sorted end
 
   - &pgp_admin_keys
@@ -74,27 +71,22 @@ creation_rules:
         pgp: *pgp_admin_keys
   # keep-sorted end
 
-  - path_regex: ^home/hilorioze/secrets\.yaml$
-    key_groups:
-      - age: *age_host_keys_hilorioze
-        pgp: *pgp_admin_keys
-
   # keep-sorted start block=yes newline_separated=yes
   - path_regex: ^home/hilorioze/hosts/hilonix/secrets\.yaml$
     key_groups:
       - age:
-          - *age_host_hilorioze_hilonix
+          - *age_home_hilorioze_hilonix
         pgp: *pgp_admin_keys
 
   - path_regex: ^home/hilorioze/hosts/lelonix/secrets\.yaml$
     key_groups:
       - age:
-          - *age_host_hilorioze_lelonix
+          - *age_home_hilorioze_lelonix
         pgp: *pgp_admin_keys
 
   - path_regex: ^home/hilorioze/hosts/zikkkix/secrets\.yaml$
     key_groups:
       - age:
-          - *age_host_hilorioze_zikkkix
+          - *age_home_hilorioze_zikkkix
         pgp: *pgp_admin_keys
   # keep-sorted end

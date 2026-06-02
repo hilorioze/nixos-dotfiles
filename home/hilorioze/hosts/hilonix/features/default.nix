@@ -71,6 +71,7 @@
     ../../../features/konsole.nix
     ../../../features/librewolf.nix
     ../../../features/mangohud.nix
+    ../../../features/mcp.nix
     ../../../features/nix.nix
     ../../../features/packettracer9.nix
     ../../../features/plasma.nix
@@ -81,6 +82,7 @@
     ../../../features/vesktop.nix
     ../../../features/virt-manager.nix
     ../../../features/vscodium.nix
+    ../../../features/wakatime.nix
     # keep-sorted end
 
     # keep-sorted start

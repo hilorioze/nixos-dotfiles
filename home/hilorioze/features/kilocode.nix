@@ -6,7 +6,7 @@
   # keep-sorted end
   ...
 }: {
-  sops.secrets."credentials/modal/api-key".sopsFile = ../secrets.yaml;
+  sops.secrets."credentials/modal/api-key" = {};
 
   home.sessionVariables.KILO_EXPERIMENTAL = true;
 
