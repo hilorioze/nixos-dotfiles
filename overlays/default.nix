@@ -1,6 +1,5 @@
 {inputs}: {
   # keep-sorted start
-  antigravity-nix = inputs.antigravity-nix.overlays.default;
   cstrike-mod = inputs.cstrike-mod.overlays.default;
   firefox-addons = inputs.firefox-addons.overlays.default;
   freesmlauncher = _final: prev: inputs.freesmlauncher.packages.${prev.stdenv.hostPlatform.system} or {}; # overlay uses `prev.callPackage`, rebuilding with our `pkgs` and breaking binary cache

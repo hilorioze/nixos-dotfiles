@@ -35,11 +35,6 @@
     # keep-sorted end
 
     # keep-sorted start block=yes newline_separated=yes
-    antigravity-nix = {
-      url = "github:jacopone/antigravity-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     cstrike-mod.url = "github:hilorioze/cstrike-mod"; # keep their inputs for binary cache
 
     direnv-instant = {

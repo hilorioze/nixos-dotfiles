@@ -1,7 +1,6 @@
 {
   imports = [
     # keep-sorted start
-    ../../../../common/features/antigravity.nix
     ../../../../common/features/anydesk.nix
     ../../../../common/features/atlauncher.nix
     ../../../../common/features/ayugram-desktop.nix
