@@ -133,6 +133,13 @@
         "findbar.highlightAll" = true;
       };
     };
+
+    policies.ExtensionSettings = {
+      # keep-sorted start
+      "keepassxc-browser@keepassxc.org".private_browsing = true;
+      "uBlock0@raymondhill.net".private_browsing = true;
+      # keep-sorted end
+    };
   };
 
   home.activation.setDeArrowLicense = lib.hm.dag.entryAfter ["writeBoundary"] ''
