@@ -8,7 +8,6 @@
       "https://cache.nixos-cuda.org?priority=43"
       "https://nix-community.cachix.org?priority=44"
       "https://nix-gaming.cachix.org?priority=45"
-      "https://hermes-agent.cachix.org?priority=46"
     ];
 
     extra-trusted-public-keys = [
@@ -17,7 +16,6 @@
       "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
-      "hermes-agent.cachix.org-1:jN3pjR50Mxi4SESKC/FIMNM6/LCosvPk2VUwzVvebzU="
     ];
     # keep-sorted end
   };
