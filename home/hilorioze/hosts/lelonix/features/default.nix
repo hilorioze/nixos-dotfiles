@@ -76,7 +76,7 @@
     ../../../features/syncthing.nix
     ../../../features/thunderbird.nix
     ../../../features/vesktop.nix
-    ../../../features/vscode.nix
+    ../../../features/vscodium.nix
     # keep-sorted end
 
     # keep-sorted start

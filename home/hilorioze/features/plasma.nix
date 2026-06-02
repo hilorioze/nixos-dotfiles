@@ -125,7 +125,7 @@
                 "preferred://browser"
                 "preferred://terminal"
                 "applications:com.ayugram.desktop.desktop"
-                # "applications:code.desktop"
+                # "applications:codium.desktop"
                 "preferred://TextEditor"
                 "preferred://mailer"
               ];

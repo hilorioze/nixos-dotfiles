@@ -6,9 +6,9 @@
   # keep-sorted end
   ...
 }: {
-  imports = [../../common/features/vscode.nix];
+  imports = [../../common/features/vscodium.nix];
 
-  programs.vscode = {
+  programs.vscodium = {
     mutableExtensionsDir = true; # https://github.com/nix-community/nixos-vscode-server/issues/82
     profiles.default = {
       extensions = with pkgs.vscode-extensions; [
@@ -43,7 +43,7 @@
         "git.openRepositoryInParentFolders" = "never"; # never open a repository in parent folders of workspaces or open files
 
         "terminal.integrated.stickyScroll.enabled" = false; # disable the weird-looking and obstructive block in the terminal header
-        "terminal.integrated.env.linux".EDITOR = "${lib.getExe config.programs.vscode.package} --wait";
+        "terminal.integrated.env.linux".EDITOR = "${lib.getExe config.programs.vscodium.package} --wait";
         "terminal.integrated.commandsToSkipShell" = [
           # required by kilocode to be set
           "kilo-code.new.agentManagerOpen"
@@ -67,34 +67,34 @@
 
   xdg.mimeApps.defaultApplications = {
     # keep-sorted start
-    "application/json" = "code.desktop";
-    "application/sql" = "code.desktop";
-    "application/toml" = "code.desktop";
-    "application/x-docbook+xml" = "code.desktop";
-    "application/x-perl" = "code.desktop";
-    "application/x-php" = "code.desktop";
-    "application/x-ruby" = "code.desktop";
-    "application/x-shellscript" = "code.desktop";
-    "application/x-yaml" = "code.desktop";
-    "application/yaml" = "code.desktop";
-    "text/css" = "code.desktop";
-    "text/csv" = "code.desktop";
-    "text/javascript" = "code.desktop";
-    "text/markdown" = "code.desktop";
-    "text/plain" = "code.desktop";
-    "text/tab-separated-values" = "code.desktop";
-    "text/x-c++hdr" = "code.desktop";
-    "text/x-c++src" = "code.desktop";
-    "text/x-chdr" = "code.desktop";
-    "text/x-cmake" = "code.desktop";
-    "text/x-csrc" = "code.desktop";
-    "text/x-java" = "code.desktop";
-    "text/x-log" = "code.desktop";
-    "text/x-makefile" = "code.desktop";
-    "text/x-meson" = "code.desktop";
-    "text/x-patch" = "code.desktop";
-    "text/x-python" = "code.desktop";
-    "text/x-readme" = "code.desktop";
+    "application/json" = "codium.desktop";
+    "application/sql" = "codium.desktop";
+    "application/toml" = "codium.desktop";
+    "application/x-docbook+xml" = "codium.desktop";
+    "application/x-perl" = "codium.desktop";
+    "application/x-php" = "codium.desktop";
+    "application/x-ruby" = "codium.desktop";
+    "application/x-shellscript" = "codium.desktop";
+    "application/x-yaml" = "codium.desktop";
+    "application/yaml" = "codium.desktop";
+    "text/css" = "codium.desktop";
+    "text/csv" = "codium.desktop";
+    "text/javascript" = "codium.desktop";
+    "text/markdown" = "codium.desktop";
+    "text/plain" = "codium.desktop";
+    "text/tab-separated-values" = "codium.desktop";
+    "text/x-c++hdr" = "codium.desktop";
+    "text/x-c++src" = "codium.desktop";
+    "text/x-chdr" = "codium.desktop";
+    "text/x-cmake" = "codium.desktop";
+    "text/x-csrc" = "codium.desktop";
+    "text/x-java" = "codium.desktop";
+    "text/x-log" = "codium.desktop";
+    "text/x-makefile" = "codium.desktop";
+    "text/x-meson" = "codium.desktop";
+    "text/x-patch" = "codium.desktop";
+    "text/x-python" = "codium.desktop";
+    "text/x-readme" = "codium.desktop";
     # keep-sorted end
   };
 }

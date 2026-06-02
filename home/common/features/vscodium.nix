@@ -1,5 +1,5 @@
 {lib, ...}: {
-  programs.vscode = {
+  programs.vscodium = {
     enable = true;
 
     mutableExtensionsDir = lib.mkDefault false;

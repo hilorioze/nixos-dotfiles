@@ -80,7 +80,7 @@
     ../../../features/thunderbird.nix
     ../../../features/vesktop.nix
     ../../../features/virt-manager.nix
-    ../../../features/vscode.nix
+    ../../../features/vscodium.nix
     # keep-sorted end
 
     # keep-sorted start
