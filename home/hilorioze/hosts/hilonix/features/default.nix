@@ -60,6 +60,7 @@
     ../../../features/attic.nix
     ../../../features/bruno.nix
     ../../../features/chromium.nix
+    ../../../features/cli-proxy-api.nix
     ../../../features/dolphin.nix
     ../../../features/gpg.nix
     ../../../features/haruna.nix

@@ -7,7 +7,10 @@
     ../../../../common/features/yaas.nix
     # keep-sorted end
 
+    # keep-sorted start
+    ../../../features/cli-proxy-api.nix
     ../../../features/gpg.nix
+    # keep-sorted end
 
     ./sops.nix
   ];

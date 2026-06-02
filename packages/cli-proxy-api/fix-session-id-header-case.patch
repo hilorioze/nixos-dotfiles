@@ -1,0 +1,13 @@
+diff --git a/internal/runtime/executor/codex_executor.go b/internal/runtime/executor/codex_executor.go
+index d3c3925..27a2d62 100644
+--- a/internal/runtime/executor/codex_executor.go
++++ b/internal/runtime/executor/codex_executor.go
+@@ -980,7 +980,7 @@ func applyCodexIdentityConfuseHeaders(headers http.Header, state *codexIdentityC
+ 
+	setHeaderCasePreserved(headers, "Session-Id", state.promptCacheKey)
+	if headerValueCaseInsensitive(headers, "session_id") != "" {
+-		setHeaderCasePreserved(headers, "session_id", state.promptCacheKey)
++		setHeaderCasePreserved(headers, "Session_id", state.promptCacheKey)
+	}
+	if headerValueCaseInsensitive(headers, "Conversation_id") != "" {
+		setHeaderCasePreserved(headers, "Conversation_id", state.promptCacheKey)
