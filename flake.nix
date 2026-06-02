@@ -111,8 +111,6 @@
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
-    nixos-vscode-server.url = "github:nix-community/nixos-vscode-server";
-
     opencode-wakatime = {
       url = "github:angristan/opencode-wakatime";
       flake = false;
