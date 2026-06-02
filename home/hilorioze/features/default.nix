@@ -16,7 +16,6 @@
     ./git.nix
     ./mcp.nix
     ./nixos-dotfiles-lazy-git-repo.nix
-    ./opencode.nix
     ./shell.nix
     ./sops.nix
     ./ssh.nix

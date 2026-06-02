@@ -10,6 +10,7 @@
     # keep-sorted start
     ../../../features/cli-proxy-api.nix
     ../../../features/gpg.nix
+    ../../../features/kilocode.nix
     # keep-sorted end
 
     ./sops.nix

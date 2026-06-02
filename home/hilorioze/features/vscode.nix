@@ -11,43 +11,32 @@
   programs.vscode = {
     mutableExtensionsDir = true; # https://github.com/nix-community/nixos-vscode-server/issues/82
     profiles.default = {
-      extensions =
-        (with pkgs.vscode-extensions; [
-          # keep-sorted start
-          eamodio.gitlens
-          editorconfig.editorconfig
-          github.codespaces
-          github.copilot-chat
-          github.vscode-github-actions
-          jnoortheen.nix-ide
-          mkhl.direnv
-          ms-python.debugpy
-          ms-python.python
-          ms-python.vscode-pylance
-          ms-vscode-remote.remote-ssh
-          ms-vscode.cmake-tools
-          ms-vscode.cpptools
-          pkief.material-icon-theme
-          ritwickdey.liveserver
-          rust-lang.rust-analyzer
-          wakatime.vscode-wakatime
-          # keep-sorted end
-        ])
-        ++ [pkgs.nix-vscode-extensions.vscode-marketplace-release.sst-dev.opencode];
+      extensions = with pkgs.vscode-extensions; [
+        # keep-sorted start
+        eamodio.gitlens
+        editorconfig.editorconfig
+        github.codespaces
+        github.vscode-github-actions
+        jnoortheen.nix-ide
+        kilocode.kilo-code
+        mkhl.direnv
+        ms-python.debugpy
+        ms-python.python
+        ms-python.vscode-pylance
+        ms-vscode-remote.remote-ssh
+        ms-vscode.cmake-tools
+        ms-vscode.cpptools
+        pkief.material-icon-theme
+        ritwickdey.liveserver
+        rust-lang.rust-analyzer
+        wakatime.vscode-wakatime
+        # keep-sorted end
+      ];
 
       userSettings = {
         "editor.wordWrap" = "on";
 
         "files.autoSave" = "afterDelay";
-
-        "github.copilot.nextEditSuggestions.enabled" = true;
-        "github.copilot.enable" = {
-          # keep-sorted start
-          markdown = true;
-          plaintext = true;
-          scminput = true;
-          # keep-sorted end
-        };
 
         "git.autofetch" = true;
         "git.confirmSync" = false; # disable the boring confirmation dialog on every push
@@ -55,6 +44,11 @@
 
         "terminal.integrated.stickyScroll.enabled" = false; # disable the weird-looking and obstructive block in the terminal header
         "terminal.integrated.env.linux".EDITOR = "${lib.getExe config.programs.vscode.package} --wait";
+        "terminal.integrated.commandsToSkipShell" = [
+          # required by kilocode to be set
+          "kilo-code.new.agentManagerOpen"
+          "kilo-code.new.agentManager.showTerminal"
+        ];
 
         "window.zoomLevel" = -1; # set default zoom level to 80%
 
@@ -63,9 +57,6 @@
         "workbench.editor.enablePreview" = false; # disable annoying tab replacement when opening files
 
         "security.workspace.trust.enabled" = false; # disable workspace trust prompts
-
-        "gitlens.ai.model" = "vscode";
-        "gitlens.ai.vscode.model" = "copilot:gpt-4.1";
 
         "nix.enableLanguageServer" = true;
         "nix.serverPath" = "${lib.getExe pkgs.nil}";

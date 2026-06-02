@@ -67,6 +67,7 @@
     ../../../features/imhex.nix
     ../../../features/kdeconnect.nix
     ../../../features/keepassxc.nix
+    ../../../features/kilocode.nix
     ../../../features/konsole.nix
     ../../../features/librewolf.nix
     ../../../features/mangohud.nix
