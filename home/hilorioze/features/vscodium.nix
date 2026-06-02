@@ -6,58 +6,68 @@
   # keep-sorted end
   ...
 }: {
-  imports = [../../common/features/vscodium.nix];
+  programs.vscodium = {
+    enable = true;
 
-  programs.vscodium.profiles.default = {
-    extensions = with pkgs.vscode-extensions; [
-      # keep-sorted start
-      eamodio.gitlens
-      editorconfig.editorconfig
-      github.codespaces
-      github.vscode-github-actions
-      jnoortheen.nix-ide
-      kilocode.kilo-code
-      mkhl.direnv
-      ms-python.debugpy
-      ms-python.python
-      ms-python.vscode-pylance
-      ms-vscode.cmake-tools
-      ms-vscode.cpptools
-      pkief.material-icon-theme
-      ritwickdey.liveserver
-      rust-lang.rust-analyzer
-      wakatime.vscode-wakatime
-      # keep-sorted end
-    ];
+    mutableExtensionsDir = false;
 
-    userSettings = {
-      "editor.wordWrap" = "on";
+    profiles.default = {
+      enableUpdateCheck = false;
 
-      "files.autoSave" = "afterDelay";
+      enableExtensionUpdateCheck = false;
 
-      "git.autofetch" = true;
-      "git.confirmSync" = false; # disable the boring confirmation dialog on every push
-      "git.openRepositoryInParentFolders" = "never"; # never open a repository in parent folders of workspaces or open files
-
-      "terminal.integrated.stickyScroll.enabled" = false; # disable the weird-looking and obstructive block in the terminal header
-      "terminal.integrated.env.linux".EDITOR = "${lib.getExe config.programs.vscodium.package} --wait";
-      "terminal.integrated.commandsToSkipShell" = [
-        # required by kilocode to be set
-        "kilo-code.new.agentManagerOpen"
-        "kilo-code.new.agentManager.showTerminal"
+      extensions = with pkgs.vscode-extensions; [
+        # keep-sorted start
+        eamodio.gitlens
+        editorconfig.editorconfig
+        github.codespaces
+        github.vscode-github-actions
+        jnoortheen.nix-ide
+        kilocode.kilo-code
+        mkhl.direnv
+        ms-python.debugpy
+        ms-python.python
+        ms-python.vscode-pylance
+        ms-vscode.cmake-tools
+        ms-vscode.cpptools
+        pkief.material-icon-theme
+        ritwickdey.liveserver
+        rust-lang.rust-analyzer
+        wakatime.vscode-wakatime
+        # keep-sorted end
       ];
 
-      "window.zoomLevel" = -1; # set default zoom level to 80%
+      userSettings = {
+        "editor.wordWrap" = "on";
 
-      "workbench.startupEditor" = "none"; # don't show the welcome page on startup
-      "workbench.iconTheme" = "material-icon-theme";
-      "workbench.editor.enablePreview" = false; # disable annoying tab replacement when opening files
+        "files.autoSave" = "afterDelay";
 
-      "security.workspace.trust.enabled" = false; # disable workspace trust prompts
+        "git.autofetch" = true;
+        "git.confirmSync" = false; # disable the boring confirmation dialog on every push
+        "git.openRepositoryInParentFolders" = "never"; # never open a repository in parent folders of workspaces or open files
 
-      "nix.enableLanguageServer" = true;
-      "nix.serverPath" = "${lib.getExe pkgs.nil}";
-      "nix.serverSettings".nil.formatting.command = ["${lib.getExe pkgs.alejandra}"];
+        "terminal.integrated.stickyScroll.enabled" = false; # disable the weird-looking and obstructive block in the terminal header
+        "terminal.integrated.env.linux".EDITOR = "${lib.getExe config.programs.vscodium.package} --wait";
+        "terminal.integrated.commandsToSkipShell" = [
+          # required by kilocode to be set
+          "kilo-code.new.agentManagerOpen"
+          "kilo-code.new.agentManager.showTerminal"
+        ];
+
+        "window.zoomLevel" = -1; # set default zoom level to 80%
+
+        "workbench.startupEditor" = "none"; # don't show the welcome page on startup
+        "workbench.iconTheme" = "material-icon-theme";
+        "workbench.editor.enablePreview" = false; # disable annoying tab replacement when opening files
+
+        "security.workspace.trust.enabled" = false; # disable workspace trust prompts
+
+        "nix.enableLanguageServer" = true;
+        "nix.serverPath" = "${lib.getExe pkgs.nil}";
+        "nix.serverSettings".nil.formatting.command = ["${lib.getExe pkgs.alejandra}"];
+
+        "update.showReleaseNotes" = false;
+      };
     };
   };
 
