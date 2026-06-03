@@ -6,7 +6,13 @@
   # keep-sorted end
   ...
 }: {
-  sops.secrets."credentials/modal/api-key" = {};
+  sops.secrets = {
+    # keep-sorted start
+    "credentials/kilo/api-key" = {};
+    "credentials/modal/api-key" = {};
+    "credentials/openrouter/api-key" = {};
+    # keep-sorted end
+  };
 
   home.sessionVariables.KILO_EXPERIMENTAL = true;
 
@@ -81,6 +87,14 @@
         };
       };
 
+      kilo = {
+        npm = "@kilocode/kilo-gateway";
+
+        name = "Kilo Gateway";
+
+        options.apiKey = "{file:${config.sops.secrets."credentials/kilo/api-key".path}}";
+      };
+
       modal = {
         npm = "@ai-sdk/openai-compatible";
 
@@ -107,6 +121,14 @@
           };
           # keep-sorted end
         };
+      };
+
+      openrouter = {
+        npm = "@openrouter/ai-sdk-provider";
+
+        name = "OpenRouter";
+
+        options.apiKey = "{file:${config.sops.secrets."credentials/openrouter/api-key".path}}";
       };
       # keep-sorted end
     };
