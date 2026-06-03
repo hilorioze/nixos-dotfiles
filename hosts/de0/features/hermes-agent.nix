@@ -122,7 +122,7 @@ in {
           model = {
             provider = "kilocode";
 
-            default = "stepfun/step-3.5-flash:free";
+            default = "poolside/laguna-m.1:free";
           };
 
           stt.provider = "groq";
@@ -211,7 +211,7 @@ in {
           model = {
             provider = "kilocode";
 
-            default = "stepfun/step-3.5-flash:free";
+            default = "poolside/laguna-m.1:free";
           };
 
           stt.provider = "groq";
