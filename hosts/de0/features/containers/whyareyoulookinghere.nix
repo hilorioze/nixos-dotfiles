@@ -2,7 +2,6 @@
   # keep-sorted start
   config,
   lib,
-  pkgs,
   # keep-sorted end
   ...
 }: {
@@ -45,14 +44,6 @@
 
       environmentFiles = ["${config.sops.templates."config/whyareyoulookinghere.env".path}"];
     };
-
-    # huggingface mirror; github's sensitive content policy on this repo forces auth even for public assets, breaking fetchurl
-    # (original: https://github.com/notAI-tech/NudeNet/releases/download/v3.4-weights/640m.onnx)
-    nudenetModel = pkgs.fetchurl {
-      url = "https://huggingface.co/spaces/xxparthparekhxx/NudeNet-FastAPI/resolve/794a185a301917f1a3505ab3b8d55b268ea81f0e/640m.onnx";
-
-      hash = "sha256-BP49d5gHgMH4KX3G1/lC/Vs6vmlCoYj3QqhSQeT2NOs=";
-    };
   in {
     # keep-sorted start block=yes newline_separated=yes
     whyareyoulookinghere-school-meals-api =
@@ -86,8 +77,6 @@
         cmd = ["telegram_bot"];
 
         environment.AUTO_MESSAGE_DELETE = "-1001849082241|7264,-1001849082241|7766";
-
-        volumes = ["${nudenetModel}:/models/640m.onnx:ro"];
       };
     # keep-sorted end
   };
