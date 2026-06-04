@@ -25,12 +25,6 @@ on:
         required: false
         default: all
 
-concurrency:
-  # one run per ref; latest cancels older runs
-  group: ${{ github.workflow }}-${{ github.ref }}
-
-  cancel-in-progress: true
-
 jobs:
   collect-targets:
     runs-on: ubuntu-latest
@@ -91,6 +85,12 @@ jobs:
       matrix: ${{ fromJSON(needs.collect-targets.outputs['target-configurations']) }}
 
       fail-fast: false # don't cancel the matrix if one job fails
+
+    concurrency:
+      # one run per ref and target; latest cancels older runs
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.target }}
+
+      cancel-in-progress: true
 
     runs-on: ${{ matrix.runner }}
 

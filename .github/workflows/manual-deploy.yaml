@@ -15,12 +15,6 @@ on:
         required: false
         default: true
 
-concurrency:
-  # one run at a time; latest completes last
-  group: ${{ github.workflow }}
-
-  cancel-in-progress: false
-
 jobs:
   collect-targets:
     outputs:
@@ -82,6 +76,12 @@ jobs:
       matrix: ${{ fromJSON(needs.collect-targets.outputs['target-nodes']) }}
 
       fail-fast: false # don't cancel the matrix if one job fails
+
+    concurrency:
+      # one run per ref and node; latest completes last
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.node }}
+
+      cancel-in-progress: false
 
     runs-on: ${{ matrix.runner }}
 

@@ -21,12 +21,6 @@ on:
 
   workflow_dispatch:
 
-concurrency:
-  # one run per ref; latest cancels older runs
-  group: ${{ github.workflow }}-${{ github.ref }}
-
-  cancel-in-progress: true
-
 jobs:
   collect-substituters:
     runs-on: ubuntu-latest
@@ -68,6 +62,12 @@ jobs:
           # keep-sorted end
 
       fail-fast: false # don't cancel the matrix if one job fails
+
+    concurrency:
+      # one run per ref and architecture; latest cancels older runs
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.runner }}
+
+      cancel-in-progress: true
 
     runs-on: ${{ matrix.runner }}
 
