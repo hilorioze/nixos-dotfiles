@@ -213,6 +213,7 @@
           hilonix = mkNixosSystem [./hosts/hilonix];
           hisonix = mkNixosSystem [./hosts/hisonix];
           lelonix = mkNixosSystem [./hosts/lelonix];
+          ru0 = mkNixosSystem [./hosts/ru0];
           zikkkix = mkNixosSystem [./hosts/zikkkix];
           # keep-sorted end
         };
@@ -224,6 +225,7 @@
           hel0 = mkDeployNode config.nixosConfigurations.hel0;
           hilonix = mkDeployNode config.nixosConfigurations.hilonix;
           lelonix = mkDeployNode config.nixosConfigurations.lelonix;
+          ru0 = mkDeployNode config.nixosConfigurations.ru0;
           zikkkix = mkDeployNode config.nixosConfigurations.zikkkix;
           # keep-sorted end
         };

@@ -29,6 +29,7 @@ List of machines managed by this project:
 | [`zikkkix`](/hosts/zikkkix)                       | Desktop | AMD Zen 5, NVIDIA Ada Lovelace, bcachefs, zen kernel                          |
 | [`de0`](/hosts/de0)                               | Server  | [OCI](https://www.oracle.com/cloud/), `aarch64`                               |
 | [`hel0`](/hosts/hel0)                             | Server  | Hetzner                                                                       |
+| [`ru0`](/hosts/ru0)                               | Server  | ApexNodes                                                                     |
 | [`fakesynology-nixos`](/hosts/fakesynology-nixos) | Server  | Home VM                                                                       |
 | [`hisonix`](/hosts/hisonix)                       | ISO     | Rescue ISO                                                                    |
 

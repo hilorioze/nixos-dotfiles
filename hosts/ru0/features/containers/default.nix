@@ -1,0 +1,3 @@
+{
+  imports = [./lampac.nix];
+}
