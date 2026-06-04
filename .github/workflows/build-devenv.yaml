@@ -57,7 +57,19 @@ jobs:
   build-devenv:
     needs: collect-substituters
 
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runner:
+          # no `ubuntu-latest-arm` alias; pinned to `ubuntu-24.04-arm`
+          # update when a newer image or the alias becomes available
+          # keep-sorted start
+          - ubuntu-24.04-arm
+          - ubuntu-latest
+          # keep-sorted end
+
+      fail-fast: false # don't cancel the matrix if one job fails
+
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
