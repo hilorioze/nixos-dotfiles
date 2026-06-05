@@ -194,15 +194,6 @@
           }
 
           {
-            name = "node-exporter-ru0";
-            group = "telemetry";
-
-            url = "http://${outputs.nixosConfigurations.ru0.config.networking.fqdn}:${toString outputs.nixosConfigurations.ru0.config.services.prometheus.exporters.node.port}";
-
-            conditions = ["[STATUS] == 200"];
-          }
-
-          {
             name = "prometheus";
             group = "observability";
 

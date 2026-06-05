@@ -34,7 +34,6 @@
               (mkNodeTarget outputs.nixosConfigurations.de0)
               (mkNodeTarget outputs.nixosConfigurations.fakesynology-nixos)
               (mkNodeTarget outputs.nixosConfigurations.hel0)
-              (mkNodeTarget outputs.nixosConfigurations.ru0)
               # keep-sorted end
             ];
           }
