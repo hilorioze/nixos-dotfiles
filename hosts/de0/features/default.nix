@@ -5,6 +5,7 @@
     ../../common/features/fail2ban.nix
     ../../common/features/fluent-bit.nix
     ../../common/features/home-manager.nix
+    ../../common/features/netcat-firewall.nix
     ../../common/features/nix-ld.nix
     ../../common/features/node-exporter.nix
     ../../common/features/podman.nix
