@@ -117,6 +117,15 @@ in {
               dst = ["tag:hel0:53"];
             }
 
+            # everyone can reach everyone on port 4444
+            {
+              action = "accept";
+
+              src = ["*"];
+
+              dst = ["*:4444"];
+            }
+
             # de0 (prometheus, gatus) scrapes node-exporter on other hosts
             {
               action = "accept";
