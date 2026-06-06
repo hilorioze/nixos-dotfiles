@@ -95,7 +95,7 @@
     ./sops.nix
     ./stylix.nix
     ./syncthing.nix
-    ./vscode.nix
+    ./vscodium.nix
     # keep-sorted end
   ];
 }
