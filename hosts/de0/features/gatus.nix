@@ -54,7 +54,9 @@
 
         ui.default-sort-by = "group"; # name, group, health (https://github.com/TwiN/gatus/blob/fba833f64b7e91b4c06deeefe009f8597e793feb/config/ui/ui.go#L50)
 
-        endpoints = [
+        endpoints = let
+          lampacBaseUrl = "https://lampac.${outputs.nixosConfigurations.hel0.config.networking.fqdn}";
+        in [
           # keep-sorted start block=yes newline_separated=yes
           {
             name = "alertmanager";
@@ -155,6 +157,24 @@
 
               "[BODY].status == ok"
             ];
+          }
+
+          {
+            name = "lampac";
+            group = "services";
+
+            url = "${lampacBaseUrl}/api/myip"; # simplest healthcheck endpoint
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
+            name = "lampac-torrserver";
+            group = "services";
+
+            url = "${lampacBaseUrl}/ts/echo";
+
+            conditions = ["[STATUS] == 200"];
           }
 
           {
