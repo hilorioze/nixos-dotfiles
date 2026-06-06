@@ -64,6 +64,7 @@ in {
       "${config.sops.secrets."services/lampac/root-passwd".path}:/lampac/passwd:ro"
       "${config.sops.templates."config/lampac-init.conf".path}:/lampac/init.conf:ro"
 
+      # module template; the runtime file ends up in `data/ts/settings.json`
       "${torrServerSettingsFile}:/lampac/module/TorrServer/settings.json:ro"
 
       "lampac-cache:/lampac/cache"
