@@ -22,6 +22,8 @@ in {
 
     templates."config/lampac-init.conf" = {
       content = builtins.toJSON {
+        LampaWeb.initPlugins.sisi = false;
+
         accsdb = {
           enable = true;
 
