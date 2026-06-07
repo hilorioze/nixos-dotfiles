@@ -8,7 +8,6 @@
     ../../common/features/coolercontrol.nix
     ../../common/features/flatpak.nix
     ../../common/features/gamemode.nix
-    ../../common/features/gstreamer.nix
     ../../common/features/home-manager.nix
     ../../common/features/kdeconnect-firewall.nix
     ../../common/features/kdiskmark.nix
