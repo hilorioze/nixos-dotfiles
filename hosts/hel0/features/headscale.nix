@@ -173,7 +173,7 @@ in {
               ];
             }
 
-            # guests can reach other guests and hilonix
+            # guests can reach other guests, hilonix and lelonix
             {
               action = "accept";
 
@@ -183,6 +183,7 @@ in {
                 # keep-sorted start
                 "group:guests:*"
                 "tag:hilonix:*"
+                "tag:lelonix:*"
                 # keep-sorted end
               ];
             }
