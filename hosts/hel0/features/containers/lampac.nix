@@ -15,7 +15,6 @@ in {
   sops = {
     secrets = {
       # keep-sorted start
-      "services/lampac/root-passwd".uid = 1000; # match the container's uid
       "services/lampac/users/hilorioze/id" = {};
       "services/lampac/users/living-room-tv/id" = {};
       # keep-sorted end
@@ -75,7 +74,6 @@ in {
         PeersListenPort = peerListenPort;
       });
     in [
-      "${config.sops.secrets."services/lampac/root-passwd".path}:/lampac/passwd:ro"
       "${config.sops.templates."config/lampac-init.conf".path}:/lampac/init.conf:ro"
 
       # module template; the runtime file ends up in `data/ts/settings.json`
