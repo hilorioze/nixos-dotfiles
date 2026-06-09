@@ -16,7 +16,8 @@ in {
     secrets = {
       # keep-sorted start
       "services/lampac/root-passwd".uid = 1000; # match the container's uid
-      "services/lampac/shared-passwd" = {};
+      "services/lampac/users/hilorioze/id" = {};
+      "services/lampac/users/living-room-tv/id" = {};
       # keep-sorted end
     };
 
@@ -27,7 +28,18 @@ in {
         accsdb = {
           enable = true;
 
-          shared_passwd = config.sops.placeholder."services/lampac/shared-passwd";
+          users = let
+            mkUser = id: {
+              inherit id;
+
+              expires = "9999-12-31T23:59:59.9999999";
+            };
+          in [
+            # keep-sorted start
+            (mkUser config.sops.placeholder."services/lampac/users/hilorioze/id")
+            (mkUser config.sops.placeholder."services/lampac/users/living-room-tv/id")
+            # keep-sorted end
+          ];
         };
       };
 
