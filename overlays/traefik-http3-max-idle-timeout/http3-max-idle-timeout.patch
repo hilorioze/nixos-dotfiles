@@ -1,0 +1,28 @@
+diff --git a/pkg/server/server_entrypoint_tcp_http3.go b/pkg/server/server_entrypoint_tcp_http3.go
+index 5cac4c9..2c40e1e 100644
+--- a/pkg/server/server_entrypoint_tcp_http3.go
++++ b/pkg/server/server_entrypoint_tcp_http3.go
+@@ -8,6 +8,7 @@ import (
+ 	"net"
+ 	"net/http"
+ 	"sync"
++	"time"
+ 
+ 	"github.com/quic-go/quic-go"
+ 	"github.com/quic-go/quic-go/http3"
+@@ -63,10 +64,11 @@ func newHTTP3Server(ctx context.Context, name string, config *static.EntryPoint,
+ 	}
+ 
+ 	h3.Server = &http3.Server{
+-		Addr:      config.GetAddress(),
+-		Port:      config.HTTP3.AdvertisedPort,
+-		Handler:   httpsServer.Server.(*http.Server).Handler,
+-		TLSConfig: &tls.Config{GetConfigForClient: h3.getTLSConfigForClient},
++		Addr:        config.GetAddress(),
++		Port:        config.HTTP3.AdvertisedPort,
++		Handler:     httpsServer.Server.(*http.Server).Handler,
++		TLSConfig:   &tls.Config{GetConfigForClient: h3.getTLSConfigForClient},
++		IdleTimeout: time.Duration(config.Transport.RespondingTimeouts.IdleTimeout),
+ 		QUICConfig: &quic.Config{
+ 			Allow0RTT: false,
+ 		},

@@ -13,7 +13,11 @@
     environmentFiles = ["${config.sops.templates."services/traefik/cloudflare.env".path}"];
 
     staticConfigOptions = {
-      entryPoints.https.http.tls.certResolver = "cloudflare";
+      entryPoints.https = {
+        http.tls.certResolver = "cloudflare";
+
+        transport.respondingTimeouts.idleTimeout = "1m"; # default HTTP/3 30s is too short for lampa on a bad connection
+      };
 
       certificatesResolvers.cloudflare.acme = {
         email = "me@hilorioze.com";
