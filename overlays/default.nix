@@ -19,7 +19,6 @@
   spectacle-ocr-clipboard-fix = import ./spectacle-ocr-clipboard-fix;
   spectacle-ocr-save = import ./spectacle-ocr-save;
   spectacle-region-select-all = import ./spectacle-region-select-all;
-  traefik-http3-max-idle-timeout = import ./traefik-http3-max-idle-timeout;
   trayscale-operator-no-warning = import ./trayscale-operator-no-warning;
   # keep-sorted end
 }
