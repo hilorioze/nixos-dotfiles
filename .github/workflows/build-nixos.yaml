@@ -9,6 +9,9 @@ on:
       - '**/*.nix'
       - '!devenv.nix'
       - '**/secrets.yaml'
+      - '**/*.patch'
+      - '**/*.diff'
+      - '**/*.pub'
       - 'flake.lock'
 
   pull_request:
