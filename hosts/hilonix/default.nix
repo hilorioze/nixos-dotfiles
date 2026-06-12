@@ -59,20 +59,30 @@
       options = ["noatime"];
     };
 
-    "/mnt/vol" = {
+    # `ntfs3` real mount; `bindfs` overlays it at `/mnt/vol` with full access for all users
+    "/mnt/.vol" = {
       device = "/dev/disk/by-partlabel/vol";
       fsType = "ntfs3";
       options = [
         # keep-sorted start
-        "acl=0" # ntfs3 unconditionally enables ACL when compiled with POSIX_ACL
-        "dmask=000"
-        "fmask=000"
-        "gid=0"
-        "iocharset=utf8"
+        "acl=0" # `ntfs3` unconditionally enables ACL when compiled with `POSIX_ACL`
         "noatime"
         "nofail"
-        "uid=0"
-        "umask=000"
+        # keep-sorted end
+      ];
+    };
+
+    # `bindfs` overlay with full access for all users, ignoring `ntfs3` on-disk WSL EA permissions
+    "/mnt/vol" = {
+      device = "/mnt/.vol";
+      depends = ["/mnt/.vol"];
+      fsType = "fuse.bindfs";
+      options = [
+        # keep-sorted start
+        "force-group=root"
+        "force-user=root"
+        "nofail"
+        "perms=0777"
         # keep-sorted end
       ];
     };
