@@ -16,7 +16,6 @@
     "hel0"
     "hilonix"
     "lelonix"
-    "ru0"
     "zikkkix"
     # keep-sorted end
   ];
@@ -53,8 +52,6 @@ in {
     "services/headscale/preauth-keys/lelonix/prefix" = {};
     "services/headscale/preauth-keys/philone/bcrypt-hash" = {};
     "services/headscale/preauth-keys/philone/prefix" = {};
-    "services/headscale/preauth-keys/ru0/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/ru0/prefix" = {};
     "services/headscale/preauth-keys/zikkkix/bcrypt-hash" = {};
     "services/headscale/preauth-keys/zikkkix/prefix" = {};
     # keep-sorted end
@@ -102,7 +99,6 @@ in {
             "tag:hel0" = [];
             "tag:hilonix" = [];
             "tag:lelonix" = [];
-            "tag:ru0" = [];
             "tag:zikkkix" = [];
             # keep-sorted end
           };
@@ -136,7 +132,6 @@ in {
                 # keep-sorted start
                 "tag:fakesynology-nixos:9100"
                 "tag:hel0:9100"
-                "tag:ru0:9100"
                 # keep-sorted end
               ];
             }
@@ -158,7 +153,6 @@ in {
                 # keep-sorted start
                 "tag:fakesynology-nixos"
                 "tag:hel0"
-                "tag:ru0"
                 # keep-sorted end
               ];
 
@@ -208,7 +202,6 @@ in {
                 "tag:hel0:22"
                 "tag:hilonix:22"
                 "tag:lelonix:22"
-                "tag:ru0:22"
                 "tag:zikkkix:22"
                 # keep-sorted end
               ];
@@ -229,7 +222,6 @@ in {
             "tag:de0"
             "tag:fakesynology-nixos"
             "tag:hel0"
-            "tag:ru0"
             # keep-sorted end
           ];
         });
@@ -376,11 +368,6 @@ in {
         ${config.sops.secrets."services/headscale/preauth-keys/philone/prefix".path} \
         ${config.sops.secrets."services/headscale/preauth-keys/philone/bcrypt-hash".path})
 
-      ru0_key_id=$(reconcile_preauth_key "$servers_id" \
-        ${config.sops.secrets."services/headscale/preauth-keys/ru0/prefix".path} \
-        ${config.sops.secrets."services/headscale/preauth-keys/ru0/bcrypt-hash".path} \
-        '["tag:ru0"]')
-
       zikkkix_key_id=$(reconcile_preauth_key "$home_id" \
         ${config.sops.secrets."services/headscale/preauth-keys/zikkkix/prefix".path} \
         ${config.sops.secrets."services/headscale/preauth-keys/zikkkix/bcrypt-hash".path} \
@@ -407,7 +394,6 @@ in {
       ensure_preauth_key_used "$hilonix_key_id"
       ensure_preauth_key_used "$lelonix_key_id"
       ensure_preauth_key_used "$philone_key_id"
-      ensure_preauth_key_used "$ru0_key_id"
       ensure_preauth_key_used "$zikkkix_key_id"
       # keep-sorted end
 
@@ -424,7 +410,6 @@ in {
       hel0_node_id=$(get_node_id_by_key_id "$hel0_key_id")
       hilonix_node_id=$(get_node_id_by_key_id "$hilonix_key_id")
       lelonix_node_id=$(get_node_id_by_key_id "$lelonix_key_id")
-      ru0_node_id=$(get_node_id_by_key_id "$ru0_key_id")
       zikkkix_node_id=$(get_node_id_by_key_id "$zikkkix_key_id")
       # keep-sorted end
 
@@ -444,7 +429,6 @@ in {
       set_node_tags_by_node_id "$hel0_node_id" "tag:hel0"
       set_node_tags_by_node_id "$hilonix_node_id" "tag:hilonix"
       set_node_tags_by_node_id "$lelonix_node_id" "tag:lelonix"
-      set_node_tags_by_node_id "$ru0_node_id" "tag:ru0"
       set_node_tags_by_node_id "$zikkkix_node_id" "tag:zikkkix"
       # keep-sorted end
 
