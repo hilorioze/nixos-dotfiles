@@ -22,6 +22,7 @@
       ${mkKnownHostLine outputs.nixosConfigurations.fakesynology-nixos ../../../hosts/fakesynology-nixos/ssh_host_ed25519_key.pub}
       ${mkKnownHostLine outputs.nixosConfigurations.de0 ../../../hosts/de0/ssh_host_ed25519_key.pub}
       ${mkKnownHostLine outputs.nixosConfigurations.hel0 ../../../hosts/hel0/ssh_host_ed25519_key.pub}
+      ${mkKnownHostLine outputs.nixosConfigurations.ru0 ../../../hosts/ru0/ssh_host_ed25519_key.pub}
 
       node0.rayttage.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXciAYeEmJZU2PwXBXamfoa/BGDJhry9elTZWOaEsNl
     '';
@@ -45,6 +46,7 @@
     "${outputs.nixosConfigurations.zikkkix.config.networking.fqdn}".ForwardAgent = true; # for git
     "${outputs.nixosConfigurations.de0.config.networking.fqdn}".ForwardAgent = true; # for git
     "${outputs.nixosConfigurations.hel0.config.networking.fqdn}".ForwardAgent = true; # for git
+    "${outputs.nixosConfigurations.ru0.config.networking.fqdn}".ForwardAgent = true; # for git
 
     "node0.rayttage.net".ForwardAgent = true; # for git
   };
