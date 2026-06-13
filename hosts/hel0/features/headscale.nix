@@ -95,6 +95,7 @@ in {
             # keep-sorted start
             "tag:de0" = [];
             "tag:deployer" = [];
+            "tag:fakesynology" = [];
             "tag:fakesynology-nixos" = [];
             "tag:hel0" = [];
             "tag:hilonix" = [];
@@ -214,6 +215,15 @@ in {
               src = ["*"];
 
               dst = ["tag:de0:443"];
+            }
+
+            # `de0` can reach `fakesynology` to expose it publicly
+            {
+              action = "accept";
+
+              src = ["tag:de0"];
+
+              dst = ["tag:fakesynology:80" "tag:fakesynology:443" "tag:fakesynology:5000" "tag:fakesynology:5001"];
             }
           ];
 
@@ -335,7 +345,8 @@ in {
 
       fakesynology_key_id=$(reconcile_preauth_key "$servers_id" \
         ${config.sops.secrets."services/headscale/preauth-keys/fakesynology/prefix".path} \
-        ${config.sops.secrets."services/headscale/preauth-keys/fakesynology/bcrypt-hash".path})
+        ${config.sops.secrets."services/headscale/preauth-keys/fakesynology/bcrypt-hash".path} \
+        '["tag:fakesynology"]')
 
       fakesynology_nixos_key_id=$(reconcile_preauth_key "$servers_id" \
         ${config.sops.secrets."services/headscale/preauth-keys/fakesynology-nixos/prefix".path} \
@@ -407,6 +418,7 @@ in {
       alex_node_id=$(get_node_id_by_key_id "$alex_key_id")
       de0_node_id=$(get_node_id_by_key_id "$de0_key_id")
       fakesynology_nixos_node_id=$(get_node_id_by_key_id "$fakesynology_nixos_key_id")
+      fakesynology_node_id=$(get_node_id_by_key_id "$fakesynology_key_id")
       hel0_node_id=$(get_node_id_by_key_id "$hel0_key_id")
       hilonix_node_id=$(get_node_id_by_key_id "$hilonix_key_id")
       lelonix_node_id=$(get_node_id_by_key_id "$lelonix_key_id")
@@ -426,6 +438,7 @@ in {
       # keep-sorted start
       set_node_tags_by_node_id "$de0_node_id" "tag:de0"
       set_node_tags_by_node_id "$fakesynology_nixos_node_id" "tag:fakesynology-nixos"
+      set_node_tags_by_node_id "$fakesynology_node_id" "tag:fakesynology"
       set_node_tags_by_node_id "$hel0_node_id" "tag:hel0"
       set_node_tags_by_node_id "$hilonix_node_id" "tag:hilonix"
       set_node_tags_by_node_id "$lelonix_node_id" "tag:lelonix"

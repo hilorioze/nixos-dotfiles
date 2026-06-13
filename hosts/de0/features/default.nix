@@ -22,6 +22,7 @@
     # keep-sorted start
     ./alertmanager.nix
     ./atticd.nix
+    ./fakesynology-proxy.nix
     ./garage.nix
     ./gatus.nix
     ./grafana.nix
