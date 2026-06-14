@@ -20,6 +20,8 @@
     };
 
     staticConfigOptions = {
+      accessLog = {};
+
       global = {
         checkNewVersion = false;
 
