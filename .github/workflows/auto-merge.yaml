@@ -21,6 +21,7 @@ jobs:
     steps:
       - env:
           GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT }}
+
           GH_REPO: ${{ github.repository }}
         run: |
           gh pr merge --squash --delete-branch --match-head-commit ${{ github.event.workflow_run.head_sha }} ${{ github.event.workflow_run.pull_requests[0].number }}
