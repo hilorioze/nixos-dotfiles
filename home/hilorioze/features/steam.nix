@@ -97,9 +97,9 @@
 
     nonSteamApps = {
       "Hard Bullet" = let
-        gamePath = "/mnt/vol/Games/Hard Bullet";
+        gamePath = "/mnt/vol/Games/\"Hard Bullet\"";
       in {
-        target = "${gamePath}/Hard Bullet.exe";
+        target = "${gamePath}/\"Hard Bullet.exe\"";
 
         startIn = gamePath;
 
@@ -113,7 +113,7 @@
       };
 
       "Opus Magnum" = let
-        gamePath = "/mnt/vol/Games/Opus Magnum";
+        gamePath = "/mnt/vol/Games/\"Opus Magnum\"";
       in {
         target = "${gamePath}/Lightning.exe";
 
