@@ -103,6 +103,8 @@
 
         startIn = gamePath;
 
+        compatTool = config.programs.steam.config.defaultCompatTool;
+
         launchOptions.wrappers = [
           osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
           (lib.getExe pkgs.gamemode)
@@ -118,6 +120,8 @@
         target = "${gamePath}/Lightning.exe";
 
         startIn = gamePath;
+
+        compatTool = config.programs.steam.config.defaultCompatTool;
 
         launchOptions.wrappers = [
           osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
