@@ -95,62 +95,7 @@
       # keep-sorted end
     };
 
-    nonSteamApps = {
-      "Hard Bullet" = let
-        gamePath = "/mnt/vol/Games/\"Hard Bullet\"";
-      in {
-        target = "${gamePath}/\"Hard Bullet.exe\"";
-
-        startIn = gamePath;
-
-        compatTool = config.programs.steam.config.defaultCompatTool;
-
-        launchOptions.wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
-
-        inVrLibrary = true;
-      };
-
-      "Opus Magnum" = let
-        gamePath = "/mnt/vol/Games/\"Opus Magnum\"";
-      in {
-        target = "${gamePath}/Lightning.exe";
-
-        startIn = gamePath;
-
-        compatTool = config.programs.steam.config.defaultCompatTool;
-
-        launchOptions.wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
-      };
-
-      "Stardew Valley" = let
-        gamePath = "/mnt/vol/Games/\"Stardew Valley\"";
-      in {
-        target = "${gamePath}/\"Stardew Valley.exe\"";
-
-        startIn = gamePath;
-
-        compatTool = config.programs.steam.config.defaultCompatTool;
-
-        launchOptions = {
-          env.WINEDLLOVERRIDES = "onlinefix64=n;steam_api64=n;winmm=n,b";
-
-          wrappers = [
-            osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-            (lib.getExe pkgs.gamemode)
-            (lib.getExe pkgs.mangohud)
-          ];
-        };
-      };
-
-      "Beat Saber 1.40.8" = let
+    nonSteamApps."Beat Saber 1.40.8" = let
         bsManagerBasePath = "/mnt/vol/Games/BSManager";
 
         instance = "1.40.8";
@@ -195,7 +140,6 @@
         };
 
         inVrLibrary = true;
-      };
     };
   };
 }
