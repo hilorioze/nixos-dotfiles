@@ -96,50 +96,50 @@
     };
 
     nonSteamApps."Beat Saber 1.40.8" = let
-        bsManagerBasePath = "/mnt/vol/Games/BSManager";
+      bsManagerBasePath = "/mnt/vol/Games/BSManager";
 
-        instance = "1.40.8";
+      instance = "1.40.8";
 
-        instancePath = "${bsManagerBasePath}/BSInstances/${instance}";
-      in {
-        target = "${pkgs.proton-ge-bin.steamcompattool}/proton";
+      instancePath = "${bsManagerBasePath}/BSInstances/${instance}";
+    in {
+      target = "${pkgs.proton-ge-bin.steamcompattool}/proton";
 
-        startIn = instancePath;
+      startIn = instancePath;
 
-        launchOptions = {
-          env = let
-            beatSaberAppId = 620980;
-          in {
-            # keep-sorted start
-            STEAM_COMPAT_APP_ID = beatSaberAppId;
-            STEAM_COMPAT_CLIENT_INSTALL_PATH = "/home/hilorioze/.steam/steam";
-            STEAM_COMPAT_DATA_PATH = "${bsManagerBasePath}/SharedContent/compatdata";
-            STEAM_COMPAT_INSTALL_PATH = instancePath;
-            SteamAppId = beatSaberAppId;
-            SteamEnv = true;
-            SteamGameId = beatSaberAppId;
-            SteamOverlayGameId = beatSaberAppId;
-            WINEDLLOVERRIDES = "winhttp=n,b";
-            # keep-sorted end
-          };
-
-          wrappers = [
-            osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-            (lib.getExe pkgs.gamemode)
-            (lib.getExe pkgs.mangohud)
-            (lib.getExe pkgs.steam-run)
-          ];
-
-          args = [
-            "run"
-
-            "${instancePath}/Beat Saber.exe"
-
-            "--no-yeet"
-          ];
+      launchOptions = {
+        env = let
+          appId = 620980;
+        in {
+          # keep-sorted start
+          STEAM_COMPAT_APP_ID = appId;
+          STEAM_COMPAT_CLIENT_INSTALL_PATH = "/home/hilorioze/.steam/steam";
+          STEAM_COMPAT_DATA_PATH = "${bsManagerBasePath}/SharedContent/compatdata";
+          STEAM_COMPAT_INSTALL_PATH = instancePath;
+          SteamAppId = appId;
+          SteamEnv = true;
+          SteamGameId = appId;
+          SteamOverlayGameId = appId;
+          WINEDLLOVERRIDES = "winhttp=n,b";
+          # keep-sorted end
         };
 
-        inVrLibrary = true;
+        wrappers = [
+          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
+          (lib.getExe pkgs.gamemode)
+          (lib.getExe pkgs.mangohud)
+          (lib.getExe pkgs.steam-run)
+        ];
+
+        args = [
+          "run"
+
+          "${instancePath}/Beat Saber.exe"
+
+          "--no-yeet"
+        ];
+      };
+
+      inVrLibrary = true;
     };
   };
 }
