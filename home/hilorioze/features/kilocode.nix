@@ -19,31 +19,35 @@
   xdg.configFile."kilo/kilo.json".text = builtins.toJSON {
     "$schema" = "https://app.kilo.ai/config.json";
 
-    # https://github.com/nix-community/home-manager/blob/a7a415883195ffbd4dabec8f098f201e6eaaadf8/modules/programs/opencode.nix#L21-L48
+    # https://github.com/nix-community/home-manager/blob/8aec76cc1e045f37b55d82ca3cee4910ae04d3db/modules/programs/opencode.nix#L21-L55
     mcp =
       lib.mapAttrs
-      (_: server:
+      (_: server: let
+        isRemote = server ? url && server.url != null;
+        isLocal = server ? command && server.command != null;
+        renderedEnv = lib.hm.mcp.renderEnv (p: "{file:${p}}") (server.env or {});
+      in
         {
           enabled = !(server.disabled or false);
         }
         // (
-          if server ? url
+          if isRemote
           then
             {
               type = "remote";
               inherit (server) url;
             }
-            // lib.optionalAttrs (server ? headers) {
+            // lib.optionalAttrs ((server.headers or {}) != {}) {
               inherit (server) headers;
             }
-          else if server ? command
+          else if isLocal
           then
             {
               type = "local";
               command = [server.command] ++ (server.args or []);
             }
-            // lib.optionalAttrs (server ? env) {
-              environment = server.env;
+            // lib.optionalAttrs (renderedEnv != {}) {
+              environment = renderedEnv;
             }
           else {}
         ))
