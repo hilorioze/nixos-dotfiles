@@ -1,6 +1,7 @@
 {
-  programs.librewolf = {
+  programs.firefox = {
     enable = true;
+
     profiles.default.settings = {
       # nix manages extension versions
       "extensions.update.enabled" = false;

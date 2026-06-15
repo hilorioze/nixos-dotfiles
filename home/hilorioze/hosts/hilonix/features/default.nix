@@ -61,6 +61,7 @@
     ../../../features/chromium.nix
     ../../../features/cli-proxy-api.nix
     ../../../features/dolphin.nix
+    ../../../features/firefox.nix
     ../../../features/gpg.nix
     ../../../features/haruna.nix
     ../../../features/imhex.nix
@@ -68,7 +69,6 @@
     ../../../features/keepassxc.nix
     ../../../features/kilocode.nix
     ../../../features/konsole.nix
-    ../../../features/librewolf.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
     ../../../features/nix.nix
@@ -85,11 +85,11 @@
     # keep-sorted end
 
     # keep-sorted start
+    ./firefox.nix
     ./ghidra.nix
     ./git.nix
     ./gpg-agent.nix
     ./kdeconnect.nix
-    ./librewolf.nix
     ./openrazer.nix
     ./plasma.nix
     ./sops.nix
