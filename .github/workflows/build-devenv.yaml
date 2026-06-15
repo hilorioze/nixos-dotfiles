@@ -64,10 +64,10 @@ jobs:
       fail-fast: false # don't cancel the matrix if one job fails
 
     concurrency:
-      # one run per ref and architecture; latest cancels older runs
+      # one run per ref and architecture; latest completes last
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.runner }}
 
-      cancel-in-progress: true
+      cancel-in-progress: false
 
     runs-on: ${{ matrix.runner }}
 
