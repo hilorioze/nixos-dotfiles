@@ -126,6 +126,26 @@
         ];
       };
 
+      "Stardew Valley" = let
+        gamePath = "/mnt/vol/Games/\"Stardew Valley\"";
+      in {
+        target = "${gamePath}/\"Stardew Valley.exe\"";
+
+        startIn = gamePath;
+
+        compatTool = config.programs.steam.config.defaultCompatTool;
+
+        launchOptions = {
+          env.WINEDLLOVERRIDES = "onlinefix64=n;steam_api64=n;winmm=n,b";
+
+          wrappers = [
+            osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
+            (lib.getExe pkgs.gamemode)
+            (lib.getExe pkgs.mangohud)
+          ];
+        };
+      };
+
       "Beat Saber 1.40.8" = let
         bsManagerBasePath = "/mnt/vol/Games/BSManager";
 
