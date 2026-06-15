@@ -5,8 +5,10 @@
   pkgs,
   # keep-sorted end
   ...
-}: {
-  imports = [../../common/features/librewolf.nix];
+}: let
+  firefoxProfileDir = "${config.home.homeDirectory}/${config.programs.firefox.configPath}/${config.programs.firefox.profiles.default.path}";
+in {
+  imports = [../../common/features/firefox.nix];
 
   sops = {
     secrets."apps/dearrow/license-key" = {};
@@ -20,17 +22,17 @@
         };
       });
 
-      path = "${config.home.homeDirectory}/.librewolf/default/browser-extension-data/keepassxc-browser@keepassxc.org/storage.js";
+      path = "${firefoxProfileDir}/browser-extension-data/keepassxc-browser@keepassxc.org/storage.js";
     };
   };
 
-  stylix.targets.librewolf = {
+  stylix.targets.firefox = {
     colorTheme.enable = true;
 
     profileNames = ["default"];
   };
 
-  programs.librewolf = {
+  programs.firefox = {
     nativeMessagingHosts = with pkgs; [
       # keep-sorted start
       kdePackages.plasma-browser-integration
@@ -39,16 +41,19 @@
     ];
 
     profiles.default = {
-      search = {
-        force = true;
-        default = "ddg";
-        privateDefault = "ddg";
+      search = let
+        defaultEngine = "ddg";
+      in {
+        default = defaultEngine;
+        privateDefault = defaultEngine;
+
         order = [
-          # keep-sorted start
-          "ddg"
+          defaultEngine
+
           "google"
-          # keep-sorted end
         ];
+
+        force = true;
       };
 
       extensions = {
@@ -104,30 +109,16 @@
         # enable middle-click autoscroll
         "general.autoScroll" = true;
 
-        # always underline links
         "layout.css.always_underline_links" = true;
 
         # disable quick action entries shown in the urlbar suggestion dropdown
         "browser.urlbar.suggest.quickactions" = false;
 
-        # enable search suggestions
-        "browser.search.suggest.enabled" = true;
-        "browser.urlbar.suggest.searches" = true;
-
         # disable tabs in titlebar
         "browser.tabs.inTitlebar" = 0;
 
-        # enable webgl (disabled by default in librewolf)
-        "webgl.disabled" = false;
-
-        # disable fingerprinting resistance (enabled by default in librewolf); at least breaks dark themes on sites for me
-        "privacy.resistFingerprinting" = false;
-
-        # keep browsing data between sessions (by default librewolf clears it on shutdown)
-        "privacy.sanitize.sanitizeOnShutdown" = false;
-
         "browser.urlbar.trimURLs" = false;
-        "browser.sessionstore.resume_from_crash" = false;
+
         "browser.tabs.closeWindowWithLastTab" = false;
 
         "findbar.highlightAll" = true;
@@ -143,8 +134,8 @@
   };
 
   home.activation.setDeArrowLicense = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    if [[ -f "${config.home.homeDirectory}/.librewolf/default/storage-sync-v2.sqlite" ]]; then
-      ${lib.getExe pkgs.sqlite} "${config.home.homeDirectory}/.librewolf/default/storage-sync-v2.sqlite" \
+    if [[ -f "${firefoxProfileDir}/storage-sync-v2.sqlite" ]]; then
+      ${lib.getExe pkgs.sqlite} "${firefoxProfileDir}/storage-sync-v2.sqlite" \
         "INSERT OR IGNORE INTO storage_sync_data (ext_id, data) VALUES ('deArrow@ajay.app', '{}');" \
         "UPDATE storage_sync_data SET data = json_set(data, '$.licenseKey', '$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets."apps/dearrow/license-key".path})', '$.activated', json('true'), '$.alreadyActivated', json('true')) WHERE ext_id = 'deArrow@ajay.app';"
     fi
@@ -152,20 +143,20 @@
 
   xdg.mimeApps.defaultApplications = {
     # keep-sorted start
-    "application/x-extension-htm" = "librewolf.desktop";
-    "application/x-extension-html" = "librewolf.desktop";
-    "application/x-extension-shtml" = "librewolf.desktop";
-    "application/x-extension-xht" = "librewolf.desktop";
-    "application/x-extension-xhtml" = "librewolf.desktop";
-    "application/xhtml+xml" = "librewolf.desktop";
-    "text/html" = "librewolf.desktop";
-    "text/xml" = "librewolf.desktop";
-    "x-scheme-handler/about" = "librewolf.desktop";
-    "x-scheme-handler/chrome" = "librewolf.desktop";
-    "x-scheme-handler/ftp" = "librewolf.desktop";
-    "x-scheme-handler/http" = "librewolf.desktop";
-    "x-scheme-handler/https" = "librewolf.desktop";
-    "x-scheme-handler/unknown" = "librewolf.desktop";
+    "application/x-extension-htm" = "firefox.desktop";
+    "application/x-extension-html" = "firefox.desktop";
+    "application/x-extension-shtml" = "firefox.desktop";
+    "application/x-extension-xht" = "firefox.desktop";
+    "application/x-extension-xhtml" = "firefox.desktop";
+    "application/xhtml+xml" = "firefox.desktop";
+    "text/html" = "firefox.desktop";
+    "text/xml" = "firefox.desktop";
+    "x-scheme-handler/about" = "firefox.desktop";
+    "x-scheme-handler/chrome" = "firefox.desktop";
+    "x-scheme-handler/ftp" = "firefox.desktop";
+    "x-scheme-handler/http" = "firefox.desktop";
+    "x-scheme-handler/https" = "firefox.desktop";
+    "x-scheme-handler/unknown" = "firefox.desktop";
     # keep-sorted end
   };
 }
