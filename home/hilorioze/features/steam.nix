@@ -154,10 +154,12 @@
         bsManagerBasePath = "/mnt/vol/Games/BSManager";
 
         instance = "1.40.8";
+
+        instancePath = "${bsManagerBasePath}/BSInstances/${instance}";
       in {
         target = "${pkgs.proton-ge-bin.steamcompattool}/proton";
 
-        startIn = "${bsManagerBasePath}/BSInstances/${instance}";
+        startIn = instancePath;
 
         launchOptions = {
           env = let
@@ -167,7 +169,7 @@
             STEAM_COMPAT_APP_ID = beatSaberAppId;
             STEAM_COMPAT_CLIENT_INSTALL_PATH = "/home/hilorioze/.steam/steam";
             STEAM_COMPAT_DATA_PATH = "${bsManagerBasePath}/SharedContent/compatdata";
-            STEAM_COMPAT_INSTALL_PATH = "${bsManagerBasePath}/BSInstances/${instance}";
+            STEAM_COMPAT_INSTALL_PATH = instancePath;
             SteamAppId = beatSaberAppId;
             SteamEnv = true;
             SteamGameId = beatSaberAppId;
@@ -186,7 +188,7 @@
           args = [
             "run"
 
-            "${bsManagerBasePath}/BSInstances/${instance}/Beat Saber.exe"
+            "${instancePath}/Beat Saber.exe"
 
             "--no-yeet"
           ];
