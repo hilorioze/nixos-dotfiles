@@ -32,6 +32,7 @@ in {
     # printf 'prefix: %s\nbcrypt-hash: %s\n' "$prefix" "$hash"
 
     # keep-sorted start
+    "services/headscale/derp/private-key".owner = config.services.headscale.user;
     "services/headscale/preauth-keys/alex/bcrypt-hash" = {};
     "services/headscale/preauth-keys/alex/prefix" = {};
     "services/headscale/preauth-keys/de0/bcrypt-hash" = {};
@@ -56,6 +57,8 @@ in {
     "services/headscale/preauth-keys/zikkkix/prefix" = {};
     # keep-sorted end
   };
+
+  networking.firewall.allowedUDPPorts = [3478];
 
   services = {
     pdns-recursor = {
@@ -235,6 +238,18 @@ in {
             # keep-sorted end
           ];
         });
+
+        derp.server = {
+          enabled = true;
+
+          region_id = 999;
+          region_code = "hs-hel0";
+          region_name = "Headscale Helsinki";
+
+          stun_listen_addr = "0.0.0.0:3478";
+
+          private_key_path = config.sops.secrets."services/headscale/derp/private-key".path;
+        };
 
         dns = {
           base_domain = "internal";
