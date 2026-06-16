@@ -221,6 +221,15 @@
 
             conditions = ["[STATUS] == 200"];
           }
+
+          {
+            name = "tailnet-derp-hel0";
+            group = "platform";
+
+            url = "${outputs.nixosConfigurations.hel0.config.services.headscale.settings.server_url}/derp/probe";
+
+            conditions = ["[STATUS] == 200"];
+          }
           # keep-sorted end
         ];
       };
