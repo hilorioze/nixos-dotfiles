@@ -122,6 +122,8 @@ in {
         "browser.tabs.closeWindowWithLastTab" = false;
 
         "findbar.highlightAll" = true;
+
+        "permissions.default.persistent-storage" = 2; # deny persistent storage prompts
       };
     };
 
