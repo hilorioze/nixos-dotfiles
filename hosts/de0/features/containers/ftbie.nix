@@ -13,6 +13,8 @@
 
       FTB_MODPACK_ID = "23"; # FTB Infinity Evolved 1.7
       FTB_MODPACK_VERSION_ID = "99"; # 3.1.0
+
+      LEVEL_TYPE = "BIOMESOP";
     };
 
     ports = ["25565:25565"];
