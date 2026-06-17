@@ -103,27 +103,65 @@ in {
         };
       };
 
+      userChrome = ''
+        /* hide all tabs button */
+        #alltabs-button {
+          display: none !important;
+        }
+
+        /* hide firefox view button */
+        #firefox-view-button {
+          display: none !important;
+        }
+      '';
+
       settings = {
+        "toolkit.legacyUserProfileCustomizations.stylesheets" = true; # enable `userChrome.css`
+
         "middlemouse.paste" = false;
 
-        # enable middle-click autoscroll
-        "general.autoScroll" = true;
+        "general.autoScroll" = true; # enable middle-click autoscroll
 
         "layout.css.always_underline_links" = true;
 
-        # disable quick action entries shown in the urlbar suggestion dropdown
-        "browser.urlbar.suggest.quickactions" = false;
+        "widget.gtk.overlay-scrollbars.enabled" = false; # always show scrollbars
 
-        # disable tabs in titlebar
-        "browser.tabs.inTitlebar" = 0;
+        "browser.urlbar.suggest.quickactions" = false; # disable quick action entries shown in the urlbar suggestion dropdown
+
+        # hide urlbar search tips by marking them as already shown
+        "browser.urlbar.tipShownCount.searchTip_onboard" = 4;
+        "browser.urlbar.tipShownCount.searchTip_redirect" = 4;
+
+        "browser.download.useDownloadDir" = false; # always ask where to save files
+
+        "browser.startup.page" = 3; # restore previous session
+
+        "browser.tabs.inTitlebar" = 0; # disable tabs in titlebar
 
         "browser.urlbar.trimURLs" = false;
 
         "browser.tabs.closeWindowWithLastTab" = false;
 
+        "browser.newtabpage.activity-stream.feeds.topsites" = false; # hide new tab shortcuts row
+        "browser.newtabpage.activity-stream.feeds.section.topstories" = false; # hide new tab recommended stories block
+
+        # disable AI chatbot
+        "browser.ml.chat.enabled" = false;
+        "browser.ml.chat.menu" = false;
+
+        "browser.aboutConfig.showWarning" = false;
+
         "findbar.highlightAll" = true;
 
         "permissions.default.persistent-storage" = 2; # deny persistent storage prompts
+
+        "signon.rememberSignons" = false; # disable built-in password save prompts; use keepassxc
+
+        "extensions.formautofill.creditCards.enabled" = false; # disable payment info save/autofill
+
+        "privacy.globalprivacycontrol.enabled" = true;
+
+        "network.trr.mode" = 5; # disable DoH
       };
     };
 
