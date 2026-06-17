@@ -107,6 +107,10 @@ in {
 
   services.dovecot2.settings."passdb ldap" = {
     bind = true;
-    fields = lib.mkForce {};
+
+    # normalize the authenticated username so postfix sees the same identity no matter whether the client logs in with uid, primary mail, or alias
+    fields = lib.mkForce {
+      user = "%{ldap:${config.mailserver.ldap.attributes.username}}";
+    };
   };
 }
