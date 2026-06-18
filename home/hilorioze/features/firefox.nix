@@ -147,6 +147,8 @@ in {
         "browser.newtabpage.activity-stream.feeds.topsites" = false; # hide new tab shortcuts row
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false; # hide new tab recommended stories block
 
+        "browser.toolbars.bookmarks.visibility" = "never";
+
         # disable AI chatbot
         "browser.ml.chat.enabled" = false;
         "browser.ml.chat.menu" = false;
