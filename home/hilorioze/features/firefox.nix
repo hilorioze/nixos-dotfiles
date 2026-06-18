@@ -18,6 +18,8 @@ in {
         settings = {
           autoFillAndSend = true;
 
+          downloadFaviconAfterSave = true;
+
           passkeys = true;
         };
       });
