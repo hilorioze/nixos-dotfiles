@@ -171,6 +171,7 @@ in {
         "services.sync.engine.addons" = false;
         "services.sync.engine.passwords" = false;
         "services.sync.engine.prefs" = false;
+        "services.sync.engine.bookmarks" = false;
       };
     };
 
