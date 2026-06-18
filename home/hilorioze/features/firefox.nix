@@ -84,24 +84,30 @@ in {
           # keep-sorted end
         ];
 
-        settings."uBlock0@raymondhill.net".settings = {
-          # https://github.com/gorhill/uBlock/blob/d2c3d9a33edaa5897b5c4bce79c2d156e8459872/assets/assets.json
-          selectedFilterLists = [
-            # keep-sorted start
-            "adguard-spyware-url"
-            "easylist"
-            "easyprivacy"
-            "fanboy-cookiemonster"
-            "ublock-badware"
-            "ublock-cookies-easylist"
-            "ublock-filters"
-            "ublock-privacy"
-            "ublock-quick-fixes"
-            "ublock-unbreak"
-            # keep-sorted end
-          ];
+        settings = {
+          # keep-sorted start block=yes newline_separated=yes
+          "amptra@keepa.com".settings.install = true;
 
-          netWhitelist = ["duckduckgo.com"];
+          "uBlock0@raymondhill.net".settings = {
+            # https://github.com/gorhill/uBlock/blob/d2c3d9a33edaa5897b5c4bce79c2d156e8459872/assets/assets.json
+            selectedFilterLists = [
+              # keep-sorted start
+              "adguard-spyware-url"
+              "easylist"
+              "easyprivacy"
+              "fanboy-cookiemonster"
+              "ublock-badware"
+              "ublock-cookies-easylist"
+              "ublock-filters"
+              "ublock-privacy"
+              "ublock-quick-fixes"
+              "ublock-unbreak"
+              # keep-sorted end
+            ];
+
+            netWhitelist = ["duckduckgo.com"];
+          };
+          # keep-sorted end
         };
       };
 
