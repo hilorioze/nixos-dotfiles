@@ -163,6 +163,8 @@ in {
 
         "browser.aboutConfig.showWarning" = false;
 
+        "media.videocontrols.picture-in-picture.video-toggle.has-used" = true; # mark PiP intro popup as already shown
+
         "intl.locale.requested" = "en-GB"; # UI locale
         "intl.regional_prefs.use_os_locales" = true; # use OS regional formatting
 
