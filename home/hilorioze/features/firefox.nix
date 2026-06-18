@@ -42,6 +42,8 @@ in {
       # keep-sorted end
     ];
 
+    languagePacks = ["en-GB"];
+
     profiles.default = {
       search = let
         defaultEngine = "ddg";
@@ -160,6 +162,11 @@ in {
         "browser.ml.chat.menu" = false;
 
         "browser.aboutConfig.showWarning" = false;
+
+        "intl.locale.requested" = "en-GB"; # UI locale
+        "intl.regional_prefs.use_os_locales" = true; # use OS regional formatting
+
+        "intl.accept_languages" = "en-IE,en-GB,en-US,en,uk"; # preferred content languages/`Accept-Language`
 
         "findbar.highlightAll" = true;
 
