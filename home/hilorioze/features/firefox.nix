@@ -164,6 +164,11 @@ in {
         "privacy.globalprivacycontrol.enabled" = true;
 
         "network.trr.mode" = 5; # disable DoH
+
+        # disable syncing unwanted firefox sync categories
+        "services.sync.engine.addons" = false;
+        "services.sync.engine.passwords" = false;
+        "services.sync.engine.prefs" = false;
       };
     };
 
