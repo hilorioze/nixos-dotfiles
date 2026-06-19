@@ -93,6 +93,9 @@ jobs:
 
       - uses: wimpysworld/nothing-but-nix@687c797a730352432950c707ab493fcc951818d7 # v10
         with:
+          # do not use the default 'cleave' protocol because its background process purges `/opt` and deletes the `niks3-hook` binary
+          hatchet-protocol: 'carve'
+
           root-safe-haven: 1024 # halved; logs show 1 GiB free on / suffices
 
           nix-permission-edict: true
