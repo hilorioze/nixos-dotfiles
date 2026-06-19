@@ -68,15 +68,6 @@
           }
 
           {
-            name = "attic";
-            group = "platform";
-
-            url = outputs.nixosConfigurations.de0.config.services.atticd.settings.api-endpoint;
-
-            conditions = ["[STATUS] == 200"];
-          }
-
-          {
             name = "garage";
             group = "platform";
 
@@ -182,6 +173,15 @@
             group = "observability";
 
             url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:3100/ready";
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
+            name = "niks3";
+            group = "platform";
+
+            url = "https://niks3.${config.networking.domain}/health";
 
             conditions = ["[STATUS] == 200"];
           }
