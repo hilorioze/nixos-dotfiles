@@ -122,10 +122,4 @@ jobs:
 
           skip-push: ${{ github.event_name == 'pull_request' }}
 
-          debug: true
-
       - run: nix build --no-link --print-build-logs .#nixosConfigurations.${{ matrix.target }}.config.system.build.toplevel
-
-      - if: failure()
-        run: |
-          cat /home/runner/work/_temp/niks3/daemon.log
