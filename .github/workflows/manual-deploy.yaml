@@ -72,9 +72,6 @@ jobs:
   deploy-nodes:
     needs: collect-targets
 
-    permissions:
-      id-token: write
-
     strategy:
       matrix: ${{ fromJSON(needs.collect-targets.outputs['target-nodes']) }}
 
@@ -110,15 +107,24 @@ jobs:
 
           ping: ${{ inputs['ping-nodes'] && matrix.fqdn || '' }}
 
-      - uses: Mic92/niks3-action@a3da573cc4d21634990e5f21391abe55ed49ec46 # v1.0.2
-        with:
-          server-url: ${{ vars.NIKS3_SERVER_URL }}
+      - run: |
+          nix profile add --inputs-from . nixpkgs#attic-client
 
-          skip-push: ${{ github.event_name == 'pull_request' }}
+          attic login --set-default ${{ vars.ATTIC_CACHE }} ${{ vars.ATTIC_SERVER_URL }} ${{ secrets.ATTIC_TOKEN }}
 
       - run: |
           install -Dm 600 /dev/stdin ~/.ssh/id_ed25519 <<<"${{ secrets.DEPLOYER_SSH_PRIVATE_KEY }}"
 
           install -m 600 /dev/stdin ~/.ssh/known_hosts <<<"${{ matrix.fqdn }} $(< hosts/${{ matrix.node }}/ssh_host_ed25519_key.pub)"
 
-      - run: nix run --inputs-from . nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}
+      - run: |
+          # uploads built paths to the cache as they enter the store (like cachix daemon mode)
+          attic watch-store ${{ vars.ATTIC_CACHE }} & WATCH_PID=$!
+
+          # build separately to capture the output path for `attic push`
+          RESULT=$(nix build --no-link --print-out-paths --print-build-logs .#deploy.nodes.${{ matrix.node }}.profiles.system.path)
+
+          # ensure the full closure is pushed on exit
+          trap 'kill $WATCH_PID; attic push ${{ vars.ATTIC_CACHE }} $RESULT' EXIT
+
+          nix run --inputs-from . nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}

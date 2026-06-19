@@ -13,7 +13,11 @@
     environmentFiles = ["${config.sops.templates."config/traefik.env".path}"];
 
     staticConfigOptions = {
-      entryPoints.https.http.tls.certResolver = "cloudflare";
+      entryPoints.https = {
+        http.tls.certResolver = "cloudflare";
+
+        transport.respondingTimeouts.readTimeout = "30m"; # large attic uploads need more than the default 60s
+      };
 
       certificatesResolvers.cloudflare.acme = {
         email = "me@hilorioze.com";
