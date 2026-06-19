@@ -794,6 +794,27 @@
         "type": "github"
       }
     },
+    "niks3": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix_2"
+      },
+      "locked": {
+        "lastModified": 1781722189,
+        "narHash": "sha256-hwHukB+GctoQLC1DFdDN4Do3O2OpFvbDD47I3tunjHk=",
+        "owner": "Mic92",
+        "repo": "niks3",
+        "rev": "39146705df96b81763b19862ea0b72bce3608222",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "niks3",
+        "type": "github"
+      }
+    },
     "nix-alien": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -1367,6 +1388,7 @@
         "home-manager": "home-manager",
         "mcp-nixos": "mcp-nixos",
         "mt7927-nixos": "mt7927-nixos",
+        "niks3": "niks3",
         "nix-alien": "nix-alien",
         "nix-flatpak": "nix-flatpak",
         "nix-gaming": "nix-gaming",
@@ -1671,6 +1693,27 @@
       "inputs": {
         "nixpkgs": [
           "direnv-instant",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780220602,
+        "narHash": "sha256-eynAfOmbmxJnkp7YewvCEbShNnnYJ9gLLqkzsYtBPeM=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "db947814a175b7ca6ded66e21383d938df01c227",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_2": {
+      "inputs": {
+        "nixpkgs": [
+          "niks3",
           "nixpkgs"
         ]
       },

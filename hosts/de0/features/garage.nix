@@ -7,6 +7,14 @@
 }: {
   sops = {
     secrets = {
+      # to generate access-key-id and secret-access-key:
+      #
+      # access_key_id="GK$(, openssl rand -hex 12)"
+      # secret_access_key="$(, openssl rand -hex 32)"
+      #
+      # printf '%s\n' "$access_key_id"
+      # printf '%s\n' "$secret_access_key"
+
       # keep-sorted start
       "services/garage/keys/hilorioze/access-key-id" = {};
       "services/garage/keys/hilorioze/secret-access-key" = {};
@@ -44,6 +52,8 @@
       services = {
         garage.loadBalancer.servers = [{url = "http://${config.services.garage.settings.s3_api.api_bind_addr}";}];
 
+        garage-web.loadBalancer.servers = [{url = "http://${config.services.garage.settings.s3_web.bind_addr}";}];
+
         garage-admin.loadBalancer.servers = [{url = "http://${config.services.garage.settings.admin.api_bind_addr}";}];
       };
     };
@@ -58,12 +68,22 @@
       settings = {
         replication_factor = 1;
 
+        # `niks3` already `zstd`-compresses uploads
+        compression_level = "none";
+
         rpc_bind_addr = "127.0.0.1:3901"; # needed for internal coordination even on single-node setups
 
         s3_api = {
           s3_region = "garage";
 
           api_bind_addr = "127.0.0.1:3900";
+        };
+
+        s3_web = {
+          bind_addr = "127.0.0.1:3902";
+
+          # required vhost suffix for garage web host matching
+          root_domain = ".${config.networking.domain}";
         };
 
         admin = {
