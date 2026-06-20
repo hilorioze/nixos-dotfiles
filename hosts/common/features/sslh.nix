@@ -42,6 +42,8 @@ in {
     sslh = {
       enable = true;
 
+      method = "ev"; # `libev` backend scales better than `fork`/`select` for many connections
+
       settings = {
         transparent = true; # spoof source ip so services see the real remote ip (doesn't work for UDP)
 
