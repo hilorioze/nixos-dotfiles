@@ -66,6 +66,9 @@
       settings = {
         replication_factor = 1;
 
+        # `attic` already `zstd`-compresses uploads by default
+        compression_level = "none";
+
         rpc_bind_addr = "127.0.0.1:3901"; # needed for internal coordination even on single-node setups
 
         s3_api = {
