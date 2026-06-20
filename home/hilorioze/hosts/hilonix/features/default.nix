@@ -71,7 +71,6 @@
     ../../../features/konsole.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
-    ../../../features/niks3.nix
     ../../../features/nix.nix
     ../../../features/packettracer9.nix
     ../../../features/plasma.nix

@@ -16,7 +16,7 @@
       entryPoints.https = {
         http.tls.certResolver = "cloudflare";
 
-        transport.respondingTimeouts.readTimeout = "30m"; # large niks3 uploads need more than the default 60s
+        transport.respondingTimeouts.readTimeout = "30m"; # large nix-cache uploads need more than the default 60s
       };
 
       certificatesResolvers.cloudflare.acme = {

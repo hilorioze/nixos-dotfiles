@@ -51,9 +51,6 @@ jobs:
   build-devenv:
     needs: collect-substituters
 
-    permissions:
-      id-token: write
-
     strategy:
       matrix:
         runner:
@@ -81,10 +78,22 @@ jobs:
         with:
           extra_nix_config: *extra_nix_config
 
-      - uses: Mic92/niks3-action@a3da573cc4d21634990e5f21391abe55ed49ec46 # v1.0.2
-        with:
-          server-url: ${{ vars.NIKS3_SERVER_URL }}
+      - if: github.event_name != 'pull_request'
+        run: |
+          nix profile add --inputs-from . nixpkgs#attic-client
 
-          skip-push: ${{ github.event_name == 'pull_request' }}
+          attic login --set-default ${{ vars.ATTIC_CACHE }} ${{ vars.ATTIC_SERVER_URL }} ${{ secrets.ATTIC_TOKEN }}
 
-      - run: nix run --inputs-from . nixpkgs#devenv -- build shell
+      - run: |
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            # uploads built paths to the cache as they enter the store (like cachix daemon mode)
+            attic watch-store ${{ vars.ATTIC_CACHE }} & WATCH_PID=$!
+          fi
+
+          # stdout must stay JSON-only for `jq`; some build logs may still go to stdout without `--quiet`
+          RESULT=$(nix run --inputs-from . nixpkgs#devenv -- --quiet build shell | jq -r .shell)
+
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            # ensure the full closure is pushed
+            kill $WATCH_PID; attic push ${{ vars.ATTIC_CACHE }} $RESULT
+          fi

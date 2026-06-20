@@ -22,13 +22,13 @@
 
     # keep-sorted start
     ./alertmanager.nix
+    ./atticd.nix
     ./fakesynology-proxy.nix
     ./garage.nix
     ./gatus.nix
     ./grafana.nix
     ./hermes-agent.nix
     ./loki.nix
-    ./niks3.nix
     ./openssh.nix
     ./prometheus.nix
     ./sops.nix

@@ -12,7 +12,6 @@
     ../../../features/gpg.nix
     ../../../features/kilocode.nix
     ../../../features/mcp.nix
-    ../../../features/niks3.nix
     ../../../features/wakatime.nix
     # keep-sorted end
 
