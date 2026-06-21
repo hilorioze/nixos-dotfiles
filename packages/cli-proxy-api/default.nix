@@ -23,7 +23,7 @@ buildGoModule (finalAttrs: {
   vendorHash = "sha256-AIue9XBsfsKGClRLB1DCME+36crapnOdQrEICFYG1a0=";
 
   meta = {
-    meta.description = "API proxy wrapping Gemini CLI, Antigravity, ChatGPT Codex, Claude Code, and Grok Build";
+    description = "API proxy wrapping Gemini CLI, Antigravity, ChatGPT Codex, Claude Code, and Grok Build";
     homepage = "https://github.com/router-for-me/CLIProxyAPI";
 
     license = lib.licenses.mit;
