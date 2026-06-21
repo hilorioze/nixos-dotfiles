@@ -152,6 +152,20 @@ in {
               dst = ["tag:hel0:443"];
             }
 
+            # de0 can reach the goldsrc proxies on hel0 for gatus health checks
+            {
+              action = "accept";
+
+              src = ["tag:de0"];
+
+              dst = [
+                # keep-sorted start
+                "tag:hel0:27015"
+                "tag:hel0:28255"
+                # keep-sorted end
+              ];
+            }
+
             # fluent-bit on all monitored hosts pushes logs to loki on de0
             {
               action = "accept";

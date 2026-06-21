@@ -110,6 +110,26 @@
           }
 
           {
+            name = "goldsrc-proxy-rs-27015";
+            group = "services";
+
+            url = "udp://${outputs.nixosConfigurations.hel0.config.networking.fqdn}:27015";
+            body = "$GOLDSRC_A2S_INFO_BODY";
+
+            conditions = ["[BODY] == pat(*cstrike*)"]; # `cstrike` is the game directory in the `A2S_INFO` reply
+          }
+
+          {
+            name = "goldsrc-proxy-rs-28255";
+            group = "services";
+
+            url = "udp://${outputs.nixosConfigurations.hel0.config.networking.fqdn}:28255";
+            body = "$GOLDSRC_A2S_INFO_BODY";
+
+            conditions = ["[BODY] == pat(*cstrike*)"]; # `cstrike` is the game directory in the `A2S_INFO` reply
+          }
+
+          {
             name = "grafana";
             group = "observability";
 
@@ -260,5 +280,13 @@
     };
   };
 
-  systemd.services.gatus.after = ["prometheus.service"];
+  systemd.services.gatus = {
+    after = ["prometheus.service"];
+
+    # goldsrc `A2S_INFO` is `b"\xff\xff\xff\xffTSource Engine Query\x00"`
+    # a normal YAML/Nix string would send UTF-8 text instead of raw `0xff` bytes
+    # gatus expands `$GOLDSRC_A2S_INFO_BODY` before parsing YAML, replacing `body: $GOLDSRC_A2S_INFO_BODY`
+    # with `body: !!binary ...`; `yaml.v3` then decodes that scalar to the raw `A2S_INFO` bytes
+    environment.GOLDSRC_A2S_INFO_BODY = "!!binary /////1RTb3VyY2UgRW5naW5lIFF1ZXJ5AA=="; # b"\xff\xff\xff\xffTSource Engine Query\x00"
+  };
 }
