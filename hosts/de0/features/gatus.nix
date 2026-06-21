@@ -63,7 +63,7 @@
             name = "alertmanager";
             group = "observability";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.alertmanager.port}/-/ready";
+            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.alertmanager.port}/-/ready"; # `/-/healthy` only proves the process is up
 
             conditions = ["[STATUS] == 200"];
           }
@@ -198,7 +198,7 @@
             name = "lampac";
             group = "services";
 
-            url = "${lampacBaseUrl}/api/myip"; # simplest healthcheck endpoint
+            url = "${lampacBaseUrl}/api/myip"; # simplest health check endpoint
 
             conditions = ["[STATUS] == 200"];
           }
@@ -225,7 +225,7 @@
             name = "node-exporter-de0";
             group = "telemetry";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.exporters.node.port}";
+            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.exporters.node.port}/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -234,7 +234,7 @@
             name = "node-exporter-fakesynology-nixos";
             group = "telemetry";
 
-            url = "http://${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}:${toString outputs.nixosConfigurations.fakesynology-nixos.config.services.prometheus.exporters.node.port}";
+            url = "http://${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}:${toString outputs.nixosConfigurations.fakesynology-nixos.config.services.prometheus.exporters.node.port}/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -243,7 +243,7 @@
             name = "node-exporter-hel0";
             group = "telemetry";
 
-            url = "http://${outputs.nixosConfigurations.hel0.config.networking.fqdn}:${toString outputs.nixosConfigurations.hel0.config.services.prometheus.exporters.node.port}";
+            url = "http://${outputs.nixosConfigurations.hel0.config.networking.fqdn}:${toString outputs.nixosConfigurations.hel0.config.services.prometheus.exporters.node.port}/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -252,7 +252,7 @@
             name = "podman-exporter-de0";
             group = "telemetry";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:9882/metrics";
+            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:9882/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -261,7 +261,7 @@
             name = "prometheus";
             group = "observability";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.port}/-/ready";
+            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.port}/-/ready"; # `/-/healthy` only proves the process is up
 
             conditions = ["[STATUS] == 200"];
           }
