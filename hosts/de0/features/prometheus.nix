@@ -39,7 +39,19 @@
           }
         ];
       }
+
+      {
+        job_name = "podman-exporter";
+
+        static_configs = [
+          {
+            targets = ["${outputs.nixosConfigurations.de0.config.networking.fqdn}:9882"];
+          }
+        ];
+      }
       # keep-sorted end
     ];
   };
+
+  systemd.services.prometheus.after = ["prometheus-podman-exporter.service"];
 }

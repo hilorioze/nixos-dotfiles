@@ -1,6 +1,7 @@
 {
   # keep-sorted start
   config,
+  lib,
   outputs,
   # keep-sorted end
   ...
@@ -74,6 +75,20 @@
             url = outputs.nixosConfigurations.de0.config.services.atticd.settings.api-endpoint;
 
             conditions = ["[STATUS] == 200"];
+          }
+
+          {
+            name = "ftbie";
+            group = "services";
+
+            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.port}/api/v1/query?query=${lib.escapeURL ''scalar(max(podman_container_health{name="ftbie"}))''}";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == success"
+              "[BODY].data.result[1] == 0" # healthy
+            ];
           }
 
           {
@@ -214,6 +229,15 @@
           }
 
           {
+            name = "podman-exporter-de0";
+            group = "telemetry";
+
+            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:9882/metrics";
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
             name = "prometheus";
             group = "observability";
 
@@ -235,4 +259,6 @@
       };
     };
   };
+
+  systemd.services.gatus.after = ["prometheus.service"];
 }

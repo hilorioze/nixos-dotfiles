@@ -30,6 +30,7 @@
     ./hermes-agent.nix
     ./loki.nix
     ./openssh.nix
+    ./podman-exporter.nix
     ./prometheus.nix
     ./sops.nix
     ./tailscale.nix
