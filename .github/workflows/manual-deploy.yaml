@@ -78,8 +78,8 @@ jobs:
       fail-fast: false # don't cancel the matrix if one job fails
 
     concurrency:
-      # one run per ref and node; latest completes last
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.node }}
+      # one run per workflow and node (prevents concurrent deploys for the same node); latest completes last
+      group: ${{ github.workflow }}-${{ matrix.node }}
 
       cancel-in-progress: false
 
