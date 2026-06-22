@@ -90,8 +90,8 @@ jobs:
       fail-fast: false # don't cancel the matrix if one job fails
 
     concurrency:
-      # one run per ref and target; latest completes last
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.target }}
+      # one run per target and whether it's a pull request or not (prevents the same closure from building twice at the same time); latest completes last
+      group: ${{ github.workflow }}-${{ matrix.target }}-${{ github.event_name == 'pull_request' && 'pr' || 'non-pr' }}
 
       cancel-in-progress: false
 
