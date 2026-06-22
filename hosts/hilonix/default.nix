@@ -59,30 +59,16 @@
       options = ["noatime"];
     };
 
-    # `ntfs3` real mount; `bindfs` overlays it at `/mnt/vol` with full access for all users
-    "/mnt/.vol" = {
+    "/mnt/vol" = {
       device = "/dev/disk/by-partlabel/vol";
-      fsType = "ntfs3";
+      fsType = "ntfs-3g"; # never use `ntfs3` here; it honors WSL `$LX*` EAs and breaks shared access
       options = [
+        # `ntfs-3g` mounts world-accessible by default; no additional access-control options needed
         # keep-sorted start
-        "acl=0" # `ntfs3` unconditionally enables ACL when compiled with `POSIX_ACL`
+        "big_writes"
         "noatime"
         "nofail"
-        # keep-sorted end
-      ];
-    };
-
-    # `bindfs` overlay with full access for all users, ignoring `ntfs3` on-disk WSL EA permissions
-    "/mnt/vol" = {
-      device = "/mnt/.vol";
-      depends = ["/mnt/.vol"];
-      fsType = "fuse.bindfs";
-      options = [
-        # keep-sorted start
-        "force-group=root"
-        "force-user=root"
-        "nofail"
-        "perms=0777"
+        "windows_names"
         # keep-sorted end
       ];
     };
