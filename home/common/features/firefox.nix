@@ -1,6 +1,9 @@
-{
+{config, ...}: {
   programs.firefox = {
     enable = true;
+
+    # `~/.mozilla/firefox` is legacy since `26.05`
+    configPath = "${config.xdg.configHome}/mozilla/firefox";
 
     profiles.default.settings = {
       # nix manages extension versions

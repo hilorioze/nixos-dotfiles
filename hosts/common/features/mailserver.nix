@@ -12,7 +12,7 @@
   mailHost = "imap.${domain}";
   smtpHost = "smtp.${domain}";
 in {
-  imports = [inputs.simple-nixos-mailserver.nixosModule];
+  imports = [inputs.simple-nixos-mailserver.nixosModules.default];
 
   mailserver = {
     enable = true;
