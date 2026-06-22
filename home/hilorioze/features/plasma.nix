@@ -125,8 +125,7 @@
                 "preferred://browser"
                 "preferred://terminal"
                 "applications:com.ayugram.desktop.desktop"
-                # "applications:codium.desktop"
-                "preferred://TextEditor"
+                "applications:codium.desktop" # use an explicit launcher: plasma rejects `preferred://text/plain` as malformed
                 "preferred://mailer"
               ];
 
