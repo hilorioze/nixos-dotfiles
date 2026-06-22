@@ -151,7 +151,18 @@
             digitalClock = {
               time.showSeconds = "always";
 
-              timeZone.alwaysShow = true;
+              timeZone = {
+                alwaysShow = true;
+
+                selected = [
+                  # keep-sorted start
+                  "America/Vancouver"
+                  "Europe/Kyiv"
+                  "Europe/Rome"
+                  "Local" # host's timezone; keep for compact panel clock's `lastSelectedTimezone` fallback
+                  # keep-sorted end
+                ];
+              };
             };
           }
 
