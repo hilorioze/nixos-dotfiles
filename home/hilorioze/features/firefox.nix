@@ -155,6 +155,8 @@ in {
         "browser.newtabpage.activity-stream.feeds.topsites" = false; # hide new tab shortcuts row
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false; # hide new tab recommended stories block
 
+        "browser.newtabpage.activity-stream.widgets.weather.enabled" = false;
+
         "browser.toolbars.bookmarks.visibility" = "never";
 
         # disable AI chatbot
