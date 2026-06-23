@@ -1,4 +1,11 @@
-{config, ...}: {
+{
+  # keep-sorted start
+  config,
+  lib,
+  pkgs,
+  # keep-sorted end
+  ...
+}: {
   imports = [../../common/features/plasma.nix];
 
   programs.plasma = {
@@ -106,6 +113,7 @@
               };
 
               settings.General = {
+                favoriteApps = [];
                 favoriteSystemActions = "";
                 favoritesPortedToKAstats = true;
               };
@@ -171,6 +179,23 @@
         ];
       }
     ];
+
+    # fresh profiles get empty kicker favorites from config; existing profiles need a one-time KAStats purge because app favorites are stored in KAStats; `kactivitymanagerd-statsrc` only stores ordering
+    startup.startupScript.clear_kicker_app_favorites = {
+      text = ''
+        resources_dir=${config.xdg.dataHome}/kactivitymanagerd/resources
+        [[ -d $resources_dir ]] || exit 0
+
+        favorite_agent=org.kde.plasma.favorites.applications
+
+        ${lib.getExe pkgs.sqlite} $resources_dir/database \
+          "PRAGMA busy_timeout = 5000;" \
+          "DELETE FROM ResourceLink WHERE initiatingAgent = '$favorite_agent';" \
+          "DELETE FROM ResourceScoreCache WHERE initiatingAgent = '$favorite_agent';" 2>/dev/null
+      '';
+
+      restartServices = ["plasma-plasmashell"];
+    };
 
     configFile = {
       plasmaparc.General = {
