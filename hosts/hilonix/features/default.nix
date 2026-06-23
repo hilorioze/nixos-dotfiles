@@ -18,7 +18,6 @@
     ../../common/features/mangohud.nix
     ../../common/features/networkmanager-wol.nix
     ../../common/features/openssh.nix
-    ../../common/features/packettracer9.nix
     ../../common/features/partition-manager.nix
     ../../common/features/pipewire-lowlatency.nix
     ../../common/features/pipewire.nix

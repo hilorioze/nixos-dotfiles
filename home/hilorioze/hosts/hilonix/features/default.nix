@@ -72,7 +72,6 @@
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
     ../../../features/nix.nix
-    ../../../features/packettracer9.nix
     ../../../features/plasma.nix
     ../../../features/spectacle.nix
     ../../../features/steam.nix
