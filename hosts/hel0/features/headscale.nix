@@ -228,7 +228,7 @@ in {
               ];
             }
 
-            # everyone can reach attic on de0 over https
+            # everyone can reach niks3 on de0 over https
             {
               action = "accept";
 

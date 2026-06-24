@@ -68,6 +68,7 @@
     ../../../features/konsole.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
+    ../../../features/niks3.nix
     ../../../features/nix.nix
     ../../../features/plasma.nix
     ../../../features/spectacle.nix

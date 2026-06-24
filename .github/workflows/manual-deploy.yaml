@@ -72,6 +72,9 @@ jobs:
   deploy-nodes:
     needs: collect-targets
 
+    permissions:
+      id-token: write
+
     strategy:
       matrix: ${{ fromJSON(needs.collect-targets.outputs['target-nodes']) }}
 
@@ -90,6 +93,9 @@ jobs:
 
       - uses: wimpysworld/nothing-but-nix@687c797a730352432950c707ab493fcc951818d7 # v10
         with:
+          # do not use the default 'cleave' protocol because its background process purges `/opt` and deletes the `niks3-hook` binary
+          hatchet-protocol: 'carve'
+
           root-safe-haven: 1024 # halved; logs show 1 GiB free on / suffices
 
           nix-permission-edict: true
@@ -108,23 +114,53 @@ jobs:
           ping: ${{ inputs['ping-nodes'] && matrix.fqdn || '' }}
 
       - run: |
-          nix profile add --inputs-from . nixpkgs#attic-client
-
-          attic login --set-default ${{ vars.ATTIC_CACHE }} ${{ vars.ATTIC_SERVER_URL }} ${{ secrets.ATTIC_TOKEN }}
-
-      - run: |
           install -Dm 600 /dev/stdin ~/.ssh/id_ed25519 <<<"${{ secrets.DEPLOYER_SSH_PRIVATE_KEY }}"
 
           install -m 600 /dev/stdin ~/.ssh/known_hosts <<<"${{ matrix.fqdn }} $(< hosts/${{ matrix.node }}/ssh_host_ed25519_key.pub)"
 
-      - run: |
-          # uploads built paths to the cache as they enter the store (like cachix daemon mode)
-          attic watch-store ${{ vars.ATTIC_CACHE }} & WATCH_PID=$!
+      - id: fetch-niks3-bin
+        run: |
+          # `niks3-action` looks for `niks3-hook` next to `niks3`
+          niks3_bin=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from . --print-build-logs --expr $'
+          let
+            pkgs = import <nixpkgs> {};
 
-          # build separately to capture the output path for `attic push`
-          RESULT=$(nix build --no-link --print-out-paths --print-build-logs .#deploy.nodes.${{ matrix.node }}.profiles.system.path)
+            lib = pkgs.lib;
 
-          # ensure the full closure is pushed on exit
-          trap 'kill $WATCH_PID; attic push ${{ vars.ATTIC_CACHE }} $RESULT' EXIT
+            niks3ActionBinDir = pkgs.symlinkJoin {
+              name = "niks3-action-bin-dir";
 
-          nix run --inputs-from . nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}
+              paths = with import <niks3/nix/packages> {inherit pkgs;}; [
+                # keep-sorted start
+                niks3
+                niks3-hook
+                # keep-sorted end
+              ];
+            };
+          in
+            pkgs.linkFarm "niks3-action-bin" [
+              # keep-sorted start block=yes newline_separated=yes
+              {
+                name = "bin/niks3";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3";
+              }
+
+              {
+                name = "bin/niks3-hook";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3-hook";
+              }
+              # keep-sorted end
+            ]
+            ')/bin/niks3
+
+          printf 'niks3_bin=%s\n' $niks3_bin >> $GITHUB_OUTPUT
+
+      - uses: Mic92/niks3-action@5e2abb3cfc970ffe49a117bc761bca8eefadd17f # v1.0.3
+        with:
+          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} # keep cli and server on the same revision to avoid api mismatches
+
+          server-url: ${{ vars.NIKS3_SERVER_URL }}
+
+      - run: nix run --inputs-from . nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}

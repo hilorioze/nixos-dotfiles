@@ -4,6 +4,7 @@
   firefox-addons = inputs.firefox-addons.overlays.default;
   freesmlauncher = _final: prev: inputs.freesmlauncher.packages.${prev.stdenv.hostPlatform.system} or {}; # overlay uses `prev.callPackage`, rebuilding with our `pkgs` and breaking binary cache
   mcp-nixos = inputs.mcp-nixos.overlays.default;
+  niks3 = _final: prev: inputs.niks3.packages.${prev.stdenv.hostPlatform.system} or {}; # no upstream overlay; keep cli and server on the same revision to avoid api mismatches
   nix-alien = inputs.nix-alien.overlays.default;
   nix-gaming = _final: prev: inputs.nix-gaming.packages.${prev.stdenv.hostPlatform.system} or {}; # `easyOverlay`'s `mkForce` overrides `pkgs`, rebuilding with our `pkgs` and breaking binary cache
   nix-software-center = inputs.nix-software-center.overlays.default;

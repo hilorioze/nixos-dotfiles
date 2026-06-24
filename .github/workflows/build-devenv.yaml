@@ -51,6 +51,9 @@ jobs:
   build-devenv:
     needs: collect-substituters
 
+    permissions:
+      id-token: write
+
     strategy:
       matrix:
         runner:
@@ -78,22 +81,51 @@ jobs:
         with:
           extra_nix_config: *extra_nix_config
 
-      - if: github.event_name != 'pull_request'
+      - id: fetch-niks3-bin
         run: |
-          nix profile add --inputs-from . nixpkgs#attic-client
+          # `niks3-action` looks for `niks3-hook` next to `niks3`
+          niks3_bin=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from . --print-build-logs --expr $'
+          let
+            pkgs = import <nixpkgs> {};
 
-          attic login --set-default ${{ vars.ATTIC_CACHE }} ${{ vars.ATTIC_SERVER_URL }} ${{ secrets.ATTIC_TOKEN }}
+            lib = pkgs.lib;
 
-      - run: |
-          if [ "${{ github.event_name }}" != pull_request ]; then
-            # uploads built paths to the cache as they enter the store (like cachix daemon mode)
-            attic watch-store ${{ vars.ATTIC_CACHE }} & WATCH_PID=$!
-          fi
+            niks3ActionBinDir = pkgs.symlinkJoin {
+              name = "niks3-action-bin-dir";
 
-          # stdout must stay JSON-only for `jq`; some build logs may still go to stdout without `--quiet`
-          RESULT=$(nix run --inputs-from . nixpkgs#devenv -- --quiet build shell | jq -r .shell)
+              paths = with import <niks3/nix/packages> {inherit pkgs;}; [
+                # keep-sorted start
+                niks3
+                niks3-hook
+                # keep-sorted end
+              ];
+            };
+          in
+            pkgs.linkFarm "niks3-action-bin" [
+              # keep-sorted start block=yes newline_separated=yes
+              {
+                name = "bin/niks3";
 
-          if [ "${{ github.event_name }}" != pull_request ]; then
-            # ensure the full closure is pushed
-            kill $WATCH_PID; attic push ${{ vars.ATTIC_CACHE }} $RESULT
-          fi
+                path = lib.getExe\' niks3ActionBinDir "niks3";
+              }
+
+              {
+                name = "bin/niks3-hook";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3-hook";
+              }
+              # keep-sorted end
+            ]
+            ')/bin/niks3
+
+          printf 'niks3_bin=%s\n' $niks3_bin >> $GITHUB_OUTPUT
+
+      - uses: Mic92/niks3-action@5e2abb3cfc970ffe49a117bc761bca8eefadd17f # v1.0.3
+        with:
+          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} # keep cli and server on the same revision to avoid api mismatches
+
+          server-url: ${{ vars.NIKS3_SERVER_URL }}
+
+          skip-push: ${{ github.event_name == 'pull_request' }}
+
+      - run: nix run --inputs-from . nixpkgs#devenv -- build shell

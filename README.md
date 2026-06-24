@@ -12,7 +12,7 @@ A public repository for a project containing my personal NixOS and Home Manager 
 - Modular **[configuration structure](#configuration-layout)** with shared reusable features and per-host user overrides
 - Fully **declarative** self-hosted infrastructure with **Headscale**, **OpenLDAP**, **[mailserver](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver)**, **Traefik**, **Garage**, and a lot of other services
 - **Monitoring** driven by a stack of **Grafana**, **Prometheus**, **Loki**, **[Gatus](https://github.com/TwiN/gatus)** and **Alertmanager**
-- **[CI-driven deployments](/.github/workflows/manual-deploy.yaml)** via **[deploy-rs](https://github.com/serokell/deploy-rs)**, powered by the **tailnet** and a self-hosted **Attic** binary cache
+- **[CI-driven deployments](/.github/workflows/manual-deploy.yaml)** via **[deploy-rs](https://github.com/serokell/deploy-rs)**, powered by the **tailnet** and a self-hosted **[niks3](https://github.com/Mic92/niks3)** binary cache
 - **Secrets** via **[sops-nix](https://github.com/Mic92/sops-nix)**, encrypted with **age**
 - **[Custom rescue ISO](/hosts/hisonix)**
 - **[devenv](https://devenv.sh/)** development shell with **treefmt**, **pre-commit hooks**, and **helper scripts**
