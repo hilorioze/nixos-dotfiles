@@ -105,6 +105,8 @@ jobs:
 
       - uses: wimpysworld/nothing-but-nix@687c797a730352432950c707ab493fcc951818d7 # v10
         with:
+          hatchet-protocol: 'carve' # keep `node` available for the `$RUNNER_TEMP/niks3/fetch-oidc-token.mjs` script
+
           root-safe-haven: 1024 # halved; logs show 1 GiB free on / suffices
 
           nix-permission-edict: true
