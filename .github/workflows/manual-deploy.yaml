@@ -163,4 +163,4 @@ jobs:
 
           server-url: ${{ vars.NIKS3_SERVER_URL }}
 
-      - run: nix run --inputs-from . nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}
+      - run: nix run --inputs-from . --print-build-logs nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}

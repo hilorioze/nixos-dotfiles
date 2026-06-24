@@ -128,4 +128,4 @@ jobs:
 
           skip-push: ${{ github.event_name == 'pull_request' }}
 
-      - run: nix run --inputs-from . nixpkgs#devenv -- build shell
+      - run: nix run --inputs-from . --print-build-logs nixpkgs#devenv -- build shell
