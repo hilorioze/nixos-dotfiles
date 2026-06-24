@@ -61,7 +61,7 @@
       oidc.providers.github = {
         issuer = "https://token.actions.githubusercontent.com";
 
-        audience = "https://niks3.hilorioze.com";
+        audience = "https://niks3.${config.networking.domain}";
 
         boundSubject = [
           # keep-sorted start
