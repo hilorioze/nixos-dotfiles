@@ -83,15 +83,6 @@
           }
 
           {
-            name = "garage";
-            group = "platform";
-
-            url = "https://garage-admin.${outputs.nixosConfigurations.de0.config.networking.fqdn}/health";
-
-            conditions = ["[STATUS] == 200"];
-          }
-
-          {
             name = "gatus";
             group = "platform";
 

@@ -23,7 +23,6 @@
     # keep-sorted start
     ./alertmanager.nix
     ./fakesynology-proxy.nix
-    ./garage.nix
     ./gatus.nix
     ./grafana.nix
     ./hermes-agent.nix
