@@ -213,6 +213,15 @@
           }
 
           {
+            name = "nix-cache";
+            group = "platform";
+
+            url = "https://nix-cache.${config.networking.domain}/nix-cache-info";
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
             name = "node-exporter-de0";
             group = "telemetry";
 
