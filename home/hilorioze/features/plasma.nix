@@ -165,6 +165,7 @@
                 selected = [
                   # keep-sorted start
                   "America/Vancouver"
+                  "Etc/UTC"
                   "Europe/Kyiv"
                   "Europe/Rome"
                   "Local" # host's timezone; keep for compact panel clock's `lastSelectedTimezone` fallback
