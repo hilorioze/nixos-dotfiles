@@ -162,8 +162,7 @@ jobs:
 
           server-url: ${{ vars.NIKS3_SERVER_URL }}
 
-      # seed the cache so `niks3-hook` is substituted on later runs
-      - if: github.event_name != 'pull_request'
-        run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER_URL }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
+      # cache the built `fetch-niks3-bin` output so later runs can reuse it
+      - run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER_URL }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
 
       - run: nix run --inputs-from . --print-build-logs nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}

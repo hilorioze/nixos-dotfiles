@@ -115,7 +115,8 @@ jobs:
         with:
           extra_nix_config: *extra_nix_config
 
-      - id: fetch-niks3-bin
+      - if: github.event_name != 'pull_request'
+        id: fetch-niks3-bin
         run: |
           # `niks3-action` looks for `niks3-hook` next to `niks3`
           niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from . --print-build-logs --expr $'
@@ -154,15 +155,14 @@ jobs:
 
           printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
 
-      - uses: Mic92/niks3-action@5e2abb3cfc970ffe49a117bc761bca8eefadd17f # v1.0.3
+      - if: github.event_name != 'pull_request'
+        uses: Mic92/niks3-action@5e2abb3cfc970ffe49a117bc761bca8eefadd17f # v1.0.3
         with:
           niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} # keep cli and server on the same revision to avoid api mismatches
 
           server-url: ${{ vars.NIKS3_SERVER_URL }}
 
-          skip-push: ${{ github.event_name == 'pull_request' }}
-
-      # seed the cache so `niks3-hook` is substituted on later runs
+      # cache the built `fetch-niks3-bin` output so later runs can reuse it
       - if: github.event_name != 'pull_request'
         run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER_URL }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
 
