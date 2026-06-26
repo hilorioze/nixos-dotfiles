@@ -1,16 +1,11 @@
 {
   # keep-sorted start
-  alsa-lib,
   android-tools,
   copyDesktopItems,
   fetchFromGitHub,
-  ffmpeg,
   flutter,
   lib,
-  libass,
-  libplacebo,
   makeDesktopItem,
-  mimalloc,
   mpv-unwrapped,
   p7zip,
   protobuf,
@@ -28,8 +23,8 @@
     owner = "skrimix";
     repo = "yaas";
 
-    rev = "b3907b25588b900fb7a6f43f40000cc06bad6bf6";
-    hash = "sha256-ir33vhDRvW0TrDFiGeeQFrfcm45Q7xG0BWf+Y8cp4ZU=";
+    rev = "0ec61aa84b8dd9d8b2f702a7be39be91da31784c";
+    hash = "sha256-Q1tFoiTmLppS9kAob5XJq7eO8GBQZVVx0ml3JhdTd08=";
   };
 
   rustDep = rustPlatform.buildRustPackage {
@@ -41,22 +36,9 @@
 
     buildAndTestSubdir = "native/hub";
 
-    cargoLock = {
-      lockFile = ./Cargo.lock;
-      outputHashes = {
-        # keep-sorted start
-        "apk-info-1.0.11" = "sha256-gG8MYskod9M5/k+oeVEbuvVdpghcea0OVCBR5XTMbtg=";
-        "forensic-adb-1.0.0" = "sha256-NwNxPaXSIF7b6A7A64RIjkSUdAISDTlbxkVv7tp34Vw=";
-        "sysproxy-0.3.0" = "sha256-2xv1vjthD3J/SFhbnh21bi2V4fcvoo6CpjJDxpSbwnk=";
-        # keep-sorted end
-      };
-    };
+    cargoHash = "sha256-BKD1EXaSVexHBdp3WptAihxTHCmP9xgj/hDEPQhadIg=";
 
     doCheck = false;
-
-    postInstall = ''
-      moveToOutput "lib/libhub.so" "$out"
-    '';
 
     passthru.libraryPath = "lib/libhub.so";
   };
@@ -106,38 +88,6 @@ in
           inherit (src) passthru;
         };
 
-      media_kit_libs_linux = {
-        # keep-sorted start
-        src,
-        version,
-        # keep-sorted end
-        ...
-      }:
-        stdenvNoCC.mkDerivation {
-          pname = "media_kit_libs_linux";
-
-          inherit version;
-          inherit src;
-
-          dontBuild = true;
-
-          postPatch = ''
-            pushd ${src.passthru.packageRoot}
-            sed -i '/if(MIMALLOC_USE_STATIC_LIBS)/,/unset(MIMALLOC_USE_STATIC_LIBS CACHE)/c\set(MIMALLOC_LIB "${lib.getLib mimalloc}/lib/mimalloc.o" CACHE INTERNAL "")' linux/CMakeLists.txt
-            popd
-          '';
-
-          installPhase = ''
-            runHook preInstall
-
-            cp -r . $out
-
-            runHook postInstall
-          '';
-
-          inherit (src) passthru;
-        };
-
       media_kit_video = {
         # keep-sorted start
         src,
@@ -155,19 +105,23 @@ in
           dontBuild = true;
 
           postPatch = ''
-            pushd ${src.passthru.packageRoot}
-            sed -i '/if(ARCH_NAME STREQUAL "x86_64")/,/if(MEDIA_KIT_LIBS_AVAILABLE)/{ /if(MEDIA_KIT_LIBS_AVAILABLE)/!d; /set(LIBMPV_ZIP_URL/d }' linux/CMakeLists.txt
-            sed -i '/if(MEDIA_KIT_LIBS_AVAILABLE)/i \
-              set(LIBMPV_UNZIP_DIR "${mpv-unwrapped}/lib")\n\
-              set(LIBMPV_PATH "${mpv-unwrapped}/lib")\n\
-              set(LIBMPV_HEADER_UNZIP_DIR "${mpv-unwrapped.dev}/include/mpv")' linux/CMakeLists.txt
-            popd
+            # avoid `mpv.pc`'s private dependency chain; the plugin only needs headers and `libmpv`
+            substituteInPlace linux/CMakeLists.txt \
+              --replace-fail "pkg_check_modules(mpv IMPORTED_TARGET mpv)" "
+                add_library(PkgConfig::mpv INTERFACE IMPORTED)
+                set_target_properties(PkgConfig::mpv PROPERTIES
+                  INTERFACE_INCLUDE_DIRECTORIES ${lib.getDev mpv-unwrapped}/include
+                  INTERFACE_LINK_LIBRARIES ${lib.getLib mpv-unwrapped}/lib/libmpv.so
+                )
+                set(mpv_INCLUDE_DIRS ${lib.getDev mpv-unwrapped}/include)
+                set(mpv_CFLAGS_OTHER \"\")
+              "
           '';
 
           installPhase = ''
             runHook preInstall
 
-            cp -r . $out
+            cp -r . "$out"
 
             runHook postInstall
           '';
@@ -178,16 +132,6 @@ in
 
     strictDeps = true;
 
-    buildInputs = [
-      # keep-sorted start
-      alsa-lib
-      ffmpeg
-      libass
-      libplacebo
-      mpv-unwrapped
-      # keep-sorted end
-    ];
-
     nativeBuildInputs = [
       # keep-sorted start
       copyDesktopItems
@@ -196,9 +140,9 @@ in
       # keep-sorted end
     ];
 
-    preBuild = ''
-      ${lib.getExe rinf_cli} gen
-    '';
+    buildInputs = [mpv-unwrapped];
+
+    preBuild = "${lib.getExe rinf_cli} gen";
 
     postInstall = ''
       install -Dm644 ${src}/assets/png/app_icon.png $out/share/icons/hicolor/512x512/apps/yaas.png

@@ -14,6 +14,7 @@
   packages = final: _prev: import ../packages {pkgs = final;};
 
   # keep-sorted start
+  linux-bzimage-fix = import ./linux-bzimage-fix;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;
   plasma-workspace-media-keys-no-repeat = import ./plasma-workspace-media-keys-no-repeat;
   spectacle-copy-save = import ./spectacle-copy-save;

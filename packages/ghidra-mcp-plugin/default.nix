@@ -8,15 +8,30 @@
 ghidra.buildGhidraExtension (finalAttrs: {
   pname = "ghidra-mcp-plugin";
 
-  version = "5.4.1";
+  version = "5.14.1";
 
   src = fetchFromGitHub {
     owner = "bethington";
     repo = "ghidra-mcp";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ZyCOoFlVbEDMUwUksxci005XbfkrW5vUwbyWBQiXQZw=";
+    hash = "sha256-rMC4/SZP7TfjOzlNihxcPvmnGZ8pYTs5uHn09PdzJms=";
   };
+
+  # `build.gradle` writes the extension zip to `build/distributions/` instead of `dist/`
+  # unpack it into ghidra's extension layout and add `.dbDirLock` so ghidra won't create lock files in the nix store
+  installPhase = ''
+    runHook preInstall
+
+    extension_dir=$out/lib/ghidra/Ghidra/Extensions/GhidraMCP
+    mkdir -p $extension_dir
+
+    unzip -d $out/lib/ghidra/Ghidra/Extensions build/distributions/GhidraMCP-${finalAttrs.version}.zip
+
+    touch $extension_dir/.dbDirLock
+
+    runHook postInstall
+  '';
 
   meta = {
     description = "Ghidra plugin exposing program data via the Model Context Protocol";

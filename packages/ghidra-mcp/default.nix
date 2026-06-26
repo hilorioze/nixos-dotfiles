@@ -10,14 +10,14 @@
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "ghidra-mcp";
 
-  version = "5.4.1";
+  version = "5.14.1";
 
   src = fetchFromGitHub {
     owner = "bethington";
     repo = "ghidra-mcp";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ZyCOoFlVbEDMUwUksxci005XbfkrW5vUwbyWBQiXQZw=";
+    hash = "sha256-rMC4/SZP7TfjOzlNihxcPvmnGZ8pYTs5uHn09PdzJms=";
   };
 
   dontConfigure = true;
