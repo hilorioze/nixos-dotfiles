@@ -1,0 +1,62 @@
+on:
+  push:
+    branches: &branches
+      - main
+
+    paths:
+      - .github/workflows/sync-atelier-config.yaml
+
+      - atelier.toml.in
+      - flake.nix
+
+  workflow_dispatch:
+
+jobs:
+  sync-atelier-config:
+    concurrency:
+      # one sync per branch; newer runs cancel older runs
+      group: ${{ github.workflow }}-${{ github.ref }}
+
+      cancel-in-progress: true
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+        with:
+          extra_nix_config: accept-flake-config = true
+
+      - id: collect-flake-config
+        run: |
+          echo extra-substituters=$(nix eval --json --file flake.nix --apply 'flake: flake.nixConfig.extra-substituters' | jq --compact-output) >> $GITHUB_OUTPUT
+          echo extra-trusted-public-keys=$(nix eval --json --file flake.nix --apply 'flake: flake.nixConfig.extra-trusted-public-keys' | jq --compact-output) >> $GITHUB_OUTPUT
+
+          echo systems=$(nix eval --json .#systems | jq --compact-output) >> $GITHUB_OUTPUT
+
+      - env:
+          SUBSTITUTERS: ${{ steps.collect-flake-config.outputs['extra-substituters'] }}
+          TRUSTED_PUBLIC_KEYS: ${{ steps.collect-flake-config.outputs['extra-trusted-public-keys'] }}
+
+          SYSTEMS: ${{ steps.collect-flake-config.outputs.systems }}
+        run: |
+          sed \
+            --expression "s|@SUBSTITUTERS@|$SUBSTITUTERS|g" \
+            --expression "s|@TRUSTED_PUBLIC_KEYS@|$TRUSTED_PUBLIC_KEYS|g" \
+            --expression "s|@SYSTEMS@|$SYSTEMS|g" \
+            atelier.toml.in > atelier.toml
+
+      - run: |
+          git add atelier.toml
+
+          if git diff --quiet --cached -- atelier.toml; then
+            exit 0
+          fi
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+          git commit --message 'chore(atelier): sync config'
+
+          git push

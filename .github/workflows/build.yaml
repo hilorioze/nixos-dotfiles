@@ -1,0 +1,34 @@
+on:
+  push:
+    branches: &branches
+      - main
+
+  pull_request:
+    branches: *branches
+
+  workflow_dispatch:
+
+permissions:
+  contents: read # required so the reusable `atelier` workflow can read the repo
+  checks: write # required so `atelier` can post skipped check runs
+
+  id-token: write # required so `niks3` can authenticate via OIDC
+
+jobs:
+  discover:
+    concurrency:
+      # one run per pull request status; latest completes last
+      group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && 'pr' || 'non-pr' }}
+
+      cancel-in-progress: false
+
+    uses: stepbrobd/atelier/.github/workflows/discover.yaml@8afd4bdb31dcd57eab3086bca4dcfe57b7a15730 # 2026.623.0
+    with:
+      ref: 8afd4bdb31dcd57eab3086bca4dcfe57b7a15730 # 2026.623.0
+
+      extra-conf: | # `nix.conf`
+        # https://github.com/stepbrobd/atelier/blob/8afd4bdb31dcd57eab3086bca4dcfe57b7a15730/.github/actions/atelier/action.yaml#L83 already sets \`accept-flake-config\`
+
+        fsync-metadata = false # performance over durability in CI; store is transient
+
+      push: ${{ github.event_name != 'pull_request' }}

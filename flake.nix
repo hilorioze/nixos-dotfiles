@@ -163,14 +163,16 @@
     ...
   }: let
     inherit (nixpkgs) lib;
+
+    systems = [
+      # keep-sorted start
+      "aarch64-linux"
+      "x86_64-linux"
+      # keep-sorted end
+    ];
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
-      systems = [
-        # keep-sorted start
-        "aarch64-linux"
-        "x86_64-linux"
-        # keep-sorted end
-      ];
+      inherit systems;
 
       perSystem = {pkgs, ...}: {
         packages = import ./packages {
@@ -203,6 +205,8 @@
           };
         };
       in {
+        inherit systems; # exported for `atelier` CI discovery
+
         nixosModules = import ./modules/nixos;
         homeModules = import ./modules/home-manager;
 

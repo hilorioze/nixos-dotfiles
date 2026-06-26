@@ -1,16 +1,16 @@
 on:
   workflow_run:
     workflows:
-      - .github/workflows/build-nixos.yaml
+      - .github/workflows/build.yaml
 
     types:
       - completed
 
-concurrency:
-  # one merge attempt per pull request; latest cancels stale attempts
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number }}
+    concurrency:
+      # one merge attempt per pull request; latest cancels stale attempts
+      group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number }}
 
-  cancel-in-progress: true
+      cancel-in-progress: true
 
 jobs:
   merge:
