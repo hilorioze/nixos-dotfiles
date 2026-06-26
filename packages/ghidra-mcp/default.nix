@@ -52,6 +52,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     mainProgram = "ghidra-mcp";
 
-    platforms = lib.platforms.linux;
+    platforms = ["x86_64-linux"];
   };
 })

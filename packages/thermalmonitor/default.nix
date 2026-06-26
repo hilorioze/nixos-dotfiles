@@ -33,6 +33,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     license = lib.licenses.mit;
 
-    platforms = lib.platforms.linux;
+    platforms = ["x86_64-linux"];
   };
 })

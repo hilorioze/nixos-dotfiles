@@ -46,6 +46,6 @@ buildGoModule (finalAttrs: {
 
     mainProgram = "prometheus-podman-exporter";
 
-    platforms = lib.platforms.linux;
+    platforms = ["aarch64-linux"];
   };
 })

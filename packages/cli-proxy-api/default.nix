@@ -30,6 +30,6 @@ buildGoModule (finalAttrs: {
 
     mainProgram = "server";
 
-    platforms = lib.platforms.linux;
+    platforms = ["x86_64-linux"];
   };
 })

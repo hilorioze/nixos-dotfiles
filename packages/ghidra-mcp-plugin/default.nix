@@ -23,5 +23,7 @@ ghidra.buildGhidraExtension (finalAttrs: {
     homepage = "https://github.com/bethington/ghidra-mcp";
 
     license = lib.licenses.asl20;
+
+    platforms = ["x86_64-linux"];
   };
 })

@@ -39,6 +39,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     license = lib.licenses.mpl20;
 
-    platforms = lib.platforms.linux;
+    platforms = ["x86_64-linux"];
   };
 })

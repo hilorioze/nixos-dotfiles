@@ -233,6 +233,6 @@ in
 
       mainProgram = "yaas";
 
-      platforms = lib.platforms.linux;
+      platforms = ["x86_64-linux"];
     };
   }
