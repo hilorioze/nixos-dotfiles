@@ -2,6 +2,7 @@ on:
   workflow_run:
     workflows:
       - .github/workflows/build.yaml
+      - .github/workflows/build-devenv.yaml
 
     types:
       - completed
@@ -27,9 +28,17 @@ jobs:
           GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT }}
 
           GH_REPO: ${{ github.repository }}
+
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
         run: |
+          # wait for all PR checks to pass
+          gh pr checks \
+            $PR_NUMBER \
+            --watch \
+            --fail-fast
+
           gh pr merge \
-            ${{ github.event.workflow_run.pull_requests[0].number }} \
+            $PR_NUMBER \
             --squash \
             --delete-branch \
             --match-head-commit ${{ github.event.workflow_run.head_sha }}
