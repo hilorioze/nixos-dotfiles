@@ -60,18 +60,14 @@
 
     "/mnt/vol" = {
       device = "/dev/disk/by-partlabel/vol";
-      fsType = "ntfs3";
+      fsType = "ntfs-3g"; # never use `ntfs3` here; it honors WSL `$LX*` EAs and breaks shared access
       options = [
+        # `ntfs-3g` mounts world-accessible by default; no additional access-control options needed
         # keep-sorted start
-        "acl=0" # ntfs3 unconditionally enables ACL when compiled with POSIX_ACL
-        "dmask=000"
-        "fmask=000"
-        "gid=0"
-        "iocharset=utf8"
+        "big_writes"
         "noatime"
         "nofail"
-        "uid=0"
-        "umask=000"
+        "windows_names"
         # keep-sorted end
       ];
     };
