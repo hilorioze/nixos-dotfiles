@@ -3,8 +3,21 @@ on:
     branches: &branches
       - main
 
+    paths: &paths
+      - .github/workflows/build.yaml
+
+      - '**/*.nix'
+      - '!devenv.nix'
+      - '**/secrets.yaml'
+      - '**/*.patch'
+      - '**/*.diff'
+      - '**/*.pub'
+      - flake.lock
+
   pull_request:
     branches: *branches
+
+    paths: *paths
 
   workflow_dispatch:
 
