@@ -6,6 +6,3 @@ result-*
 .devenv*
 .direnv/
 /.pre-commit-config.yaml
-
-# User-specific development environment overrides
-devenv.local.nix
