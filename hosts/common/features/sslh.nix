@@ -76,8 +76,122 @@ in {
   };
 
   systemd.services = {
-    # raise the soft fd limit; `sslh-ev` hits `EMFILE` once the default `1024` file descriptors are exhausted
-    sslh.serviceConfig.LimitNOFILE = 4096;
+    sslh = let
+      # nixpkgs' `sslh` module passes `sslh` to `--uid-owner`; `iptables-nft` rejects non-numeric `uid` for some reason
+      # based on: https://github.com/NixOS/nixpkgs/blob/3af24d1a5fc8a15e91c15da889ceefe21fc1b3b5/nixos/modules/services/networking/sslh.nix
+      iptablesCommands = [
+        # DROP martian packets as they would have been if route_localnet was zero
+        # Note: packets not leaving the server aren't affected by this, thus sslh will still work
+        {
+          table = "raw";
+          command = "PREROUTING  ! -i lo -d 127.0.0.0/8 -j DROP";
+        }
+        {
+          table = "mangle";
+          command = "POSTROUTING ! -o lo -s 127.0.0.0/8 -j DROP";
+        }
+        # Mark all connections made by ssl for special treatment (here sslh is run as user ${user})
+        {
+          table = "nat";
+          command = "OUTPUT -m owner --uid-owner $sslh_uid -p tcp --tcp-flags FIN,SYN,RST,ACK SYN -j CONNMARK --set-xmark 0x02/0x0f";
+        }
+        # Outgoing packets that should go to sslh instead have to be rerouted, so mark them accordingly (copying over the connection mark)
+        {
+          table = "mangle";
+          command = "OUTPUT ! -o lo -p tcp -m connmark --mark 0x02/0x0f -j CONNMARK --restore-mark --mask 0x0f";
+        }
+      ];
+
+      ip6tablesCommands = [
+        {
+          table = "raw";
+          command = "PREROUTING  ! -i lo -d ::1/128     -j DROP";
+        }
+        {
+          table = "mangle";
+          command = "POSTROUTING ! -o lo -s ::1/128     -j DROP";
+        }
+        {
+          table = "nat";
+          command = "OUTPUT -m owner --uid-owner $sslh_uid -p tcp --tcp-flags FIN,SYN,RST,ACK SYN -j CONNMARK --set-xmark 0x02/0x0f";
+        }
+        {
+          table = "mangle";
+          command = "OUTPUT ! -o lo -p tcp -m connmark --mark 0x02/0x0f -j CONNMARK --restore-mark --mask 0x0f";
+        }
+      ];
+    in {
+      # raise the soft fd limit; `sslh-ev` hits `EMFILE` once the default `1024` file descriptors are exhausted
+      serviceConfig.LimitNOFILE = 4096;
+
+      preStart = lib.mkForce ''
+        sslh_uid=$(id -u sslh)
+
+        # Cleanup old iptables entries which might be still there
+        ${lib.concatMapStringsSep "\n" (
+            {
+              table,
+              command,
+            }: "while iptables -w -t ${table} -D ${command} 2>/dev/null; do echo; done"
+          )
+          iptablesCommands}
+        ${lib.concatMapStringsSep "\n" (
+            {
+              table,
+              command,
+            }: "iptables -w -t ${table} -A ${command}"
+          )
+          iptablesCommands}
+
+        # Configure routing for those marked packets
+        ip rule  add fwmark 0x2 lookup 100
+        ip route add local 0.0.0.0/0 dev lo table 100
+
+        ${lib.concatMapStringsSep "\n" (
+            {
+              table,
+              command,
+            }: "while ip6tables -w -t ${table} -D ${command} 2>/dev/null; do echo; done"
+          )
+          ip6tablesCommands}
+        ${lib.concatMapStringsSep "\n" (
+            {
+              table,
+              command,
+            }: "ip6tables -w -t ${table} -A ${command}"
+          )
+          ip6tablesCommands}
+
+        ip -6 rule  add fwmark 0x2 lookup 100
+        ip -6 route add local ::/0 dev lo table 100
+      '';
+
+      postStop = lib.mkForce ''
+        sslh_uid=$(id -u sslh)
+
+        ${lib.concatMapStringsSep "\n" (
+            {
+              table,
+              command,
+            }: "iptables -w -t ${table} -D ${command}"
+          )
+          iptablesCommands}
+
+        ip rule  del fwmark 0x2 lookup 100
+        ip route del local 0.0.0.0/0 dev lo table 100
+
+        ${lib.concatMapStringsSep "\n" (
+            {
+              table,
+              command,
+            }: "ip6tables -w -t ${table} -D ${command}"
+          )
+          ip6tablesCommands}
+
+        ip -6 rule  del fwmark 0x2 lookup 100
+        ip -6 route del local ::/0 dev lo table 100
+      '';
+    };
 
     # `tailscale`'s `ts-input` chain drops tailnet packets that reenter on `lo`, and `sslh` adds `ip rule add fwmark 0x2 lookup 100` without a `pref`, so the kernel places it after tailscale's catch-all rule, which is `5270`
     tailscaled = let
