@@ -1,6 +1,7 @@
 {
   # keep-sorted start
   inputs,
+  lib',
   outputs,
   # keep-sorted end
   ...
@@ -13,6 +14,11 @@
 
     backupFileExtension = "hm-bak";
 
-    extraSpecialArgs = {inherit inputs outputs;};
+    extraSpecialArgs = {
+      inherit inputs;
+      inherit lib';
+
+      inherit outputs;
+    };
   };
 }

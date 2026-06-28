@@ -163,6 +163,7 @@
     ...
   }: let
     inherit (nixpkgs) lib;
+    lib' = import ./lib {inherit lib;};
 
     systems = [
       # keep-sorted start
@@ -187,6 +188,8 @@
           lib.nixosSystem {
             specialArgs = {
               inherit inputs;
+              inherit lib';
+
               outputs = config;
             };
 
@@ -206,6 +209,8 @@
         };
       in {
         inherit systems; # exported for `atelier` CI discovery
+
+        lib = lib';
 
         nixosModules = import ./modules/nixos;
         homeModules = import ./modules/home-manager;

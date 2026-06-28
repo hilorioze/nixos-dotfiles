@@ -90,6 +90,7 @@
     ./sops.nix
     ./stylix.nix
     ./syncthing.nix
+    ./thermalmonitor.nix
     # keep-sorted end
   ];
 }

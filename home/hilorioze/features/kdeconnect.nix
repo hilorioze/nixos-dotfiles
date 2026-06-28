@@ -39,8 +39,6 @@ in {
       General.keyAlgorithm = "EC";
     };
 
-    "kdeconnect/trusted_devices".source = (pkgs.formats.ini {}).generate "kdeconnect-trusted_devices.ini" config.services.kdeconnect.trustedDevices;
-
     "kdeconnect/${philoneDeviceId}/config".source = (pkgs.formats.ini {}).generate "kdeconnect-philone-config.ini" {
       Plugins = {
         kdeconnect_mpriscontrolEnabled = false;

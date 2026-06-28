@@ -93,7 +93,7 @@
           {
             name = "org.kde.olib.thermalmonitor";
 
-            config = config.programs.plasma.thermalMonitor;
+            config = config.programs.thermalmonitor.settings;
           }
 
           # Margins Separator

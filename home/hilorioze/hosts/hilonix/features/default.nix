@@ -94,6 +94,7 @@
     ./sops.nix
     ./stylix.nix
     ./syncthing.nix
+    ./thermalmonitor.nix
     ./vscodium.nix
     # keep-sorted end
   ];

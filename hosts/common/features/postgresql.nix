@@ -12,14 +12,12 @@
 
     enableTCPIP = true;
 
-    authentication = lib.mkForce ''
-      local all postgres peer map=postgres
-
-      ${lib.concatStringsSep "\n" config.services.postgresql.authRules}
+    authRules = lib.mkBefore [
+      "local all postgres peer map=postgres"
 
       # podman0 bridge subnet for local containers
-      host all all 10.88.0.0/16 scram-sha-256
-    '';
+      "host all all 10.88.0.0/16 scram-sha-256"
+    ];
 
     ensureUsers = [
       {
