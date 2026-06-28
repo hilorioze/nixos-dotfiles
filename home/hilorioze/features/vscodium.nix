@@ -66,6 +66,9 @@
         "nix.serverPath" = "${lib.getExe pkgs.nil}";
         "nix.serverSettings".nil.formatting.command = ["${lib.getExe pkgs.alejandra}"];
 
+        # required by kilocode to be set
+        "kilo-code.new.agentWorkStyle" = "skipped";
+
         "update.showReleaseNotes" = false;
       };
     };
