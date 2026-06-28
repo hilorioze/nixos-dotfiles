@@ -58,7 +58,6 @@
 
         "workbench.startupEditor" = "none"; # don't show the welcome page on startup
         "workbench.iconTheme" = "material-icon-theme";
-        "workbench.editor.enablePreview" = false; # disable annoying tab replacement when opening files
 
         "security.workspace.trust.enabled" = false; # disable workspace trust prompts
 
