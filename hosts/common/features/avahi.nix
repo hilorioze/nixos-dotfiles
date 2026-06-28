@@ -3,7 +3,8 @@
     enable = true;
 
     nssmdns4 = config.services.avahi.ipv4;
-    nssmdns6 = config.services.avahi.ipv6;
+    # leave `nssmdns6` disabled: `glibc` probes IPv6 first, and `mdns` returns `NOTFOUND` for IPv4-only `.local` names before the IPv4 fallback runs
+    # nssmdns6 = config.services.avahi.ipv6;
 
     publish = {
       enable = true;
