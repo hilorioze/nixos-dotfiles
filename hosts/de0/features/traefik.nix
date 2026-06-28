@@ -2,7 +2,6 @@
   # keep-sorted start
   config,
   lib,
-  pkgs,
   # keep-sorted end
   ...
 }: {
@@ -46,11 +45,10 @@
 
           forwardedHeaders.trustedIPs = let
             readLinesFromURL = url: hash:
-              lib.filter (line: line != "") (
-                lib.splitString "\n" (builtins.readFile (pkgs.fetchurl {
-                  inherit url hash;
-                }))
-              );
+            # use `builtins.fetchurl` because `pkgs.fetchurl` breaks cross-system eval
+              lib.splitString "\n" (builtins.readFile (builtins.fetchurl {
+                inherit url hash;
+              }));
           in
             # trust `X-Forwarded-*` and `X-Real-IP` headers from cloudflare edge IPs
             readLinesFromURL "https://www.cloudflare.com/ips-v4" "sha256-8Cxtg7wBqwroV3Fg4DbXAMdFU1m84FTfiE5dfZ5Onns="
