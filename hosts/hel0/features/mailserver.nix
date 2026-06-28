@@ -1,8 +1,11 @@
 {config, ...}: let
   inherit (config.networking) domain;
+
   mailHost = "imap.${domain}";
 in {
   imports = [../../common/features/mailserver.nix];
+
+  sops.secrets."services/rspamd/dkim/${domain}/private-key".owner = config.services.rspamd.user;
 
   mailserver = {
     # `postmaster@${domain}` aliases to `root@${domain}` in LDAP, but postfix does not re-expand it through the `root@${domain}` forward list
@@ -23,14 +26,11 @@ in {
     x509.useACMEHost = mailHost;
   };
 
-  sops.secrets."services/rspamd/dkim/${domain}/private-key" = {
-    owner = config.services.rspamd.user;
-    inherit (config.services.rspamd) group;
-  };
-
   security.acme.certs."${mailHost}" = {
-    dnsProvider = "cloudflare";
-    credentialFiles.CF_DNS_API_TOKEN_FILE = config.sops.secrets."credentials/cloudflare/zones/${domain}/dns01".path;
     extraDomainNames = [config.mailserver.sendingFqdn];
+
+    dnsProvider = "cloudflare";
+
+    credentialFiles.CF_DNS_API_TOKEN_FILE = config.sops.secrets."credentials/cloudflare/zones/${domain}/dns01-token".path;
   };
 }

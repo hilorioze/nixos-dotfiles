@@ -35,6 +35,7 @@
     ./i18n.nix
     ./networkmanager.nix
     ./nix-ld.nix
+    ./nix.nix
     ./plasma.nix
     ./sddm.nix
     ./silent-sddm.nix

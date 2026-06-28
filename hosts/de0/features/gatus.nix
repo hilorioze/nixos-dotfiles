@@ -204,6 +204,15 @@
           }
 
           {
+            name = "ncps";
+            group = "platform";
+
+            url = "http://${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}:${lib.last (lib.splitString ":" outputs.nixosConfigurations.fakesynology-nixos.config.services.traefik.staticConfigOptions.entryPoints.ncps.address)}/healthz";
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
             name = "niks3";
             group = "platform";
 

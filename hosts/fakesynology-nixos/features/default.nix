@@ -8,13 +8,18 @@
     ../../common/features/home-manager.nix
     ../../common/features/node-exporter.nix
     ../../common/features/openssh.nix
+    ../../common/features/postgresql.nix
     ../../common/features/systemd-boot.nix
+    ../../common/features/traefik.nix
     # keep-sorted end
 
     # keep-sorted start
+    ./ncps.nix
     ./networkd-dispatcher.nix
+    ./nix.nix
     ./sops.nix
     ./tailscale.nix
+    ./time.nix
     # keep-sorted end
   ];
 }

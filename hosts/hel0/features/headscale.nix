@@ -2,6 +2,7 @@
   # keep-sorted start
   config,
   lib,
+  outputs,
   pkgs,
   # keep-sorted end
   ...
@@ -150,6 +151,15 @@ in {
               src = ["tag:de0"];
 
               dst = ["tag:hel0:443"];
+            }
+
+            # allow `gatus` on `de0` to probe `ncps` on `fakesynology-nixos`
+            {
+              action = "accept";
+
+              src = ["tag:de0"];
+
+              dst = ["tag:fakesynology-nixos:${lib.last (lib.splitString ":" outputs.nixosConfigurations.fakesynology-nixos.config.services.traefik.staticConfigOptions.entryPoints.ncps.address)}"];
             }
 
             # de0 can reach the goldsrc proxies on hel0 for gatus health checks

@@ -7,8 +7,8 @@
     ../../common/features/home-manager.nix
     ../../common/features/netcat-firewall.nix
     ../../common/features/nix-ld.nix
+    ../../common/features/nix.nix
     ../../common/features/node-exporter.nix
-    ../../common/features/podman.nix
     ../../common/features/postgresql.nix
     ../../common/features/rabbitmq.nix
     ../../common/features/redis.nix
@@ -30,6 +30,7 @@
     ./niks3.nix
     ./openssh.nix
     ./podman-exporter.nix
+    ./podman.nix
     ./prometheus.nix
     ./sops.nix
     ./tailscale.nix

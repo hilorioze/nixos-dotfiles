@@ -41,6 +41,7 @@
     ./i18n.nix
     ./networkmanager.nix
     ./nix-ld.nix
+    ./nix.nix
     ./openrazer.nix
     ./plasma.nix
     ./sddm.nix

@@ -6,6 +6,7 @@
     ../../common/features/fluent-bit.nix
     ../../common/features/home-manager.nix
     ../../common/features/netcat-firewall.nix
+    ../../common/features/nix.nix
     ../../common/features/node-exporter.nix
     ../../common/features/openssh.nix
     ../../common/features/podman.nix

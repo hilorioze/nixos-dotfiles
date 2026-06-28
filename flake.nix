@@ -2,7 +2,7 @@
   nixConfig = {
     # keep-sorted start block=yes newline_separated=yes
     extra-substituters = [
-      # https://cache.nixos.org/ has priority 40
+      # https://cache.nixos.org has priority 40
       "https://nix-cache.hilorioze.com?priority=41"
       "https://cache.nixos-cuda.org?priority=42"
       "https://nix-community.cachix.org?priority=43"
