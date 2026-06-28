@@ -44,10 +44,12 @@
           http.tls.certResolver = "cloudflare";
 
           forwardedHeaders.trustedIPs = let
-            readLinesFromURL = url: hash:
+            readLinesFromURL = url: sha256:
             # use `builtins.fetchurl` because `pkgs.fetchurl` breaks cross-system eval
               lib.splitString "\n" (builtins.readFile (builtins.fetchurl {
-                inherit url hash;
+                inherit url;
+
+                inherit sha256;
               }));
           in
             # trust `X-Forwarded-*` and `X-Real-IP` headers from cloudflare edge IPs
