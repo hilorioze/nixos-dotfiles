@@ -68,6 +68,8 @@
         # required by kilocode to be set
         "kilo-code.new.agentWorkStyle" = "skipped";
 
+        "kilo-code.new.autocomplete.enableAutoTrigger" = false; # disable automatic inline completions
+
         "update.showReleaseNotes" = false;
       };
     };
