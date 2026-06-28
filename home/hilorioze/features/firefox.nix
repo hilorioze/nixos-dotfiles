@@ -66,6 +66,7 @@ in {
         packages = with pkgs.firefox-addons; [
           # keep-sorted start
           clearurls
+          cookie-quick-manager
           darkreader
           dearrow
           keepa
