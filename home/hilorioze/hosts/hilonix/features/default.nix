@@ -77,7 +77,6 @@
     ../../../features/steam.nix
     ../../../features/syncthing.nix
     ../../../features/thunderbird.nix
-    ../../../features/vesktop.nix
     ../../../features/virt-manager.nix
     ../../../features/vscodium.nix
     ../../../features/wakatime.nix
