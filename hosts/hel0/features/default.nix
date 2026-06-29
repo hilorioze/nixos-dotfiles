@@ -20,6 +20,7 @@
     # keep-sorted start
     ./acme.nix
     ./archisteamfarm.nix
+    ./factorio.nix
     ./headscale.nix
     ./mailserver.nix
     ./openldap.nix

@@ -247,6 +247,15 @@ in {
               dst = ["tag:de0:443"];
             }
 
+            # everyone can reach `factorio` server on `hel0`
+            {
+              action = "accept";
+
+              src = ["*"];
+
+              dst = ["tag:hel0:${toString config.services.factorio.port}"];
+            }
+
             # `de0` can reach `fakesynology` to expose it publicly
             {
               action = "accept";
