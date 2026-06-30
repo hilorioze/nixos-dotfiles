@@ -35,7 +35,7 @@ jobs:
 
       cancel-in-progress: false
 
-    uses: stepbrobd/atelier/.github/workflows/discover.yaml@e6593ac67d987fa27dbb1864acda03ba2136159b # 2026.627.0
+    uses: stepbrobd/atelier/.github/workflows/discover.yaml@6cf255b6e35733e746ef42208389159912ecbde2 # 2026.629.2
     with:
       ref: e6593ac67d987fa27dbb1864acda03ba2136159b # 2026.627.0
 
