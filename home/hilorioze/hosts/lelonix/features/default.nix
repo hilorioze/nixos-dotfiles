@@ -65,6 +65,7 @@
     ../../../features/kdeconnect.nix
     ../../../features/keepassxc.nix
     ../../../features/kilocode.nix
+    ../../../features/kmines.nix
     ../../../features/konsole.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix

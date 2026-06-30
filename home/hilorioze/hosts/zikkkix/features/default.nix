@@ -11,6 +11,7 @@
     ../../../features/cli-proxy-api.nix
     ../../../features/gpg.nix
     ../../../features/kilocode.nix
+    ../../../features/kmines.nix
     ../../../features/mcp.nix
     ../../../features/niks3.nix
     ../../../features/wakatime.nix
