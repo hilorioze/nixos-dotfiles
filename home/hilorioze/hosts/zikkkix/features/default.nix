@@ -8,6 +8,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ../../../features/cinny.nix
     ../../../features/cli-proxy-api.nix
     ../../../features/gpg.nix
     ../../../features/kilocode.nix
