@@ -113,9 +113,11 @@
               };
 
               settings.General = {
-                favoriteApps = [];
+                favoriteApps = []; # effective for fresh profiles only; existing profiles are managed by `startup.startupScript.clear_kicker_app_favorites`
+
                 favoriteSystemActions = "";
-                favoritesPortedToKAstats = true;
+
+                highlightNewlyInstalledApps = false;
               };
             };
           }
