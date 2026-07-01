@@ -28,7 +28,12 @@ in {
 
     templates."config/lampac-init.conf" = {
       content = builtins.toJSON {
-        LampaWeb.initPlugins.sisi = false;
+        LampaWeb.initPlugins = {
+          # keep-sorted start
+          sisi = false;
+          watch_together = true;
+          # keep-sorted end
+        };
 
         accsdb = {
           enable = true;
@@ -81,8 +86,27 @@ in {
         DisableUPNP = true; # peer ports are already published manually
         PeersListenPort = peerListenPort;
       });
+
+      watchTogetherManifest = pkgs.writeText "watchtogether-manifest.json" (builtins.toJSON {
+        enable = true;
+
+        dynamic = true;
+
+        tree = [
+          # keep-sorted start
+          "GcTask.cs"
+          "ModInit.cs"
+          "RoomDb.cs"
+          "WatchTogetherController.cs"
+          "WsEvents.cs"
+          # keep-sorted end
+        ];
+      });
     in [
       "${config.sops.templates."config/lampac-init.conf".path}:/lampac/init.conf:ro"
+
+      # `watch_together` needs `/watchtogether.js`, but the bundled module is disabled
+      "${watchTogetherManifest}:/lampac/module/WatchTogether/manifest.json:ro"
 
       # module template; the runtime file ends up in `data/ts/settings.json`
       "${torrServerSettingsFile}:/lampac/module/TorrServer/settings.json:ro"
