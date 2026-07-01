@@ -19,6 +19,7 @@ in {
       # tr --delete --complement 'a-z0-9' </dev/urandom | head --bytes 8
 
       # keep-sorted start
+      "services/lampac/users/danil/id" = {};
       "services/lampac/users/hilorioze/id" = {};
       "services/lampac/users/living-room-tv/id" = {};
       "services/lampac/users/zikkk/id" = {};
@@ -40,6 +41,7 @@ in {
             };
           in [
             # keep-sorted start
+            (mkUser config.sops.placeholder."services/lampac/users/danil/id")
             (mkUser config.sops.placeholder."services/lampac/users/hilorioze/id")
             (mkUser config.sops.placeholder."services/lampac/users/living-room-tv/id")
             (mkUser config.sops.placeholder."services/lampac/users/zikkk/id")
