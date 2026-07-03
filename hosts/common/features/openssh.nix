@@ -4,15 +4,18 @@
   services.openssh = {
     enable = true;
 
-    # Use only Ed25519 host keys
+    # use only ed25519 host keys
     hostKeys = [
       {
-        inherit (config.sops.secrets."services/openssh/host-keys/ed25519") path;
         type = "ed25519";
+
+        inherit (config.sops.secrets."services/openssh/host-keys/ed25519") path;
       }
     ];
 
     settings = {
+      X11Forwarding = true;
+
       # Disable password authentication
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;

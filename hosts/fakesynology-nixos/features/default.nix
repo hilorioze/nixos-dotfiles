@@ -11,16 +11,25 @@
     ../../common/features/openssh.nix
     ../../common/features/postgresql.nix
     ../../common/features/systemd-boot.nix
-    ../../common/features/traefik.nix
     # keep-sorted end
 
     # keep-sorted start
+    ./bazarr.nix
+    ./jellyfin.nix
+    ./media-storage.nix
     ./ncps.nix
     ./networkd-dispatcher.nix
     ./nix.nix
+    ./pinchflat.nix
+    ./prowlarr.nix
+    ./qbittorrent.nix
+    ./radarr.nix
+    ./seerr.nix
+    ./sonarr.nix
     ./sops.nix
     ./tailscale.nix
     ./time.nix
+    ./traefik.nix
     # keep-sorted end
   ];
 }

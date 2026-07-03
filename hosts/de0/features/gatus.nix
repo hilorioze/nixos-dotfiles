@@ -69,6 +69,19 @@
           }
 
           {
+            name = "bazarr";
+            group = "services";
+
+            url = "https://bazarr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/api/system/ping";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == OK"
+            ];
+          }
+
+          {
             name = "ftbie";
             group = "services";
 
@@ -177,6 +190,15 @@
           }
 
           {
+            name = "jellyfin";
+            group = "services";
+
+            url = "https://jellyfin.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/health";
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
             name = "lampac";
             group = "services";
 
@@ -258,6 +280,19 @@
           }
 
           {
+            name = "pinchflat";
+            group = "services";
+
+            url = "https://pinchflat.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/healthcheck";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == ok"
+            ];
+          }
+
+          {
             name = "podman-exporter-de0";
             group = "telemetry";
 
@@ -273,6 +308,68 @@
             url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.port}/-/ready"; # `/-/healthy` only proves the process is up
 
             conditions = ["[STATUS] == 200"];
+          }
+
+          {
+            name = "prowlarr";
+            group = "services";
+
+            url = "https://prowlarr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/ping";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == OK"
+            ];
+          }
+
+          {
+            name = "qbittorrent";
+            group = "services";
+
+            url = "https://qbittorrent.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/";
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
+            name = "radarr";
+            group = "services";
+
+            url = "https://radarr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/ping";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == OK"
+            ];
+          }
+
+          {
+            name = "seerr";
+            group = "services";
+
+            # `/status` checks github for updates; `/status/appdata` stays local and verifies config dir access
+            url = "https://seerr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/api/v1/status/appdata";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].appDataPermissions == true"
+            ];
+          }
+
+          {
+            name = "sonarr";
+            group = "services";
+
+            url = "https://sonarr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/ping";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == OK"
+            ];
           }
 
           {

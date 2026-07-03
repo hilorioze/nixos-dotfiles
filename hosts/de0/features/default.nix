@@ -9,6 +9,7 @@
     ../../common/features/nix-ld.nix
     ../../common/features/nix.nix
     ../../common/features/node-exporter.nix
+    ../../common/features/openssh.nix
     ../../common/features/postgresql.nix
     ../../common/features/rabbitmq.nix
     ../../common/features/redis.nix
@@ -28,7 +29,6 @@
     ./hermes-agent.nix
     ./loki.nix
     ./niks3.nix
-    ./openssh.nix
     ./podman-exporter.nix
     ./podman.nix
     ./prometheus.nix

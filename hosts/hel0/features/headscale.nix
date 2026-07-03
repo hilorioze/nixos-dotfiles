@@ -144,13 +144,18 @@ in {
               ];
             }
 
-            # de0 (gatus) checks headscale health via https
+            # de0 (gatus) checks endpoints health via https
             {
               action = "accept";
 
               src = ["tag:de0"];
 
-              dst = ["tag:hel0:443"];
+              dst = [
+                # keep-sorted start
+                "tag:fakesynology-nixos:443"
+                "tag:hel0:443"
+                # keep-sorted end
+              ];
             }
 
             # allow `gatus` on `de0` to probe `ncps` on `fakesynology-nixos`
