@@ -15,6 +15,7 @@
     ../../common/features/kexec.nix
     ../../common/features/libvirtd.nix
     ../../common/features/mangohud.nix
+    ../../common/features/netcat-firewall.nix
     ../../common/features/networkmanager-wol.nix
     ../../common/features/openssh.nix
     ../../common/features/partition-manager.nix

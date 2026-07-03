@@ -6,6 +6,7 @@
     ../../common/features/bluetooth.nix
     ../../common/features/gamemode.nix
     ../../common/features/home-manager.nix
+    ../../common/features/netcat-firewall.nix
     ../../common/features/networkmanager.nix
     ../../common/features/nix.nix
     ../../common/features/openssh.nix
