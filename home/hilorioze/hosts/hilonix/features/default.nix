@@ -88,6 +88,7 @@
     ./ghidra.nix
     ./git.nix
     ./gpg-agent.nix
+    ./jujutsu.nix
     ./kdeconnect.nix
     ./openrazer.nix
     ./plasma.nix

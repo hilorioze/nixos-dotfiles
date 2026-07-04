@@ -17,6 +17,9 @@
     ../../../features/wakatime.nix
     # keep-sorted end
 
+    # keep-sorted start
+    ./jujutsu.nix
     ./sops.nix
+    # keep-sorted end
   ];
 }
