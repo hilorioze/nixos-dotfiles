@@ -134,6 +134,7 @@
                 "preferred://filemanager"
                 "preferred://browser"
                 "applications:com.ayugram.desktop.desktop"
+                "applications:Cinny.desktop"
                 "applications:org.kde.konsole.desktop" # use an explicit launcher: plasma's `preferred://terminal` maps to `konsole`, but only `org.kde.konsole.desktop` resolves here
                 "applications:codium.desktop" # use an explicit launcher: plasma rejects `preferred://text/plain` as malformed
                 "preferred://mailer"
