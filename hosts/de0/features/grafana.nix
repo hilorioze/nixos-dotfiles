@@ -64,6 +64,7 @@
           {
             name = "Prometheus";
             type = "prometheus";
+            uid = "prometheus";
 
             url = "http://localhost:${toString config.services.prometheus.port}";
 
@@ -99,6 +100,21 @@
 
                   hash = "sha256-GExrdAnzBtp1Ul13cvcZRbEM6iOtFrXXjEaY6g6lGYY=";
                 };
+              }
+
+              {
+                name = "synology-snmp.json";
+
+                path =
+                  pkgs.runCommand "synology-snmp.json" {
+                    src = pkgs.fetchurl {
+                      url = "https://grafana.com/api/dashboards/18643/revisions/1/download";
+
+                      hash = "sha256-ip62qmYpycKukQfR/pGm9F/di0AIjUrDN9Vk7AdYb+Q=";
+                    };
+                  } ''
+                    sed 's/''${DS_PROMETHEUS}/prometheus/g' $src > $out
+                  '';
               }
               # keep-sorted end
             ];

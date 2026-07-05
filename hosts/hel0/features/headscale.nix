@@ -144,6 +144,15 @@ in {
               ];
             }
 
+            # `de0` (`prometheus`) scrapes `snmp-exporter` on `fakesynology`
+            {
+              action = "accept";
+
+              src = ["tag:de0"];
+
+              dst = ["tag:fakesynology:9116"];
+            }
+
             # de0 (gatus) checks endpoints health via https
             {
               action = "accept";

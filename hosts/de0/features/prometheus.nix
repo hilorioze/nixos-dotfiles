@@ -49,6 +49,40 @@
           }
         ];
       }
+
+      {
+        job_name = "synology-snmp";
+
+        metrics_path = "/snmp";
+
+        params = {
+          auth = ["public_v2"];
+          module = ["synology"];
+        };
+
+        static_configs = [
+          {
+            targets = ["127.0.0.1"];
+          }
+        ];
+
+        relabel_configs = [
+          {
+            source_labels = ["__address__"];
+            target_label = "__param_target";
+          }
+
+          {
+            target_label = "instance";
+            replacement = "fakesynology";
+          }
+
+          {
+            target_label = "__address__";
+            replacement = "fakesynology.${config.networking.domain}:9116";
+          }
+        ];
+      }
       # keep-sorted end
     ];
   };

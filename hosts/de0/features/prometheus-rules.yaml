@@ -55,4 +55,148 @@ groups:
         annotations:
           summary: "Node {{ $labels.instance }} is down"
       # keep-sorted end
+
+  - name: synology
+    rules:
+      # keep-sorted start block=yes newline_separated=yes
+      - alert: cpu_fan_status_abnormal
+
+        expr: cpuFanStatus{job="synology-snmp"} != 1
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "CPU fan status is abnormal on {{ $labels.instance }}"
+
+      - alert: disk_bad_sectors
+
+        expr: diskBadSector{job="synology-snmp"} > 0
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk {{ $labels.diskID }} has bad sectors"
+
+      - alert: disk_connection_retries
+
+        expr: diskRetry{job="synology-snmp"} > 0
+        for: 5m
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk {{ $labels.diskID }} has connection retries"
+
+      - alert: disk_health_abnormal
+
+        expr: diskHealthStatus{job="synology-snmp"} != 1
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk {{ $labels.diskID }} health is abnormal"
+
+      - alert: disk_status_abnormal
+
+        expr: diskStatus{job="synology-snmp"} != 1
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk {{ $labels.diskID }} status is abnormal"
+
+      - alert: disk_temperature_high
+
+        expr: diskTemperature{job="synology-snmp"} > 50
+        for: 10m
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk temperature on {{ $labels.diskID }}"
+
+      - alert: power_status_abnormal
+
+        expr: powerStatus{job="synology-snmp"} != 1
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Power status is abnormal on {{ $labels.instance }}"
+
+      - alert: raid_free_space_low
+
+        expr: raidFreeSize{job="synology-snmp", raidName=~"Volume.*"} / raidTotalSize{job="synology-snmp", raidName=~"Volume.*"} * 100 < 15
+        for: 10m
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low free space on {{ $labels.raidName }}"
+
+      - alert: raid_status_abnormal
+
+        expr: raidStatus{job="synology-snmp"} != 1
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "RAID {{ $labels.raidName }} status is abnormal"
+
+      - alert: snmp_packet_retries
+
+        expr: snmp_scrape_packets_retried{job="synology-snmp"} > 0
+        for: 10m
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "SNMP packet retries on {{ $labels.instance }}"
+
+      - alert: synology_down
+
+        expr: up{job="synology-snmp"} == 0
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Synology {{ $labels.instance }} is down"
+
+      - alert: system_fan_status_abnormal
+
+        expr: systemFanStatus{job="synology-snmp"} != 1
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "System fan status is abnormal on {{ $labels.instance }}"
+
+      - alert: system_status_abnormal
+
+        expr: systemStatus{job="synology-snmp"} != 1
+        for: 2m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "System status is abnormal on {{ $labels.instance }}"
+
+      - alert: system_temperature_high
+
+        expr: temperature{job="synology-snmp"} > 70
+        for: 10m
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "High system temperature on {{ $labels.instance }}"
+      # keep-sorted end
   # keep-sorted end
