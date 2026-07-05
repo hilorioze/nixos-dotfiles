@@ -18,6 +18,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ./git.nix
     ./jujutsu.nix
     ./sops.nix
     # keep-sorted end

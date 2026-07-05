@@ -1,6 +1,6 @@
 {
   programs.git.signing = {
-    key = "9C479C3203F720BF67894B71E183C8C12BF0A94B!";
+    key = "6E05BFEC08F01717125F773772584B2919E9496C!";
 
     signByDefault = true;
   };

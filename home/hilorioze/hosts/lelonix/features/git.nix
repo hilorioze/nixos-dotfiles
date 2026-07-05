@@ -1,6 +1,7 @@
 {
   programs.git.signing = {
-    key = "D8B959DBB87665F6";
+    key = "DB11F1A06F328BEC4EFB58C0D8B959DBB87665F6!";
+
     signByDefault = true;
   };
 }
