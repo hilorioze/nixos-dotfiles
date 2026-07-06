@@ -85,7 +85,6 @@
     ./ghidra.nix
     ./git.nix
     ./gpg-agent.nix
-    ./jujutsu.nix
     ./kdeconnect.nix
     ./plasma.nix
     ./sops.nix
