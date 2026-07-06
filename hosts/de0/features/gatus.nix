@@ -235,6 +235,19 @@
           }
 
           {
+            name = "neko";
+            group = "services";
+
+            url = "https://neko.${outputs.nixosConfigurations.de0.config.networking.fqdn}/health";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY] == true"
+            ];
+          }
+
+          {
             name = "niks3";
             group = "platform";
 
