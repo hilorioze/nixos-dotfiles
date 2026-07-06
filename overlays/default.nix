@@ -15,7 +15,7 @@
 
   # keep-sorted start
   mcp-nixos-fastmcp-upstream = import ./mcp-nixos-fastmcp-upstream inputs;
-  ncps-tolerate-compressed-narinfos-missing-filesize = import ./ncps-tolerate-compressed-narinfos-missing-filesize;
+  ncps-bump-v0-10-rc14 = import ./ncps-bump-v0-10-rc14;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;
   plasma-workspace-media-keys-no-repeat = import ./plasma-workspace-media-keys-no-repeat;
   spectacle-copy-save = import ./spectacle-copy-save;

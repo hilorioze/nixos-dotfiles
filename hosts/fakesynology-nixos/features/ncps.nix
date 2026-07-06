@@ -78,5 +78,7 @@
 
     wants = ["sops-nix.service"];
     requires = ["postgresql.target"];
+
+    preStart = lib.mkForce "${lib.getExe config.services.ncps.package} migrate up --cache-database-url='${config.services.ncps.cache.databaseURL}'";
   };
 }
