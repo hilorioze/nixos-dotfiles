@@ -373,6 +373,19 @@
           }
 
           {
+            name = "snmp-exporter-fakesynology";
+            group = "telemetry";
+
+            url = "http://fakesynology.${config.networking.domain}:9116/snmp?target=127.0.0.1&module=synology&auth=public_v2";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY] == pat(*snmp_scrape_duration_seconds*)"
+            ];
+          }
+
+          {
             name = "sonarr";
             group = "services";
 
