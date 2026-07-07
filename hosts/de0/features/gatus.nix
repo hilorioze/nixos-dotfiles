@@ -56,9 +56,13 @@
         ui.default-sort-by = "group"; # name, group, health (https://github.com/TwiN/gatus/blob/fba833f64b7e91b4c06deeefe009f8597e793feb/config/ui/ui.go#L50)
 
         endpoints = let
+          # keep-sorted start
+          de0Config = outputs.nixosConfigurations.de0.config;
+          fakesynologyNixosConfig = outputs.nixosConfigurations.fakesynology-nixos.config;
           hel0Config = outputs.nixosConfigurations.hel0.config;
+          # keep-sorted end
 
-          lampacBaseUrl = "https://lampac.${outputs.nixosConfigurations.hel0.config.networking.fqdn}";
+          lampacBaseUrl = "https://lampac.${hel0Config.networking.fqdn}";
 
           mailserverHost = hel0Config.mailserver.fqdn;
         in [
@@ -67,7 +71,7 @@
             name = "alertmanager";
             group = "observability";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.alertmanager.port}/-/ready"; # `/-/healthy` only proves the process is up
+            url = "http://${de0Config.networking.fqdn}:${toString de0Config.services.prometheus.alertmanager.port}/-/ready"; # `/-/healthy` only proves the process is up
 
             conditions = ["[STATUS] == 200"];
           }
@@ -76,7 +80,7 @@
             name = "bazarr";
             group = "services";
 
-            url = "https://bazarr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/api/system/ping";
+            url = "https://bazarr.${fakesynologyNixosConfig.networking.fqdn}/api/system/ping";
 
             conditions = [
               "[STATUS] == 200"
@@ -89,7 +93,7 @@
             name = "ftbie";
             group = "services";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.port}/api/v1/query?query=${lib.escapeURL ''scalar(max(podman_container_health{name="ftbie"}))''}";
+            url = "http://${de0Config.networking.fqdn}:${toString de0Config.services.prometheus.port}/api/v1/query?query=${lib.escapeURL ''scalar(max(podman_container_health{name="ftbie"}))''}";
 
             conditions = [
               "[STATUS] == 200"
@@ -112,7 +116,7 @@
             name = "goldsrc-proxy-rs-27015";
             group = "services";
 
-            url = "udp://${outputs.nixosConfigurations.hel0.config.networking.fqdn}:27015";
+            url = "udp://${hel0Config.networking.fqdn}:27015";
             body = "$GOLDSRC_A2S_INFO_BODY";
 
             conditions = ["[BODY] == pat(*cstrike*)"]; # `cstrike` is the game directory in the `A2S_INFO` reply
@@ -122,7 +126,7 @@
             name = "goldsrc-proxy-rs-28255";
             group = "services";
 
-            url = "udp://${outputs.nixosConfigurations.hel0.config.networking.fqdn}:28255";
+            url = "udp://${hel0Config.networking.fqdn}:28255";
             body = "$GOLDSRC_A2S_INFO_BODY";
 
             conditions = ["[BODY] == pat(*cstrike*)"]; # `cstrike` is the game directory in the `A2S_INFO` reply
@@ -132,7 +136,7 @@
             name = "grafana";
             group = "observability";
 
-            url = "${outputs.nixosConfigurations.de0.config.services.grafana.settings.server.root_url}/api/health";
+            url = "${de0Config.services.grafana.settings.server.root_url}/api/health";
 
             conditions = [
               "[STATUS] == 200"
@@ -145,7 +149,7 @@
             name = "headscale";
             group = "platform";
 
-            url = "${outputs.nixosConfigurations.hel0.config.services.headscale.settings.server_url}/health";
+            url = "${hel0Config.services.headscale.settings.server_url}/health";
 
             conditions = [
               "[STATUS] == 200"
@@ -158,7 +162,7 @@
             name = "hermes-agent-alex";
             group = "services";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.hermes-agent.instances.alex.settings.platforms.api_server.extra.port}/health";
+            url = "http://${de0Config.networking.fqdn}:${toString de0Config.services.hermes-agent.instances.alex.settings.platforms.api_server.extra.port}/health";
 
             conditions = [
               "[STATUS] == 200"
@@ -171,7 +175,7 @@
             name = "hermes-agent-hilorioze";
             group = "services";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.hermes-agent.instances.hilorioze.settings.platforms.api_server.extra.port}/health";
+            url = "http://${de0Config.networking.fqdn}:${toString de0Config.services.hermes-agent.instances.hilorioze.settings.platforms.api_server.extra.port}/health";
 
             conditions = [
               "[STATUS] == 200"
@@ -184,7 +188,7 @@
             name = "hermes-agent-shared";
             group = "services";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.hermes-agent.instances.shared.settings.platforms.api_server.extra.port}/health";
+            url = "http://${de0Config.networking.fqdn}:${toString de0Config.services.hermes-agent.instances.shared.settings.platforms.api_server.extra.port}/health";
 
             conditions = [
               "[STATUS] == 200"
@@ -197,7 +201,7 @@
             name = "jellyfin";
             group = "services";
 
-            url = "https://jellyfin.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/health";
+            url = "https://jellyfin.${fakesynologyNixosConfig.networking.fqdn}/health";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -224,7 +228,7 @@
             name = "loki";
             group = "observability";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:3100/ready";
+            url = "http://${de0Config.networking.fqdn}:3100/ready";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -275,7 +279,7 @@
             name = "ncps";
             group = "platform";
 
-            url = "http://${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}:${lib.last (lib.splitString ":" outputs.nixosConfigurations.fakesynology-nixos.config.services.traefik.staticConfigOptions.entryPoints.ncps.address)}/healthz";
+            url = "http://${fakesynologyNixosConfig.networking.fqdn}:${lib.last (lib.splitString ":" fakesynologyNixosConfig.services.traefik.staticConfigOptions.entryPoints.ncps.address)}/healthz";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -302,7 +306,7 @@
             name = "node-exporter-de0";
             group = "telemetry";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.exporters.node.port}/";
+            url = "http://${de0Config.networking.fqdn}:${toString de0Config.services.prometheus.exporters.node.port}/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -311,7 +315,7 @@
             name = "node-exporter-fakesynology-nixos";
             group = "telemetry";
 
-            url = "http://${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}:${toString outputs.nixosConfigurations.fakesynology-nixos.config.services.prometheus.exporters.node.port}/";
+            url = "http://${fakesynologyNixosConfig.networking.fqdn}:${toString fakesynologyNixosConfig.services.prometheus.exporters.node.port}/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -320,7 +324,7 @@
             name = "node-exporter-hel0";
             group = "telemetry";
 
-            url = "http://${outputs.nixosConfigurations.hel0.config.networking.fqdn}:${toString outputs.nixosConfigurations.hel0.config.services.prometheus.exporters.node.port}/";
+            url = "http://${hel0Config.networking.fqdn}:${toString hel0Config.services.prometheus.exporters.node.port}/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -329,7 +333,7 @@
             name = "pinchflat";
             group = "services";
 
-            url = "https://pinchflat.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/healthcheck";
+            url = "https://pinchflat.${fakesynologyNixosConfig.networking.fqdn}/healthcheck";
 
             conditions = [
               "[STATUS] == 200"
@@ -342,7 +346,7 @@
             name = "podman-exporter-de0";
             group = "telemetry";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:9882/";
+            url = "http://${de0Config.networking.fqdn}:9882/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -351,7 +355,7 @@
             name = "prometheus";
             group = "observability";
 
-            url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:${toString outputs.nixosConfigurations.de0.config.services.prometheus.port}/-/ready"; # `/-/healthy` only proves the process is up
+            url = "http://${de0Config.networking.fqdn}:${toString de0Config.services.prometheus.port}/-/ready"; # `/-/healthy` only proves the process is up
 
             conditions = ["[STATUS] == 200"];
           }
@@ -360,7 +364,7 @@
             name = "prowlarr";
             group = "services";
 
-            url = "https://prowlarr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/ping";
+            url = "https://prowlarr.${fakesynologyNixosConfig.networking.fqdn}/ping";
 
             conditions = [
               "[STATUS] == 200"
@@ -373,7 +377,7 @@
             name = "qbittorrent";
             group = "services";
 
-            url = "https://qbittorrent.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/";
+            url = "https://qbittorrent.${fakesynologyNixosConfig.networking.fqdn}/";
 
             conditions = ["[STATUS] == 200"];
           }
@@ -382,7 +386,7 @@
             name = "radarr";
             group = "services";
 
-            url = "https://radarr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/ping";
+            url = "https://radarr.${fakesynologyNixosConfig.networking.fqdn}/ping";
 
             conditions = [
               "[STATUS] == 200"
@@ -396,7 +400,7 @@
             group = "services";
 
             # `/status` checks github for updates; `/status/appdata` stays local and verifies config dir access
-            url = "https://seerr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/api/v1/status/appdata";
+            url = "https://seerr.${fakesynologyNixosConfig.networking.fqdn}/api/v1/status/appdata";
 
             conditions = [
               "[STATUS] == 200"
@@ -422,7 +426,7 @@
             name = "sonarr";
             group = "services";
 
-            url = "https://sonarr.${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}/ping";
+            url = "https://sonarr.${fakesynologyNixosConfig.networking.fqdn}/ping";
 
             conditions = [
               "[STATUS] == 200"
@@ -435,7 +439,7 @@
             name = "tailnet-derp-hel0";
             group = "platform";
 
-            url = "${outputs.nixosConfigurations.hel0.config.services.headscale.settings.server_url}/derp/probe";
+            url = "${hel0Config.services.headscale.settings.server_url}/derp/probe";
 
             conditions = ["[STATUS] == 200"];
           }
