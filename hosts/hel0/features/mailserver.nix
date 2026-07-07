@@ -109,20 +109,8 @@ in {
       # keep-sorted end
     };
 
-    # `postmaster@${domain}` aliases to `root@${domain}` in LDAP, but postfix does not re-expand it through the `root@${domain}` forward list
-    forwards = let
-      rootFanout = [
-        # keep-sorted start
-        "me@${domain}"
-        "root@${domain}"
-        # keep-sorted end
-      ];
-    in {
-      # keep-sorted start
-      "postmaster@${domain}" = rootFanout;
-      "root@${domain}" = rootFanout;
-      # keep-sorted end
-    };
+    # `postmaster@${domain}` aliases to `root@${domain}` in LDAP, but postfix does not re-expand it after alias resolution.
+    forwards."postmaster@${domain}" = ["root@${domain}"];
 
     x509.useACMEHost = imapHost;
   };
