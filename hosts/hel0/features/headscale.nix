@@ -167,6 +167,21 @@ in {
               ];
             }
 
+            # `de0` (`gatus`) checks `mailserver` health on `hel0`
+            {
+              action = "accept";
+
+              src = ["tag:de0"];
+
+              dst = [
+                # keep-sorted start
+                "tag:hel0:4190"
+                "tag:hel0:465"
+                "tag:hel0:993"
+                # keep-sorted end
+              ];
+            }
+
             # allow `gatus` on `de0` to probe `ncps` on `fakesynology-nixos`
             {
               action = "accept";

@@ -56,7 +56,11 @@
         ui.default-sort-by = "group"; # name, group, health (https://github.com/TwiN/gatus/blob/fba833f64b7e91b4c06deeefe009f8597e793feb/config/ui/ui.go#L50)
 
         endpoints = let
+          hel0Config = outputs.nixosConfigurations.hel0.config;
+
           lampacBaseUrl = "https://lampac.${outputs.nixosConfigurations.hel0.config.networking.fqdn}";
+
+          mailserverHost = hel0Config.mailserver.fqdn;
         in [
           # keep-sorted start block=yes newline_separated=yes
           {
@@ -223,6 +227,48 @@
             url = "http://${outputs.nixosConfigurations.de0.config.networking.fqdn}:3100/ready";
 
             conditions = ["[STATUS] == 200"];
+          }
+
+          {
+            name = "mailserver-imaps";
+            group = "platform";
+
+            url = "tls://${mailserverHost}:${toString hel0Config.services.dovecot2.settings."service imap-login"."inet_listener imaps".port}";
+            body = "A001 CAPABILITY\r\n";
+
+            conditions = [
+              "[CONNECTED] == true"
+
+              "[BODY] == pat(* OK *IMAP4rev1*)"
+            ];
+          }
+
+          {
+            name = "mailserver-managesieve";
+            group = "platform";
+
+            url = "tcp://${mailserverHost}:4190";
+            body = "NOOP\r\n";
+
+            conditions = [
+              "[CONNECTED] == true"
+
+              "[BODY] == pat(*\"IMPLEMENTATION\" *\"SIEVE\" *\"VERSION\" \"1.0\"*OK*)"
+            ];
+          }
+
+          {
+            name = "mailserver-submissions";
+            group = "platform";
+
+            url = "tls://${mailserverHost}:465";
+            body = "QUIT\r\n";
+
+            conditions = [
+              "[CONNECTED] == true"
+
+              "[BODY] == pat(220 ${mailserverHost} ESMTP*)"
+            ];
           }
 
           {
