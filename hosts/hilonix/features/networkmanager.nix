@@ -77,7 +77,7 @@
 
             allowed-ips = "0.0.0.0/0;::/0;";
 
-            persistent-keepalive = 25;
+            persistent-keepalive = 25; # keep NAT entries alive during inactivity
           };
         };
         # keep-sorted end
