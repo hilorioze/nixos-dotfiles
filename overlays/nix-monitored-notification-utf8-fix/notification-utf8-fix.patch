@@ -1,0 +1,47 @@
+diff --git a/monitored.cc b/monitored.cc
+index a66b1c7..3ca08a4 100644
+--- a/monitored.cc
++++ b/monitored.cc
+@@ -97,6 +97,7 @@ std::array<int, 2> make_pipe()
+ }
+ 
+ #ifdef NOTIFY
++#include <glib.h>
+ #include <libnotify/notify.h>
+ 
+ std::chrono::milliseconds get_notify_timeout()
+@@ -136,10 +137,21 @@ void notify(char* argv[])
+ 			    for (int i = 0; argv[i] != nullptr; ++i)
+ 			    {
+ 				    message << (i > 0 ? " " : "");
+-				    bool const has_space = std::string_view(argv[i]).find(
+-				                               ' ') != std::string_view::npos;
+-				    message << (has_space ? "'" : "") << argv[i]
+-				            << (has_space ? "'" : "");
++				    auto const arg = argv[i];
++				    bool const has_space = std::string_view(arg).find(' ') !=
++				                           std::string_view::npos;
++				    message << (has_space ? "'" : "");
++				    if (g_utf8_validate(arg, -1, nullptr))
++				    {
++					    message << arg;
++				    }
++				    else
++				    {
++					    auto arg_utf8 = g_utf8_make_valid(arg, -1);
++					    message << arg_utf8;
++					    g_free(arg_utf8);
++				    }
++				    message << (has_space ? "'" : "");
+ 			    }
+ 			    message << "</span>";
+ 
+@@ -150,7 +162,7 @@ void notify(char* argv[])
+ 			    }
+ 
+ 			    auto notification = notify_notification_new(
+-			        title.view().data(), message.view().data(), icon.data());
++			        title.str().c_str(), message.str().c_str(), icon.data());
+ 			    if (!notification)
+ 			    {
+ 				    std::cerr << "notify_notification_new failed" << std::endl;
