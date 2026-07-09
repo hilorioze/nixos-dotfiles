@@ -5,7 +5,6 @@
     ../../../../common/features/ayugram-desktop.nix
     ../../../../common/features/baloo.nix
     ../../../../common/features/binaryninja.nix
-    ../../../../common/features/bs-manager.nix
     ../../../../common/features/corefonts.nix
     ../../../../common/features/croc.nix
     ../../../../common/features/disable-kwallet-secrets.nix
@@ -58,6 +57,7 @@
     ../../../features/ark.nix
     ../../../features/attic.nix
     ../../../features/bruno.nix
+    ../../../features/bs-manager.nix
     ../../../features/chromium.nix
     ../../../features/cinny.nix
     ../../../features/cli-proxy-api.nix
