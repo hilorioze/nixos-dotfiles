@@ -52,6 +52,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ../../../features/a2s.nix
     ../../../features/ark.nix
     ../../../features/attic.nix
     ../../../features/bruno.nix

@@ -1,5 +1,6 @@
 {pkgs, ...}: {
   # keep-sorted start
+  a2s = pkgs.callPackage ./a2s {};
   cli-proxy-api = pkgs.callPackage ./cli-proxy-api {};
   ghidra-mcp = pkgs.callPackage ./ghidra-mcp {};
   ghidra-mcp-plugin = pkgs.callPackage ./ghidra-mcp-plugin {};
