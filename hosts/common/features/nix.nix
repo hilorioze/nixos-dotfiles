@@ -1,9 +1,22 @@
 {inputs, ...}: let
   inherit ((import ../../../flake.nix)) nixConfig;
+
+  nixpkgsUnfreePath = inputs.nixpkgs-unfree.outPath;
 in {
+  nixpkgs.flake = {
+    # disable nixpkgs' generated `NIX_PATH`; `nix.nixPath` below sets it explicitly
+    setNixPath = false;
+
+    # disable nixpkgs' generated registry entry; `nix.registry.nixpkgs.flake` below sets it explicitly
+    setFlakeRegistry = false;
+  };
+
   nix = {
-    # pin system channels to flake inputs
-    nixPath = ["nixpkgs=${inputs.nixpkgs}"];
+    # route legacy `<nixpkgs>` lookups, including comma's `NIX_PATH` handling, through `nixpkgs-unfree`
+    nixPath = ["nixpkgs=${nixpkgsUnfreePath}"];
+
+    # route CLI `nixpkgs#...` lookups through `nixpkgs-unfree`
+    registry.nixpkgs.flake = inputs.nixpkgs-unfree;
 
     settings =
       {
