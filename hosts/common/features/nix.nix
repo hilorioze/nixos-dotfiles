@@ -12,10 +12,10 @@ in {
   };
 
   nix = {
-    # route legacy `<nixpkgs>` lookups, including comma's `NIX_PATH` handling, through `nixpkgs-unfree`
+    # route legacy `<nixpkgs>` lookups, including `comma`'s `NIX_PATH` handling, through `nixpkgs-unfree`
     nixPath = ["nixpkgs=${nixpkgsUnfreePath}"];
 
-    # route CLI `nixpkgs#...` lookups through `nixpkgs-unfree`
+    # route registry lookups for `nixpkgs#...` through `nixpkgs-unfree`
     registry.nixpkgs.flake = inputs.nixpkgs-unfree;
 
     settings =

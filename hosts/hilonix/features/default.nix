@@ -17,6 +17,8 @@
     ../../common/features/mangohud.nix
     ../../common/features/netcat-firewall.nix
     ../../common/features/networkmanager-wol.nix
+    ../../common/features/nix-ncps-substituter.nix
+    ../../common/features/nix.nix
     ../../common/features/openssh.nix
     ../../common/features/partition-manager.nix
     ../../common/features/pipewire-lowlatency.nix
@@ -42,7 +44,6 @@
     ./i18n.nix
     ./networkmanager.nix
     ./nix-ld.nix
-    ./nix.nix
     ./openrazer.nix
     ./plasma.nix
     ./sddm.nix
