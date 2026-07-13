@@ -62,9 +62,6 @@
 
     freesmlauncher.url = "github:FreesmTeam/FreesmLauncher"; # keep their inputs for binary cache
 
-    # keep `v2026.5.7` until https://github.com/NousResearch/hermes-agent/issues/27047 is fixed
-    hermes-agent.url = "github:NousResearch/hermes-agent/v2026.5.7"; # keep their inputs for binary cache
-
     mcp-nixos = {
       url = "github:utensils/mcp-nixos";
       inputs.nixpkgs.follows = "nixpkgs";

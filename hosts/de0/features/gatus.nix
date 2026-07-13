@@ -86,19 +86,6 @@
             conditions = ["[BODY] == pat(*cstrike*)"]; # `cstrike` is the game directory in the `A2S_INFO` reply
           };
 
-          mkHermesAgentEndpoint = instanceName: {
-            name = "hermes-agent-${instanceName}";
-            group = "services";
-
-            url = "http://${de0Host}:${toString de0Config.services.hermes-agent.instances.${instanceName}.settings.platforms.api_server.extra.port}/health";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].status == ok"
-            ];
-          };
-
           mkNodeExporterEndpoint = nixosConfig: {
             name = "node-exporter-${nixosConfig.networking.hostName}";
             group = "telemetry";
@@ -183,12 +170,6 @@
               "[BODY].status == pass"
             ];
           }
-
-          (mkHermesAgentEndpoint "alex")
-
-          (mkHermesAgentEndpoint "hilorioze")
-
-          (mkHermesAgentEndpoint "shared")
 
           {
             name = "jellyfin";

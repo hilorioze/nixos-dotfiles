@@ -26,7 +26,6 @@
     ./fakesynology-proxy.nix
     ./gatus.nix
     ./grafana.nix
-    ./hermes-agent.nix
     ./loki.nix
     ./niks3.nix
     ./podman-exporter.nix
