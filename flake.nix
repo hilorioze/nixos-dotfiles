@@ -24,16 +24,19 @@
     # keep-sorted start block=yes newline_separated=yes
     deploy-rs = {
       url = "github:serokell/deploy-rs";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     home-manager = {
       url = "github:nix-community/home-manager";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nixpkgs-unfree = {
       url = "github:numtide/nixpkgs-unfree";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -45,21 +48,25 @@
 
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     disko = {
       url = "github:nix-community/disko/latest";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     ffmpeg-mcp-lite = {
       url = "github:kevinwatt/ffmpeg-mcp-lite";
+
       flake = false;
     };
 
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -67,23 +74,28 @@
 
     mcp-nixos = {
       url = "github:utensils/mcp-nixos";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     mt7927-nixos = {
       url = "github:cmspam/mt7927-nixos";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     niks3 = {
       url = "github:Mic92/niks3";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-alien = {
       url = "github:thiagokokada/nix-alien";
+
       inputs = {
         nixpkgs.follows = "nixpkgs";
+
         nix-index-database.follows = "nix-index-database";
       };
     };
@@ -94,21 +106,25 @@
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-monitored = {
       url = "github:ners/nix-monitored";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-software-center = {
       url = "github:snowfallorg/nix-software-center";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nixos-conf-editor = {
       url = "github:snowfallorg/nixos-conf-editor";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -116,44 +132,53 @@
 
     opencode-wakatime = {
       url = "github:angristan/opencode-wakatime";
+
       flake = false;
     };
 
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
+
       inputs = {
         nixpkgs.follows = "nixpkgs";
+
         home-manager.follows = "home-manager";
       };
     };
 
     silent-sddm = {
       url = "github:uiriansan/SilentSDDM";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     simple-nixos-mailserver = {
       url = "gitlab:simple-nixos-mailserver/nixos-mailserver/main";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     sops-nix = {
       url = "github:Mic92/sops-nix";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     steam-config-nix = {
       url = "github:different-name/steam-config-nix";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     stylix = {
       url = "github:nix-community/stylix";
+
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     yt-dlp-mcp = {
       url = "github:kevinwatt/yt-dlp-mcp";
+
       flake = false;
     };
     # keep-sorted end
