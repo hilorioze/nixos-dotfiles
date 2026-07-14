@@ -19,9 +19,6 @@ jobs:
 
       cancel-in-progress: true
 
-    permissions:
-      contents: write
-
     runs-on: ubuntu-latest
 
     steps:
