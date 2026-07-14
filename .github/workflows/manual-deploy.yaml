@@ -120,7 +120,8 @@ jobs:
       - id: fetch-niks3-bin
         run: |
           # `niks3-action` looks for `niks3-hook` next to `niks3`
-          niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from . --print-build-logs --expr $'
+          # `--inputs-from github:hilorioze/nixos-dotfiles` keeps CLI and server on the same version to avoid API mismatches
+          niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:hilorioze/nixos-dotfiles --print-build-logs --expr $'
           let
             pkgs = import <nixpkgs> {};
 
@@ -158,7 +159,7 @@ jobs:
 
       - uses: Mic92/niks3-action@12d3e320b2a99b7938f9634bd337cd9fec104609 # v1.1.0
         with:
-          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} # keep cli and server on the same revision to avoid api mismatches
+          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
 
           server-url: ${{ vars.NIKS3_SERVER_URL }}
 
