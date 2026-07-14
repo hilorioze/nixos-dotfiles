@@ -114,9 +114,5 @@
 
   system.stateVersion = "26.05";
 
-  nixpkgs = {
-    config.cudaSupport = true;
-
-    hostPlatform.system = "x86_64-linux";
-  };
+  nixpkgs.hostPlatform.system = "x86_64-linux";
 }
