@@ -5,6 +5,7 @@ on:
 
     paths: &paths
       - .github/workflows/build.yaml
+      - atelier.toml
 
       - '**/*.nix'
       - '!devenv.nix'
