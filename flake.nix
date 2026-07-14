@@ -22,7 +22,10 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
 
     # keep-sorted start block=yes newline_separated=yes
-    deploy-rs.url = "github:serokell/deploy-rs";
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     home-manager = {
       url = "github:nix-community/home-manager";
