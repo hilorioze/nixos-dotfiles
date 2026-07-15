@@ -36,12 +36,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixpkgs-unfree = {
-      url = "github:numtide/nixpkgs-unfree";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     # keep-sorted end
 
