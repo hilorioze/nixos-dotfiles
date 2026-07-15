@@ -7,7 +7,6 @@
     ../../common/features/fluent-bit.nix
     ../../common/features/home-manager.nix
     ../../common/features/netcat-firewall.nix
-    ../../common/features/nix-ncps-substituter.nix
     ../../common/features/nix.nix
     ../../common/features/node-exporter.nix
     ../../common/features/openssh.nix
@@ -19,7 +18,6 @@
     ./bazarr.nix
     ./jellyfin.nix
     ./media-storage.nix
-    ./ncps.nix
     ./networkd-dispatcher.nix
     ./pinchflat.nix
     ./prowlarr.nix

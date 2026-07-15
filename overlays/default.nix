@@ -16,7 +16,6 @@
   # keep-sorted start
   bs-manager-bump-1-5-6-unstable-2026-07-09 = import ./bs-manager-bump-1-5-6-unstable-2026-07-09;
   mcp-nixos-fastmcp-upstream = import ./mcp-nixos-fastmcp-upstream inputs;
-  ncps-bump-v0-10-rc14 = import ./ncps-bump-v0-10-rc14;
   nix-monitored-notification-utf8-fix = import ./nix-monitored-notification-utf8-fix;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;
   plasma-workspace-media-keys-no-repeat = import ./plasma-workspace-media-keys-no-repeat;

@@ -250,15 +250,6 @@
           }
 
           {
-            name = "ncps";
-            group = "platform";
-
-            url = "http://${fakesynologyNixosHost}:${lib.last (lib.splitString ":" fakesynologyNixosConfig.services.traefik.staticConfigOptions.entryPoints.ncps.address)}/healthz";
-
-            conditions = ["[STATUS] == 200"];
-          }
-
-          {
             name = "niks3";
             group = "platform";
 
