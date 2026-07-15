@@ -22,10 +22,10 @@ keys:
 
   - &pgp_admin_keys
     # keep-sorted start
-    - &pgp_hilorioze_hardware_key F0C7E37B24106ED3EFFB1CED12C04ED901029563!
-    - &pgp_hilorioze_hilonix 16F624D625E9FDDDE61A9D4F357D5FEEEB03D2D0!
-    - &pgp_hilorioze_lelonix BB5FC8BDE1FE7C0D9329103BBA679E29FCBD3AA6!
-    - &pgp_hilorioze_zikkkix 0604B8BA4B18BB76D9C3421FD59C9C021DE85AEB!
+    - &pgp_admin_hilorioze_hardware_key F0C7E37B24106ED3EFFB1CED12C04ED901029563!
+    - &pgp_admin_hilorioze_hilonix 16F624D625E9FDDDE61A9D4F357D5FEEEB03D2D0!
+    - &pgp_admin_hilorioze_lelonix BB5FC8BDE1FE7C0D9329103BBA679E29FCBD3AA6!
+    - &pgp_admin_hilorioze_zikkkix 0604B8BA4B18BB76D9C3421FD59C9C021DE85AEB!
     # keep-sorted end
 
 creation_rules:
