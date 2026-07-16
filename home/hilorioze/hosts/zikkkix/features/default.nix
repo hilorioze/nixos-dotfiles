@@ -7,6 +7,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ../../../features/atuin.nix
     ../../../features/bs-manager.nix
     ../../../features/cinny.nix
     ../../../features/cli-proxy-api.nix

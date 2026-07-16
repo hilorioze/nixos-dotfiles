@@ -54,6 +54,7 @@
     ../../../features/a2s.nix
     ../../../features/ark.nix
     ../../../features/attic.nix
+    ../../../features/atuin.nix
     ../../../features/bruno.nix
     ../../../features/bs-manager.nix
     ../../../features/chromium.nix
