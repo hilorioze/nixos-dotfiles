@@ -1,7 +1,7 @@
 {
-  imports = [../../common/features/keepassxc.nix];
-
   programs.keepassxc = {
+    enable = true;
+
     autostart = true;
 
     settings = {
