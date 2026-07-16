@@ -113,8 +113,6 @@
               };
 
               settings.General = {
-                favoriteApps = []; # effective for fresh profiles only; existing profiles are managed by `startup.startupScript.clear_kicker_app_favorites`
-
                 favoriteSystemActions = "";
 
                 highlightNewlyInstalledApps = false;
@@ -184,9 +182,10 @@
       }
     ];
 
-    # fresh profiles get empty kicker favorites from config; existing profiles need a one-time KAStats purge because app favorites are stored in KAStats; `kactivitymanagerd-statsrc` only stores ordering
+    # existing profiles need a one-time KAStats purge because app favorites are stored in KAStats; `kactivitymanagerd-statsrc` only stores ordering
     startup.startupScript.clear_kicker_app_favorites = {
       text = ''
+        # `IgnoreDefaults` prevents new kicker instances from restoring these entries
         resources_dir=${config.xdg.dataHome}/kactivitymanagerd/resources
         [[ -d $resources_dir ]] || exit 0
 
@@ -202,6 +201,8 @@
     };
 
     configFile = {
+      kicker-extra-favoritesrc.General.IgnoreDefaults = true; # prevents new kicker instances from importing KDE's default app favorites
+
       plasmaparc.General = {
         VolumeStep = 2;
 
