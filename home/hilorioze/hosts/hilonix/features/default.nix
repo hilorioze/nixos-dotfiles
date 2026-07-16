@@ -7,7 +7,6 @@
     ../../../../common/features/binaryninja.nix
     ../../../../common/features/corefonts.nix
     ../../../../common/features/croc.nix
-    ../../../../common/features/disable-kwallet-secrets.nix
     ../../../../common/features/filelight.nix
     ../../../../common/features/flatpak.nix
     ../../../../common/features/fontconfig.nix
@@ -71,6 +70,7 @@
     ../../../features/keepassxc.nix
     ../../../features/kilocode.nix
     ../../../features/konsole.nix
+    ../../../features/kwallet-keepassxc.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
     ../../../features/niks3.nix
