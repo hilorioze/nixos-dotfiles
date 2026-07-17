@@ -11,8 +11,8 @@
     ../../../features/bs-manager.nix
     ../../../features/cinny.nix
     ../../../features/cli-proxy-api.nix
+    ../../../features/codex.nix
     ../../../features/gpg.nix
-    ../../../features/kilocode.nix
     ../../../features/mcp.nix
     ../../../features/niks3.nix
     ../../../features/wakatime.nix

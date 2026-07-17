@@ -1,0 +1,79 @@
+{
+  # keep-sorted start
+  config,
+  lib,
+  pkgs,
+  # keep-sorted end
+  ...
+}: {
+  programs.codex = {
+    enable = true;
+
+    enableMcpIntegration = true;
+
+    settings = {
+      personality = "pragmatic";
+
+      features.memories = true;
+
+      tui.status_line = [
+        "current-dir"
+        "git-branch"
+        "model-with-reasoning"
+        "context-used"
+        "weekly-limit"
+        "session-id"
+      ];
+    };
+  };
+
+  home = {
+    file.".codex/config.toml".enable = false; # keep the generated settings source without linking an immutable user config
+
+    activation = {
+      writeCodexConfig = lib.hm.dag.entryAfter ["linkGeneration"] ''
+        config_file=${lib.escapeShellArg "${config.home.homeDirectory}/.codex/config.toml"}
+        settings_file=${lib.escapeShellArg config.home.file.".codex/config.toml".source}
+
+        if [[ -s $config_file ]]; then
+          run ${pkgs.runtimeShell} -c '${lib.getExe' pkgs.yq "tomlq"} --toml-output --slurp ".[0] * .[1]" $1 $2 | ${lib.getExe' pkgs.moreutils "sponge"} $1' -- $config_file $settings_file
+        else
+          run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $settings_file $config_file
+        fi
+      '';
+
+      # these settings are stored in the extension's VSCodium global state rather than `config.toml` or `settings.json`
+      configureCodexExtension = let
+        stateDirectory = "${config.xdg.configHome}/VSCodium/User/globalStorage";
+
+        codexExtensionSettings = builtins.toJSON {
+          persisted-atom-state = {
+            # `none` and `minimal` are useless here because current models do not advertise them
+            enabled-reasoning-efforts = [
+              "low"
+              "medium"
+              "high"
+              "xhigh"
+              "max"
+              "ultra"
+            ];
+
+            show-context-window-usage = true;
+
+            show-ultra-in-model-picker-slider = true;
+          };
+        };
+      in
+        lib.hm.dag.entryAfter ["writeBoundary"] ''
+          run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${lib.escapeShellArg stateDirectory}
+
+          run ${lib.getExe pkgs.sqlite} ${lib.escapeShellArg "${stateDirectory}/state.vscdb"} \
+            "PRAGMA busy_timeout = 5000;" \
+            "PRAGMA user_version = 1; /* match VSCodium's storage schema version when creating the database */" \
+            "CREATE TABLE IF NOT EXISTS ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB);" \
+            "INSERT OR IGNORE INTO ItemTable (key, value) VALUES ('openai.chatgpt', '{}');" \
+            ${lib.escapeShellArg "UPDATE ItemTable SET value = json_patch(value, '${codexExtensionSettings}') WHERE key = 'openai.chatgpt';"}
+        '';
+    };
+  };
+}

@@ -16,26 +16,27 @@
 
       enableExtensionUpdateCheck = false;
 
-      extensions = with pkgs.vscode-extensions; [
-        # keep-sorted start
-        eamodio.gitlens
-        editorconfig.editorconfig
-        github.codespaces
-        github.vscode-github-actions
-        jnoortheen.nix-ide
-        kilocode.kilo-code
-        mkhl.direnv
-        ms-python.debugpy
-        ms-python.python
-        ms-python.vscode-pylance
-        ms-vscode.cmake-tools
-        ms-vscode.cpptools
-        pkief.material-icon-theme
-        ritwickdey.liveserver
-        rust-lang.rust-analyzer
-        wakatime.vscode-wakatime
-        # keep-sorted end
-      ];
+      extensions =
+        (with pkgs.vscode-extensions; [
+          # keep-sorted start
+          eamodio.gitlens
+          editorconfig.editorconfig
+          github.codespaces
+          github.vscode-github-actions
+          jnoortheen.nix-ide
+          mkhl.direnv
+          ms-python.debugpy
+          ms-python.python
+          ms-python.vscode-pylance
+          ms-vscode.cmake-tools
+          ms-vscode.cpptools
+          pkief.material-icon-theme
+          ritwickdey.liveserver
+          rust-lang.rust-analyzer
+          wakatime.vscode-wakatime
+          # keep-sorted end
+        ])
+        ++ [pkgs.nix-vscode-extensions.open-vsx-release.openai.chatgpt];
 
       userSettings = {
         "editor.wordWrap" = "on";
@@ -48,11 +49,6 @@
 
         "terminal.integrated.stickyScroll.enabled" = false; # disable the weird-looking and obstructive block in the terminal header
         "terminal.integrated.env.linux".EDITOR = "${lib.getExe config.programs.vscodium.package} --wait";
-        "terminal.integrated.commandsToSkipShell" = [
-          # required by kilocode to be set
-          "kilo-code.new.agentManagerOpen"
-          "kilo-code.new.agentManager.showTerminal"
-        ];
 
         "window.zoomLevel" = -1; # set default zoom level to 80%
 
@@ -64,11 +60,6 @@
         "nix.enableLanguageServer" = true;
         "nix.serverPath" = "${lib.getExe pkgs.nil}";
         "nix.serverSettings".nil.formatting.command = ["${lib.getExe pkgs.alejandra}"];
-
-        # required by kilocode to be set
-        "kilo-code.new.agentWorkStyle" = "skipped";
-
-        "kilo-code.new.autocomplete.enableAutoTrigger" = false; # disable automatic inline completions
 
         "update.showReleaseNotes" = false;
       };

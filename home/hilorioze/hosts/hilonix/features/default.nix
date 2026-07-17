@@ -61,6 +61,7 @@
     ../../../features/chromium.nix
     ../../../features/cinny.nix
     ../../../features/cli-proxy-api.nix
+    ../../../features/codex.nix
     ../../../features/dolphin.nix
     ../../../features/firefox.nix
     ../../../features/gpg.nix
@@ -68,7 +69,6 @@
     ../../../features/imhex.nix
     ../../../features/kdeconnect.nix
     ../../../features/keepassxc.nix
-    ../../../features/kilocode.nix
     ../../../features/konsole.nix
     ../../../features/kwallet-keepassxc.nix
     ../../../features/mangohud.nix

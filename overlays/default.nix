@@ -8,6 +8,7 @@
   nix-alien = inputs.nix-alien.overlays.default;
   nix-gaming = _final: prev: inputs.nix-gaming.packages.${prev.stdenv.hostPlatform.system} or {}; # `easyOverlay`'s `mkForce` overrides `pkgs`, rebuilding with our `pkgs` and breaking binary cache
   nix-software-center = inputs.nix-software-center.overlays.default;
+  nix-vscode-extensions = inputs.nix-vscode-extensions.overlays.default;
   nixos-conf-editor = inputs.nixos-conf-editor.overlays.default;
   # keep-sorted end
 

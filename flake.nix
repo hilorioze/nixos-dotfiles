@@ -118,6 +118,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions"; # keep upstream's tested nixpkgs pin for its own outputs and extension fixes
+
     nixos-conf-editor = {
       url = "github:snowfallorg/nixos-conf-editor";
 
