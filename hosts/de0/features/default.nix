@@ -26,6 +26,7 @@
     ./fakesynology-proxy.nix
     ./gatus.nix
     ./grafana.nix
+    ./homepage-dashboard.nix
     ./loki.nix
     ./niks3.nix
     ./podman-exporter.nix
