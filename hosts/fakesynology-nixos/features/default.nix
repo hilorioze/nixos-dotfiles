@@ -10,7 +10,6 @@
     ../../common/features/nix.nix
     ../../common/features/node-exporter.nix
     ../../common/features/openssh.nix
-    ../../common/features/postgresql.nix
     ../../common/features/systemd-boot.nix
     # keep-sorted end
 
