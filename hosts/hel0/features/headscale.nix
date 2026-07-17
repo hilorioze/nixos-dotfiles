@@ -152,18 +152,13 @@ in {
               dst = ["tag:fakesynology:9116"];
             }
 
-            # de0 (gatus) checks endpoints health via https
+            # de0 (gatus) checks headscale health via https
             {
               action = "accept";
 
               src = ["tag:de0"];
 
-              dst = [
-                # keep-sorted start
-                "tag:fakesynology-nixos:443"
-                "tag:hel0:443"
-                # keep-sorted end
-              ];
+              dst = ["tag:hel0:443"];
             }
 
             # `de0` (`gatus`) checks `mailserver` health on `hel0`

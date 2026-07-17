@@ -64,7 +64,6 @@
 
           # keep-sorted start
           de0Host = de0Config.networking.fqdn;
-          fakesynologyNixosHost = fakesynologyNixosConfig.networking.fqdn;
           hel0Host = hel0Config.networking.fqdn;
           # keep-sorted end
 
@@ -103,19 +102,6 @@
             url = "http://${de0Host}:${toString de0Config.services.prometheus.alertmanager.port}/-/ready"; # `/-/healthy` only proves the process is up
 
             conditions = ["[STATUS] == 200"];
-          }
-
-          {
-            name = "bazarr";
-            group = "services";
-
-            url = "https://bazarr.${fakesynologyNixosHost}/api/system/ping";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].status == OK"
-            ];
           }
 
           {
@@ -169,15 +155,6 @@
 
               "[BODY].status == pass"
             ];
-          }
-
-          {
-            name = "jellyfin";
-            group = "services";
-
-            url = "https://jellyfin.${fakesynologyNixosHost}/health";
-
-            conditions = ["[STATUS] == 200"];
           }
 
           {
@@ -274,19 +251,6 @@
           (mkNodeExporterEndpoint hel0Config)
 
           {
-            name = "pinchflat";
-            group = "services";
-
-            url = "https://pinchflat.${fakesynologyNixosHost}/healthcheck";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].status == ok"
-            ];
-          }
-
-          {
             name = "podman-exporter-de0";
             group = "telemetry";
 
@@ -305,55 +269,6 @@
           }
 
           {
-            name = "prowlarr";
-            group = "services";
-
-            url = "https://prowlarr.${fakesynologyNixosHost}/ping";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].status == OK"
-            ];
-          }
-
-          {
-            name = "qbittorrent";
-            group = "services";
-
-            url = "https://qbittorrent.${fakesynologyNixosHost}/";
-
-            conditions = ["[STATUS] == 200"];
-          }
-
-          {
-            name = "radarr";
-            group = "services";
-
-            url = "https://radarr.${fakesynologyNixosHost}/ping";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].status == OK"
-            ];
-          }
-
-          {
-            name = "seerr";
-            group = "services";
-
-            # `/status` checks github for updates; `/status/appdata` stays local and verifies config dir access
-            url = "https://seerr.${fakesynologyNixosHost}/api/v1/status/appdata";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].appDataPermissions == true"
-            ];
-          }
-
-          {
             name = "snmp-exporter-fakesynology";
             group = "telemetry";
 
@@ -363,19 +278,6 @@
               "[STATUS] == 200"
 
               "[BODY] == pat(*snmp_scrape_duration_seconds*)"
-            ];
-          }
-
-          {
-            name = "sonarr";
-            group = "services";
-
-            url = "https://sonarr.${fakesynologyNixosHost}/ping";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].status == OK"
             ];
           }
 
