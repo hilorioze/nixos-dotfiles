@@ -60,7 +60,6 @@
     ../../../features/bs-manager.nix
     ../../../features/chromium.nix
     ../../../features/cinny.nix
-    ../../../features/cli-proxy-api.nix
     ../../../features/codex.nix
     ../../../features/dolphin.nix
     ../../../features/firefox.nix

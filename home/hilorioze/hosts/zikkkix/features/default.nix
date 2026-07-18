@@ -10,7 +10,6 @@
     ../../../features/atuin.nix
     ../../../features/bs-manager.nix
     ../../../features/cinny.nix
-    ../../../features/cli-proxy-api.nix
     ../../../features/codex.nix
     ../../../features/gpg.nix
     ../../../features/mcp.nix

@@ -6,19 +6,11 @@
   # keep-sorted end
   ...
 }: {
-  sops.secrets."apps/context7/api-key" = {};
-
   programs.mcp = {
     enable = true;
 
     servers = {
       # keep-sorted start block=yes newline_separated=yes
-      context7 = {
-        url = "https://mcp.context7.com/mcp";
-
-        headers.CONTEXT7_API_KEY = "{file:${config.sops.secrets."apps/context7/api-key".path}}";
-      };
-
       deepwiki.url = "https://mcp.deepwiki.com/mcp";
 
       devenv.url = "https://mcp.devenv.sh";
