@@ -36,6 +36,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     # keep-sorted end
 
