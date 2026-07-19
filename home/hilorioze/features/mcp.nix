@@ -11,10 +11,6 @@
 
     servers = {
       # keep-sorted start block=yes newline_separated=yes
-      deepwiki.url = "https://mcp.deepwiki.com/mcp";
-
-      devenv.url = "https://mcp.devenv.sh";
-
       git = {
         command = lib.getExe' pkgs.uv "uvx";
         args = ["mcp-server-git"];
