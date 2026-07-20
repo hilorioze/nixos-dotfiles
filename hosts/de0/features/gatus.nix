@@ -114,7 +114,7 @@
               "[STATUS] == 200"
 
               "[BODY].status == success"
-              "[BODY].data.result[1] == 0" # healthy
+              "[BODY].data.result[1] == any(0, 2)" # `healthy` or `starting`
             ];
           }
 
