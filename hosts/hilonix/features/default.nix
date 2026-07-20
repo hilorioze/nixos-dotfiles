@@ -39,6 +39,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ./amnezia-vpn.nix
     ./coolercontrol.nix
     ./i18n.nix
     ./networkmanager.nix
