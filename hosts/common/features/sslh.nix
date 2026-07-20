@@ -72,7 +72,7 @@ in {
     traefik.staticConfigOptions.entryPoints.https = {
       address = lib.mkForce ":${toString httpsInternalPort}";
 
-      http3.advertisedPort = httpsPort; # keep the advertised HTTP/3 port at `443` so QUIC clients hit the UDP redirect to `8443`
+      http3.advertisedPort = httpsPort; # advertise the public port instead of the internal listener port; the firewall rules above redirect traffic to it
     };
   };
 
