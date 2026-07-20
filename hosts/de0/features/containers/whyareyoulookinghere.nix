@@ -33,7 +33,7 @@
 
   virtualisation.oci-containers.containers = let
     baseContainer = {
-      image = "ghcr.io/hilorioze/whyareyoulookinghere@sha256:959df7d9aff80becd7ddfd90bb43835bcc46a7ef4899d9ed14d68cd10951944d"; # 9bf3a8c11a1c1b87294848d8ef416dc6491204fd
+      image = "ghcr.io/hilorioze/whyareyoulookinghere@sha256:204b23fe943117b89c2e3d4b28e7d2dda110dc3c5c3cdb6ffa8205380957c0b2"; # 093fab1
 
       login = {
         registry = "ghcr.io";
