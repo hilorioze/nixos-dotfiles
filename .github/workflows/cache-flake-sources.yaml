@@ -1,0 +1,133 @@
+on:
+  push:
+    branches:
+      - main
+
+    paths:
+      - .github/workflows/cache-flake-sources.yaml
+
+      - flake.nix
+      - flake.lock
+
+  workflow_dispatch:
+
+jobs:
+  collect-substituters:
+    runs-on: ubuntu-latest
+
+    outputs:
+      extra-substituters: ${{ steps.collect-substituters.outputs['extra-substituters'] }}
+      extra-trusted-public-keys: ${{ steps.collect-substituters.outputs['extra-trusted-public-keys'] }}
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        with:
+          extra_nix_config: &extra_nix_config |
+            accept-flake-config = true
+
+            # resolved by follow-up jobs via `*extra_nix_config`; empty strings are safe here
+            extra-substituters = ${{ needs.collect-substituters.outputs['extra-substituters'] }}
+            extra-trusted-public-keys = ${{ needs.collect-substituters.outputs['extra-trusted-public-keys'] }}
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - id: collect-substituters
+        run: |
+          echo "extra-substituters=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')" >> $GITHUB_OUTPUT
+          echo "extra-trusted-public-keys=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')" >> $GITHUB_OUTPUT
+
+  cache-flake-sources:
+    needs: collect-substituters
+
+    concurrency:
+      # one cache upload per branch; latest completes last
+      group: ${{ github.workflow }}-${{ github.ref }}
+
+      cancel-in-progress: false
+
+    permissions:
+      id-token: write # required so `niks3` can authenticate via OIDC
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        with:
+          extra_nix_config: *extra_nix_config
+
+      - id: fetch-niks3-bin
+        run: |
+          # `niks3-action` looks for `niks3-hook` next to `niks3`
+          # `--inputs-from github:hilorioze/nixos-dotfiles` keeps CLI and server on the same version to avoid API mismatches
+          niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:hilorioze/nixos-dotfiles --print-build-logs --expr $'
+          let
+            pkgs = import <nixpkgs> {};
+
+            lib = pkgs.lib;
+
+            niks3ActionBinDir = pkgs.symlinkJoin {
+              name = "niks3-action-bin-dir";
+
+              paths = with import <niks3/nix/packages> {inherit pkgs;}; [
+                # keep-sorted start
+                niks3
+                niks3-hook
+                # keep-sorted end
+              ];
+            };
+          in
+            pkgs.linkFarm "niks3-action-bin" [
+              # keep-sorted start block=yes newline_separated=yes
+              {
+                name = "bin/niks3";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3";
+              }
+
+              {
+                name = "bin/niks3-hook";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3-hook";
+              }
+              # keep-sorted end
+            ]
+            ')
+
+          printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
+
+      - uses: Mic92/niks3-action@12d3e320b2a99b7938f9634bd337cd9fec104609 # v1.1.0
+        with:
+          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
+
+          server-url: ${{ vars.NIKS3_SERVER_URL }}
+
+      # cache the built `fetch-niks3-bin` output so later runs can reuse it
+      - run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER_URL }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
+
+      - run: |
+          set -o pipefail
+
+          substituters=$(nix config show substituters)
+
+          is_cached() {
+            base_name=${1#/nix/store/}
+            hash_part=${base_name%%-*}
+
+            for substituter in $substituters; do
+              nix store path-from-hash-part --store $substituter $hash_part &>/dev/null && return 0
+            done
+
+            return 1
+          }
+
+          nix flake archive --json . |
+            jq --raw-output '.. | objects | .path // empty' |
+            sort --unique |
+            while read path; do
+              is_cached $path || echo $path
+            done |
+            xargs --no-run-if-empty ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER_URL }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs"
