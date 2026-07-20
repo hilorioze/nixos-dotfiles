@@ -226,7 +226,24 @@
             inherit modules;
           };
 
-        mkDeployNode = nixosConfiguration: {
+        mkDeployNode = nixosConfiguration: let
+          inherit (nixosConfiguration) pkgs;
+
+          # keep the pinned `deploy-rs` lib, but use `nixpkgs`' cached binary to avoid rebuilding `deploy-rs` from source
+          deployLib =
+            (
+              deploy-rs.overlays.default
+              (
+                pkgs
+                // {
+                  deploy-rs = {
+                    inherit (pkgs) deploy-rs;
+                  };
+                }
+              )
+              pkgs
+            ).deploy-rs.lib;
+        in {
           hostname = nixosConfiguration.config.networking.fqdn;
 
           sshUser = "deployer";
@@ -234,7 +251,7 @@
           profiles.system = {
             user = "root";
 
-            path = deploy-rs.lib.${nixosConfiguration.config.nixpkgs.hostPlatform.system}.activate.nixos nixosConfiguration;
+            path = deployLib.activate.nixos nixosConfiguration;
           };
         };
       in {
