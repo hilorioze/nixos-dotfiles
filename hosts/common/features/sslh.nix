@@ -1,12 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  lib,
-  outputs,
-  pkgs,
-  # keep-sorted end
-  ...
-}: let
+{lib, ...}: let
   httpsPort = 443;
   httpsInternalPort = 8443;
 in {
@@ -76,67 +68,6 @@ in {
     };
   };
 
-  systemd.services = {
-    # raise the soft fd limit; `sslh-ev` hits `EMFILE` once the default `1024` file descriptors are exhausted
-    sslh.serviceConfig.LimitNOFILE = 4096;
-
-    # `tailscale`'s `ts-input` chain drops tailnet packets that reenter on `lo`, and `sslh` adds `ip rule add fwmark 0x2 lookup 100` without a `pref`, so the kernel places it after tailscale's catch-all rule, which is `5270`
-    tailscaled = let
-      tailnetPrefixes = outputs.nixosConfigurations.hel0.config.services.headscale.settings.prefixes;
-
-      tailnetV4Cidr = tailnetPrefixes.v4;
-      tailnetV6Cidr = tailnetPrefixes.v6;
-
-      sslhPorts = map (proto: proto.port) config.services.sslh.settings.protocols;
-
-      sslhPortsArg = lib.concatStringsSep "," sslhPorts;
-    in {
-      path = with pkgs; [
-        coreutils
-        iproute2
-        iptables
-      ];
-
-      postStart = lib.mkAfter ''
-        wait_for_ts_input() {
-          cmd="$1"
-
-          while ! "$cmd" -w -t filter -S ts-input >/dev/null 2>&1; do
-            sleep 0.1
-          done
-        }
-
-        # wait for `tailscale` to finish creating `ts-input` before inserting the rule
-        wait_for_ts_input iptables
-
-        while ip rule del fwmark 0x2 lookup 100 2>/dev/null; do true; done
-        while ip rule del pref 5260 fwmark 0x2 lookup 100 2>/dev/null; do true; done
-        ip rule add pref 5260 fwmark 0x2 lookup 100
-
-        while iptables -w -t filter -D ts-input -i lo -s ${tailnetV4Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
-        iptables -w -t filter -I ts-input 1 -i lo -s ${tailnetV4Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT
-
-        wait_for_ts_input ip6tables
-
-        while ip -6 rule del fwmark 0x2 lookup 100 2>/dev/null; do true; done
-        while ip -6 rule del pref 5260 fwmark 0x2 lookup 100 2>/dev/null; do true; done
-        ip -6 rule add pref 5260 fwmark 0x2 lookup 100
-
-        while ip6tables -w -t filter -D ts-input -i lo -s ${tailnetV6Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
-        ip6tables -w -t filter -I ts-input 1 -i lo -s ${tailnetV6Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT
-      '';
-
-      postStop = lib.mkAfter ''
-        while ip rule del pref 5260 fwmark 0x2 lookup 100 2>/dev/null; do true; done
-        while ip rule del fwmark 0x2 lookup 100 2>/dev/null; do true; done
-
-        while iptables -w -t filter -D ts-input -i lo -s ${tailnetV4Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
-
-        while ip -6 rule del pref 5260 fwmark 0x2 lookup 100 2>/dev/null; do true; done
-        while ip -6 rule del fwmark 0x2 lookup 100 2>/dev/null; do true; done
-
-        while ip6tables -w -t filter -D ts-input -i lo -s ${tailnetV6Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
-      '';
-    };
-  };
+  # raise the soft fd limit; `sslh-ev` hits `EMFILE` once the default `1024` file descriptors are exhausted
+  systemd.services.sslh.serviceConfig.LimitNOFILE = 4096;
 }

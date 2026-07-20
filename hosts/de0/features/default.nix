@@ -13,6 +13,7 @@
     ../../common/features/postgresql.nix
     ../../common/features/rabbitmq.nix
     ../../common/features/redis.nix
+    ../../common/features/sslh-tailscale.nix
     ../../common/features/sslh.nix
     ../../common/features/systemd-boot.nix
     ../../common/features/traefik-podman.nix
