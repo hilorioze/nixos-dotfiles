@@ -19,7 +19,7 @@ in {
       natChains = ["PREROUTING" "OUTPUT"];
     in {
       extraCommands = let
-        mkAddRule = table: chain: rule: "ip46tables -w -t ${table} -C ${chain} ${rule} 2>/dev/null || ip46tables -w -t ${table} -A ${chain} ${rule}";
+        mkAddRule = table: chain: rule: "ip46tables -t ${table} -C ${chain} ${rule} 2>/dev/null || ip46tables -t ${table} -A ${chain} ${rule}";
       in
         lib.concatStringsSep "\n\n" [
           (mkAddRule "filter" "INPUT" http3UdpDnatAcceptRule)
@@ -28,7 +28,7 @@ in {
         ];
 
       extraStopCommands = let
-        mkRemoveRule = table: chain: rule: "ip46tables -w -t ${table} -D ${chain} ${rule} 2>/dev/null || true";
+        mkRemoveRule = table: chain: rule: "ip46tables -t ${table} -D ${chain} ${rule} 2>/dev/null || true";
       in
         lib.concatStringsSep "\n\n" [
           (lib.concatMapStringsSep "\n" (chain: mkRemoveRule "nat" chain http3UdpRedirectRule) natChains)
