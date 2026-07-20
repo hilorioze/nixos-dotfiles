@@ -22,5 +22,8 @@
     ports = ["25565:25565"];
 
     volumes = ["ftbie:/data"];
+
+    # startup takes about 3 minutes; delay health check failures until it finishes
+    extraOptions = ["--health-start-period=4m"];
   };
 }
