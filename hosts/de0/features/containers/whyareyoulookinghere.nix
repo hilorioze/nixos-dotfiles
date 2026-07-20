@@ -63,6 +63,8 @@
       // {
         cmd = ["school_meals_bot_publisher"];
 
+        dependsOn = ["whyareyoulookinghere-school-meals-api"];
+
         environment = {
           SCHOOL_MEALS_API = "http://whyareyoulookinghere-school-meals-api:8000/";
 
