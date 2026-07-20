@@ -20,6 +20,7 @@
   nix-monitored-notification-utf8-fix = import ./nix-monitored-notification-utf8-fix;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;
   plasma-workspace-media-keys-no-repeat = import ./plasma-workspace-media-keys-no-repeat;
+  podman-healthcheck-ignore-result = import ./podman-healthcheck-ignore-result;
   spectacle-copy-save = import ./spectacle-copy-save;
   spectacle-ocr-clipboard-fix = import ./spectacle-ocr-clipboard-fix;
   spectacle-ocr-save = import ./spectacle-ocr-save;

@@ -1,0 +1,159 @@
+diff --git a/cmd/podman/healthcheck/run.go b/cmd/podman/healthcheck/run.go
+index 32e1af09..d0a61a1c 100644
+--- a/cmd/podman/healthcheck/run.go
++++ b/cmd/podman/healthcheck/run.go
+@@ -13,7 +13,7 @@ import (
+ 
+ var (
+ 	runCmd = &cobra.Command{
+-		Use:               "run CONTAINER",
++		Use:               "run [options] CONTAINER",
+ 		Short:             "Run the health check of a container",
+ 		Long:              "Run the health check of a container",
+ 		Example:           `podman healthcheck run mywebapp`,
+@@ -21,6 +21,7 @@ var (
+ 		Args:              cobra.ExactArgs(1),
+ 		ValidArgsFunction: common.AutocompleteContainersRunning,
+ 	}
++	ignoreResult bool
+ )
+ 
+ func init() {
+@@ -28,6 +29,10 @@ func init() {
+ 		Command: runCmd,
+ 		Parent:  healthCmd,
+ 	})
++
++	flags := runCmd.Flags()
++	flags.BoolVar(&ignoreResult, "ignore-result", false,
++		"Exit with code 0 regardless of healthcheck result or if the container is still in startup period")
+ }
+ 
+ func run(_ *cobra.Command, args []string) error {
+@@ -37,7 +42,11 @@ func run(_ *cobra.Command, args []string) error {
+ 	}
+ 	switch response.Status {
+ 	case define.HealthCheckUnhealthy, define.HealthCheckStarting, define.HealthCheckStopped:
+-		registry.SetExitCode(1)
++		if ignoreResult {
++			registry.SetExitCode(0)
++		} else {
++			registry.SetExitCode(1)
++		}
+ 		fmt.Println(response.Status)
+ 	}
+ 	return err
+diff --git a/docs/source/markdown/podman-healthcheck-run.1.md b/docs/source/markdown/podman-healthcheck-run.1.md
+index 863c8969..d295ceeb 100644
+--- a/docs/source/markdown/podman-healthcheck-run.1.md
++++ b/docs/source/markdown/podman-healthcheck-run.1.md
+@@ -4,7 +4,7 @@
+ podman\-healthcheck\-run - Run a container healthcheck
+ 
+ ## SYNOPSIS
+-**podman healthcheck run** *container*
++**podman healthcheck run** [*options*] *container*
+ 
+ ## DESCRIPTION
+ 
+@@ -25,6 +25,10 @@ Possible errors that can occur during the healthcheck are:
+ 
+ Print usage statement
+ 
++#### **--ignore-result**
++
++Exit with code 0 regardless of the healthcheck result and if the container is
++still in the startup period. Other errors will not be ignored.
+ 
+ ## EXAMPLES
+ 
+diff --git a/libpod/healthcheck_linux.go b/libpod/healthcheck_linux.go
+index 21ca2bcb..4b29b1b1 100644
+--- a/libpod/healthcheck_linux.go
++++ b/libpod/healthcheck_linux.go
+@@ -47,7 +47,7 @@ func (c *Container) createTimer(interval string, isStartup bool) error {
+ 		cmd = append(cmd, "--log-level=debug", "--syslog")
+ 	}
+ 
+-	cmd = append(cmd, "healthcheck", "run", c.ID())
++	cmd = append(cmd, "healthcheck", "run", "--ignore-result", c.ID())
+ 
+ 	conn, err := systemd.ConnectToDBUS()
+ 	if err != nil {
+diff --git a/test/e2e/healthcheck_run_test.go b/test/e2e/healthcheck_run_test.go
+index 4d420bd2..e5a3d023 100644
+--- a/test/e2e/healthcheck_run_test.go
++++ b/test/e2e/healthcheck_run_test.go
+@@ -160,6 +160,16 @@ var _ = Describe("Podman healthcheck run", func() {
+ 		Expect(inspect[0].State.Health).To(HaveField("Status", "starting"))
+ 	})
+ 
++	It("podman healthcheck --ignore-result exits 0 on failing healthcheck", func() {
++		session := podmanTest.Podman([]string{"run", "-q", "-dt", "--name", "hc", "quay.io/libpod/badhealthcheck:latest"})
++		session.WaitWithDefaultTimeout()
++		Expect(session).Should(ExitCleanly())
++
++		hc := podmanTest.Podman([]string{"healthcheck", "run", "--ignore-result", "hc"})
++		hc.WaitWithDefaultTimeout()
++		Expect(hc).Should(ExitWithError(0, ""))
++	})
++
+ 	It("podman healthcheck failed checks in start-period should not change status", func() {
+ 		session := podmanTest.Podman([]string{"run", "-dt", "--name", "hc", "--health-start-period", "2m", "--health-retries", "2", "--health-cmd", "ls /foo || exit 1", ALPINE, "top"})
+ 		session.WaitWithDefaultTimeout()
+diff --git a/test/system/220-healthcheck.bats b/test/system/220-healthcheck.bats
+index 7ad946c6..20459a7c 100644
+--- a/test/system/220-healthcheck.bats
++++ b/test/system/220-healthcheck.bats
+@@ -101,12 +101,13 @@ Log[-1].Output   | \"Uh-oh on stdout!\\\nUh-oh on stderr!\\\n\"
+     run -0 systemctl list-units
+     cidmatch=$(grep "$cid" <<<"$output")
+     echo "$cidmatch"
+-    assert "$cidmatch" =~ " $cid-[0-9a-f]+\.timer  *.*/podman healthcheck run $cid" \
++    assert "$cidmatch" =~ " $cid-[0-9a-f]+\.timer  *.*/podman healthcheck run --ignore-result $cid" \
+            "Healthcheck systemd unit exists"
+ 
+     # Check that the right service option is applied so we don't hit the systemd restart limit.
+     # Even though the code sets StartLimitIntervalSec the systemd command prints StartLimitInterval*U*Sec
+-    run -0 systemctl show "$cid-*.service"
++    # Use show --all otherwise the glob might not match the already inactive transient unit.
++    run -0 systemctl show --all "$cid-*.service"
+     assert "$output" =~ "StartLimitIntervalUSec=0" "The hc service has the right interval set"
+ 
+     current_time=$(date --iso-8601=ns)
+@@ -457,6 +458,35 @@ function _check_health_log {
+     run_podman rm -f -t0 $ctr
+ }
+ 
++@test "podman healthcheck --ignore-result" {
++    ctr="c-h-$(safename)"
++
++    run_podman run -d --name $ctr                  \
++           --health-cmd /home/podman/healthcheck   \
++           --health-retries=1                      \
++           --health-interval=disable               \
++           $IMAGE /home/podman/pause
++
++    # Healthcheck should succeed normally
++    run_podman healthcheck run $ctr
++    is "$output" "" "output from 'podman healthcheck run'"
++
++    # Now make the healthcheck fail
++    run_podman exec $ctr touch /uh-oh
++    run_podman 1 healthcheck run $ctr
++    is "$output" "unhealthy" "output from 'podman healthcheck run' without --ignore-result"
++
++    # With --ignore-result, we should still get "unhealthy" but exit 0
++    run_podman healthcheck run --ignore-result $ctr
++    is "$output" "unhealthy" "output from 'podman healthcheck run --ignore-result'"
++
++    # It should NOT suppress fatal errors however (e.g., nonexistent container)
++    run_podman 125 healthcheck run --ignore-result "nonexistent-$(safename)"
++    assert "$output" =~ "no such container"
++
++    run_podman rm -f -t0 $ctr
++}
++
+ # https://github.com/containers/podman/issues/25034
+ @test "podman healthcheck - start errors" {
+     skip_if_remote '$PATH overwrite not working via remote'
