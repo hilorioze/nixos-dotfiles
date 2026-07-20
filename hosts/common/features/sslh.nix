@@ -11,6 +11,7 @@
   httpsInternalPort = 8443;
 in {
   networking = {
+    # redirect HTTP/3 directly to `traefik` because `sslh` doesn't preserve the client ip when proxying UDP
     firewall = let
       http3UdpDnatAcceptRule = "-p udp --dport ${toString httpsInternalPort} -m conntrack --ctstate DNAT -j ACCEPT";
 
@@ -45,7 +46,7 @@ in {
       method = "ev"; # `libev` backend scales better than `fork`/`select` for many connections
 
       settings = {
-        transparent = true; # spoof source ip so services see the real remote ip (doesn't work for UDP)
+        transparent = true; # spoof source ip so services see the real remote ip
 
         verbose-connections = 1; # bitmask: stderr=1, syslog=2, logfile=4 (https://github.com/yrutschle/sslh/blob/7eabafc6e2776ed8ea99235b0c05283233425ec6/log.c#L98-L128)
 
