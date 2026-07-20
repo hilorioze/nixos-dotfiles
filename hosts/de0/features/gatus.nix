@@ -296,7 +296,14 @@
   };
 
   systemd.services.gatus = {
-    after = ["prometheus.service"];
+    after = [
+      # keep-sorted start
+      "postgresql.service"
+      "prometheus.service"
+      # keep-sorted end
+    ];
+
+    requires = ["postgresql.service"];
 
     # goldsrc `A2S_INFO` is `b"\xff\xff\xff\xffTSource Engine Query\x00"`
     # a normal YAML/Nix string would send UTF-8 text instead of raw `0xff` bytes
