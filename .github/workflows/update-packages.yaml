@@ -1,0 +1,120 @@
+on:
+  push:
+    branches:
+      - main
+
+    paths:
+      - .github/workflows/update-packages.yaml
+
+      - flake.nix
+      - flake.lock
+
+  schedule:
+    # run weekly on mondays at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+  workflow_dispatch:
+
+jobs:
+  update-packages:
+    concurrency:
+      # one workflow run at a time; latest completes last
+      group: ${{ github.workflow }}
+
+      cancel-in-progress: false
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        with:
+          extra_nix_config: |
+            accept-flake-config = true
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - id: update-packages
+        run: |
+          shopt -s nullglob
+
+          messages=$RUNNER_TEMP/nix-update
+          mkdir $messages
+
+          # pinned `nix-update` evaluates package update scripts through `<nixpkgs>`
+          NIX_PATH=nixpkgs=$(nix eval --raw --inputs-from . nixpkgs#legacyPackages.x86_64-linux.path)
+          export NIX_PATH
+
+          nix eval --raw .#packages --apply 'packages: builtins.concatStringsSep "\n" (builtins.attrNames (builtins.zipAttrsWith (_: values: builtins.head values) (builtins.attrValues packages))) + "\n"' |
+            while read package; do
+              nix run --inputs-from . nixpkgs#nix-update -- \
+                --flake \
+                --use-update-script \
+                --write-commit-message $messages/$package.md \
+                $package
+            done
+
+          table=$RUNNER_TEMP/nix-update-table.md
+          details=$RUNNER_TEMP/nix-update-details.md
+
+          # `wc` and `cat` below expect these files even when no packages were updated
+          touch $table $details
+
+          for message in $messages/*.md; do
+            # `yaas: 0.1.0 -> 0.2.0` -> `package=yaas old_version=0.1.0 new_version=0.2.0`
+            read package old_version _ new_version < $message
+            package=${package%:} # remove the trailing colon: `yaas:` -> `yaas`
+
+            printf "| \`%s\` | \`%s\` | \`%s\` |\n" \
+              $package \
+              $old_version \
+              $new_version >> $table
+
+            printf "\nUpdates \`%s\` from \`%s\` to \`%s\`\n\n" \
+              $package \
+              $old_version \
+              $new_version >> $details
+
+            sed \
+              --quiet \
+              --expression 's|^Diff: \(.*\)$|- [Diff](\1)|p' \
+              --expression 's|^Changelog: \(.*\)$|- [Changelog](\1)|p' \
+              $message >> $details
+          done
+
+          update_count=$(wc --lines < $table)
+
+          body=$RUNNER_TEMP/nix-update-body.md
+
+          {
+            if ((update_count == 1)); then
+              printf 'Updates 1 package:\n\n'
+            else
+              printf 'Updates %s packages:\n\n' $update_count
+            fi
+
+            printf '| Package | From | To |\n| --- | --- | --- |\n'
+            cat $table
+            cat $details
+          } > $body
+
+          echo "body-path=$body" >> $GITHUB_OUTPUT
+
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ secrets.PACKAGE_UPDATE_PAT }}
+
+          branch: automation/update-packages
+          delete-branch: true
+
+          assignees: hilorioze
+          labels: |
+            dependencies
+            nix
+            automated
+
+          commit-message: 'chore(deps/packages): update'
+          title: 'chore(deps/packages): update'
+
+          body-path: ${{ steps.update-packages.outputs.body-path }}

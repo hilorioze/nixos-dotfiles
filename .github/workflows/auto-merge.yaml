@@ -11,25 +11,42 @@ jobs:
   merge:
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.pull_requests[0].base.ref == 'main' &&
-      github.actor == 'dependabot[bot]'
+      github.event.workflow_run.event == 'pull_request'
 
     concurrency:
       # one merge attempt per pull request; latest cancels stale attempts
-      group: ${{ github.workflow }}-${{ github.event.workflow_run.pull_requests[0].number }}
+      group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
 
       cancel-in-progress: true
 
     runs-on: ubuntu-latest
 
+    env:
+      GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT }}
+
+      GH_REPO: ${{ github.repository }}
+
     steps:
-      - env:
-          GH_TOKEN: ${{ secrets.AUTO_MERGE_PAT }}
+      - id: resolve-pull-request
+        run: |
+          gh api \
+            repos/$GH_REPO/commits/${{ github.event.workflow_run.head_sha }}/pulls \
+            --jq '
+              first(
+                .[] |
+                select(
+                  .state == "open" and
+                  .base.ref == "main" and
+                  (.user.login | IN("dependabot[bot]", "hilorioze")) and
+                  any(.labels[]; .name == "automated")
+                )
+              ) |
+              "number=\(.number)"
+            ' >> $GITHUB_OUTPUT
 
-          GH_REPO: ${{ github.repository }}
-
-          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+      - if: steps.resolve-pull-request.outputs.number
+        env:
+          PR_NUMBER: ${{ steps.resolve-pull-request.outputs.number }}
         run: |
           # wait for all PR checks to pass
           gh pr checks \

@@ -3,10 +3,11 @@
   android-tools,
   copyDesktopItems,
   fetchFromGitHub,
-  flutter,
+  flutter341,
   lib,
   makeDesktopItem,
   mpv-unwrapped,
+  nix-update-script,
   p7zip,
   protobuf,
   rinf_cli,
@@ -17,7 +18,7 @@
 }: let
   pname = "yaas";
 
-  version = "0.1.0";
+  version = "0-unstable-2026-06-26";
 
   src = fetchFromGitHub {
     owner = "skrimix";
@@ -43,14 +44,14 @@
     passthru.libraryPath = "lib/libhub.so";
   };
 in
-  flutter.buildFlutterApplication {
+  flutter341.buildFlutterApplication {
     inherit pname;
 
     inherit version;
 
     inherit src;
 
-    pubspecLock = lib.importJSON ./pubspec.lock.json;
+    autoPubspecLock = "${src}/pubspec.lock";
 
     customSourceBuilders = {
       rinf = {
@@ -168,6 +169,21 @@ in
       p7zip
       # keep-sorted end
     ]}";
+
+    passthru = {
+      # expose the nested rust dependencies so `nix-update` can refresh `cargoHash`
+      inherit (rustDep) cargoDeps;
+
+      # upstream only publishes a mutable nightly prerelease; follow `master` instead
+      updateScript = nix-update-script {
+        extraArgs = [
+          "--flake"
+
+          "--version=branch"
+          "--version-regex=^(0-unstable-[0-9-]+)$"
+        ];
+      };
+    };
 
     meta = {
       description = "Cross-platform desktop app for sideloading and managing Meta Quest headsets";
