@@ -42,16 +42,13 @@ jobs:
           messages=$RUNNER_TEMP/nix-update
           mkdir $messages
 
-          # materialize the flake and all its inputs before `nix-update` invokes `nix-instantiate`
-          nix flake archive
-
           # pinned `nix-update` evaluates package update scripts through `<nixpkgs>`
           NIX_PATH=nixpkgs=$(nix eval --raw --inputs-from . nixpkgs#legacyPackages.x86_64-linux.path)
           export NIX_PATH
 
           nix eval --raw .#packages --apply 'packages: builtins.concatStringsSep "\n" (builtins.attrNames (builtins.zipAttrsWith (_: values: builtins.head values) (builtins.attrValues packages))) + "\n"' |
             while read package; do
-              nix run --inputs-from . nixpkgs#nix-update -- \
+              nix run .#nix-update -- \
                 --flake \
                 --use-update-script \
                 --write-commit-message $messages/$package.md \

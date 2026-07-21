@@ -205,11 +205,16 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       inherit systems;
 
-      perSystem = {pkgs, ...}: {
+      perSystem = {pkgs, ...}: let
+        pkgs' = pkgs.extend (lib.composeManyExtensions (builtins.attrValues inputs.self.overlays));
+      in {
+        # expose the `nix-update` package patched by the `nix-update-read-write-mode` overlay to `.github/workflows/update-packages.yaml`
+        apps.nix-update.program = lib.getExe pkgs'.nix-update;
+
         packages = import ./packages {
           inherit lib;
 
-          pkgs = pkgs.extend (lib.composeManyExtensions (builtins.attrValues inputs.self.overlays));
+          pkgs = pkgs';
         };
       };
 
