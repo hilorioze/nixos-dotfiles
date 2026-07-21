@@ -8,14 +8,14 @@
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "thermalmonitor";
 
-  version = "0.2.7";
+  version = "0.2.8";
 
   src = fetchFromGitHub {
     owner = "olib14";
     repo = "thermalmonitor";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-1TaeE9nsivkaiaCA8lTqwS3DGxh4MlsX1D5Y3VaU584=";
+    hash = "sha256-RxSy99zr6aObhjEWuWHFb7k6W0BvsLUj6fQCdn+n1Zw=";
   };
 
   installPhase = ''
