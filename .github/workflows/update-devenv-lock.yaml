@@ -123,10 +123,10 @@ jobs:
               ] |
               (if length == 1 then "Updates 1 input:" else "Updates \(length) inputs:" end) +
               "\n\n| Input | From | To |\n| --- | --- | --- |\n" +
-              (map("| `\(.name)` | [`\(.old_rev[:7])`](\(.url)/commit/\(.old_rev)) | [`\(.new_rev[:7])`](\(.url)/commit/\(.new_rev)) |") | join("\n")) +
+              (map("| [`\(.name)`](\(.url)) | [`\(.old_rev[:7])`](\(.url)/commit/\(.old_rev)) | [`\(.new_rev[:7])`](\(.url)/commit/\(.new_rev)) |") | join("\n")) +
               "\n" +
               (map(
-                "\nUpdates `\(.name)` from [`\(.old_rev[:7])`](\(.url)/commit/\(.old_rev)) to [`\(.new_rev[:7])`](\(.url)/commit/\(.new_rev))\n\n" +
+                "\nUpdates [`\(.name)`](\(.url)) from [`\(.old_rev[:7])`](\(.url)/commit/\(.old_rev)) to [`\(.new_rev[:7])`](\(.url)/commit/\(.new_rev))\n\n" +
                 "- [Diff](\(.url)/compare/\(.old_rev)...\(.new_rev))"
               ) | join("\n"))
             ' > $body
