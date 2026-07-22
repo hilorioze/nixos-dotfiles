@@ -132,4 +132,4 @@ jobs:
       - if: github.event_name != 'pull_request'
         run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER_URL }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
 
-      - run: nix run --inputs-from . --print-build-logs nixpkgs#devenv -- build shell
+      - run: nix run --inputs-from . nixpkgs#devenv -- build test
