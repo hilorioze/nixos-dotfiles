@@ -6,6 +6,9 @@
         "jnoortheen.nix-ide",
         "mkhl.direnv"
       ]
+    },
+    "zed": {
+      "extensions": []
     }
   },
   "image": "ghcr.io/cachix/devenv/devcontainer:latest",
