@@ -172,6 +172,7 @@ jobs:
           labels: |
             dependencies
             nix
+            flake
             automated
 
           commit-message: 'chore(deps/packages): update'
