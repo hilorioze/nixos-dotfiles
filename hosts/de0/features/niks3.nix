@@ -18,11 +18,13 @@
     };
   };
 
-  services = {
+  services = let
+    apiHost = "niks3.${config.networking.domain}";
+  in {
     traefik.dynamicConfigOptions.http = {
       routers.niks3 = {
         entryPoints = ["https"];
-        rule = "Host(`niks3.${config.networking.domain}`)";
+        rule = "Host(`${apiHost}`)";
 
         service = "niks3";
       };
@@ -46,6 +48,8 @@
 
     niks3 = {
       enable = true;
+
+      serverUrl = "https://${apiHost}";
 
       cacheUrl = "https://nix-cache.${config.networking.domain}";
 
