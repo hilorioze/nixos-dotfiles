@@ -1,0 +1,133 @@
+on:
+  push:
+    branches:
+      - main
+
+    paths:
+      - .github/workflows/cache-devenv-sources.yaml
+
+      - devenv.lock
+
+      # workflow reads `nixConfig` and uses `--inputs-from .`, so changes to them may affect the result
+      - flake.nix
+      - flake.lock
+
+  workflow_dispatch:
+
+jobs:
+  cache-devenv-sources:
+    concurrency:
+      # one cache upload per branch; latest completes last
+      group: ${{ github.workflow }}-${{ github.ref }}
+
+      cancel-in-progress: false
+
+    permissions:
+      id-token: write # required so `niks3` can authenticate via OIDC
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        with:
+          extra_nix_config: |
+            accept-flake-config = true
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - run: |
+          {
+            printf 'NIX_CONFIG<<EOF\n'
+            printf 'extra-substituters = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
+            printf 'extra-trusted-public-keys = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
+            printf 'EOF\n'
+          } >> $GITHUB_ENV
+
+      - id: fetch-niks3-bin
+        run: |
+          # `niks3-action` looks for `niks3-hook` next to `niks3`
+          # `--inputs-from github:hilorioze/nixos-dotfiles` keeps CLI and server on the same version to avoid API mismatches
+          niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:hilorioze/nixos-dotfiles --print-build-logs --expr $'
+          let
+            pkgs = import <nixpkgs> {};
+
+            lib = pkgs.lib;
+
+            niks3ActionBinDir = pkgs.symlinkJoin {
+              name = "niks3-action-bin-dir";
+
+              paths = with import <niks3/nix/packages> {inherit pkgs;}; [
+                # keep-sorted start
+                niks3
+                niks3-hook
+                # keep-sorted end
+              ];
+            };
+          in
+            pkgs.linkFarm "niks3-action-bin" [
+              # keep-sorted start block=yes newline_separated=yes
+              {
+                name = "bin/niks3";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3";
+              }
+
+              {
+                name = "bin/niks3-hook";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3-hook";
+              }
+              # keep-sorted end
+            ]
+            ')
+
+          printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
+
+      - uses: Mic92/niks3-action@12d3e320b2a99b7938f9634bd337cd9fec104609 # v1.1.0
+        with:
+          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
+
+          server-url: ${{ vars.NIKS3_SERVER_URL }}
+
+      # cache the built `fetch-niks3-bin` output so later runs can reuse it
+      - run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER_URL }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
+
+      - run: |
+          set -o pipefail
+
+          substituters=$(nix config show substituters)
+
+          is_cached() {
+            base_name=${1#/nix/store/}
+            hash_part=${base_name%%-*}
+
+            for substituter in $substituters; do
+              nix store path-from-hash-part --store $substituter $hash_part &>/dev/null && return 0
+            done
+
+            return 1
+          }
+
+          nix eval --raw --impure --expr '
+            let
+              lock = builtins.fromJSON (builtins.readFile ./devenv.lock);
+
+              fetchNode = _: node:
+                if node ? locked
+                then let
+                  cleanLocked = builtins.removeAttrs node.locked ["dir"];
+                in
+                  (builtins.fetchTree cleanLocked).outPath
+                else null;
+
+              paths = builtins.filter (path: path != null) (builtins.attrValues (builtins.mapAttrs fetchNode lock.nodes));
+            in
+              builtins.concatStringsSep "\n" paths + "\n"
+          ' |
+            sort --unique |
+            while read path; do
+              is_cached $path || echo $path
+            done |
+            xargs --no-run-if-empty ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER_URL }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs"
