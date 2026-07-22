@@ -1,0 +1,92 @@
+on:
+  push:
+    branches:
+      - main
+
+    paths:
+      - .github/workflows/update-devenv-lock.yaml
+
+      - devenv.yaml
+
+      # workflow uses `--inputs-from .`, so changes to them may affect the result
+      - flake.nix
+      - flake.lock
+
+  schedule:
+    # run weekly on mondays at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+  workflow_dispatch:
+
+jobs:
+  update-devenv-lock:
+    concurrency:
+      # one workflow run at a time; latest completes last
+      group: ${{ github.workflow }}
+
+      cancel-in-progress: false
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        with:
+          extra_nix_config: |
+            accept-flake-config = true
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - id: update-devenv-lock
+        run: |
+          nix run --inputs-from . nixpkgs#devenv -- update
+
+          body=$RUNNER_TEMP/devenv-lock-body.md
+
+          jq --raw-output --null-input \
+            --argjson before "$(git show HEAD:devenv.lock)" \
+            --argjson after "$(< devenv.lock)" '
+              $before.nodes as $before_nodes |
+              $after.nodes as $after_nodes |
+              [$after_nodes | keys[] as $input |
+                $before_nodes[$input].locked as $before_locked |
+                $after_nodes[$input].locked as $after_locked |
+                select($after_locked.rev != $before_locked.rev) |
+                {
+                  name: $input,
+                  url: "https://github.com/\($after_locked.owner)/\($after_locked.repo)",
+                  old_rev: $before_locked.rev,
+                  new_rev: $after_locked.rev
+                }
+              ] |
+              (if length == 1 then "Updates 1 input:" else "Updates \(length) inputs:" end) +
+              "\n\n| Input | From | To |\n| --- | --- | --- |\n" +
+              (map("| `\(.name)` | [`\(.old_rev[:7])`](\(.url)/commit/\(.old_rev)) | [`\(.new_rev[:7])`](\(.url)/commit/\(.new_rev)) |") | join("\n")) +
+              "\n" +
+              (map(
+                "\nUpdates `\(.name)` from [`\(.old_rev[:7])`](\(.url)/commit/\(.old_rev)) to [`\(.new_rev[:7])`](\(.url)/commit/\(.new_rev))\n\n" +
+                "- [Diff](\(.url)/compare/\(.old_rev)...\(.new_rev))"
+              ) | join("\n"))
+            ' > $body
+
+          echo "body-path=$body" >> $GITHUB_OUTPUT
+
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ secrets.DEVENV_UPDATE_PAT }}
+
+          branch: automation/update-devenv-lock
+          delete-branch: true
+
+          assignees: hilorioze
+          labels: |
+            dependencies
+            nix
+            devenv
+            automated
+
+          commit-message: 'chore(deps/devenv): update'
+          title: 'chore(deps/devenv): update'
+
+          body-path: ${{ steps.update-devenv-lock.outputs.body-path }}
