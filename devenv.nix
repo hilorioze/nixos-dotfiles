@@ -126,4 +126,7 @@
       ];
     };
   };
+
+  # ensure generated files (like `.devcontainer/devcontainer.json`) exist before `treefmt` runs to prevent race conditions
+  tasks."devenv:treefmt:run".after = ["devenv:files"];
 }

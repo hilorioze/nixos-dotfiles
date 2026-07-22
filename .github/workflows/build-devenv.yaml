@@ -8,7 +8,6 @@ on:
 
       - devenv.nix
       - devenv.lock
-      - devenv.yaml
 
       # workflow reads `nixConfig` and uses `--inputs-from .`, so changes to them may affect the result
       - flake.nix
