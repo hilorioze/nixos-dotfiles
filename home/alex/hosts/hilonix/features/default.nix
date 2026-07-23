@@ -10,6 +10,7 @@
     ../../../../common/features/kcalc.nix
     ../../../../common/features/kdeconnect.nix
     ../../../../common/features/kdialog.nix
+    ../../../../common/features/keepassxc.nix
     ../../../../common/features/meslo-lgs-nf.nix
     ../../../../common/features/onlyoffice.nix
     ../../../../common/features/plasma.nix
