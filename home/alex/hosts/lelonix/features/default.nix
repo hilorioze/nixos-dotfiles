@@ -22,7 +22,7 @@
     # keep-sorted end
 
     # keep-sorted start
-    ../../../features/chromium.nix
+    ../../../features/google-chrome.nix
     ../../../features/konsole.nix
     ../../../features/mangohud.nix
     ../../../features/spectacle.nix

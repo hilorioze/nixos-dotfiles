@@ -8,11 +8,7 @@
 }: {
   programs = {
     # keep-sorted start block=yes newline_separated=true
-    chromium = {
-      enable = true;
-
-      package = pkgs.google-chrome;
-    };
+    google-chrome.enable = true;
 
     mangohud = {
       enable = true;

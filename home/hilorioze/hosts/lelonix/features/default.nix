@@ -43,7 +43,6 @@
     ../../../../common/features/umu-launcher.nix
     ../../../../common/features/vista-fonts.nix
     ../../../../common/features/wireplumber-oneplus-buds-pro-3.nix
-    ../../../../common/features/xdg-autostart.nix
     ../../../../common/features/xdg-mime-apps.nix
     ../../../../common/features/yaas.nix
     ../../../../common/features/yt-dlp.nix

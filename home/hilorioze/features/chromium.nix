@@ -1,10 +1,14 @@
 {pkgs, ...}: {
-  imports = [../../common/features/chromium.nix];
-
   programs.chromium = {
+    enable = true;
+
     package = pkgs.ungoogled-chromium;
 
-    # Synclify
-    extensions = [{id = "okdfcljlaacbdacenfeaiekllplonlfm";}];
+    extensions = [
+      # keep-sorted start by_regex=#\s(.+)
+      {id = "okdfcljlaacbdacenfeaiekllplonlfm";} # Synclify
+      {id = "ddkjiahejlhfcafbddmgiahcphecmpfh";} # uBlock Origin Lite
+      # keep-sorted end
+    ];
   };
 }
