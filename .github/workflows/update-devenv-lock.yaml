@@ -101,6 +101,8 @@ jobs:
       - id: update-devenv-lock
         run: |
           nix run --inputs-from . nixpkgs#devenv -- update
+
+          # auto-generate files (e.g. `.devcontainer/devcontainer.json`) and format code (`treefmt` & `git-hooks`) after lock and file updates
           nix run --inputs-from . nixpkgs#devenv -- test || true
 
           body=$RUNNER_TEMP/devenv-lock-body.md
