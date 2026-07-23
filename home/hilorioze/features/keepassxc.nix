@@ -1,41 +1,37 @@
 {
   imports = [../../common/features/keepassxc.nix];
 
-  programs.keepassxc = {
-    autostart = true;
+  programs.keepassxc.settings = {
+    GUI = {
+      ApplicationTheme = "classic";
 
-    settings = {
-      GUI = {
-        ApplicationTheme = "classic";
+      ShowTrayIcon = true;
 
-        ShowTrayIcon = true;
+      MinimizeOnClose = true;
+    };
 
-        MinimizeOnClose = true;
-      };
+    Browser = {
+      Enabled = true;
 
-      Browser = {
-        Enabled = true;
+      AlwaysAllowAccess = true;
+      AlwaysAllowUpdate = true;
+      HttpAuthPermission = true;
 
-        AlwaysAllowAccess = true;
-        AlwaysAllowUpdate = true;
-        HttpAuthPermission = true;
+      SearchInAllDatabases = true;
 
-        SearchInAllDatabases = true;
+      AllowLocalhostWithPasskeys = true;
+    };
 
-        AllowLocalhostWithPasskeys = true;
-      };
+    FdoSecrets = {
+      Enabled = true;
 
-      FdoSecrets = {
-        Enabled = true;
+      ConfirmAccessItem = false; # disable access prompts
+    };
 
-        ConfirmAccessItem = false; # disable access prompts
-      };
-
-      Security = {
-        # keep the database unlocked no matter what
-        LockDatabaseIdle = false;
-        LockDatabaseScreenLock = false;
-      };
+    Security = {
+      # keep the database unlocked no matter what
+      LockDatabaseIdle = false;
+      LockDatabaseScreenLock = false;
     };
   };
 }
