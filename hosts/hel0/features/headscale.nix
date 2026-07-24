@@ -147,13 +147,18 @@ in {
               ];
             }
 
-            # `de0` (`prometheus`) scrapes `snmp-exporter` on `fakesynology`
+            # `de0` (`prometheus`) scrapes `snmp-exporter` on `fakesynology` and `cex`
             {
               action = "accept";
 
               src = ["tag:de0"];
 
-              dst = ["tag:fakesynology:9116"];
+              dst = [
+                # keep-sorted start
+                "tag:cex:9116"
+                "tag:fakesynology:9116"
+                # keep-sorted end
+              ];
             }
 
             # de0 (gatus) checks headscale health via https

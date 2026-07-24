@@ -61,25 +61,23 @@
         };
 
         static_configs = [
+          # keep-sorted start block=yes newline_separated=yes
           {
-            targets = ["127.0.0.1"];
+            targets = ["cex.${config.networking.domain}:9116"];
+            labels.instance = "cex";
           }
+
+          {
+            targets = ["fakesynology.${config.networking.domain}:9116"];
+            labels.instance = "fakesynology";
+          }
+          # keep-sorted end
         ];
 
         relabel_configs = [
           {
-            source_labels = ["__address__"];
             target_label = "__param_target";
-          }
-
-          {
-            target_label = "instance";
-            replacement = "fakesynology";
-          }
-
-          {
-            target_label = "__address__";
-            replacement = "fakesynology.${config.networking.domain}:9116";
+            replacement = "127.0.0.1";
           }
         ];
       }
