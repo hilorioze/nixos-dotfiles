@@ -12,6 +12,8 @@
       # keep-sorted start numeric=yes
       80
       443
+      5000
+      5001
       # keep-sorted end
     ];
 
@@ -39,6 +41,10 @@
 
           http3 = {};
         };
+
+        dsm-http.address = ":5000";
+
+        dsm-https.address = ":5001";
         # keep-sorted end
       };
 

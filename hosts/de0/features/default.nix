@@ -24,7 +24,6 @@
 
     # keep-sorted start
     ./alertmanager.nix
-    ./fakesynology-proxy.nix
     ./gatus.nix
     ./grafana.nix
     ./homepage-dashboard.nix

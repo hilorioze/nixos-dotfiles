@@ -23,6 +23,7 @@
     ./archisteamfarm.nix
     ./cex-proxy.nix
     ./factorio.nix
+    ./fakesynology-proxy.nix
     ./headscale.nix
     ./mailserver.nix
     ./openldap.nix

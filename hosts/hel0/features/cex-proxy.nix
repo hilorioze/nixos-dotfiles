@@ -2,63 +2,54 @@
   dsmHttpPort = 5000;
   dsmHttpsPort = 5001;
 in {
-  networking.firewall.allowedTCPPorts = [dsmHttpPort dsmHttpsPort];
+  services.traefik.dynamicConfigOptions = {
+    http = {
+      routers = {
+        cex-entrypoint = {
+          entryPoints = ["http"];
+          rule = "Host(`cex.${config.networking.domain}`)";
 
-  services.traefik = {
-    staticConfigOptions.entryPoints = {
-      cex-http.address = ":${toString dsmHttpPort}";
-      cex-https.address = ":${toString dsmHttpsPort}";
-    };
-
-    dynamicConfigOptions = {
-      http = {
-        routers = {
-          cex-entrypoint = {
-            entryPoints = ["http"];
-            rule = "Host(`cex.${config.networking.domain}`)";
-
-            service = "cex-entrypoint";
-          };
-
-          cex = {
-            entryPoints = ["cex-http"];
-            rule = "Host(`cex.${config.networking.domain}`)";
-
-            service = "cex";
-          };
+          service = "cex-entrypoint";
         };
 
-        services = {
-          cex-entrypoint.loadBalancer.servers = [{url = "http://cex.hilorioze.com";}];
+        cex = {
+          entryPoints = ["dsm-http"];
+          rule = "Host(`cex.${config.networking.domain}`)";
 
-          cex.loadBalancer.servers = [{url = "http://cex.hilorioze.com:${toString dsmHttpPort}";}];
+          service = "cex";
         };
       };
 
-      tcp = {
-        routers = {
-          cex-entrypoint = {
-            entryPoints = ["https"];
-            rule = "HostSNI(`cex.${config.networking.domain}`)";
+      services = {
+        cex-entrypoint.loadBalancer.servers = [{url = "http://cex.hilorioze.com";}];
 
-            tls.passthrough = true;
-            service = "cex-entrypoint";
-          };
+        cex.loadBalancer.servers = [{url = "http://cex.hilorioze.com:${toString dsmHttpPort}";}];
+      };
+    };
 
-          cex = {
-            entryPoints = ["cex-https"];
-            rule = "HostSNI(`cex.${config.networking.domain}`)";
+    tcp = {
+      routers = {
+        cex-entrypoint = {
+          entryPoints = ["https"];
+          rule = "HostSNI(`cex.${config.networking.domain}`)";
 
-            tls.passthrough = true;
-            service = "cex";
-          };
+          tls.passthrough = true;
+          service = "cex-entrypoint";
         };
 
-        services = {
-          cex-entrypoint.loadBalancer.servers = [{address = "cex.hilorioze.com:443";}];
+        cex = {
+          entryPoints = ["dsm-https"];
+          rule = "HostSNI(`cex.${config.networking.domain}`)";
 
-          cex.loadBalancer.servers = [{address = "cex.hilorioze.com:${toString dsmHttpsPort}";}];
+          tls.passthrough = true;
+          service = "cex";
         };
+      };
+
+      services = {
+        cex-entrypoint.loadBalancer.servers = [{address = "cex.hilorioze.com:443";}];
+
+        cex.loadBalancer.servers = [{address = "cex.hilorioze.com:${toString dsmHttpsPort}";}];
       };
     };
   };

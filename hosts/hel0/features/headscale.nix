@@ -279,22 +279,24 @@ in {
               dst = ["tag:hel0:${toString config.services.factorio.port}"];
             }
 
-            # `de0` can reach `fakesynology` to expose it publicly
-            {
-              action = "accept";
-
-              src = ["tag:de0"];
-
-              dst = ["tag:fakesynology:80" "tag:fakesynology:443" "tag:fakesynology:5000" "tag:fakesynology:5001"];
-            }
-
-            # `hel0` can reach `cex` to expose it publicly
+            # `hel0` can reach dsm hosts to expose them publicly
             {
               action = "accept";
 
               src = ["tag:hel0"];
 
-              dst = ["tag:cex:80" "tag:cex:443" "tag:cex:5000" "tag:cex:5001"];
+              dst = [
+                # keep-sorted start numeric=yes
+                "tag:cex:80"
+                "tag:cex:443"
+                "tag:cex:5000"
+                "tag:cex:5001"
+                "tag:fakesynology:80"
+                "tag:fakesynology:443"
+                "tag:fakesynology:5000"
+                "tag:fakesynology:5001"
+                # keep-sorted end
+              ];
             }
           ];
 
