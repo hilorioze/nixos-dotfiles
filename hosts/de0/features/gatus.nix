@@ -93,6 +93,19 @@
 
             conditions = ["[STATUS] == 200"];
           };
+
+          mkSnmpExporterEndpoint = hostName: {
+            name = "snmp-exporter-${hostName}";
+            group = "telemetry";
+
+            url = "http://${hostName}.${config.networking.domain}:9116/snmp?target=127.0.0.1&module=synology&auth=public_v2";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY] == pat(*snmp_scrape_duration_seconds*)"
+            ];
+          };
         in [
           # keep-sorted start block=yes newline_separated=yes case=no by_regex=(?:name\s*=\s*"|\(mk)([^"\s]+)
           {
@@ -268,18 +281,9 @@
             conditions = ["[STATUS] == 200"];
           }
 
-          {
-            name = "snmp-exporter-fakesynology";
-            group = "telemetry";
+          (mkSnmpExporterEndpoint "cex")
 
-            url = "http://fakesynology.${config.networking.domain}:9116/snmp?target=127.0.0.1&module=synology&auth=public_v2";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY] == pat(*snmp_scrape_duration_seconds*)"
-            ];
-          }
+          (mkSnmpExporterEndpoint "fakesynology")
 
           {
             name = "tailnet-derp-hel0";
