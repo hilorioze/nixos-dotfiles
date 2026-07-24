@@ -102,6 +102,7 @@ in {
 
           tagOwners = {
             # keep-sorted start
+            "tag:cex" = [];
             "tag:de0" = [];
             "tag:deployer" = [];
             "tag:fakesynology" = [];
@@ -281,6 +282,15 @@ in {
 
               dst = ["tag:fakesynology:80" "tag:fakesynology:443" "tag:fakesynology:5000" "tag:fakesynology:5001"];
             }
+
+            # `hel0` can reach `cex` to expose it publicly
+            {
+              action = "accept";
+
+              src = ["tag:hel0"];
+
+              dst = ["tag:cex:80" "tag:cex:443" "tag:cex:5000" "tag:cex:5001"];
+            }
           ];
 
           autoApprovers.exitNode = [
@@ -408,7 +418,8 @@ in {
 
         cex_key_id=$(reconcile_preauth_key "$servers_id" \
           ${config.sops.secrets."services/headscale/preauth-keys/cex/prefix".path} \
-          ${config.sops.secrets."services/headscale/preauth-keys/cex/bcrypt-hash".path})
+          ${config.sops.secrets."services/headscale/preauth-keys/cex/bcrypt-hash".path} \
+          '["tag:cex"]')
 
         de0_key_id=$(reconcile_preauth_key "$servers_id" \
           ${config.sops.secrets."services/headscale/preauth-keys/de0/prefix".path} \
@@ -496,6 +507,7 @@ in {
 
         # keep-sorted start
         alex_node_id=$(get_node_id_by_key_id "$alex_key_id")
+        cex_node_id=$(get_node_id_by_key_id "$cex_key_id")
         de0_node_id=$(get_node_id_by_key_id "$de0_key_id")
         fakesynology_nixos_node_id=$(get_node_id_by_key_id "$fakesynology_nixos_key_id")
         fakesynology_node_id=$(get_node_id_by_key_id "$fakesynology_key_id")
@@ -516,6 +528,7 @@ in {
 
         # ensure tags for already-registered nodes (preauth key tags only apply at registration time)
         # keep-sorted start
+        set_node_tags_by_node_id "$cex_node_id" "tag:cex"
         set_node_tags_by_node_id "$de0_node_id" "tag:de0"
         set_node_tags_by_node_id "$fakesynology_nixos_node_id" "tag:fakesynology-nixos"
         set_node_tags_by_node_id "$fakesynology_node_id" "tag:fakesynology"

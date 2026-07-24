@@ -21,6 +21,7 @@
     # keep-sorted start
     ./acme.nix
     ./archisteamfarm.nix
+    ./cex-proxy.nix
     ./factorio.nix
     ./headscale.nix
     ./mailserver.nix
