@@ -10,6 +10,7 @@
 
   tailnetServerNodeNames = [
     # keep-sorted start
+    "cex"
     "de0"
     "fakesynology"
     "fakesynology-nixos"
@@ -36,6 +37,8 @@ in {
     "services/headscale/derp/private-key".owner = config.services.headscale.user;
     "services/headscale/preauth-keys/alex/bcrypt-hash" = {};
     "services/headscale/preauth-keys/alex/prefix" = {};
+    "services/headscale/preauth-keys/cex/bcrypt-hash" = {};
+    "services/headscale/preauth-keys/cex/prefix" = {};
     "services/headscale/preauth-keys/de0/bcrypt-hash" = {};
     "services/headscale/preauth-keys/de0/prefix" = {};
     "services/headscale/preauth-keys/deployer/bcrypt-hash" = {};
@@ -403,6 +406,10 @@ in {
           ${config.sops.secrets."services/headscale/preauth-keys/alex/prefix".path} \
           ${config.sops.secrets."services/headscale/preauth-keys/alex/bcrypt-hash".path})
 
+        cex_key_id=$(reconcile_preauth_key "$servers_id" \
+          ${config.sops.secrets."services/headscale/preauth-keys/cex/prefix".path} \
+          ${config.sops.secrets."services/headscale/preauth-keys/cex/bcrypt-hash".path})
+
         de0_key_id=$(reconcile_preauth_key "$servers_id" \
           ${config.sops.secrets."services/headscale/preauth-keys/de0/prefix".path} \
           ${config.sops.secrets."services/headscale/preauth-keys/de0/bcrypt-hash".path} \
@@ -470,6 +477,7 @@ in {
         # mark preauth keys as used if nodes are already registered via them
         # keep-sorted start
         ensure_preauth_key_used "$alex_key_id"
+        ensure_preauth_key_used "$cex_key_id"
         ensure_preauth_key_used "$de0_key_id"
         ensure_preauth_key_used "$fakesynology_key_id"
         ensure_preauth_key_used "$fakesynology_nixos_key_id"
