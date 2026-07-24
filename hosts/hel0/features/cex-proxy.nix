@@ -29,9 +29,9 @@ in {
         };
 
         services = {
-          cex-entrypoint.loadBalancer.servers = [{url = "http://cex.${config.networking.domain}";}];
+          cex-entrypoint.loadBalancer.servers = [{url = "http://cex.hilorioze.com";}];
 
-          cex.loadBalancer.servers = [{url = "http://cex.${config.networking.domain}:${toString dsmHttpPort}";}];
+          cex.loadBalancer.servers = [{url = "http://cex.hilorioze.com:${toString dsmHttpPort}";}];
         };
       };
 
@@ -55,9 +55,9 @@ in {
         };
 
         services = {
-          cex-entrypoint.loadBalancer.servers = [{address = "cex.${config.networking.domain}:443";}];
+          cex-entrypoint.loadBalancer.servers = [{address = "cex.hilorioze.com:443";}];
 
-          cex.loadBalancer.servers = [{address = "cex.${config.networking.domain}:${toString dsmHttpsPort}";}];
+          cex.loadBalancer.servers = [{address = "cex.hilorioze.com:${toString dsmHttpsPort}";}];
         };
       };
     };

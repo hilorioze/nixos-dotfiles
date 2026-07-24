@@ -29,9 +29,9 @@ in {
         };
 
         services = {
-          fakesynology-entrypoint.loadBalancer.servers = [{url = "http://fakesynology.${config.networking.domain}";}];
+          fakesynology-entrypoint.loadBalancer.servers = [{url = "http://fakesynology.hilorioze.com";}];
 
-          fakesynology.loadBalancer.servers = [{url = "http://fakesynology.${config.networking.domain}:${toString dsmHttpPort}";}];
+          fakesynology.loadBalancer.servers = [{url = "http://fakesynology.hilorioze.com:${toString dsmHttpPort}";}];
         };
       };
 
@@ -55,9 +55,9 @@ in {
         };
 
         services = {
-          fakesynology-entrypoint.loadBalancer.servers = [{address = "fakesynology.${config.networking.domain}:443";}];
+          fakesynology-entrypoint.loadBalancer.servers = [{address = "fakesynology.hilorioze.com:443";}];
 
-          fakesynology.loadBalancer.servers = [{address = "fakesynology.${config.networking.domain}:${toString dsmHttpsPort}";}];
+          fakesynology.loadBalancer.servers = [{address = "fakesynology.hilorioze.com:${toString dsmHttpsPort}";}];
         };
       };
     };

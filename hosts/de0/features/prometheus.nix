@@ -63,12 +63,12 @@
         static_configs = [
           # keep-sorted start block=yes newline_separated=yes
           {
-            targets = ["cex.${config.networking.domain}:9116"];
+            targets = ["cex.hilorioze.com:9116"];
             labels.instance = "cex";
           }
 
           {
-            targets = ["fakesynology.${config.networking.domain}:9116"];
+            targets = ["fakesynology.hilorioze.com:9116"];
             labels.instance = "fakesynology";
           }
           # keep-sorted end
