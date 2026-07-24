@@ -28,30 +28,37 @@
     '';
   };
 
-  programs.ssh.settings = {
-    "*" = {
-      ServerAliveInterval = 25; # keep NAT entries alive during inactivity
-
-      XAuthLocation = lib.getExe pkgs.xauth; # required for X11 forwarding (`ssh -Y`)
+  programs.ssh.settings = let
+    mkSshHost = hostName: settings: {
+      "${hostName}" =
+        {
+          ForwardAgent = true; # for git
+        }
+        // settings;
     };
 
-    "cex.hilorioze.com" = {
-      User = "cex";
+    mkNixosHost = name: mkSshHost outputs.nixosConfigurations.${name}.config.networking.fqdn {};
 
-      ForwardAgent = true; # for git
-    };
-    "fakesynology.hilorioze.com" = {
-      User = "fakesynology";
+    mkSynologyHost = name: mkSshHost "${name}.hilorioze.com" {User = name;};
+  in
+    lib.mkMerge [
+      {
+        "*" = {
+          ServerAliveInterval = 25; # keep NAT entries alive during inactivity
 
-      ForwardAgent = true; # for git
-    };
-    "${outputs.nixosConfigurations.fakesynology-nixos.config.networking.fqdn}".ForwardAgent = true; # for git
-    "${outputs.nixosConfigurations.lelonix.config.networking.fqdn}".ForwardAgent = true; # for git
-    "${outputs.nixosConfigurations.hilonix.config.networking.fqdn}".ForwardAgent = true; # for git
-    "${outputs.nixosConfigurations.zikkkix.config.networking.fqdn}".ForwardAgent = true; # for git
-    "${outputs.nixosConfigurations.de0.config.networking.fqdn}".ForwardAgent = true; # for git
-    "${outputs.nixosConfigurations.hel0.config.networking.fqdn}".ForwardAgent = true; # for git
+          XAuthLocation = lib.getExe pkgs.xauth; # required for X11 forwarding (`ssh -Y`)
+        };
+      }
 
-    "node0.rayttage.net".ForwardAgent = true; # for git
-  };
+      (mkSynologyHost "cex")
+      (mkSynologyHost "fakesynology")
+      (mkNixosHost "fakesynology-nixos")
+      (mkNixosHost "de0")
+      (mkNixosHost "hel0")
+      (mkNixosHost "hilonix")
+      (mkNixosHost "lelonix")
+      (mkNixosHost "zikkkix")
+
+      (mkSshHost "node0.rayttage.net" {})
+    ];
 }
