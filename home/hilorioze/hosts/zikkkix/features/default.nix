@@ -22,6 +22,7 @@
 
     # keep-sorted start
     ./git.nix
+    ./gpg-agent.nix
     ./sops.nix
     # keep-sorted end
   ];
