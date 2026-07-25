@@ -15,12 +15,16 @@
 
         withExternalGnupg = true; # allow `thunderbird` to use system `gpg-agent` via `gpgme`
 
-        # explicit account display order instead of `accounts.email.accounts` default alphabetical order
-        settings."mail.accountmanager.accounts" = lib.concatStringsSep "," (map (name: "account_" + builtins.hashString "sha256" name) [
-          "me@hilorioze.com"
-          "hilorioze@gmail.com"
-          "root@hilorioze.com"
-        ]);
+        settings = {
+          # explicit account display order instead of `accounts.email.accounts` default alphabetical order
+          "mail.accountmanager.accounts" = lib.concatStringsSep "," (map (name: "account_" + builtins.hashString "sha256" name) [
+            "me@hilorioze.com"
+            "hilorioze@gmail.com"
+            "root@hilorioze.com"
+          ]);
+
+          "mailnews.headers.sendUserAgent" = false; # omit `User-Agent` from outgoing messages because it might be stripped in transit and invalidate the `openpgp` signature
+        };
       };
     };
 
