@@ -190,22 +190,6 @@
         "type": "github"
       }
     },
-    "ffmpeg-mcp-lite": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1778255753,
-        "narHash": "sha256-yZoqznYGjROilUi9CIboUyBKU+huw0WMzOVceH85WiE=",
-        "owner": "kevinwatt",
-        "repo": "ffmpeg-mcp-lite",
-        "rev": "622af399fb776342b03ae7b355a34e5cd5e02a64",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kevinwatt",
-        "repo": "ffmpeg-mcp-lite",
-        "type": "github"
-      }
-    },
     "firefox-addons": {
       "inputs": {
         "nixpkgs": [
@@ -1183,22 +1167,6 @@
         "type": "github"
       }
     },
-    "opencode-wakatime": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784027420,
-        "narHash": "sha256-EZDLpq8Q2L6SE8Y7QgwlzCLnt0dS3e1B9ArBTWA5+Y8=",
-        "owner": "angristan",
-        "repo": "opencode-wakatime",
-        "rev": "8fa8e32aa03f1db2835caf9674686886c27d8946",
-        "type": "github"
-      },
-      "original": {
-        "owner": "angristan",
-        "repo": "opencode-wakatime",
-        "type": "github"
-      }
-    },
     "plasma-manager": {
       "inputs": {
         "home-manager": [
@@ -1228,7 +1196,6 @@
         "deploy-rs": "deploy-rs",
         "direnv-instant": "direnv-instant",
         "disko": "disko",
-        "ffmpeg-mcp-lite": "ffmpeg-mcp-lite",
         "firefox-addons": "firefox-addons",
         "flake-parts": "flake-parts_3",
         "freesmlauncher": "freesmlauncher",
@@ -1247,14 +1214,12 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_6",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "opencode-wakatime": "opencode-wakatime",
         "plasma-manager": "plasma-manager",
         "silent-sddm": "silent-sddm",
         "simple-nixos-mailserver": "simple-nixos-mailserver",
         "sops-nix": "sops-nix",
         "steam-config-nix": "steam-config-nix",
-        "stylix": "stylix",
-        "yt-dlp-mcp": "yt-dlp-mcp"
+        "stylix": "stylix"
       }
     },
     "silent-sddm": {
@@ -1614,22 +1579,6 @@
       "original": {
         "owner": "numtide",
         "repo": "flake-utils",
-        "type": "github"
-      }
-    },
-    "yt-dlp-mcp": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1779297079,
-        "narHash": "sha256-ldWTMrp/uLQnrUcw8z5bWbRLG1p5Y+izbVcklYZPTdc=",
-        "owner": "kevinwatt",
-        "repo": "yt-dlp-mcp",
-        "rev": "f480d27eace227ab68a301155c604d811c50d4f5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kevinwatt",
-        "repo": "yt-dlp-mcp",
         "type": "github"
       }
     }

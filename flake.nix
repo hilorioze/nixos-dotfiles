@@ -56,12 +56,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ffmpeg-mcp-lite = {
-      url = "github:kevinwatt/ffmpeg-mcp-lite";
-
-      flake = false;
-    };
-
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
 
@@ -130,12 +124,6 @@
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
-    opencode-wakatime = {
-      url = "github:angristan/opencode-wakatime";
-
-      flake = false;
-    };
-
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
 
@@ -174,12 +162,6 @@
       url = "github:nix-community/stylix/release-26.05";
 
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    yt-dlp-mcp = {
-      url = "github:kevinwatt/yt-dlp-mcp";
-
-      flake = false;
     };
     # keep-sorted end
   };
