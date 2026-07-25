@@ -14,6 +14,8 @@
     # keep-sorted end
   };
 
+  programs.gpg.enable = true;
+
   home.activation.importGpgSubkeys = let
     gpgPrimaryKeyFingerprint = "96715EFAA4FB67F96D3B335258DA93FDD2D02B8D";
 
