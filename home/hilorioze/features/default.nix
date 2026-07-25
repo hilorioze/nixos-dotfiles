@@ -7,7 +7,6 @@
     ../../common/features/fastfetch.nix
     ../../common/features/gpg-agent-ssh-support.nix
     ../../common/features/gpg-agent.nix
-    ../../common/features/gpg.nix
     ../../common/features/nh.nix
     ../../common/features/nix-index.nix
     # keep-sorted end
