@@ -11,9 +11,12 @@
     ../../../features/bs-manager.nix
     ../../../features/cinny.nix
     ../../../features/codex.nix
+    ../../../features/email.nix
     ../../../features/gpg.nix
     ../../../features/mcp.nix
     ../../../features/niks3.nix
+    ../../../features/plasma.nix
+    ../../../features/thunderbird.nix
     ../../../features/wakatime.nix
     # keep-sorted end
 
