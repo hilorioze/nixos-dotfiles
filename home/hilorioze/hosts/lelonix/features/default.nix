@@ -59,6 +59,7 @@
     ../../../features/cinny.nix
     ../../../features/codex.nix
     ../../../features/dolphin.nix
+    ../../../features/email.nix
     ../../../features/firefox.nix
     ../../../features/gpg.nix
     ../../../features/haruna.nix
