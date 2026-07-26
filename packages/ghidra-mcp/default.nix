@@ -1,48 +1,33 @@
 {
   # keep-sorted start
+  buildPythonPackage,
   fetchFromGitHub,
+  hatchling,
   lib,
-  makeWrapper,
-  python3Packages,
-  stdenvNoCC,
+  mcp,
   # keep-sorted end
 }:
-stdenvNoCC.mkDerivation (finalAttrs: {
+buildPythonPackage (finalAttrs: {
   pname = "ghidra-mcp";
 
-  version = "5.14.2";
+  version = "6.0.0";
 
   src = fetchFromGitHub {
     owner = "bethington";
     repo = "ghidra-mcp";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-2EMETCttJAz53GQaJDHtegb8+T2cHKmHZVMPrV5Cwxc=";
+    hash = "sha256-LnhhJwycO8NQV+YaTP7ZoxGkoGLkc14BwY66wczbpp0=";
   };
 
-  dontConfigure = true;
-  dontBuild = true;
+  pyproject = true;
 
-  nativeBuildInputs = [makeWrapper];
+  build-system = [hatchling];
 
-  propagatedBuildInputs = with python3Packages; [
-    # keep-sorted start
-    mcp
-    requests
-    # keep-sorted end
-  ];
+  dependencies = [mcp];
 
-  installPhase = ''
-    runHook preInstall
-
-    install -Dm444 bridge_mcp_ghidra.py "$out/share/ghidra-mcp/bridge_mcp_ghidra.py"
-
-    makeWrapper ${python3Packages.python.interpreter} "$out/bin/ghidra-mcp" \
-      --prefix PYTHONPATH : ${python3Packages.makePythonPath finalAttrs.propagatedBuildInputs} \
-      --add-flags "$out/share/ghidra-mcp/bridge_mcp_ghidra.py"
-
-    runHook postInstall
-  '';
+  # `nixpkgs` ships `mcp` 1.26.0, but upstream requires >=1.28.1
+  pythonRelaxDeps = ["mcp"];
 
   meta = {
     description = "Model Context Protocol server for Ghidra reverse engineering";
@@ -50,7 +35,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     license = lib.licenses.asl20;
 
-    mainProgram = "ghidra-mcp";
+    mainProgram = "bridge-mcp-ghidra";
 
     platforms = ["x86_64-linux"];
   };
