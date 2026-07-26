@@ -26,6 +26,9 @@ buildPythonPackage (finalAttrs: {
 
   dependencies = [mcp];
 
+  # `nixpkgs` ships `mcp` 1.26.0, but upstream requires >=1.28.1
+  pythonRelaxDeps = ["mcp"];
+
   meta = {
     description = "Model Context Protocol server for Ghidra reverse engineering";
     homepage = "https://github.com/bethington/ghidra-mcp";
