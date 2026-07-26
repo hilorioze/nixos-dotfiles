@@ -37,7 +37,7 @@
       thunderbird.enable = true;
     };
 
-    "root@hilorioze.com" = {
+    "root@hilorioze.com" = rec {
       address = "root@hilorioze.com"; # email address used in `From:` header (`mail.identity.id_*.useremail`)
       realName = "root"; # display name shown alongside `address` in `From:` header
 
@@ -51,7 +51,7 @@
         port = 465; # `smtps`; required: `home-manager` default is `587` (`smtp`)
       };
 
-      userName = "root"; # login credential passed to `imap`/`smtp` servers; differs from `address` so cannot be omitted
+      userName = address; # login credential passed to `imap`/`smtp` servers (`mail.server.server_*.userName`); distinct from `address`
       # `passwordCommand` is useless here because `thunderbird` uses its own internal password store
 
       thunderbird.enable = true;
