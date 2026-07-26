@@ -1,13 +1,13 @@
 {
   # keep-sorted start
+  buildPythonPackage,
   fetchFromGitHub,
+  hatchling,
   lib,
-  makeWrapper,
-  python3Packages,
-  stdenvNoCC,
+  mcp,
   # keep-sorted end
 }:
-stdenvNoCC.mkDerivation (finalAttrs: {
+buildPythonPackage (finalAttrs: {
   pname = "ghidra-mcp";
 
   version = "6.0.0";
@@ -20,29 +20,11 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     hash = "sha256-LnhhJwycO8NQV+YaTP7ZoxGkoGLkc14BwY66wczbpp0=";
   };
 
-  dontConfigure = true;
-  dontBuild = true;
+  pyproject = true;
 
-  nativeBuildInputs = [makeWrapper];
+  build-system = [hatchling];
 
-  propagatedBuildInputs = with python3Packages; [
-    # keep-sorted start
-    mcp
-    requests
-    # keep-sorted end
-  ];
-
-  installPhase = ''
-    runHook preInstall
-
-    install -Dm444 bridge_mcp_ghidra.py "$out/share/ghidra-mcp/bridge_mcp_ghidra.py"
-
-    makeWrapper ${python3Packages.python.interpreter} "$out/bin/ghidra-mcp" \
-      --prefix PYTHONPATH : ${python3Packages.makePythonPath finalAttrs.propagatedBuildInputs} \
-      --add-flags "$out/share/ghidra-mcp/bridge_mcp_ghidra.py"
-
-    runHook postInstall
-  '';
+  dependencies = [mcp];
 
   meta = {
     description = "Model Context Protocol server for Ghidra reverse engineering";
@@ -50,7 +32,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     license = lib.licenses.asl20;
 
-    mainProgram = "ghidra-mcp";
+    mainProgram = "bridge-mcp-ghidra";
 
     platforms = ["x86_64-linux"];
   };
