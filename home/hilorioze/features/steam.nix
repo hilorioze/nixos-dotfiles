@@ -15,11 +15,13 @@
       Counter-Strike = {
         id = 10;
 
-        compatTool = "Steam-Play-None"; # fonts missing on steam runtime for some reason, force native runtime
+        # skip `pressure-vessel`, which overwrites `LD_LIBRARY_PATH` after launch options are applied
+        compatTool = "Steam-Play-None";
 
         launchOptions = {
           env = {
-            LD_LIBRARY_PATH = "/home/hilorioze/.local/share/Steam/ubuntu12_32:$LD_LIBRARY_PATH";
+            # use `nixpkgs`' font stack: legacy `steam-runtime`'s `freetype` cannot load normal `truetype` fonts
+            LD_LIBRARY_PATH = "${lib.getLib pkgs.pkgsi686Linux.fontconfig}/lib:${lib.getLib pkgs.pkgsi686Linux.freetype}/lib:$LD_LIBRARY_PATH";
 
             LD_PRELOAD = "${pkgs.pkgsi686Linux.SDL2}/lib/libSDL2-2.0.so.0:${pkgs.pkgsi686Linux.cstrike-mod}/lib/libcstrike_mod.so:$LD_PRELOAD";
           };
