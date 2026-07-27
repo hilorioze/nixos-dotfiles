@@ -6,7 +6,7 @@
 
     profiles.default = {
       font = {
-        name = "MesloLGS NF";
+        name = "MesloLGS Nerd Font Mono";
 
         size = 12;
       };

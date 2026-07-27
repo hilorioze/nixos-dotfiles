@@ -11,7 +11,7 @@
     ../../../../common/features/kdeconnect.nix
     ../../../../common/features/kdialog.nix
     ../../../../common/features/keepassxc.nix
-    ../../../../common/features/meslo-lgs-nf.nix
+    ../../../../common/features/meslo-nerd-font.nix
     ../../../../common/features/onlyoffice.nix
     ../../../../common/features/plasma.nix
     ../../../../common/features/telegram-desktop.nix

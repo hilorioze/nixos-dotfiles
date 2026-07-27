@@ -24,7 +24,7 @@
     ../../../../common/features/krdc.nix
     ../../../../common/features/ktorrent.nix
     ../../../../common/features/mcpelauncher-ui-qt.nix
-    ../../../../common/features/meslo-lgs-nf.nix
+    ../../../../common/features/meslo-nerd-font.nix
     ../../../../common/features/mousai.nix
     ../../../../common/features/nix-alien.nix
     ../../../../common/features/obs-studio.nix
