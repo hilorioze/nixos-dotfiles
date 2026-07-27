@@ -13,6 +13,7 @@
     ../../../features/codex.nix
     ../../../features/email.nix
     ../../../features/gpg.nix
+    ../../../features/lazyvim.nix
     ../../../features/mcp.nix
     ../../../features/niks3.nix
     ../../../features/plasma.nix

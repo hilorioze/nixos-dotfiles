@@ -64,6 +64,12 @@
 
     freesmlauncher.url = "github:FreesmTeam/FreesmLauncher"; # keep their inputs for binary cache
 
+    lazyvim-nix = {
+      url = "github:pfassina/lazyvim-nix";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     mcp-nixos = {
       url = "github:utensils/mcp-nixos";
 
