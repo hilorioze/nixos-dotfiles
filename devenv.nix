@@ -67,8 +67,13 @@
 
       types = ["text"];
 
+      # `eclint` only processes the first positional path, so let it discover tracked files itself
+      pass_filenames = false;
+
       # `eclint` does not support `.editorconfig`'s `unset` value
       excludes = ["\\.diff$" "\\.patch$"];
+
+      args = ["-exclude" "{*.{diff,patch},**/*.{diff,patch}}"];
 
       settings.fix = true;
     };
