@@ -1,6 +1,7 @@
 {
   # keep-sorted start
   config,
+  inputs,
   lib,
   pkgs,
   # keep-sorted end
@@ -8,6 +9,8 @@
 }: {
   programs.codex = {
     enable = true;
+
+    package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.system}.codex;
 
     enableMcpIntegration = true;
 
@@ -18,10 +21,9 @@
 
       tui.status_line = [
         "current-dir"
-        "git-branch"
         "model-with-reasoning"
-        "context-used"
         "weekly-limit"
+        "context-used"
         "session-id"
       ];
     };
