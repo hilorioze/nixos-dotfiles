@@ -61,26 +61,19 @@
       fail_fast = true; # abort immediately so treefmt never runs on conflicted files
     };
 
-    end-of-file-fixer = {
+    # use `.editorconfig` as the single source of truth for generic file normalization
+    eclint = {
       enable = true;
 
-      excludes = [
-        "\\.diff$"
-        "\\.patch$"
-        "\\.pub$" # we want `readFile ssh_host_ed25519_key.pub` to return the public key without a newline
-      ];
+      types = ["text"];
+
+      # `eclint` does not support `.editorconfig`'s `unset` value
+      excludes = ["\\.diff$" "\\.patch$"];
+
+      settings.fix = true;
     };
 
     flake-checker.enable = true;
-
-    mixed-line-endings = {
-      enable = true;
-
-      # force LF line endings
-      args = ["--fix=lf"];
-
-      excludes = ["\\.diff$" "\\.patch$"];
-    };
 
     pre-commit-hook-ensure-sops.enable = true;
 
@@ -95,15 +88,6 @@
       enable = true;
 
       after = ["check-merge-conflicts"];
-    };
-
-    trim-trailing-whitespace = {
-      enable = true;
-
-      # preserve markdown hard linebreaks (https://github.github.com/gfm/#hard-line-break)
-      args = ["--markdown-linebreak-ext=md"];
-
-      excludes = ["\\.diff$" "\\.patch$"];
     };
     # keep-sorted end
   };
