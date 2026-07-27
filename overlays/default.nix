@@ -19,6 +19,7 @@
   mcp-nixos-fastmcp-upstream = import ./mcp-nixos-fastmcp-upstream inputs;
   nix-monitored-notification-utf8-fix = import ./nix-monitored-notification-utf8-fix;
   nix-update-read-write-mode = import ./nix-update-read-write-mode;
+  nix-update-script-flake-mode = import ./nix-update-script-flake-mode;
   nix-update-skip-package-environment = import ./nix-update-skip-package-environment;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;
   plasma-workspace-media-keys-no-repeat = import ./plasma-workspace-media-keys-no-repeat;

@@ -178,8 +178,6 @@ in
       updateScript = {
         command = nix-update-script {
           extraArgs = [
-            "--flake"
-
             "--version=branch"
             "--version-regex=^(0-unstable-[0-9-]+)$"
           ];
