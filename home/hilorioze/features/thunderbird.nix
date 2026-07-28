@@ -24,8 +24,16 @@
           # `home-manager` already automatically appends "Local Folders", which `thunderbird` assigns `account1`
         ];
 
-        # omit `User-Agent` from outgoing messages because it might be stripped in transit and invalidate the `openpgp` signature
-        settings."mailnews.headers.sendUserAgent" = false;
+        settings = {
+          # omit `User-Agent` from outgoing messages because it might be stripped in transit and invalidate the `openpgp` signature
+          "mailnews.headers.sendUserAgent" = false;
+
+          # suppress `thunderbird`'s "Know your rights" first-run notification
+          "mail.rights.override" = true;
+
+          # disable telemetry data submission; this also prevents the first-run privacy policy tab, making `dataSubmissionPolicyBypassNotification` unnecessary
+          "datareporting.policy.dataSubmissionEnabled" = false;
+        };
       };
     };
 
