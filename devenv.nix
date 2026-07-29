@@ -27,9 +27,14 @@
   };
 
   languages = {
-    # keep-sorted start
+    # keep-sorted start block=yes newline_separated=yes
     lua.enable = true;
-    nix.enable = true;
+
+    nix = {
+      enable = true;
+
+      lsp.package = pkgs.nil;
+    };
     # keep-sorted end
   };
 
