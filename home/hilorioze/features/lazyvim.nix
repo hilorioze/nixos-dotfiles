@@ -1,4 +1,11 @@
-{inputs, ...}: {
+{
+  # keep-sorted start
+  inputs,
+  lib,
+  pkgs,
+  # keep-sorted end
+  ...
+}: {
   imports = [inputs.lazyvim-nix.homeManagerModules.default];
 
   programs.lazyvim = {
@@ -15,7 +22,11 @@
       conform = mkPlugin {
         plugin = "stevearc/conform.nvim";
 
-        opts.formatters_by_ft.nix = ["alejandra"];
+        opts = {
+          formatters.alejandra.command = lib.getExe pkgs.alejandra;
+
+          formatters_by_ft.nix = ["alejandra"];
+        };
       };
       # keep-sorted end
     };
