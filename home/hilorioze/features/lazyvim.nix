@@ -17,6 +17,8 @@
       # keep-sorted start block=yes newline_separated=yes
       autosave = mkPlugin {
         plugin = "okuuva/auto-save.nvim";
+
+        opts = {};
       };
 
       conform = mkPlugin {
