@@ -15,7 +15,6 @@
     ../../../../common/features/handbrake.nix
     ../../../../common/features/heroic.nix
     ../../../../common/features/hydra-check.nix
-    ../../../../common/features/idea.nix
     ../../../../common/features/kactivitymanagerd.nix
     ../../../../common/features/kcalc.nix
     ../../../../common/features/kdenlive.nix
@@ -31,9 +30,7 @@
     ../../../../common/features/onlyoffice.nix
     ../../../../common/features/pear-desktop.nix
     ../../../../common/features/podman-compose.nix
-    ../../../../common/features/pycharm.nix
     ../../../../common/features/qtscrcpy.nix
-    ../../../../common/features/rust-rover.nix
     ../../../../common/features/sidequest.nix
     ../../../../common/features/sober.nix
     ../../../../common/features/super-productivity.nix
