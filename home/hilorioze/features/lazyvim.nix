@@ -4,10 +4,20 @@
   programs.lazyvim = {
     enable = true;
 
-    plugins.conform = inputs.lazyvim-nix.lib.lazyConfig {
-      plugin = "stevearc/conform.nvim";
+    plugins = let
+      mkPlugin = inputs.lazyvim-nix.lib.lazyConfig;
+    in {
+      # keep-sorted start block=yes newline_separated=yes
+      autosave = mkPlugin {
+        plugin = "okuuva/auto-save.nvim";
+      };
 
-      opts.formatters_by_ft.nix = ["alejandra"];
+      conform = mkPlugin {
+        plugin = "stevearc/conform.nvim";
+
+        opts.formatters_by_ft.nix = ["alejandra"];
+      };
+      # keep-sorted end
     };
 
     extras.lang.nix.enable = true;
