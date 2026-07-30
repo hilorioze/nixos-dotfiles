@@ -17,6 +17,8 @@
     settings = {
       personality = "pragmatic";
 
+      approvals_reviewer = "auto_review";
+
       features.memories = true;
 
       tui.status_line = [
