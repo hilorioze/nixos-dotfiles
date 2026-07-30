@@ -17,6 +17,7 @@
     ../../common/features/reisub.nix
     ../../common/features/rtkit.nix
     ../../common/features/systemd-boot.nix
+    ../../common/features/tailscale-client.nix
     ../../common/features/tailscale.nix
     ../../common/features/wayland.nix
     # keep-sorted end

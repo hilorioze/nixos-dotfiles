@@ -1,12 +1,4 @@
 {
-  imports = [../../common/features/tailscale.nix];
-
-  services.tailscale = {
-    useRoutingFeatures = "server";
-
-    extraSetFlags = ["--advertise-exit-node"];
-  };
-
   systemd.services.tailscaled = {
     after = [
       # keep-sorted start

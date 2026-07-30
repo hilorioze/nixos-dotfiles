@@ -12,6 +12,8 @@
     ../../common/features/podman.nix
     ../../common/features/sslh-tailscale.nix
     ../../common/features/sslh.nix
+    ../../common/features/tailscale-server.nix
+    ../../common/features/tailscale.nix
     ../../common/features/traefik-podman.nix
     ../../common/features/whoami.nix
     # keep-sorted end

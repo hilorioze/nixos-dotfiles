@@ -16,6 +16,8 @@
     ../../common/features/sslh-tailscale.nix
     ../../common/features/sslh.nix
     ../../common/features/systemd-boot.nix
+    ../../common/features/tailscale-server.nix
+    ../../common/features/tailscale.nix
     ../../common/features/traefik-podman.nix
     ../../common/features/whoami.nix
     # keep-sorted end
@@ -33,7 +35,6 @@
     ./podman.nix
     ./prometheus.nix
     ./sops.nix
-    ./tailscale.nix
     ./traefik.nix
     # keep-sorted end
   ];

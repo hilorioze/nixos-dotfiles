@@ -11,12 +11,13 @@
     ../../common/features/node-exporter.nix
     ../../common/features/openssh.nix
     ../../common/features/systemd-boot.nix
+    ../../common/features/tailscale-server.nix
+    ../../common/features/tailscale.nix
     # keep-sorted end
 
     # keep-sorted start
     ./networkd-dispatcher.nix
     ./sops.nix
-    ./tailscale.nix
     ./time.nix
     # keep-sorted end
   ];

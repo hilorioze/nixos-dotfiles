@@ -28,6 +28,8 @@
     ../../common/features/syncthing-firewall.nix
     ../../common/features/systemd-boot.nix
     ../../common/features/systemd-initrd.nix # required for TPM access in initrd
+    ../../common/features/tailscale-client.nix
+    ../../common/features/tailscale.nix
     ../../common/features/wayland.nix
     ../../common/features/wine.nix
     # keep-sorted end
@@ -42,7 +44,6 @@
     ./silent-sddm.nix
     ./sops.nix
     ./stylix.nix
-    ./tailscale.nix
     # keep-sorted end
   ];
 }
