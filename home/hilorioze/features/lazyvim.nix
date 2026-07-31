@@ -30,6 +30,16 @@
           formatters_by_ft.nix = ["alejandra"];
         };
       };
+
+      snacks = mkPlugin {
+        plugin = "folke/snacks.nvim";
+
+        opts.picker.sources = {
+          explorer.hidden = true;
+          files.hidden = true;
+          grep.hidden = true;
+        };
+      };
       # keep-sorted end
     };
 
