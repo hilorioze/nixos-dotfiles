@@ -41,6 +41,11 @@
       # keep-sorted end
     };
 
-    extras.lang.nix.enable = true;
+    extras.lang = {
+      # keep-sorted start
+      clangd.enable = true;
+      nix.enable = true;
+      # keep-sorted end
+    };
   };
 }
