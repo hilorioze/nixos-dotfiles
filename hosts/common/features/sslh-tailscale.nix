@@ -14,6 +14,13 @@
 
   sslhPortsArg = lib.concatStringsSep "," (map (proto: proto.port) config.services.sslh.settings.protocols);
 in {
+  # keep custom rules outside `tailscale`'s managed chains so `netfilter` state changes preserve them
+  services.tailscale = {
+    extraUpFlags = ["--netfilter-mode=nodivert"];
+
+    extraSetFlags = ["--netfilter-mode=nodivert"];
+  };
+
   systemd.services = {
     sslh.preStart = lib.mkAfter ''
       # place `sslh`'s routing rules before `tailscale`'s catch-all rule at `5270`
@@ -24,41 +31,56 @@ in {
       ip -6 rule add pref 5260 fwmark 0x2 lookup 100
     '';
 
-    tailscaled = {
-      path = with pkgs; [
+    sslh-tailscale = {
+      after = ["tailscaled-set.service"];
+
+      partOf = ["tailscaled.service"];
+
+      requires = ["tailscaled-set.service"];
+
+      wantedBy = [
         # keep-sorted start
-        coreutils
-        iptables
+        "multi-user.target"
+        "tailscaled.service"
         # keep-sorted end
       ];
 
-      postStart = lib.mkAfter ''
-        wait_for_ts_input() {
-          cmd="$1"
+      path = [pkgs.iptables];
 
-          while ! "$cmd" -w -t filter -S ts-input >/dev/null 2>&1; do
-            sleep 0.1
-          done
-        }
+      serviceConfig = {
+        RemainAfterExit = true;
 
-        # wait for `tailscale` to finish creating `ts-input` before inserting the rule
-        wait_for_ts_input iptables
+        Type = "oneshot";
+      };
+
+      script = ''
+        iptables -w -t filter -I INPUT 1 -j ts-input
 
         # allow tailnet connections proxied by `sslh` to reenter through `lo` before `tailscale` drops CGNAT traffic
-        while iptables -w -t filter -D ts-input -i lo -s ${tailnetV4Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
-        iptables -w -t filter -I ts-input 1 -i lo -s ${tailnetV4Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT
+        iptables -w -t filter -I INPUT 1 -i lo -s ${tailnetV4Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT
 
-        wait_for_ts_input ip6tables
+        iptables -w -t filter -I FORWARD 1 -j ts-forward
+        iptables -w -t nat -I POSTROUTING 1 -j ts-postrouting
+
+        ip6tables -w -t filter -I INPUT 1 -j ts-input
 
         # mirror the IPv4 exception in case `tailscale` implements the equivalent source validation, but for IPv6 (it currently doesn't, but marked as `TODO:`)
-        while ip6tables -w -t filter -D ts-input -i lo -s ${tailnetV6Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
-        ip6tables -w -t filter -I ts-input 1 -i lo -s ${tailnetV6Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT
+        ip6tables -w -t filter -I INPUT 1 -i lo -s ${tailnetV6Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT
+
+        ip6tables -w -t filter -I FORWARD 1 -j ts-forward
+        ip6tables -w -t nat -I POSTROUTING 1 -j ts-postrouting
       '';
 
-      postStop = lib.mkAfter ''
-        while iptables -w -t filter -D ts-input -i lo -s ${tailnetV4Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
+      preStop = ''
+        while iptables -w -t filter -D INPUT -i lo -s ${tailnetV4Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
+        while iptables -w -t filter -D INPUT -j ts-input 2>/dev/null; do true; done
+        while iptables -w -t filter -D FORWARD -j ts-forward 2>/dev/null; do true; done
+        while iptables -w -t nat -D POSTROUTING -j ts-postrouting 2>/dev/null; do true; done
 
-        while ip6tables -w -t filter -D ts-input -i lo -s ${tailnetV6Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
+        while ip6tables -w -t filter -D INPUT -i lo -s ${tailnetV6Cidr} -p tcp -m multiport --dports ${sslhPortsArg} -j ACCEPT 2>/dev/null; do true; done
+        while ip6tables -w -t filter -D INPUT -j ts-input 2>/dev/null; do true; done
+        while ip6tables -w -t filter -D FORWARD -j ts-forward 2>/dev/null; do true; done
+        while ip6tables -w -t nat -D POSTROUTING -j ts-postrouting 2>/dev/null; do true; done
       '';
     };
   };
