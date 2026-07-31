@@ -1,11 +1,4 @@
-{
-  # keep-sorted start
-  inputs,
-  lib,
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
+{inputs, ...}: {
   imports = [inputs.lazyvim-nix.homeManagerModules.default];
 
   programs.lazyvim = {
@@ -25,9 +18,10 @@
         plugin = "stevearc/conform.nvim";
 
         opts = {
-          formatters.alejandra.command = lib.getExe pkgs.alejandra;
+          # use `devenv`'s generated wrapper instead of looking for `treefmt.toml`
+          formatters.treefmt.require_cwd = false;
 
-          formatters_by_ft.nix = ["alejandra"];
+          formatters_by_ft.nix = ["treefmt"];
         };
       };
 
