@@ -4,6 +4,10 @@
   programs.lazyvim = {
     enable = true;
 
+    config.options = ''
+      vim.opt.wrap = true
+    '';
+
     plugins = let
       mkPlugin = inputs.lazyvim-nix.lib.lazyConfig;
     in {
