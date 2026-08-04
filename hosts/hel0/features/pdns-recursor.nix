@@ -1,5 +1,9 @@
 {
-  networking.resolvconf.useLocalResolver = false; # don't point `resolv.conf` to `localhost`; tailscale will route split dns queries back here anyway
+  networking = {
+    firewall.interfaces.tailscale0.allowedUDPPorts = [53];
+
+    resolvconf.useLocalResolver = false; # don't point `resolv.conf` to `localhost`; tailscale will route split dns queries back here anyway
+  };
 
   services.pdns-recursor = {
     enable = true;
