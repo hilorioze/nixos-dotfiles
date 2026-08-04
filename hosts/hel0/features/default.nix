@@ -10,8 +10,6 @@
     ../../common/features/node-exporter.nix
     ../../common/features/openssh.nix
     ../../common/features/podman.nix
-    ../../common/features/sslh-tailscale.nix
-    ../../common/features/sslh.nix
     ../../common/features/tailscale-server.nix
     ../../common/features/tailscale.nix
     ../../common/features/traefik-podman.nix
