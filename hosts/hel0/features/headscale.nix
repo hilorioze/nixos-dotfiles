@@ -57,6 +57,8 @@ in {
     "services/headscale/preauth-keys/lelonix/prefix" = {};
     "services/headscale/preauth-keys/philone/bcrypt-hash" = {};
     "services/headscale/preauth-keys/philone/prefix" = {};
+    "services/headscale/preauth-keys/puest/bcrypt-hash" = {};
+    "services/headscale/preauth-keys/puest/prefix" = {};
     "services/headscale/preauth-keys/zikkkix/bcrypt-hash" = {};
     "services/headscale/preauth-keys/zikkkix/prefix" = {};
     # keep-sorted end
@@ -476,6 +478,10 @@ in {
           ${config.sops.secrets."services/headscale/preauth-keys/philone/prefix".path} \
           ${config.sops.secrets."services/headscale/preauth-keys/philone/bcrypt-hash".path})
 
+        puest_key_id=$(reconcile_preauth_key "$home_id" \
+          ${config.sops.secrets."services/headscale/preauth-keys/puest/prefix".path} \
+          ${config.sops.secrets."services/headscale/preauth-keys/puest/bcrypt-hash".path})
+
         zikkkix_key_id=$(reconcile_preauth_key "$home_id" \
           ${config.sops.secrets."services/headscale/preauth-keys/zikkkix/prefix".path} \
           ${config.sops.secrets."services/headscale/preauth-keys/zikkkix/bcrypt-hash".path} \
@@ -503,6 +509,7 @@ in {
         ensure_preauth_key_used "$hilonix_key_id"
         ensure_preauth_key_used "$lelonix_key_id"
         ensure_preauth_key_used "$philone_key_id"
+        ensure_preauth_key_used "$puest_key_id"
         ensure_preauth_key_used "$zikkkix_key_id"
         # keep-sorted end
 
