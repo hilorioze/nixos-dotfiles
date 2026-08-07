@@ -47,10 +47,61 @@
       # keep-sorted end
     };
 
-    extras.lang = {
-      # keep-sorted start
-      clangd.enable = true;
-      nix.enable = true;
+    extras = {
+      # keep-sorted start block=yes newline_separated=yes
+      coding = {
+        # keep-sorted start
+        mini-surround.enable = true;
+        yanky.enable = true;
+        # keep-sorted end
+      };
+
+      dap.core.enable = true;
+
+      editor = {
+        # keep-sorted start
+        dial.enable = true;
+        harpoon2.enable = true;
+        inc-rename.enable = true;
+        leap.enable = true;
+        outline.enable = true;
+        overseer.enable = true;
+        refactoring.enable = true;
+        # keep-sorted end
+      };
+
+      lang = {
+        # keep-sorted start
+        clangd.enable = true;
+        git.enable = true;
+        json.enable = true;
+        markdown.enable = true;
+        nix.enable = true;
+        php.enable = true;
+        python.enable = true;
+        rust.enable = true;
+        toml.enable = true;
+        typescript.enable = true;
+        yaml.enable = true;
+        # keep-sorted end
+      };
+
+      test.core.enable = true;
+
+      ui = {
+        # keep-sorted start
+        edgy.enable = true;
+        smear-cursor.enable = true;
+        treesitter-context.enable = true;
+        # keep-sorted end
+      };
+
+      util = {
+        # keep-sorted start
+        mini-hipatterns.enable = true;
+        octo.enable = true;
+        # keep-sorted end
+      };
       # keep-sorted end
     };
   };
