@@ -4,9 +4,16 @@
   programs.lazyvim = {
     enable = true;
 
-    config.options = ''
-      vim.opt.wrap = true
-    '';
+    config = {
+      keymaps = ''
+        vim.keymap.set("i", "<C-q>", "<Esc>", { desc = "Escape" })
+        vim.keymap.set("t", "<C-q>", "<C-\\><C-n>", { desc = "Escape Terminal" })
+      '';
+
+      options = ''
+        vim.opt.wrap = true -- soft word wrap
+      '';
+    };
 
     plugins = let
       mkPlugin = inputs.lazyvim-nix.lib.lazyConfig;
