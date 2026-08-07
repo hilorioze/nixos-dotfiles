@@ -1,4 +1,10 @@
-{inputs, ...}: {
+{
+  # keep-sorted start
+  inputs,
+  lib,
+  # keep-sorted end
+  ...
+}: {
   imports = [inputs.lazyvim-nix.homeManagerModules.default];
 
   programs.lazyvim = {
@@ -34,6 +40,29 @@
 
           formatters_by_ft.nix = ["treefmt"];
         };
+      };
+
+      # `editor.outline` loads before `ui.edgy` due to alphabetical ordering in `lazyvim-nix`,
+      # causing `ui.edgy`'s fresh `opts` to drop the `Outline` panel; re-add it in
+      # `programs.lazyvim.plugins`, which `lazyvim-nix` always appends after extras
+      edgy = mkPlugin {
+        plugin = "folke/edgy.nvim";
+
+        optional = true;
+
+        opts = lib.generators.mkLuaInline ''
+          function(_, opts)
+            opts.right = opts.right or {}
+
+            table.insert(opts.right, {
+              title = "Outline",
+              ft = "Outline",
+
+              pinned = true,
+              open = "Outline",
+            })
+          end
+        '';
       };
 
       lspconfig = mkPlugin {
