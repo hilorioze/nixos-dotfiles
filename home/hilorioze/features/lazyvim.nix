@@ -68,7 +68,13 @@
       lspconfig = mkPlugin {
         plugin = "neovim/nvim-lspconfig";
 
-        opts.servers.nil_ls.settings.nil.nix.flake.autoArchive = true;
+        opts_extend = ["servers.clangd.cmd"];
+
+        opts.servers = {
+          clangd.cmd = ["--query-driver=**/clangd-i686-gcc"];
+
+          nil_ls.settings.nil.nix.flake.autoArchive = true;
+        };
       };
 
       snacks = mkPlugin {
