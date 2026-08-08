@@ -11,14 +11,11 @@
 
     servers = {
       # keep-sorted start block=yes newline_separated=yes
-      git = {
-        command = lib.getExe' pkgs.uv "uvx";
-        args = ["mcp-server-git"];
-      };
+      ghidra.command = lib.getExe pkgs.ghidra-mcp;
+
+      git.command = lib.getExe pkgs.mcp-server-git;
 
       nixos.command = lib.getExe pkgs.mcp-nixos;
-
-      ghidra.command = lib.getExe pkgs.ghidra-mcp;
 
       playwright = {
         command = lib.getExe pkgs.playwright-mcp;
