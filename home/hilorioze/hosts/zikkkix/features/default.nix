@@ -7,6 +7,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ../../../features/antigravity-cli.nix
     ../../../features/atuin.nix
     ../../../features/bs-manager.nix
     ../../../features/cinny.nix
@@ -19,6 +20,7 @@
     ../../../features/plasma.nix
     ../../../features/thunderbird.nix
     ../../../features/wakatime.nix
+    ../../../features/wl-clipboard.nix
     # keep-sorted end
 
     # keep-sorted start

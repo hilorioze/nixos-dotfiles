@@ -1,7 +1,6 @@
 {
   # keep-sorted start
   config,
-  inputs,
   lib,
   pkgs,
   # keep-sorted end
@@ -10,7 +9,7 @@
   programs.codex = {
     enable = true;
 
-    package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.system}.codex;
+    package = pkgs.unstablePkgs.codex;
 
     enableMcpIntegration = true;
 

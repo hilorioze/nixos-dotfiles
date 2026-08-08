@@ -13,6 +13,13 @@
   # keep-sorted end
 
   packages = final: _prev: import ../packages {pkgs = final;};
+  unstablePkgs = _final: prev: {
+    unstablePkgs = import inputs.nixpkgs-unstable {
+      localSystem = prev.stdenv.hostPlatform.system;
+
+      inherit (prev) config;
+    };
+  };
 
   # keep-sorted start
   bs-manager-bump-1-5-6-unstable-2026-07-09 = import ./bs-manager-bump-1-5-6-unstable-2026-07-09;

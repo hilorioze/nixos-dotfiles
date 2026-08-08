@@ -47,6 +47,7 @@
 
     # keep-sorted start
     ../../../features/a2s.nix
+    ../../../features/antigravity-cli.nix
     ../../../features/ark.nix
     ../../../features/attic.nix
     ../../../features/atuin.nix
@@ -77,6 +78,7 @@
     ../../../features/thunderbird.nix
     ../../../features/vscodium.nix
     ../../../features/wakatime.nix
+    ../../../features/wl-clipboard.nix
     # keep-sorted end
 
     # keep-sorted start
