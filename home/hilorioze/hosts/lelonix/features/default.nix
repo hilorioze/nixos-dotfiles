@@ -46,6 +46,7 @@
     # keep-sorted end
 
     # keep-sorted start
+
     ../../../features/a2s.nix
     ../../../features/antigravity-cli.nix
     ../../../features/ark.nix
@@ -55,6 +56,7 @@
     ../../../features/bs-manager.nix
     ../../../features/chromium.nix
     ../../../features/cinny.nix
+    ../../../features/codex-desktop.nix
     ../../../features/codex.nix
     ../../../features/dolphin.nix
     ../../../features/email.nix

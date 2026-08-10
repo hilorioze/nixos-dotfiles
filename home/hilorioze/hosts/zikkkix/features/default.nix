@@ -11,6 +11,7 @@
     ../../../features/atuin.nix
     ../../../features/bs-manager.nix
     ../../../features/cinny.nix
+    ../../../features/codex-desktop.nix
     ../../../features/codex.nix
     ../../../features/email.nix
     ../../../features/gpg.nix
