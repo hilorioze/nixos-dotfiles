@@ -13,6 +13,7 @@
 
     extraPackages = with pkgs; [
       # keep-sorted start
+      markdownlint-cli2 # required by `extras.lang.markdown`
       vscode-json-languageserver # required by `extras.lang.json`
       yaml-language-server # required by `extras.lang.yaml`
       # keep-sorted end
