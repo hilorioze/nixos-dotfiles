@@ -69,6 +69,7 @@
     ../../../features/keepassxc.nix
     ../../../features/konsole.nix
     ../../../features/kwallet-keepassxc.nix
+    ../../../features/lazygit.nix
     ../../../features/lazyvim.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
