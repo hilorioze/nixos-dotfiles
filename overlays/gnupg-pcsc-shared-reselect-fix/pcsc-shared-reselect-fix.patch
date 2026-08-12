@@ -1,0 +1,74 @@
+diff --git a/scd/app-openpgp.c b/scd/app-openpgp.c
+index b2467d0..61794a5 100644
+--- a/scd/app-openpgp.c
++++ b/scd/app-openpgp.c
+@@ -6502,7 +6502,8 @@ do_reselect (app_t app, ctrl_t ctrl)
+   /* An extra check which should not be necessary because the caller
+    * should have made sure that a re-select is only called for
+    * appropriate cards.  */
+-  if (APP_CARD(app)->cardtype != CARDTYPE_YUBIKEY)
++  if (!opt.pcsc_shared
++      && APP_CARD(app)->cardtype != CARDTYPE_YUBIKEY)
+     return gpg_error (GPG_ERR_NOT_SUPPORTED);
+ 
+   /* Note that the card can't cope with P2=0xCO, thus we need to pass
+diff --git a/scd/app-piv.c b/scd/app-piv.c
+index dc92bd2..c55941d 100644
+--- a/scd/app-piv.c
++++ b/scd/app-piv.c
+@@ -3771,7 +3771,8 @@ app_select_piv (app_t app)
+ 
+   app->fnc.deinit = do_deinit;
+   app->fnc.prep_reselect = do_prep_reselect;
+-  app->fnc.reselect = do_reselect;
++  if (app->app_local->flags.yubikey)
++    app->fnc.reselect = do_reselect;
+   app->fnc.learn_status = do_learn_status;
+   app->fnc.readcert = do_readcert;
+   app->fnc.readkey = do_readkey;
+diff --git a/scd/app.c b/scd/app.c
+index 4f4601d..a4985f7 100644
+--- a/scd/app.c
++++ b/scd/app.c
+@@ -1744,15 +1744,17 @@ static int
+ check_external_interference (app_t app, ctrl_t ctrl)
+ {
+   /*
+-   * Only when a user is using Yubikey with pcsc-shared configuration,
+-   * we need this detection.  Otherwise, the card/token is under full
+-   * control of scdaemon, there's no problem at all.  However, if the
+-   * APDU command has been used we better also check whether the AID
+-   * is still valid.
++   * When a user is using pcsc-shared configuration and the application
++   * supports AID checking and re-selection, we need this detection.
++   * Otherwise, the card/token is under full control of scdaemon, there's
++   * no problem at all.  However, if the APDU command has been used we
++   * better also check whether the AID is still valid.
+    */
+   if (app && app->card && app->card->maybe_check_aid)
+     app->card->maybe_check_aid = 0;
+-  else if (!opt.pcsc_shared || app->card->cardtype != CARDTYPE_YUBIKEY)
++  else if (!opt.pcsc_shared
++           || !app->fnc.check_aid
++           || !app->fnc.reselect)
+     return 0;
+ 
+   if (app->fnc.check_aid)
+@@ -1791,12 +1793,14 @@ maybe_switch_app (ctrl_t ctrl, card_t card, const char *keyref)
+   if (!card->app)
+     return gpg_error (GPG_ERR_CARD_NOT_INITIALIZED);
+ 
+-  if (card->maybe_check_aid && card->app->fnc.reselect
++  if ((card->maybe_check_aid || opt.pcsc_shared)
++      && card->app->fnc.reselect
+       && check_external_interference (card->app, ctrl))
+     {
+       if (DBG_APP)
+-        log_debug ("slot %d, app %s: forced re-select due to direct APDU use\n",
+-                   card->slot, xstrapptype (card->app));
++        log_debug ("slot %d, app %s: forced re-select due to %s\n",
++                   card->slot, xstrapptype (card->app),
++                   card->maybe_check_aid? "direct APDU use" : "pcsc-shared");
+       err = card->app->fnc.reselect (card->app, ctrl);
+       if (err)
+         log_error ("slot %d, app %s: forced re-select failed: %s - ignored\n",
