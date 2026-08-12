@@ -11,7 +11,12 @@
   programs.lazyvim = {
     enable = true;
 
-    extraPackages = [pkgs.yaml-language-server];
+    extraPackages = with pkgs; [
+      # keep-sorted start
+      vscode-json-language-server # required by `extras.lang.json`
+      yaml-language-server # required by `extras.lang.yaml`
+      # keep-sorted end
+    ];
 
     config = {
       keymaps = ''
