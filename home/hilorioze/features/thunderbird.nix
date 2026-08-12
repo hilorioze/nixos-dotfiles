@@ -47,7 +47,7 @@
     gpgPrimaryKeyFingerprint = "96715efaa4fb67f96d3b335258da93fdd2d02b8d";
   in {
     # merge the public key into `thunderbird`'s `pubring.gpg` because it requires the public key in its `rnp` keyring even when signing with external `gpg` via `gpgme`; also preserve other public keys already imported there
-    exportGpgPublicKeyToThunderbird = lib.hm.dag.entryAfter ["writeBoundary" "importGpgSubkeys"] ''
+    exportGpgPublicKeyToThunderbird = lib.hm.dag.entryAfter ["writeBoundary" "importGpgKeys"] ''
       run ${lib.getExe' pkgs.coreutils "mkdir"} -p ${thunderbirdProfileDir}
 
       ${lib.getExe pkgs.gnupg} --export ${gpgPrimaryKeyFingerprint} | run ${lib.getExe' pkgs.rnp "rnpkeys"} \

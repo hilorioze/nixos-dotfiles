@@ -1,3 +1,0 @@
-{
-  services.gpg-agent.sshKeys = ["A7212074131246AF5A5B5F6DFAF42EB15C756A74"];
-}

@@ -61,6 +61,7 @@
     ../../../features/dolphin.nix
     ../../../features/email.nix
     ../../../features/firefox.nix
+    ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
     ../../../features/haruna.nix
     ../../../features/imhex.nix
@@ -75,6 +76,8 @@
     ../../../features/nix.nix
     ../../../features/plasma.nix
     ../../../features/spectacle.nix
+    ../../../features/ssh-agent.nix
+    ../../../features/ssh-fido2.nix
     ../../../features/steam.nix
     ../../../features/syncthing.nix
     ../../../features/thunderbird.nix
@@ -86,8 +89,6 @@
     # keep-sorted start
     ./firefox.nix
     ./ghidra.nix
-    ./git.nix
-    ./gpg-agent.nix
     ./kdeconnect.nix
     ./plasma.nix
     ./sops.nix

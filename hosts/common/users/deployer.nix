@@ -18,13 +18,7 @@
 
       shell = pkgs.bash; # nix copy over ssh-ng requires a real shell
 
-      openssh.authorizedKeys.keys = [
-        # keep-sorted start
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBgdezqxraUd2gGiPbRygTu8LOgiDAIRrUCe61eAO0fV openpgp:0x6B478424"
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIlG1hkJk8vgKjLRHmYF9vVtDF1H7Pz9WuhA/fEwn3Mz deployer@nixos-dotfiles"
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL+PP6MKrJ6i4aoUhBAQr4sx3ituSLQnlbfO4+nT99G6 openpgp:0x04FB7E2B"
-        # keep-sorted end
-      ];
+      openssh.authorizedKeys.keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIlG1hkJk8vgKjLRHmYF9vVtDF1H7Pz9WuhA/fEwn3Mz deployer@nixos-dotfiles"];
     };
   };
 
