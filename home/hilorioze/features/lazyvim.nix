@@ -2,6 +2,7 @@
   # keep-sorted start
   inputs,
   lib,
+  pkgs,
   # keep-sorted end
   ...
 }: {
@@ -9,6 +10,8 @@
 
   programs.lazyvim = {
     enable = true;
+
+    extraPackages = [pkgs.yaml-language-server];
 
     config = {
       keymaps = ''
