@@ -18,6 +18,7 @@
     ../../common/features/nix.nix
     ../../common/features/openssh.nix
     ../../common/features/partition-manager.nix
+    ../../common/features/pcscd.nix
     ../../common/features/pipewire-lowlatency.nix
     ../../common/features/pipewire.nix
     ../../common/features/plasmavantage.nix
