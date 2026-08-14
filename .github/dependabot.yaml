@@ -48,6 +48,7 @@ updates:
     labels:
       - dependencies
       - nix
+      - flake
       - automated
 
     commit-message:
