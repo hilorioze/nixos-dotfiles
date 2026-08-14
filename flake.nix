@@ -168,6 +168,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    steam-voicechat-fix.url = "github:hilorioze/steam-voicechat-fix";
+
     stylix = {
       url = "github:nix-community/stylix/release-26.05";
 

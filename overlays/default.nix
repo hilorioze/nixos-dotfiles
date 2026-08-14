@@ -10,6 +10,7 @@
   nix-software-center = inputs.nix-software-center.overlays.default;
   nix-vscode-extensions = inputs.nix-vscode-extensions.overlays.default;
   nixos-conf-editor = inputs.nixos-conf-editor.overlays.default;
+  steam-voicechat-fix = inputs.steam-voicechat-fix.overlays.default;
   # keep-sorted end
 
   packages = final: _prev: import ../packages {pkgs = final;};
