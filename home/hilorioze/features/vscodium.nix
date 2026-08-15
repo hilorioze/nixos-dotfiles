@@ -64,37 +64,4 @@
       };
     };
   };
-
-  xdg.mimeApps.defaultApplications = {
-    # keep-sorted start
-    "application/json" = "codium.desktop";
-    "application/sql" = "codium.desktop";
-    "application/toml" = "codium.desktop";
-    "application/x-docbook+xml" = "codium.desktop";
-    "application/x-perl" = "codium.desktop";
-    "application/x-php" = "codium.desktop";
-    "application/x-ruby" = "codium.desktop";
-    "application/x-shellscript" = "codium.desktop";
-    "application/x-yaml" = "codium.desktop";
-    "application/yaml" = "codium.desktop";
-    "text/css" = "codium.desktop";
-    "text/csv" = "codium.desktop";
-    "text/javascript" = "codium.desktop";
-    "text/markdown" = "codium.desktop";
-    "text/plain" = "codium.desktop";
-    "text/tab-separated-values" = "codium.desktop";
-    "text/x-c++hdr" = "codium.desktop";
-    "text/x-c++src" = "codium.desktop";
-    "text/x-chdr" = "codium.desktop";
-    "text/x-cmake" = "codium.desktop";
-    "text/x-csrc" = "codium.desktop";
-    "text/x-java" = "codium.desktop";
-    "text/x-log" = "codium.desktop";
-    "text/x-makefile" = "codium.desktop";
-    "text/x-meson" = "codium.desktop";
-    "text/x-patch" = "codium.desktop";
-    "text/x-python" = "codium.desktop";
-    "text/x-readme" = "codium.desktop";
-    # keep-sorted end
-  };
 }

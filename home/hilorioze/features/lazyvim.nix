@@ -156,4 +156,37 @@
       # keep-sorted end
     };
   };
+
+  xdg.mimeApps.defaultApplications = {
+    # keep-sorted start
+    "application/json" = "nvim.desktop";
+    "application/sql" = "nvim.desktop";
+    "application/toml" = "nvim.desktop";
+    "application/x-docbook+xml" = "nvim.desktop";
+    "application/x-perl" = "nvim.desktop";
+    "application/x-php" = "nvim.desktop";
+    "application/x-ruby" = "nvim.desktop";
+    "application/x-shellscript" = "nvim.desktop";
+    "application/x-yaml" = "nvim.desktop";
+    "application/yaml" = "nvim.desktop";
+    "text/css" = "nvim.desktop";
+    "text/csv" = "nvim.desktop";
+    "text/javascript" = "nvim.desktop";
+    "text/markdown" = "nvim.desktop";
+    "text/plain" = "nvim.desktop";
+    "text/tab-separated-values" = "nvim.desktop";
+    "text/x-c++hdr" = "nvim.desktop";
+    "text/x-c++src" = "nvim.desktop";
+    "text/x-chdr" = "nvim.desktop";
+    "text/x-cmake" = "nvim.desktop";
+    "text/x-csrc" = "nvim.desktop";
+    "text/x-java" = "nvim.desktop";
+    "text/x-log" = "nvim.desktop";
+    "text/x-makefile" = "nvim.desktop";
+    "text/x-meson" = "nvim.desktop";
+    "text/x-patch" = "nvim.desktop";
+    "text/x-python" = "nvim.desktop";
+    "text/x-readme" = "nvim.desktop";
+    # keep-sorted end
+  };
 }
