@@ -43,14 +43,14 @@ jobs:
         env:
           TARGET_NODES: ${{ inputs['target-nodes'] }}
         run: |
-          if [ "$TARGET_NODES" = all ]; then
+          if [[ $TARGET_NODES == all ]]; then
             target_nodes=$(nix eval --apply builtins.attrNames --json .#deploy.nodes)
           else
             target_nodes=$TARGET_NODES
           fi
 
           include='[]'
-          for node in $(echo "$target_nodes" | jq -r '.[]'); do
+          for node in $(jq --raw-output '.[]' <<<$target_nodes); do
             system=$(nix eval --raw .#deploy.nodes.${node}.profiles.system.path.system)
             fqdn=$(nix eval --raw .#deploy.nodes.${node}.hostname)
 
@@ -61,13 +61,15 @@ jobs:
               x86_64-linux)  runner=ubuntu-latest ;;
             esac
 
-            include=$(echo "$include" | jq -c --arg node $node --arg runner $runner --arg fqdn $fqdn '. + [{"node": $node, "runner": $runner, "fqdn": $fqdn}]')
+            include=$(jq --compact-output --arg node $node --arg runner $runner --arg fqdn $fqdn '. + [{"node": $node, "runner": $runner, "fqdn": $fqdn}]' <<<$include)
           done
 
-          echo "target-nodes={\"include\":$include}" >> $GITHUB_OUTPUT
+          {
+            printf 'target-nodes={"include": %s}\n' "$include"
 
-          echo "extra-substituters=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')" >> $GITHUB_OUTPUT
-          echo "extra-trusted-public-keys=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')" >> $GITHUB_OUTPUT
+            printf 'extra-substituters=%s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
+            printf 'extra-trusted-public-keys=%s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
+          } >> $GITHUB_OUTPUT
 
   deploy-nodes:
     needs: collect-targets
@@ -113,9 +115,9 @@ jobs:
           ping: ${{ inputs['ping-nodes'] && matrix.fqdn || '' }}
 
       - run: |
-          install -Dm 600 /dev/stdin ~/.ssh/id_ed25519 <<<"${{ secrets.DEPLOYER_SSH_PRIVATE_KEY }}"
+          install -D --mode=600 /dev/stdin ~/.ssh/id_ed25519 <<<"${{ secrets.DEPLOYER_SSH_PRIVATE_KEY }}"
 
-          install -m 600 /dev/stdin ~/.ssh/known_hosts <<<"${{ matrix.fqdn }} $(< hosts/${{ matrix.node }}/ssh_host_ed25519_key.pub)"
+          install --mode=600 /dev/stdin ~/.ssh/known_hosts <<<"${{ matrix.fqdn }} $(<hosts/${{ matrix.node }}/ssh_host_ed25519_key.pub)"
 
       - id: fetch-niks3-bin
         run: |

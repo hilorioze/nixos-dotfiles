@@ -13,8 +13,8 @@
   programs.zsh = {
     initContent = lib.mkMerge [
       (lib.mkBefore ''
-        if [[ -r "${config.xdg.cacheHome}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
-          source "${config.xdg.cacheHome}/p10k-instant-prompt-''${(%):-%n}.zsh"
+        if [[ -r ${config.xdg.cacheHome}/p10k-instant-prompt-''${(%):-%n}.zsh ]]; then
+          source ${config.xdg.cacheHome}/p10k-instant-prompt-''${(%):-%n}.zsh
         fi
       '')
 

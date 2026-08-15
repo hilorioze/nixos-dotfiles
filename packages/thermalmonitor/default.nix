@@ -21,8 +21,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/share/plasma/plasmoids
-    cp -r package $out/share/plasma/plasmoids/org.kde.olib.thermalmonitor
+    plasmoids_dir=$out/share/plasma/plasmoids
+
+    mkdir --parents $plasmoids_dir
+    cp --recursive package $plasmoids_dir/org.kde.olib.thermalmonitor
 
     runHook postInstall
   '';

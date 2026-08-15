@@ -23,7 +23,8 @@ in {
 
     text = ''
       ${lib.getExe' pkgs.coreutils "install"} \
-        -Dm0644 \
+        -D \
+        --mode=0644 \
         ${coolercontrolConfig} \
         /etc/coolercontrol/config.toml
     '';

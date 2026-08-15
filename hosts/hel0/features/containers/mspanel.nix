@@ -40,7 +40,7 @@
       passwordFile = config.sops.secrets."credentials/ghcr/hilorioze/pull/token".path;
     };
 
-    environmentFiles = ["${config.sops.templates."services/mspanel/mysql.env".path}"];
+    environmentFiles = [config.sops.templates."services/mspanel/mysql.env".path];
 
     labels = {
       "traefik.enable" = "true";

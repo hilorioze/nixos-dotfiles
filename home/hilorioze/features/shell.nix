@@ -7,12 +7,12 @@
   ...
 }: {
   home.shellAliases = {
-    c = "${lib.getExe' pkgs.ncurses "clear"}";
-    l = "${lib.getExe' pkgs.coreutils "ls"} --color=auto -lah";
+    c = lib.getExe' pkgs.ncurses "clear";
+    l = "${lib.getExe' pkgs.coreutils "ls"} --format=long --all --human-readable --color=auto";
 
-    ff = "${lib.getExe config.programs.fastfetch.package}";
+    ff = lib.getExe config.programs.fastfetch.package;
 
-    g = "${lib.getExe config.programs.git.package}";
+    g = lib.getExe config.programs.git.package;
 
     du = "${lib.getExe pkgs.devenv} update";
 

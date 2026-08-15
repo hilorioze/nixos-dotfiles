@@ -123,7 +123,7 @@ jobs:
 
           for message in $messages/*.md; do
             # `yaas: 0.1.0 -> 0.2.0` -> `package=yaas old_version=0.1.0 new_version=0.2.0`
-            read package old_version _ new_version < $message
+            read package old_version _ new_version <$message
             package=${package%:} # remove the trailing colon: `yaas:` -> `yaas`
 
             printf "| \`%s\` | \`%s\` | \`%s\` |\n" \
@@ -143,7 +143,7 @@ jobs:
               $message >> $details
           done
 
-          update_count=$(wc --lines < $table)
+          update_count=$(wc --lines <$table)
 
           body=$RUNNER_TEMP/nix-update-body.md
 
@@ -156,10 +156,11 @@ jobs:
 
             printf '| Package | From | To |\n| --- | --- | --- |\n'
             cat $table
+
             cat $details
           } > $body
 
-          echo "body-path=$body" >> $GITHUB_OUTPUT
+          printf 'body-path=%s\n' $body >> $GITHUB_OUTPUT
 
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:

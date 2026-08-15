@@ -24,10 +24,9 @@ ghidra.buildGhidraExtension (finalAttrs: {
     runHook preInstall
 
     extension_dir=$out/lib/ghidra/Ghidra/Extensions/GhidraMCP
-    mkdir -p $extension_dir
 
+    mkdir --parents $extension_dir
     unzip -d $out/lib/ghidra/Ghidra/Extensions build/distributions/GhidraMCP-${finalAttrs.version}.zip
-
     touch $extension_dir/.dbDirLock
 
     runHook postInstall

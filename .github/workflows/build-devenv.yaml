@@ -21,64 +21,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  collect-substituters:
-    runs-on: ubuntu-latest
-
-    outputs:
-      extra-substituters: ${{ steps.collect-substituters.outputs['extra-substituters'] }}
-      extra-trusted-public-keys: ${{ steps.collect-substituters.outputs['extra-trusted-public-keys'] }}
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
-        with:
-          extra_nix_config: &extra_nix_config |
-            accept-flake-config = true
-
-            # resolved by follow-up jobs via `*extra_nix_config`; empty strings are safe here
-            extra-substituters = ${{ needs.collect-substituters.outputs['extra-substituters'] }}
-            extra-trusted-public-keys = ${{ needs.collect-substituters.outputs['extra-trusted-public-keys'] }}
-
-            fsync-metadata = false # performance over durability in CI; store is transient
-
-      - id: collect-substituters
-        run: |
-          echo "extra-substituters=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')" >> $GITHUB_OUTPUT
-          echo "extra-trusted-public-keys=$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')" >> $GITHUB_OUTPUT
-
   build-devenv:
-    needs: collect-substituters
-
-    permissions:
-      id-token: write
-
-    strategy:
-      matrix:
-        runner:
-          # no `ubuntu-latest-arm` alias; pinned to `ubuntu-24.04-arm`
-          # update when a newer image or the alias becomes available
-          # keep-sorted start
-          - ubuntu-24.04-arm
-          - ubuntu-latest
-          # keep-sorted end
-
-      fail-fast: false # don't cancel the matrix if one job fails
-
     concurrency:
-      # one run per runner and whether it's a pull request or not (prevents the same build from running twice at the same time); latest completes last
-      group: ${{ github.workflow }}-${{ matrix.runner }}-${{ github.event_name == 'pull_request' && 'pr' || 'non-pr' }}
+      # one run per pull request status; latest completes last
+      group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && 'pr' || 'non-pr' }}
 
       cancel-in-progress: false
 
-    runs-on: ${{ matrix.runner }}
+    permissions:
+      id-token: write # required so `niks3` can authenticate via OIDC
+
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
         with:
-          extra_nix_config: *extra_nix_config
+          extra_nix_config: |
+            accept-flake-config = true
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - run: |
+          {
+            printf 'NIX_CONFIG<<EOF\n'
+            printf 'extra-substituters = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
+            printf 'extra-trusted-public-keys = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
+            printf 'EOF\n'
+          } >> $GITHUB_ENV
 
       - if: github.event_name != 'pull_request'
         id: fetch-niks3-bin

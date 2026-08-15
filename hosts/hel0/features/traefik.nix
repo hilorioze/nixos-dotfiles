@@ -21,7 +21,7 @@
   };
 
   services.traefik = {
-    environmentFiles = ["${config.sops.templates."services/traefik/cloudflare.env".path}"];
+    environmentFiles = [config.sops.templates."services/traefik/cloudflare.env".path];
 
     dynamicConfigOptions.http.middlewares.redirect-to-https.redirectScheme = {
       scheme = "https";

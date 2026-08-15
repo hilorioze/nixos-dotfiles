@@ -15,7 +15,7 @@
   "mounts": [
     "source=devcontainer-nix,target=/nix,type=volume"
   ],
-  "onCreateCommand": "sudo sh -c 'echo \"accept-flake-config = true\" >> /etc/nix/nix.conf'",
+  "onCreateCommand": "sudo sh -c 'printf \"accept-flake-config = true\\n\" >> /etc/nix/nix.conf' ",
   "overrideCommand": false,
   "updateContentCommand": "devenv test"
 }

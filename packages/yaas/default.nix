@@ -81,7 +81,7 @@ in
           installPhase = ''
             runHook preInstall
 
-            cp -r . "$out"
+            cp --recursive . $out
 
             runHook postInstall
           '';
@@ -122,7 +122,7 @@ in
           installPhase = ''
             runHook preInstall
 
-            cp -r . "$out"
+            cp --recursive . $out
 
             runHook postInstall
           '';
@@ -146,7 +146,7 @@ in
     preBuild = "${lib.getExe rinf_cli} gen";
 
     postInstall = ''
-      install -Dm644 ${src}/assets/png/app_icon.png $out/share/icons/hicolor/512x512/apps/yaas.png
+      install -D --mode=644 ${src}/assets/png/app_icon.png $out/share/icons/hicolor/512x512/apps/yaas.png
 
       # rinf expects its Rust symbols to be visible to the process on Linux
       patchelf --add-needed libhub.so $out/app/${pname}/yaas

@@ -42,7 +42,7 @@
         passwordFile = config.sops.secrets."credentials/ghcr/hilorioze/pull/token".path;
       };
 
-      environmentFiles = ["${config.sops.templates."config/whyareyoulookinghere.env".path}"];
+      environmentFiles = [config.sops.templates."config/whyareyoulookinghere.env".path];
     };
   in {
     # keep-sorted start block=yes newline_separated=yes

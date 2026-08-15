@@ -48,7 +48,7 @@
   in {
     # merge the public key into `thunderbird`'s `pubring.gpg` because it requires the public key in its `rnp` keyring even when signing with external `gpg` via `gpgme`; also preserve other public keys already imported there
     exportGpgPublicKeyToThunderbird = lib.hm.dag.entryAfter ["writeBoundary" "importGpgKeys"] ''
-      run ${lib.getExe' pkgs.coreutils "mkdir"} -p ${thunderbirdProfileDir}
+      run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${thunderbirdProfileDir}
 
       ${lib.getExe pkgs.gnupg} --export ${gpgPrimaryKeyFingerprint} | run ${lib.getExe' pkgs.rnp "rnpkeys"} \
         --homedir ${thunderbirdProfileDir} \
@@ -64,7 +64,7 @@
       gpgPrimaryKeyEmail = "me@hilorioze.com";
     in
       lib.hm.dag.entryAfter ["writeBoundary"] ''
-        run ${lib.getExe' pkgs.coreutils "mkdir"} -p ${thunderbirdProfileDir}
+        run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${thunderbirdProfileDir}
 
         run ${lib.getExe pkgs.sqlite} ${thunderbirdOpenPgpDatabase} \
           "PRAGMA busy_timeout = 5000;" \

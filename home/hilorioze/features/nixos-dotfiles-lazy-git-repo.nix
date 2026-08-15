@@ -7,10 +7,12 @@
   ...
 }: {
   home.activation.nixosDotfilesLazyGitRepoInit = ''
-    if [ ! -d ${config.home.homeDirectory}/projects/nixos-dotfiles/.git ]; then
-      ${lib.getExe pkgs.git} init ${config.home.homeDirectory}/projects/nixos-dotfiles
+    repo_dir=${config.home.homeDirectory}/projects/nixos-dotfiles
 
-      ${lib.getExe pkgs.git} -C ${config.home.homeDirectory}/projects/nixos-dotfiles remote add origin git@github.com:hilorioze/nixos-dotfiles.git
+    if [[ ! -d $repo_dir/.git ]]; then
+      ${lib.getExe pkgs.git} init $repo_dir
+
+      ${lib.getExe pkgs.git} -C $repo_dir remote add origin git@github.com:hilorioze/nixos-dotfiles.git
     fi
   '';
 }

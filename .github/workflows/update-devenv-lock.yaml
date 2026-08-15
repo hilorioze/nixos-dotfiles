@@ -14,7 +14,7 @@ on:
 
   schedule:
     # run weekly on mondays at 00:00 UTC
-    - cron: '0 0 * * 1'
+    - cron: "0 0 * * 1"
 
   workflow_dispatch:
 
@@ -109,7 +109,7 @@ jobs:
 
           jq --raw-output --null-input \
             --argjson before "$(git show HEAD:devenv.lock)" \
-            --argjson after "$(< devenv.lock)" '
+            --argjson after "$(<devenv.lock)" '
               $before.nodes as $before_nodes |
               $after.nodes as $after_nodes |
               [$after_nodes | keys[] as $input |
@@ -133,7 +133,7 @@ jobs:
               ) | join("\n"))
             ' > $body
 
-          echo "body-path=$body" >> $GITHUB_OUTPUT
+          printf 'body-path=%s\n' $body >> $GITHUB_OUTPUT
 
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
@@ -149,7 +149,7 @@ jobs:
             devenv
             automated
 
-          commit-message: 'chore(deps/devenv): update'
-          title: 'chore(deps/devenv): update'
+          commit-message: "chore(deps/devenv): update"
+          title: "chore(deps/devenv): update"
 
           body-path: ${{ steps.update-devenv-lock.outputs.body-path }}

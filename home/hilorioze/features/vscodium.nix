@@ -57,8 +57,8 @@
         "security.workspace.trust.enabled" = false; # disable workspace trust prompts
 
         "nix.enableLanguageServer" = true;
-        "nix.serverPath" = "${lib.getExe pkgs.nil}";
-        "nix.serverSettings".nil.formatting.command = ["${lib.getExe pkgs.alejandra}"];
+        "nix.serverPath" = lib.getExe pkgs.nil;
+        "nix.serverSettings".nil.formatting.command = [(lib.getExe pkgs.alejandra)];
 
         "update.showReleaseNotes" = false;
       };

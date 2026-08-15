@@ -88,7 +88,7 @@
                       hash = "sha256-2dRUkooIA1E0Qshg58N+9duIW25iRruu1oW8ckBUNIA=";
                     };
                   } ''
-                    sed 's/''${DS_LOKI}/loki/g' $src > $out
+                    sed 's/''${DS_LOKI}/loki/g' $src >$out
                   '';
               }
 
@@ -113,7 +113,7 @@
                       hash = "sha256-ip62qmYpycKukQfR/pGm9F/di0AIjUrDN9Vk7AdYb+Q=";
                     };
                   } ''
-                    sed 's/''${DS_PROMETHEUS}/prometheus/g' $src > $out
+                    sed 's/''${DS_PROMETHEUS}/prometheus/g' $src >$out
                   '';
               }
               # keep-sorted end

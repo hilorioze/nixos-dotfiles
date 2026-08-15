@@ -111,16 +111,16 @@ in {
 
       text = ''
         ${lib.getExe' pkgs.coreutils "install"} \
-          -d \
-          -m 0755 \
-          -o sddm -g sddm \
-          "${sddmHome}/.config"
+          --directory \
+          --mode=0755 \
+          --owner=sddm --group=sddm \
+          ${sddmHome}/.config
 
         ${lib.getExe' pkgs.coreutils "install"} \
-          -m 0644 \
-          -o sddm -g sddm \
-          "${kwinoutputConfig}" \
-          "${sddmHome}/.config/kwinoutputconfig.json"
+          --mode=0644 \
+          --owner=sddm --group=sddm \
+          ${kwinoutputConfig} \
+          ${sddmHome}/.config/kwinoutputconfig.json
       '';
     };
 
@@ -129,16 +129,16 @@ in {
 
       text = ''
         ${lib.getExe' pkgs.coreutils "install"} \
-          -d \
-          -m 0755 \
-          -o sddm -g sddm \
-          "${sddmHome}/.config"
+          --directory \
+          --mode=0755 \
+          --owner=sddm --group=sddm \
+          ${sddmHome}/.config
 
         ${lib.getExe' pkgs.coreutils "install"} \
-          -m 0644 \
-          -o sddm -g sddm \
-          "${kcminputConfig}" \
-          "${sddmHome}/.config/kcminputrc"
+          --mode=0644 \
+          --owner=sddm --group=sddm \
+          ${kcminputConfig} \
+          ${sddmHome}/.config/kcminputrc
       '';
     };
   };

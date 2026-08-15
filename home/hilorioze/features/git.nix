@@ -12,15 +12,15 @@
 
       alias = {
         a = "add";
-        aa = "add -A";
+        aa = "add --all";
         c = "commit";
-        cm = "commit -m";
+        cm = "commit --message";
         ca = "commit --amend";
         u = "reset --soft HEAD~1"; # undo last commit but keep changes
         d = "diff";
         dc = "diff --cached"; # show diff of staged changes
         b = "branch";
-        bd = "branch -d"; # delete local branch
+        bd = "branch --delete"; # delete local branch
         ch = "checkout";
         cb = "checkout -b"; # create and switch to new branch
         m = "merge";

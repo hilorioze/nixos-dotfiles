@@ -1,6 +1,6 @@
 on:
   push:
-    branches: &branches
+    branches:
       - main
 
     paths:
@@ -32,10 +32,12 @@ jobs:
 
       - id: collect-flake-config
         run: |
-          echo extra-substituters=$(nix eval --json --file flake.nix --apply 'flake: flake.nixConfig.extra-substituters' | jq --compact-output) >> $GITHUB_OUTPUT
-          echo extra-trusted-public-keys=$(nix eval --json --file flake.nix --apply 'flake: flake.nixConfig.extra-trusted-public-keys' | jq --compact-output) >> $GITHUB_OUTPUT
+          {
+            printf 'extra-substituters=%s\n' "$(nix eval --json --file flake.nix --apply 'flake: flake.nixConfig.extra-substituters' | jq --compact-output)"
+            printf 'extra-trusted-public-keys=%s\n' "$(nix eval --json --file flake.nix --apply 'flake: flake.nixConfig.extra-trusted-public-keys' | jq --compact-output)"
 
-          echo systems=$(nix eval --json .#systems | jq --compact-output) >> $GITHUB_OUTPUT
+            printf 'systems=%s\n' "$(nix eval --json .#systems | jq --compact-output)"
+          } >> $GITHUB_OUTPUT
 
       - env:
           SUBSTITUTERS: ${{ steps.collect-flake-config.outputs['extra-substituters'] }}

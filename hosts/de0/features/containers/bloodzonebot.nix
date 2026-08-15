@@ -56,7 +56,7 @@
         POSTGRES_HOST = "host.docker.internal";
         POSTGRES_USER = "bloodzonebot";
       };
-      environmentFiles = ["${config.sops.templates."config/bloodzonebot.env".path}"];
+      environmentFiles = [config.sops.templates."config/bloodzonebot.env".path];
     };
   in {
     # keep-sorted start block=yes newline_separated=yes
@@ -147,7 +147,7 @@
   };
 
   systemd.services.postgresql-setup.script = lib.mkAfter ''
-    psql -X -v ON_ERROR_STOP=1 -tA <<< ${lib.escapeShellArg ''
+    psql --variable=ON_ERROR_STOP=1 <<<${lib.escapeShellArg ''
       SELECT format('ALTER ROLE %I WITH PASSWORD %L', 'bloodzonebot', pg_read_file('${config.sops.secrets."services/postgresql/users/bloodzonebot/hashed-password".path}'))
       \gexec
     ''}

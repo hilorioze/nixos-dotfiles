@@ -43,18 +43,14 @@ in {
     allowedUDPPorts = map (proxy: proxy.port) proxies;
 
     extraCommands = lib.mkAfter (lib.concatMapStringsSep "\n\n" (proxy: ''
-        iptables -t raw -A PREROUTING -p udp --dport ${toString proxy.port} -j NOTRACK
-        iptables -t raw -A OUTPUT -p udp --sport ${toString proxy.port} -j NOTRACK
-        iptables -I INPUT 1 -p udp --dport ${toString proxy.port} -m conntrack --ctstate UNTRACKED -j ACCEPT
-        iptables -I OUTPUT 1 -p udp --sport ${toString proxy.port} -m conntrack --ctstate UNTRACKED -j ACCEPT
+        iptables --table raw --append PREROUTING --protocol udp --dport ${toString proxy.port} --jump NOTRACK
+        iptables --table raw --append OUTPUT --protocol udp --sport ${toString proxy.port} --jump NOTRACK
       '')
       proxies);
 
     extraStopCommands = lib.mkAfter (lib.concatMapStringsSep "\n\n" (proxy: ''
-        iptables -t raw -D PREROUTING -p udp --dport ${toString proxy.port} -j NOTRACK 2>/dev/null || true
-        iptables -t raw -D OUTPUT -p udp --sport ${toString proxy.port} -j NOTRACK 2>/dev/null || true
-        iptables -D INPUT -p udp --dport ${toString proxy.port} -m conntrack --ctstate UNTRACKED -j ACCEPT 2>/dev/null || true
-        iptables -D OUTPUT -p udp --sport ${toString proxy.port} -m conntrack --ctstate UNTRACKED -j ACCEPT 2>/dev/null || true
+        iptables --table raw --delete PREROUTING --protocol udp --dport ${toString proxy.port} --jump NOTRACK 2>/dev/null || true
+        iptables --table raw --delete OUTPUT --protocol udp --sport ${toString proxy.port} --jump NOTRACK 2>/dev/null || true
       '')
       proxies);
   };

@@ -202,10 +202,10 @@ in {
   };
 
   home.activation.setDeArrowLicense = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    if [[ -f "${firefoxProfileDir}/storage-sync-v2.sqlite" ]]; then
-      ${lib.getExe pkgs.sqlite} "${firefoxProfileDir}/storage-sync-v2.sqlite" \
+    if [[ -f ${firefoxProfileDir}/storage-sync-v2.sqlite ]]; then
+      ${lib.getExe pkgs.sqlite} ${firefoxProfileDir}/storage-sync-v2.sqlite \
         "INSERT OR IGNORE INTO storage_sync_data (ext_id, data) VALUES ('deArrow@ajay.app', '{}');" \
-        "UPDATE storage_sync_data SET data = json_set(data, '$.licenseKey', '$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets."apps/dearrow/license-key".path})', '$.activated', json('true'), '$.alreadyActivated', json('true')) WHERE ext_id = 'deArrow@ajay.app';"
+        "UPDATE storage_sync_data SET data = json_set(data, '$.licenseKey', '$(<${config.sops.secrets."apps/dearrow/license-key".path})', '$.activated', json('true'), '$.alreadyActivated', json('true')) WHERE ext_id = 'deArrow@ajay.app';"
     fi
   '';
 

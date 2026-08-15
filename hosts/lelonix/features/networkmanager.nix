@@ -9,7 +9,7 @@
 
     templates."config/networkmanager.env".content = ''
       TP_LINK_DD02_PSK=${config.sops.placeholder."credentials/wifi/TP-Link_DD02/psk"}
-      ZTE_2D4035=${config.sops.placeholder."credentials/wifi/ZTE_2D4035/psk"}
+      ZTE_2D4035_PSK=${config.sops.placeholder."credentials/wifi/ZTE_2D4035/psk"}
     '';
   };
 
@@ -86,7 +86,7 @@
         wifi-security = {
           key-mgmt = "wpa-psk";
 
-          psk = "$ZTE_2D4035";
+          psk = "$ZTE_2D4035_PSK";
         };
       };
 

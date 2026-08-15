@@ -25,9 +25,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/share/plasma/plasmoids
+    plasmoids_dir=$out/share/plasma/plasmoids
 
-    cp -r package $out/share/plasma/plasmoids/com.gitlab.scias.plasmavantage
+    mkdir --parents $plasmoids_dir
+    cp --recursive package $plasmoids_dir/com.gitlab.scias.plasmavantage
 
     runHook postInstall
   '';

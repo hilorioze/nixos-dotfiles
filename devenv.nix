@@ -1,11 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  lib,
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
+{pkgs, ...}: {
   packages = with pkgs; [
     # keep-sorted start
     age # ships `age-plugin-tag`; required to encrypt to age1tag1 recipients
@@ -13,18 +6,6 @@
     sops
     # keep-sorted end
   ];
-
-  scripts = {
-    # keep-sorted start
-    du.exec = "devenv update";
-    nbah.exec = "nix eval .#nixosConfigurations --apply builtins.attrNames --json | ${lib.getExe pkgs.jq} -r '.[]' | while IFS= read -r host; do ${lib.getExe config.scripts.nbh.scriptPackage} $host; done";
-    nbh.exec = "nix build -L .#nixosConfigurations.$1.config.system.build.toplevel";
-    nfc.exec = "nix flake check";
-    nfl.exec = "nix flake lock";
-    nfu.exec = "nix flake update";
-    ua.exec = "${lib.getExe config.scripts.du.scriptPackage} && ${lib.getExe config.scripts.nfu.scriptPackage}";
-    # keep-sorted end
-  };
 
   languages = {
     # keep-sorted start block=yes newline_separated=yes
@@ -58,8 +39,27 @@
     };
   };
 
-  git-hooks.hooks = {
+  git-hooks.hooks = let
+    ignoredShellcheckRules = [
+      # keep-sorted start
+      "SC2016" # expressions in single quotes; intentional, referenced have no shell expansion
+      "SC2086" # unquoted variables; referenced are safe
+      "SC2162" # `read` without `-r`; intentional too, paths and stuff don't have backslashes
+      "SC2231" # unquoted variable in `for` loop glob; see `SC2086`
+      # keep-sorted end
+    ];
+  in {
     # keep-sorted start block=yes newline_separated=yes
+    actionlint = {
+      enable = true;
+
+      args =
+        (map (code: "-ignore=${code}") ignoredShellcheckRules)
+        ++ [
+          ''-ignore=property \"collect-targets\" is not defined'' # anchor references `needs.collect-targets` itself; should and only exists in downstream jobs
+        ];
+    };
+
     check-merge-conflicts = {
       enable = true;
 
@@ -90,6 +90,8 @@
     shellcheck = {
       enable = true;
 
+      args = map (code: "--exclude=${code}") ignoredShellcheckRules;
+
       # produces false positives on zsh
       excludes = ["\\.zsh$"];
     };
@@ -106,10 +108,10 @@
     enable = true;
 
     settings = {
-      # cache /nix between rebuilds
+      # cache `/nix` between rebuilds
       mounts = ["source=devcontainer-nix,target=/nix,type=volume"];
 
-      onCreateCommand = "sudo sh -c 'echo \"accept-flake-config = true\" >> /etc/nix/nix.conf'";
+      onCreateCommand = ''sudo sh -c 'printf "accept-flake-config = true\n" >> /etc/nix/nix.conf' '';
 
       customizations.vscode.extensions = [
         # keep-sorted start

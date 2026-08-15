@@ -225,8 +225,8 @@ in {
   in ''
     for i in {1..30}; do
       if ${lib.getExe' pkgs.openldap "ldapsearch"} -x -H ldapi:/// \
-        -D "cn=root,${baseDN}" -y ${rootPasswordFile} \
-        -b "${baseDN}" -s base >/dev/null 2>&1; then
+        -D cn=root,${baseDN} -y ${rootPasswordFile} \
+        -b ${baseDN} -s base >/dev/null 2>&1; then
         break
       fi
       sleep 1
@@ -234,13 +234,13 @@ in {
 
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (uid: _user: ''
         if ${lib.getExe' pkgs.openldap "ldapsearch"} -x -H ldapi:/// \
-          -D "cn=root,${baseDN}" -y ${rootPasswordFile} \
-          -b "${mkUserDN uid}" -s base dn >/dev/null 2>&1; then
+          -D cn=root,${baseDN} -y ${rootPasswordFile} \
+          -b ${mkUserDN uid} -s base dn >/dev/null 2>&1; then
           ${lib.getExe' pkgs.openldap "ldappasswd"} -x -H ldapi:/// \
-            -D "cn=root,${baseDN}" \
+            -D cn=root,${baseDN} \
             -y ${rootPasswordFile} \
             -T ${config.sops.secrets."services/openldap/${domain}/users/${uid}/password".path} \
-            "${mkUserDN uid}"
+            ${mkUserDN uid}
         fi
       '')
       users)}
@@ -248,13 +248,13 @@ in {
     # Set passwords for service accounts
     ${lib.concatStringsSep "\n" (map (cn: ''
         if ${lib.getExe' pkgs.openldap "ldapsearch"} -x -H ldapi:/// \
-          -D "cn=root,${baseDN}" -y ${rootPasswordFile} \
-          -b "${mkServiceDN cn}" -s base dn >/dev/null 2>&1; then
+          -D cn=root,${baseDN} -y ${rootPasswordFile} \
+          -b ${mkServiceDN cn} -s base dn >/dev/null 2>&1; then
           ${lib.getExe' pkgs.openldap "ldappasswd"} -x -H ldapi:/// \
-            -D "cn=root,${baseDN}" \
+            -D cn=root,${baseDN} \
             -y ${rootPasswordFile} \
             -T ${config.sops.secrets."services/openldap/${domain}/services/${cn}/password".path} \
-            "${mkServiceDN cn}"
+            ${mkServiceDN cn}
         fi
       '')
       serviceAccounts)}
