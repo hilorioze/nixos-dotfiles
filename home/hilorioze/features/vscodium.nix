@@ -43,7 +43,6 @@
 
         "files.autoSave" = "afterDelay";
 
-        "git.autofetch" = true;
         "git.confirmSync" = false; # disable the boring confirmation dialog on every push
         "git.openRepositoryInParentFolders" = "never"; # never open a repository in parent folders of workspaces or open files
 
