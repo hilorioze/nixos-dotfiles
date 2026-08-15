@@ -33,7 +33,6 @@
           pkief.material-icon-theme
           ritwickdey.liveserver
           rust-lang.rust-analyzer
-          vscodevim.vim
           wakatime.vscode-wakatime
           # keep-sorted end
         ])
