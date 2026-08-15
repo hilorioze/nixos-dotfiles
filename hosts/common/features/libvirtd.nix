@@ -1,7 +1,11 @@
 {pkgs, ...}: {
-  virtualisation.libvirtd = {
-    enable = true;
+  virtualisation = {
+    libvirtd = {
+      enable = true;
 
-    qemu.vhostUserPackages = [pkgs.virtiofsd];
+      qemu.vhostUserPackages = [pkgs.virtiofsd];
+    };
+
+    spiceUSBRedirection.enable = true;
   };
 }
