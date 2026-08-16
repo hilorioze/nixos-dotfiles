@@ -53,6 +53,7 @@
     ../../../features/attic.nix
     ../../../features/atuin.nix
     ../../../features/bambu-studio.nix
+    ../../../features/blender.nix
     ../../../features/bruno.nix
     ../../../features/bs-manager.nix
     ../../../features/chromium.nix
