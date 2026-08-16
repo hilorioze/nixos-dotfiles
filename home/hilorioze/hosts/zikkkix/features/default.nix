@@ -9,6 +9,7 @@
     # keep-sorted start
     ../../../features/antigravity-cli.nix
     ../../../features/atuin.nix
+    ../../../features/bambu-studio.nix
     ../../../features/bs-manager.nix
     ../../../features/cinny.nix
     ../../../features/codex-desktop.nix
