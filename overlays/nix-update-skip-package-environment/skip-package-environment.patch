@@ -1,13 +1,18 @@
 diff --git a/nix_update/update.py b/nix_update/update.py
-index da065c3..3c5931c 100644
+index ca4038c..741d2b5 100644
 --- a/nix_update/update.py
 +++ b/nix_update/update.py
-@@ -171,7 +171,7 @@ def run_update_script(package: Package, opts: Options) -> None:
-             *opts.extra_flags,
-             "--impure",
-             "--expr",
+@@ -169,13 +169,6 @@ def run_update_script(package: Package, opts: Options) -> None:
+ 
+     run(
+         [
+-            "nix",
+-            "develop",
+-            *opts.extra_flags,
+-            "--impure",
+-            "--expr",
 -            f"with import <nixpkgs> {{}}; pkgs.mkShell {{inputsFrom = [{opts.get_package()}];}}",
-+            f"with import <nixpkgs> {{}}; let pkg = {opts.get_package()}; in pkgs.mkShell {{inputsFrom = pkgs.lib.optional (pkg.updateScript.usePackageEnvironment or true) pkg;}}",
-             "--command",
+-            "--command",
              "bash",
              "-c",
+             " ".join(

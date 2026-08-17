@@ -32,12 +32,8 @@ stdenv.mkDerivation (finalAttrs: {
     cp --recursive ${finalAttrs.src}/include $out/
   '';
 
-  passthru.updateScript = {
-    command = nix-update-script {
-      extraArgs = ["--version=branch"];
-    };
-
-    usePackageEnvironment = false;
+  passthru.updateScript.command = nix-update-script {
+    extraArgs = ["--version=branch"];
   };
 
   meta = {

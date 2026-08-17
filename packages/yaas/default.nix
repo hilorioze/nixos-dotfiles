@@ -175,16 +175,11 @@ in
       inherit (rustDep) cargoDeps;
 
       # upstream only publishes a mutable nightly prerelease; follow `master` instead
-      updateScript = {
-        command = nix-update-script {
-          extraArgs = [
-            "--version=branch"
-            "--version-regex=^(0-unstable-[0-9-]+)$"
-          ];
-        };
-
-        # the updater is self-contained and does not need `yaas`'s build environment
-        usePackageEnvironment = false;
+      updateScript.command = nix-update-script {
+        extraArgs = [
+          "--version=branch"
+          "--version-regex=^(0-unstable-[0-9-]+)$"
+        ];
       };
     };
 
