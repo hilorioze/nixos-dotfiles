@@ -65,6 +65,7 @@
     ../../../features/firefox.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
+    ../../../features/half-life-asset-manager.nix
     ../../../features/haruna.nix
     ../../../features/imhex.nix
     ../../../features/kdeconnect.nix
