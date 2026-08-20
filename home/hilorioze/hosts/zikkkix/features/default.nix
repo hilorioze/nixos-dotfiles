@@ -15,6 +15,7 @@
     ../../../features/cinny.nix
     ../../../features/codex-desktop.nix
     ../../../features/codex.nix
+    ../../../features/distrobox.nix
     ../../../features/email.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix

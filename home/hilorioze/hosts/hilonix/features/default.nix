@@ -61,6 +61,7 @@
     ../../../features/cinny.nix
     ../../../features/codex-desktop.nix
     ../../../features/codex.nix
+    ../../../features/distrobox.nix
     ../../../features/dolphin.nix
     ../../../features/email.nix
     ../../../features/firefox.nix
