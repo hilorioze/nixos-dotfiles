@@ -6,7 +6,7 @@
   ...
 }: let
   # keep-sorted start
-  philoneDeviceId = "8ec3da686ba7482e8293aab87f5a4778";
+  philoneDeviceId = "3c39d0014de044478492ce9d79f698ae";
   puestDeviceId = "cc2dd4a39909421a9c516adfe2428e5a";
   # keep-sorted end
 in {
@@ -40,15 +40,15 @@ in {
 
       certificate = ''
         -----BEGIN CERTIFICATE-----
-        MIIBijCCATGgAwIBAgIBATAKBggqhkjOPQQDBDBPMSkwJwYDVQQDDCA4ZWMzZGE2
-        ODZiYTc0ODJlODI5M2FhYjg3ZjVhNDc3ODEUMBIGA1UECwwLS0RFIENvbm5lY3Qx
-        DDAKBgNVBAoMA0tERTAeFw0yNDA0MjkyMzAwMDBaFw0zNTA0MjkyMzAwMDBaME8x
-        KTAnBgNVBAMMIDhlYzNkYTY4NmJhNzQ4MmU4MjkzYWFiODdmNWE0Nzc4MRQwEgYD
+        MIIBizCCATGgAwIBAgIBATAKBggqhkjOPQQDBDBPMSkwJwYDVQQDDCAzYzM5ZDAw
+        MTRkZTA0NDQ3ODQ5MmNlOWQ3OWY2OThhZTEUMBIGA1UECwwLS0RFIENvbm5lY3Qx
+        DDAKBgNVBAoMA0tERTAeFw0yNTA4MTgyMzAwMDBaFw0zNjA4MTgyMzAwMDBaME8x
+        KTAnBgNVBAMMIDNjMzlkMDAxNGRlMDQ0NDc4NDkyY2U5ZDc5ZjY5OGFlMRQwEgYD
         VQQLDAtLREUgQ29ubmVjdDEMMAoGA1UECgwDS0RFMFkwEwYHKoZIzj0CAQYIKoZI
-        zj0DAQcDQgAEVZ37yxoSc093WKPPwxGl14uzSf5YIWPxPDOCsUxcPq9lL2nAyf7M
-        v2f1PM1me+rmbk+TxwKNbr65E3YEDjyZlzAKBggqhkjOPQQDBANHADBEAiA2TV2j
-        IGrjb5NhG3M4Ur/g1IwcPKtyGq87/lkr9seEEQIgWbksw+Rv66/4Dq++fN9NvOhz
-        D3S0eA96cL5bskoGubY=
+        zj0DAQcDQgAEsyfMiHUuoDFkChuGZjQkPq2aguCk8REw1tvG5VPVlpLSVPoUouRm
+        TWwqLGb1aOJ9YwOu3kj3tCrqQE0nGkHHszAKBggqhkjOPQQDBANIADBFAiAGRxyD
+        rIYgj5xYsrCqrFsg0aP/2zDfCa5fd+LZnYbKsQIhAJ2ZRXl91KVF4MNFtl2TQPXT
+        bGNpSnfrVXMCVKwKc4if
         -----END CERTIFICATE-----
       '';
     };
