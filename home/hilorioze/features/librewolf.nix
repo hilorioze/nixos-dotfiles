@@ -6,10 +6,8 @@
   # keep-sorted end
   ...
 }: let
-  firefoxProfileDir = "${config.home.homeDirectory}/${config.programs.firefox.configPath}/${config.programs.firefox.profiles.default.path}";
+  librewolfProfileDir = "${config.home.homeDirectory}/${config.programs.librewolf.configPath}/${config.programs.librewolf.profiles.default.path}";
 in {
-  imports = [../../common/features/firefox.nix];
-
   sops = {
     secrets."apps/dearrow/license-key" = {};
 
@@ -24,17 +22,19 @@ in {
         };
       });
 
-      path = "${firefoxProfileDir}/browser-extension-data/keepassxc-browser@keepassxc.org/storage.js";
+      path = "${librewolfProfileDir}/browser-extension-data/keepassxc-browser@keepassxc.org/storage.js";
     };
   };
 
-  stylix.targets.firefox = {
+  stylix.targets.librewolf = {
     colorTheme.enable = true;
 
     profileNames = ["default"];
   };
 
-  programs.firefox = {
+  programs.librewolf = {
+    enable = true;
+
     nativeMessagingHosts = with pkgs; [
       # keep-sorted start
       kdePackages.plasma-browser-integration
@@ -127,6 +127,16 @@ in {
       '';
 
       settings = {
+        # nix manages extension versions
+        "extensions.update.enabled" = false;
+        "extensions.update.autoUpdateDefault" = false;
+
+        # fixes extensions being disabled right after a fresh install
+        "extensions.autoDisableScopes" = 0;
+
+        # use native file picker instead of GTK file picker
+        "widget.use-xdg-desktop-portal.file-picker" = 1;
+
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true; # enable `userChrome.css`
 
         "middlemouse.paste" = false;
@@ -134,6 +144,19 @@ in {
         "general.autoScroll" = true; # enable middle-click autoscroll
 
         "layout.css.always_underline_links" = true;
+
+        # enable search suggestions
+        "browser.search.suggest.enabled" = true;
+        "browser.urlbar.suggest.searches" = true;
+
+        # enable search and form history (disabled by `librewolf` by default)
+        "browser.formfill.enable" = true;
+
+        # disable fingerprinting resistance so websites can follow the system theme (enabled by default in `librewolf`)
+        "privacy.resistFingerprinting" = false;
+
+        # keep browsing data between sessions (`librewolf` clears it on shutdown by default)
+        "privacy.sanitize.sanitizeOnShutdown" = false;
 
         "widget.gtk.overlay-scrollbars.enabled" = false; # always show scrollbars
 
@@ -147,6 +170,8 @@ in {
 
         "browser.startup.page" = 3; # restore previous session
 
+        "browser.sessionstore.resume_from_crash" = false;
+
         "browser.tabs.inTitlebar" = 0; # disable tabs in titlebar
 
         "browser.urlbar.trimURLs" = false;
@@ -156,15 +181,7 @@ in {
         "browser.newtabpage.activity-stream.feeds.topsites" = false; # hide new tab shortcuts row
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false; # hide new tab recommended stories block
 
-        "browser.newtabpage.activity-stream.widgets.weather.enabled" = false;
-
         "browser.toolbars.bookmarks.visibility" = "never";
-
-        # disable AI chatbot
-        "browser.ml.chat.enabled" = false;
-        "browser.ml.chat.menu" = false;
-
-        "browser.aboutConfig.showWarning" = false;
 
         "media.videocontrols.picture-in-picture.video-toggle.has-used" = true; # mark PiP intro popup as already shown
 
@@ -185,7 +202,10 @@ in {
 
         "network.trr.mode" = 5; # disable DoH
 
-        # disable syncing unwanted firefox sync categories
+        # enable firefox sync (`librewolf` disables it by default)
+        "identity.fxaccounts.enabled" = true;
+
+        # disable unwanted sync categories
         "services.sync.engine.addons" = false;
         "services.sync.engine.passwords" = false;
         "services.sync.engine.prefs" = false;
@@ -202,8 +222,8 @@ in {
   };
 
   home.activation.setDeArrowLicense = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    if [[ -f ${firefoxProfileDir}/storage-sync-v2.sqlite ]]; then
-      ${lib.getExe pkgs.sqlite} ${firefoxProfileDir}/storage-sync-v2.sqlite \
+    if [[ -f ${librewolfProfileDir}/storage-sync-v2.sqlite ]]; then
+      ${lib.getExe pkgs.sqlite} ${librewolfProfileDir}/storage-sync-v2.sqlite \
         "INSERT OR IGNORE INTO storage_sync_data (ext_id, data) VALUES ('deArrow@ajay.app', '{}');" \
         "UPDATE storage_sync_data SET data = json_set(data, '$.licenseKey', '$(<${config.sops.secrets."apps/dearrow/license-key".path})', '$.activated', json('true'), '$.alreadyActivated', json('true')) WHERE ext_id = 'deArrow@ajay.app';"
     fi
@@ -211,20 +231,20 @@ in {
 
   xdg.mimeApps.defaultApplications = {
     # keep-sorted start
-    "application/x-extension-htm" = "firefox.desktop";
-    "application/x-extension-html" = "firefox.desktop";
-    "application/x-extension-shtml" = "firefox.desktop";
-    "application/x-extension-xht" = "firefox.desktop";
-    "application/x-extension-xhtml" = "firefox.desktop";
-    "application/xhtml+xml" = "firefox.desktop";
-    "text/html" = "firefox.desktop";
-    "text/xml" = "firefox.desktop";
-    "x-scheme-handler/about" = "firefox.desktop";
-    "x-scheme-handler/chrome" = "firefox.desktop";
-    "x-scheme-handler/ftp" = "firefox.desktop";
-    "x-scheme-handler/http" = "firefox.desktop";
-    "x-scheme-handler/https" = "firefox.desktop";
-    "x-scheme-handler/unknown" = "firefox.desktop";
+    "application/x-extension-htm" = "librewolf.desktop";
+    "application/x-extension-html" = "librewolf.desktop";
+    "application/x-extension-shtml" = "librewolf.desktop";
+    "application/x-extension-xht" = "librewolf.desktop";
+    "application/x-extension-xhtml" = "librewolf.desktop";
+    "application/xhtml+xml" = "librewolf.desktop";
+    "text/html" = "librewolf.desktop";
+    "text/xml" = "librewolf.desktop";
+    "x-scheme-handler/about" = "librewolf.desktop";
+    "x-scheme-handler/chrome" = "librewolf.desktop";
+    "x-scheme-handler/ftp" = "librewolf.desktop";
+    "x-scheme-handler/http" = "librewolf.desktop";
+    "x-scheme-handler/https" = "librewolf.desktop";
+    "x-scheme-handler/unknown" = "librewolf.desktop";
     # keep-sorted end
   };
 }

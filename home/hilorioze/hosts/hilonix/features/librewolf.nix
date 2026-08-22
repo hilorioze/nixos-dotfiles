@@ -7,7 +7,7 @@
     in
       builtins.toJSON {
         keyRing."${databaseHash}" = {
-          id = "firefox-lelonix";
+          id = "librewolf-hilonix";
 
           hash = databaseHash;
 

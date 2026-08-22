@@ -63,7 +63,6 @@
     ../../../features/distrobox.nix
     ../../../features/dolphin.nix
     ../../../features/email.nix
-    ../../../features/firefox.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
     ../../../features/half-life-asset-manager.nix
@@ -75,6 +74,7 @@
     ../../../features/kwallet-keepassxc.nix
     ../../../features/lazygit.nix
     ../../../features/lazyvim.nix
+    ../../../features/librewolf.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
     ../../../features/niks3.nix
@@ -92,9 +92,9 @@
     # keep-sorted end
 
     # keep-sorted start
-    ./firefox.nix
     ./ghidra.nix
     ./kdeconnect.nix
+    ./librewolf.nix
     ./plasma.nix
     ./sops.nix
     ./stylix.nix
