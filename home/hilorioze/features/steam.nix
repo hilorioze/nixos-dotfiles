@@ -11,9 +11,9 @@
 
   programs.steam.config = {
     apps = {
-      # keep-sorted start block=yes newline_separated=yes numeric=yes by_regex=(?s)\bid\s*=\s*(\d+)
-      Counter-Strike = {
-        id = 10;
+      # keep-sorted start block=yes newline_separated=yes numeric=yes
+      "10" = {
+        name = "Counter-Strike";
 
         # skip `pressure-vessel`, which overwrites `LD_LIBRARY_PATH` after launch options are applied
         compatTool = "Steam-Play-None";
@@ -45,8 +45,8 @@
         ];
       };
 
-      Factorio = {
-        id = 427520;
+      "427520" = {
+        name = "Factorio";
 
         wrappers = [
           osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
@@ -55,8 +55,8 @@
         ];
       };
 
-      "s&box" = {
-        id = 590830;
+      "590830" = {
+        name = "s&box";
 
         compatTool = config.programs.steam.config.defaultCompatTool; # https://github.com/Facepunch/sbox-issues/issues/9759
 
@@ -67,8 +67,8 @@
         ];
       };
 
-      Deadlock = {
-        id = 1422450;
+      "1422450" = {
+        name = "Deadlock";
 
         compatTool = config.programs.steam.config.defaultCompatTool; # not available natively yet; forces proton_experimental for some reason, so set our own
 
@@ -79,8 +79,8 @@
         ];
       };
 
-      "ARC Raiders" = {
-        id = 1808500;
+      "1808500" = {
+        name = "ARC Raiders";
 
         wrappers = [
           osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
@@ -89,8 +89,8 @@
         ];
       };
 
-      "Counter-Strike:Global Offensive" = {
-        id = 4465480;
+      "4465480" = {
+        name = "Counter-Strike:Global Offensive";
 
         wrappers = [
           osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
