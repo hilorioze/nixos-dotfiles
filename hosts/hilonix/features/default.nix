@@ -35,7 +35,6 @@
     ../../common/features/tailscale-client.nix
     ../../common/features/tailscale.nix
     ../../common/features/wayland.nix
-    ../../common/features/wine.nix
     ../../common/features/wireshark-usbmon.nix
     ../../common/features/wireshark.nix
     ../../common/features/wivrn.nix

@@ -33,7 +33,6 @@
     ../../common/features/tailscale-client.nix
     ../../common/features/tailscale.nix
     ../../common/features/wayland.nix
-    ../../common/features/wine.nix
     # keep-sorted end
 
     # keep-sorted start

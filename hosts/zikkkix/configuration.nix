@@ -1,12 +1,4 @@
-{
-  # keep-sorted start
-  inputs,
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
-  imports = [inputs.nix-gaming.nixosModules.wine];
-
+{pkgs, ...}: {
   programs = {
     # keep-sorted start block=yes newline_separated=true
     coolercontrol.enable = true;
@@ -18,16 +10,6 @@
       localNetworkGameTransfers.openFirewall = true;
 
       extraCompatPackages = [pkgs.proton-ge-bin];
-    };
-
-    wine = {
-      enable = true;
-
-      package = pkgs.wine-tkg;
-
-      binfmt = true;
-
-      ntsync = true;
     };
     # keep-sorted end
   };
