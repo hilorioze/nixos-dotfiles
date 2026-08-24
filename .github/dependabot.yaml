@@ -6,10 +6,15 @@ updates:
     directory: /
 
     schedule:
-      # Run weekly on Mondays at 00:00 UTC
+      # run weekly on mondays at 00:00 utc
       interval: weekly
       day: monday
       time: "00:00"
+
+    # very helpful, thx microslop, fck u
+    cooldown:
+      exclude:
+        - "*"
 
     groups:
       github-actions:
@@ -32,10 +37,15 @@ updates:
     directory: /
 
     schedule:
-      # Run weekly on Mondays at 00:00 UTC
+      # run weekly on mondays at 00:00 utc
       interval: weekly
       day: monday
       time: "00:00"
+
+    # very helpful, thx microslop, fck u
+    cooldown:
+      exclude:
+        - "*"
 
     groups:
       nix:
