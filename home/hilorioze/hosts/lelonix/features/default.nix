@@ -58,7 +58,6 @@
     ../../../features/bs-manager.nix
     ../../../features/chromium.nix
     ../../../features/cinny.nix
-    ../../../features/codex-desktop.nix
     ../../../features/codex.nix
     ../../../features/distrobox.nix
     ../../../features/dolphin.nix

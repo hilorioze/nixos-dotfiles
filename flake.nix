@@ -6,16 +6,14 @@
       "https://nix-cache.hilorioze.com?priority=41"
       "https://cache.nixos-cuda.org?priority=42"
       "https://nix-community.cachix.org?priority=43"
-      "https://codex-desktop-linux.cachix.org?priority=44"
-      "https://nix-gaming.cachix.org?priority=45"
-      "https://cache.thalheim.io?priority=46"
+      "https://nix-gaming.cachix.org?priority=44"
+      "https://cache.thalheim.io?priority=45"
     ];
 
     extra-trusted-public-keys = [
       "nix-cache.hilorioze.com-1:vKKWGjVDgXl/TXbUWuPWTnDhhDit6hqkTcuoGfter5Y="
       "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "codex-desktop-linux.cachix.org-1:nX/xy6AdK9hQE24A8ALGjkCKj2ObFmcnemiL5Cid4nk="
       "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
       "cache.thalheim.io-1:R7msbosLEZKrxk/lKxf9BTjOOH7Ax3H0Qj0/6wiHOgc="
     ];
@@ -44,8 +42,6 @@
     # keep-sorted end
 
     # keep-sorted start block=yes newline_separated=yes
-    codex-desktop-linux.url = "github:ilysenko/codex-desktop-linux"; # keep their inputs for binary cache
-
     cstrike-mod.url = "github:hilorioze/cstrike-mod"; # keep their inputs for binary cache
 
     direnv-instant = {
