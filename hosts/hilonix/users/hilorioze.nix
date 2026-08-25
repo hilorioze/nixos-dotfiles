@@ -5,6 +5,7 @@
     # keep-sorted start
     "dialout"
     "gamemode"
+    "kvm"
     "libvirtd"
     "networkmanager"
     "openrazer"

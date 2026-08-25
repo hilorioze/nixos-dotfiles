@@ -96,6 +96,7 @@
     ./ghidra.nix
     ./kdeconnect.nix
     ./librewolf.nix
+    ./looking-glass.nix
     ./openrazer.nix
     ./plasma.nix
     ./sops.nix

@@ -44,6 +44,7 @@
     ./amnezia-vpn.nix
     ./coolercontrol.nix
     ./i18n.nix
+    ./looking-glass.nix
     ./networkmanager.nix
     ./nix-ld.nix
     ./openrazer.nix
