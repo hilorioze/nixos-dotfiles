@@ -18,9 +18,14 @@
       nixos.command = lib.getExe pkgs.mcp-nixos;
 
       playwright = {
-        command = lib.getExe pkgs.playwright-mcp;
+        command = lib.getExe pkgs.unstablePkgs.playwright-mcp;
 
-        # keep playwright's browser profile in a writable state dir to avoid the nix store mkdir failure since https://github.com/NixOS/nixpkgs/commit/7cc8a6b08a51d3fd23b9c4fd2493e7e888e88507#diff-cbef874c9961078638cf55b7fca92790722964580fec608f68ebb93f7c458c7dL32; also persists state across sessions
+        args = [
+          "--extension"
+          "--executable-path=${lib.getExe config.programs.chromium.package}"
+        ];
+
+        # prevent `nixpkgs`' wrapper from forcing isolated mode, which takes precedence over `--extension`
         env.PLAYWRIGHT_MCP_USER_DATA_DIR = "${config.xdg.stateHome}/playwright";
       };
       # keep-sorted end
