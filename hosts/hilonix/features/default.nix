@@ -11,8 +11,6 @@
     ../../common/features/home-manager.nix
     ../../common/features/kdeconnect-firewall.nix
     ../../common/features/kdiskmark.nix
-    ../../common/features/kexec-reboot.nix
-    ../../common/features/kexec.nix
     ../../common/features/libvirtd.nix
     ../../common/features/mangohud.nix
     ../../common/features/netcat-firewall.nix
