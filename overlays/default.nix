@@ -25,6 +25,7 @@
   # keep-sorted start
   bs-manager-bump-1-5-6-unstable-2026-07-09 = import ./bs-manager-bump-1-5-6-unstable-2026-07-09;
   gnupg-pcsc-shared-reselect-fix = import ./gnupg-pcsc-shared-reselect-fix;
+  looking-glass-client-idd = import ./looking-glass-client-idd;
   mcp-nixos-fastmcp-upstream = import ./mcp-nixos-fastmcp-upstream inputs;
   nix-monitored-notification-utf8-fix = import ./nix-monitored-notification-utf8-fix;
   nix-update-read-write-mode = import ./nix-update-read-write-mode;
