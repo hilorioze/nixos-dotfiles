@@ -23,6 +23,7 @@
       tui.status_line = [
         "current-dir"
         "model-with-reasoning"
+        "five-hour-limit"
         "weekly-limit"
         "context-used"
         "session-id"
