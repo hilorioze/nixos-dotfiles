@@ -4,7 +4,34 @@
   pkgs,
   # keep-sorted end
   ...
-}: {
+}: let
+  w10Launcher = pkgs.writeShellApplication {
+    name = "w10";
+
+    runtimeInputs = [pkgs.libvirt];
+
+    text = ''
+      if [[ $(virsh --connect qemu:///system domstate w10) == "shut off" ]]; then
+        virsh --connect qemu:///system start w10
+      fi
+
+      exec ${lib.getExe pkgs.looking-glass-client} win:appId=w10
+    '';
+  };
+
+  w10DesktopEntry = pkgs.makeDesktopItem {
+    name = "w10";
+
+    desktopName = "w10";
+    icon = "${pkgs.papirus-icon-theme}/share/icons/Papirus/64x64/apps/distributor-logo-windows.svg";
+
+    exec = lib.getExe w10Launcher;
+
+    categories = ["System"];
+  };
+in {
+  environment.systemPackages = [w10DesktopEntry];
+
   virtualisation.libvirtd.hooks.qemu."20-w10-passthrough-lifecycle" = lib.getExe (pkgs.writeShellApplication {
     name = "w10-passthrough-lifecycle";
 
