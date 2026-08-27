@@ -39,5 +39,6 @@
   spectacle-ocr-save = import ./spectacle-ocr-save;
   spectacle-region-select-all = import ./spectacle-region-select-all;
   trayscale-operator-no-warning = import ./trayscale-operator-no-warning;
+  write-shell-application-shellcheck-exclusions = import ./write-shell-application-shellcheck-exclusions;
   # keep-sorted end
 }

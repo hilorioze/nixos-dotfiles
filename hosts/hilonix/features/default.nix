@@ -38,6 +38,8 @@
     ../../common/features/wivrn.nix
     # keep-sorted end
 
+    ./vms
+
     # keep-sorted start
     ./amnezia-vpn.nix
     ./coolercontrol.nix
