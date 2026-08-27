@@ -7,6 +7,7 @@
         size = "2560x1440";
 
         dontUpscale = true;
+        setGuestRes = false; # don't match guest resolution to client window size
       };
 
       spice = {
