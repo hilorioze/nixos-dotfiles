@@ -52,6 +52,7 @@
     ./sops.nix
     ./stylix.nix
     ./time.nix
+    ./wireplumber-ignore-nvidia-hda.nix
     # keep-sorted end
   ];
 }
