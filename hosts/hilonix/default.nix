@@ -100,6 +100,8 @@
   };
 
   hardware.nvidia = {
+    videoAcceleration = false; # keep host VA-API users off the passthrough GPU
+
     powerManagement = {
       enable = true; # enable power management through systemd (sleep, hibernation, etc.)
 
