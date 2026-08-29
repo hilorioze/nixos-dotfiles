@@ -28,7 +28,6 @@
     ../../../../common/features/nix-alien.nix
     ../../../../common/features/obs-studio.nix
     ../../../../common/features/onlyoffice.nix
-    ../../../../common/features/pear-desktop.nix
     ../../../../common/features/podman-compose.nix
     ../../../../common/features/qtscrcpy.nix
     ../../../../common/features/sidequest.nix
@@ -97,7 +96,9 @@
     ./kdeconnect.nix
     ./librewolf.nix
     ./looking-glass.nix
+    ./mangohud.nix
     ./openrazer.nix
+    ./pear-desktop.nix
     ./plasma.nix
     ./sops.nix
     ./stylix.nix

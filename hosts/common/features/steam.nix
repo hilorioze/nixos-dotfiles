@@ -1,10 +1,16 @@
-{pkgs, ...}: {
+{
+  # keep-sorted start
+  lib,
+  pkgs,
+  # keep-sorted end
+  ...
+}: {
   programs.steam = {
     enable = true;
 
-    package = pkgs.steam.override {
+    package = lib.mkDefault (pkgs.steam.override {
       extraEnv.LD_PRELOAD = "${pkgs.pkgsi686Linux.steam-voicechat-fix}/lib/libsteam_voicechat_fix.so";
-    };
+    });
 
     remotePlay.openFirewall = true;
 
