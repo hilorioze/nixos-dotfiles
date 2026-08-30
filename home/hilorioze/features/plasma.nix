@@ -210,11 +210,15 @@
 
       plasmanotifyrc.Notifications.PopupPosition = "TopCenter";
 
-      kwinrc.Windows = {
-        FocusPolicy = 1; # FocusFollowsMouse
-        NextFocusPrefersMouse = true; # Mouse precedence
+      kwinrc = {
+        Effect-overview.BorderActivate = 9; # disable overview hot corner
 
-        CommandAll1 = "Activate, raise and move"; # KWin left-click action for titlebar/frame clicks: activates the window, raises it, and starts dragging it.
+        Windows = {
+          FocusPolicy = 1; # FocusFollowsMouse
+          NextFocusPrefersMouse = true; # Mouse precedence
+
+          CommandAll1 = "Activate, raise and move"; # KWin left-click action for titlebar/frame clicks: activates the window, raises it, and starts dragging it.
+        };
       };
 
       klipperrc.General.MaxClipItems = 1024;
