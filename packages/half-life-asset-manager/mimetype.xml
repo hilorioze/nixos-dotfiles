@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-goldsrc-mdl">
+    <comment>GoldSrc Studio model</comment>
+
+    <magic>
+      <match type="string" value="IDST" offset="0">
+        <match type="little32" value="0x0000000a" offset="4"/>
+      </match>
+    </magic>
+
+    <glob pattern="*.mdl"/>
+  </mime-type>
+</mime-info>

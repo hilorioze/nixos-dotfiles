@@ -56,6 +56,7 @@
     ../../../features/blender.nix
     ../../../features/bruno.nix
     ../../../features/bs-manager.nix
+    ../../../features/bspguy.nix
     ../../../features/chromium.nix
     ../../../features/cinny.nix
     ../../../features/codex.nix

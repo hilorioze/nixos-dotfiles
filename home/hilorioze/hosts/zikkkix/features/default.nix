@@ -12,6 +12,7 @@
     ../../../features/bambu-studio.nix
     ../../../features/blender.nix
     ../../../features/bs-manager.nix
+    ../../../features/bspguy.nix
     ../../../features/cinny.nix
     ../../../features/codex.nix
     ../../../features/distrobox.nix
