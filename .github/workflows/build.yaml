@@ -36,7 +36,7 @@ jobs:
 
       cancel-in-progress: false
 
-    uses: stepbrobd/atelier/.github/workflows/discover.yaml@35287e5a2733ec0835c71bf0bf9a2b479a613fcd # 2026.821.0
+    uses: stepbrobd/atelier/.github/workflows/discover.yaml@73d5d9db99f017b544baa5b19a344725ace6ed6d # 2026.827.1
     with:
       extra-conf: | # `nix.conf`
         # https://github.com/stepbrobd/atelier/blob/8d6b6281f2d1f28b6115609df00f020e3042571f/.github/actions/atelier/action.yaml#L103-L106 already sets \`accept-flake-config\` and \`fsync-metadata\`
