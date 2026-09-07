@@ -60,6 +60,7 @@
     ../../../features/chromium.nix
     ../../../features/cinny.nix
     ../../../features/codex.nix
+    ../../../features/deadlocked.nix
     ../../../features/distrobox.nix
     ../../../features/dolphin.nix
     ../../../features/email.nix

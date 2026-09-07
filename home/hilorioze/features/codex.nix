@@ -16,7 +16,8 @@
     settings = {
       personality = "pragmatic";
 
-      approvals_reviewer = "auto_review";
+      approval_policy = "never";
+      sandbox_mode = "danger-full-access";
 
       features.memories = true;
 

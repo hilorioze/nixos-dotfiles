@@ -10,6 +10,7 @@
     "networkmanager"
     "openrazer"
     "podman"
+    "uinput" # required by deadlocked
     "wireshark"
     # keep-sorted end
   ];

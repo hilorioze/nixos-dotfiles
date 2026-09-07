@@ -15,6 +15,7 @@
     ../../../features/bspguy.nix
     ../../../features/cinny.nix
     ../../../features/codex.nix
+    ../../../features/deadlocked.nix
     ../../../features/distrobox.nix
     ../../../features/email.nix
     ../../../features/git-hardware-signing.nix

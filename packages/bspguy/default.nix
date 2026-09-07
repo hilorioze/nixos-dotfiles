@@ -3,6 +3,7 @@
   cmake,
   copyDesktopItems,
   fetchFromGitHub,
+  freetype,
   glew,
   glfw,
   lib,
@@ -18,14 +19,14 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "bspguy";
 
-  version = "5";
+  version = "6";
 
   src = fetchFromGitHub {
     owner = "wootguy";
     repo = "bspguy";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-G9mzZdaREMZxSMAbG2CmG+Tv6Cg2eSaNVXiWkNoaxBw=";
+    hash = "sha256-NhkxnQ9SqddPgJZXqGjT/R6I+lhsJhFdtmHAF6fvlyc=";
 
     fetchSubmodules = true;
   };
@@ -41,6 +42,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     # keep-sorted start
+    freetype
     glew
     glfw
     libGLU

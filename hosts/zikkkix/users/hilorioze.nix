@@ -6,6 +6,7 @@
     "dialout"
     "gamemode"
     "networkmanager"
+    "uinput" # required by deadlocked
     # keep-sorted end
   ];
 

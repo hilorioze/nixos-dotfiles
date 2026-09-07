@@ -3,7 +3,6 @@
   cstrike-mod = inputs.cstrike-mod.overlays.default;
   firefox-addons = inputs.firefox-addons.overlays.default;
   freesmlauncher = _final: prev: inputs.freesmlauncher.packages.${prev.stdenv.hostPlatform.system} or {}; # overlay uses `prev.callPackage`, rebuilding with our `pkgs` and breaking binary cache
-  mcp-nixos = inputs.mcp-nixos.overlays.default;
   niks3 = _final: prev: inputs.niks3.packages.${prev.stdenv.hostPlatform.system} or {}; # no upstream overlay; keep cli and server on the same revision to avoid api mismatches
   nix-alien = inputs.nix-alien.overlays.default;
   nix-gaming = _final: prev: inputs.nix-gaming.packages.${prev.stdenv.hostPlatform.system} or {}; # `easyOverlay`'s `mkForce` overrides `pkgs`, rebuilding with our `pkgs` and breaking binary cache
@@ -26,7 +25,6 @@
   bs-manager-bump-1-5-6-unstable-2026-07-09 = import ./bs-manager-bump-1-5-6-unstable-2026-07-09;
   gnupg-pcsc-shared-reselect-fix = import ./gnupg-pcsc-shared-reselect-fix;
   looking-glass-client-idd = import ./looking-glass-client-idd;
-  mcp-nixos-fastmcp-upstream = import ./mcp-nixos-fastmcp-upstream inputs;
   nix-monitored-notification-utf8-fix = import ./nix-monitored-notification-utf8-fix;
   nix-update-read-write-mode = import ./nix-update-read-write-mode;
   nix-update-script-flake-mode = import ./nix-update-script-flake-mode;

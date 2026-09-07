@@ -3,7 +3,7 @@
   android-tools,
   copyDesktopItems,
   fetchFromGitHub,
-  flutter341,
+  flutter347,
   lib,
   makeDesktopItem,
   mpv-unwrapped,
@@ -18,14 +18,14 @@
 }: let
   pname = "yaas";
 
-  version = "0-unstable-2026-08-14";
+  version = "0-unstable-2026-09-06";
 
   src = fetchFromGitHub {
     owner = "skrimix";
     repo = "yaas";
 
-    rev = "e845ecd2d1926da2b56810316be9b2d6487c2b87";
-    hash = "sha256-Bc9fl6TcXK9Nefa1QLe0Z9kOlM/bgn9kM7oxaG9cuvo=";
+    rev = "140aa443c0ff2626651f5ca05bccb61dc05a4d0c";
+    hash = "sha256-Ih102MHhUxs8FBjsb3Wn2R50jD2LGhZVa/Pqo/FMv7M=";
   };
 
   rustDep = rustPlatform.buildRustPackage {
@@ -37,14 +37,14 @@
 
     buildAndTestSubdir = "native/hub";
 
-    cargoHash = "sha256-fCnfk5sS/+P+5TzCSnlqcdN/1XfnNr+9d6ep9L8ElPQ=";
+    cargoHash = "sha256-jPHsvdr49cqLkPsFMlvZKMtPgC1mFmcMKI8XR5OD4Yw=";
 
     doCheck = false;
 
     passthru.libraryPath = "lib/libhub.so";
   };
 in
-  flutter341.buildFlutterApplication {
+  flutter347.buildFlutterApplication {
     inherit pname;
 
     inherit version;
