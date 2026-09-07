@@ -3,7 +3,7 @@
   android-tools,
   copyDesktopItems,
   fetchFromGitHub,
-  flutter341,
+  flutter,
   lib,
   makeDesktopItem,
   mpv-unwrapped,
@@ -44,7 +44,7 @@
     passthru.libraryPath = "lib/libhub.so";
   };
 in
-  flutter341.buildFlutterApplication {
+  flutter.buildFlutterApplication {
     inherit pname;
 
     inherit version;
