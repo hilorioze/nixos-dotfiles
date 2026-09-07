@@ -9,6 +9,6 @@
   plasmavantage = pkgs.callPackage ./plasmavantage {};
   prometheus-podman-exporter = pkgs.callPackage ./prometheus-podman-exporter {};
   thermalmonitor = pkgs.callPackage ./thermalmonitor {};
-  yaas = pkgs.callPackage ./yaas {inherit (pkgs.unstablePkgs) flutter;};
+  yaas = pkgs.callPackage ./yaas {inherit (pkgs.unstablePkgs) flutter347;};
   # keep-sorted end
 }
