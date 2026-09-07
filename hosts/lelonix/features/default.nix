@@ -32,6 +32,7 @@
     ../../common/features/systemd-initrd.nix # required for TPM access in initrd
     ../../common/features/tailscale-client.nix
     ../../common/features/tailscale.nix
+    ../../common/features/uinput.nix
     ../../common/features/wayland.nix
     # keep-sorted end
 

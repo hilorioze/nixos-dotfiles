@@ -2,6 +2,7 @@
   # keep-sorted start
   a2s = pkgs.callPackage ./a2s {};
   bspguy = pkgs.callPackage ./bspguy {};
+  deadlocked = pkgs.callPackage ./deadlocked {};
   ghidra-mcp = pkgs.python3Packages.callPackage ./ghidra-mcp {};
   ghidra-mcp-plugin = pkgs.callPackage ./ghidra-mcp-plugin {};
   half-life-asset-manager = pkgs.callPackage ./half-life-asset-manager {};
