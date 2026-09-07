@@ -13,10 +13,6 @@
       # keep-sorted start block=yes newline_separated=yes
       ghidra.command = lib.getExe pkgs.ghidra-mcp;
 
-      git.command = lib.getExe pkgs.mcp-server-git;
-
-      nixos.command = lib.getExe pkgs.mcp-nixos;
-
       playwright = {
         command = lib.getExe pkgs.unstablePkgs.playwright-mcp;
 

@@ -72,12 +72,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    mcp-nixos = {
-      url = "github:utensils/mcp-nixos";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     mt7927-nixos = {
       url = "github:cmspam/mt7927-nixos";
 
