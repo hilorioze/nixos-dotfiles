@@ -1,3 +1,7 @@
 {
-  security.acme.acceptTerms = true;
+  security.acme = {
+    acceptTerms = true;
+
+    defaults.email = "hilorioze@hilorioze.com";
+  };
 }

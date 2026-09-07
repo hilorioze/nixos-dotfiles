@@ -118,6 +118,24 @@
           }
 
           {
+            name = "authentik";
+            group = "platform";
+
+            url = "https://idm.${config.networking.domain}/-/health/ready/";
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
+            name = "authentik-ldap";
+            group = "platform";
+
+            url = "tls://${de0Host}:6636";
+
+            conditions = ["[CONNECTED] == true"];
+          }
+
+          {
             name = "ftbie";
             group = "services";
 

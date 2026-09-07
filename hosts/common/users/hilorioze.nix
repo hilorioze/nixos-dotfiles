@@ -19,7 +19,7 @@
     shell = pkgs.zsh;
 
     hashedPasswordFile = config.sops.secrets."users/hilorioze/hashed-password".path;
-    openssh.authorizedKeys.keys = ["sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIGuhtLQydHgRNOPGqel/FI2vQ9JtgHN9afnoi2dMnw3EAAAABHNzaDo= me@hilorioze.com"];
+    openssh.authorizedKeys.keys = ["sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIGuhtLQydHgRNOPGqel/FI2vQ9JtgHN9afnoi2dMnw3EAAAABHNzaDo= hilorioze@hilorioze.com"];
 
     extraGroups = ["wheel"];
   };

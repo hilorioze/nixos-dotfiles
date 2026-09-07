@@ -1,0 +1,98 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: ldap.yaml
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: System - OAuth2 Provider - Scopes
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider authorization flow (implicit consent)
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider invalidation flow
+
+  oauth:
+    - model: authentik_providers_oauth2.scopemapping
+      id: mail-scope
+      identifiers:
+        name: mail
+      attrs:
+        scope_name: mail
+        expression: |
+          return {
+              "mail_access": ak_is_group_member(request.user, name="mail-users"),
+          }
+
+    - model: authentik_providers_oauth2.oauth2provider
+      id: mail-provider
+      identifiers:
+        name: mail
+      attrs:
+        client_id: thunderbird
+        client_type: public
+
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        grant_types:
+          - authorization_code
+          - refresh_token
+
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        property_mappings:
+          - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
+          - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
+          - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-offline_access]]
+          - !KeyOf mail-scope
+
+        redirect_uris:
+          - matching_mode: regex
+            url: '^http://127\.0\.0\.1:[0-9]+$'
+
+        signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+
+    - model: authentik_core.application
+      identifiers:
+        slug: mail
+      attrs:
+        name: Mail
+        provider: !KeyOf mail-provider
+
+  ldap:
+    - model: authentik_core.user
+      identifiers:
+        username: mail-directory
+      attrs:
+        name: mail-directory
+        type: service_account
+
+    - model: authentik_core.token
+      identifiers:
+        identifier: mail-directory-password
+      attrs:
+        key: !File /run/credentials/authentik-worker.service/ldap-bind-password
+
+        intent: app_password
+        user: !Find [authentik_core.user, [username, mail-directory]]
+        expiring: false
+
+    - model: authentik_providers_ldap.ldapprovider
+      identifiers:
+        pk: !Find [authentik_providers_ldap.ldapprovider, [name, ldap]]
+      permissions:
+        - permission: authentik_providers_ldap.search_full_directory
+          user: !Find [authentik_core.user, [username, mail-directory]]
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, ldap]]
+        user: !Find [authentik_core.user, [username, mail-directory]]
+      attrs:
+        order: 0

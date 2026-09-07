@@ -43,7 +43,7 @@
 
         security = {
           admin_user = "root";
-          admin_email = "root@${config.networking.domain}";
+          admin_email = "hilorioze@${config.networking.domain}";
           admin_password = "$__file{${config.sops.secrets."services/grafana/admin-password".path}}";
 
           secret_key = "$__file{${config.sops.secrets."services/grafana/secret-key".path}}";

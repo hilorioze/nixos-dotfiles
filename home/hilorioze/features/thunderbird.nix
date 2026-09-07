@@ -2,10 +2,34 @@
   # keep-sorted start
   config,
   lib,
+  outputs,
   pkgs,
   # keep-sorted end
   ...
-}: {
+}: let
+  domain = outputs.nixosConfigurations.de0.config.networking.domain;
+  providerURL = "https://idm.${domain}";
+
+  thunderbirdOAuthProvider = pkgs.callPackage ../../../packages/thunderbird-oauth-provider {
+    oauthProvider = {
+      issuer = lib.removePrefix "https://" providerURL;
+
+      clientId = "thunderbird";
+
+      authorizationEndpoint = "${providerURL}/application/o/authorize/";
+      tokenEndpoint = "${providerURL}/application/o/token/";
+
+      hostnames = ["imap.${domain}" "smtp.${domain}"];
+
+      scopes = "openid email offline_access mail";
+
+      useExternalBrowser = true;
+      redirectionEndpoint = "http://127.0.0.1";
+
+      usePKCE = true;
+    };
+  };
+in {
   programs = {
     thunderbird = {
       enable = true;
@@ -17,14 +41,18 @@
 
         # explicit account display order instead of `accounts.email.accounts` default alphabetical order; also include the manually configured mailbox's id
         accountsOrder = [
-          "me@hilorioze.com"
+          "hilorioze@hilorioze.com"
           "hilorioze@gmail.com"
-          "root@hilorioze.com"
           "account2" # manually configured mailbox's id
           # `home-manager` already automatically appends "Local Folders", which `thunderbird` assigns `account1`
         ];
 
+        extensions = [thunderbirdOAuthProvider];
+
         settings = {
+          # fixes extensions being disabled right after a fresh install
+          "extensions.autoDisableScopes" = 14;
+
           # omit `User-Agent` from outgoing messages because it might be stripped in transit and invalidate the `openpgp` signature
           "mailnews.headers.sendUserAgent" = false;
 
@@ -61,7 +89,7 @@
     acceptOwnGpgPublicKeyInThunderbird = let
       thunderbirdOpenPgpDatabase = "${thunderbirdProfileDir}/openpgp.sqlite";
 
-      gpgPrimaryKeyEmail = "me@hilorioze.com";
+      gpgPrimaryKeyEmail = "hilorioze@hilorioze.com";
     in
       lib.hm.dag.entryAfter ["writeBoundary"] ''
         run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${thunderbirdProfileDir}

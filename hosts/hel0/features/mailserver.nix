@@ -3,17 +3,56 @@
   config,
   inputs,
   lib,
+  outputs,
   # keep-sorted end
   ...
 }: let
   inherit (config.networking) domain fqdn;
 
-  baseDN = "dc=${lib.concatStringsSep ",dc=" (lib.splitString "." domain)}";
   imapHost = "imap.${domain}";
+
+  ldapURI = "ldaps://${outputs.nixosConfigurations.de0.config.networking.fqdn}:6636";
+
+  ldapBaseDN = "DC=ldap,DC=goauthentik,DC=io";
+  ldapUsersDN = "ou=users,${ldapBaseDN}";
+  ldapBindDN = "cn=mail-directory,${ldapUsersDN}";
+  ldapGroupDN = "cn=mail-users,ou=groups,${ldapBaseDN}";
+
+  ldapBindSecret = "services/mailserver/ldap-bind-password";
 in {
   imports = [inputs.simple-nixos-mailserver.nixosModules.default];
 
-  sops.secrets."services/rspamd/dkim/${domain}/private-key".owner = config.services.rspamd.user;
+  sops = {
+    secrets = {
+      # keep-sorted start block=yes newline_separated=yes
+      "services/rspamd/dkim/${domain}/private-key".owner = config.services.rspamd.user;
+
+      ${ldapBindSecret}.restartUnits = [
+        # keep-sorted start
+        "dovecot.service"
+        "postfix.service"
+        # keep-sorted end
+      ];
+      # keep-sorted end
+    };
+
+    templates."services/postfix/ldap" = {
+      content = ''
+        server_host = ${ldapURI}
+        version = 3
+        search_base = ${ldapUsersDN}
+
+        bind = yes
+        bind_dn = ${ldapBindDN}
+        bind_pw = ${config.sops.placeholder.${ldapBindSecret}}
+
+        query_filter = (&(objectClass=inetOrgPerson)(mail=%s)(memberOf=${ldapGroupDN}))
+        result_attribute = mail
+      '';
+
+      owner = config.services.postfix.user;
+    };
+  };
 
   mailserver = {
     enable = true;
@@ -36,28 +75,8 @@ in {
 
     indexDir = "/var/lib/mail-index";
 
-    ldap = {
-      enable = true;
+    forwards."@${domain}" = "hilorioze@${domain}"; # catch-all for non-existing mailboxes
 
-      uris = ["ldap://127.0.0.1"];
-
-      bind = {
-        dn = "cn=mailserver,ou=services,${baseDN}";
-
-        passwordFile = config.sops.secrets."services/openldap/${domain}/services/mailserver/password".path;
-      };
-
-      base = "ou=accounts,${baseDN}";
-
-      dovecot = {
-        userFilter = "(&(objectClass=inetOrgPerson)(|(mail=%{user})(mailAlias=%{user})(uid=%{user})))";
-        passFilter = "(&(objectClass=inetOrgPerson)(|(mail=%{user})(mailAlias=%{user})(uid=%{user})))";
-      };
-
-      postfix.filter = "(&(objectClass=inetOrgPerson)(|(mail=%s)(mailAlias=%s)))";
-    };
-
-    enableSubmission = true;
     enableManageSieve = true;
 
     hierarchySeparator = "/";
@@ -65,7 +84,7 @@ in {
     dkim = {
       enable = true;
 
-      domains."${domain}".selectors.mail.keyFile = config.sops.secrets."services/rspamd/dkim/${domain}/private-key".path;
+      domains.${domain}.selectors.mail.keyFile = config.sops.secrets."services/rspamd/dkim/${domain}/private-key".path;
     };
 
     dmarcReporting.enable = true;
@@ -76,59 +95,71 @@ in {
       fallback = false;
     };
 
-    mailboxes = {
-      # keep-sorted start block=yes newline_separated=yes
-      Archive = {
-        auto = "subscribe";
-        special_use = "\\Archive";
-      };
-
-      Drafts = {
-        auto = "subscribe";
-        special_use = "\\Drafts";
-      };
-
-      Junk = {
-        auto = "subscribe";
-        special_use = "\\Junk";
-
-        fts_autoindex = false;
-      };
-
-      Sent = {
-        auto = "subscribe";
-        special_use = "\\Sent";
-      };
-
-      Trash = {
-        auto = "no";
-        special_use = "\\Trash";
-
-        fts_autoindex = false;
-      };
-      # keep-sorted end
-    };
-
-    # `postmaster@${domain}` aliases to `root@${domain}` in LDAP, but postfix does not re-expand it after alias resolution.
-    forwards."postmaster@${domain}" = ["root@${domain}"];
-
     x509.useACMEHost = imapHost;
   };
 
-  services.dovecot2.settings."passdb ldap" = {
-    bind = true;
+  services = {
+    dovecot2.settings = {
+      auth_mechanisms = lib.mkForce ["xoauth2"];
 
-    # normalize the authenticated username so postfix sees the same identity no matter whether the client logs in with uid, primary mail, or alias
-    fields = lib.mkForce {
-      user = "%{ldap:${config.mailserver.ldap.attributes.username}}";
+      "service lmtp".service_extra_groups = ["dovecot2"];
+
+      "passdb declarative" = lib.mkForce null;
+      "userdb declarative" = lib.mkForce null;
+
+      ldap_uris = [ldapURI];
+
+      ldap_base = ldapUsersDN;
+
+      ldap_auth_dn = ldapBindDN;
+      ldap_auth_dn_password = "</run/credentials/dovecot.service/ldap-bind-password";
+
+      ssl_client_require_valid_cert = false;
+
+      "userdb ldap" = {
+        driver = "ldap";
+
+        filter = "(&(objectClass=inetOrgPerson)(mail=%{user})(memberOf=${ldapGroupDN}))";
+
+        fields = let
+          mailboxPath = "%{user | domain}/%{user | username}";
+        in {
+          home = "${config.mailserver.storage.path}/${mailboxPath}";
+          mail_index_path = "${config.mailserver.indexDir}/${mailboxPath}";
+
+          inherit (config.mailserver.storage) uid gid;
+        };
+      };
+
+      oauth2 = {
+        oauth2_introspection_mode = "auth";
+        oauth2_introspection_url = "https://idm.${domain}/application/o/userinfo/";
+
+        oauth2_active_attribute = "mail_access";
+        oauth2_active_value = "true";
+      };
+    };
+
+    postfix = let
+      postfixLdapMap = "ldap:${config.sops.templates."services/postfix/ldap".path}";
+    in {
+      settings.main.virtual_mailbox_maps = lib.mkForce [postfixLdapMap];
+
+      submissionsOptions = {
+        line_length_limit = "12288";
+
+        smtpd_sender_login_maps = lib.mkForce postfixLdapMap;
+      };
     };
   };
 
-  security.acme.certs."${imapHost}" = {
+  security.acme.certs.${imapHost} = {
     extraDomainNames = ["smtp.${domain}"];
 
     dnsProvider = "cloudflare";
 
     credentialFiles.CF_DNS_API_TOKEN_FILE = config.sops.secrets."credentials/cloudflare/zones/${domain}/dns01-token".path;
   };
+
+  systemd.services.dovecot.serviceConfig.LoadCredential = ["ldap-bind-password:${config.sops.secrets.${ldapBindSecret}.path}"];
 }

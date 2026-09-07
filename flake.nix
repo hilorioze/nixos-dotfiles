@@ -42,6 +42,8 @@
     # keep-sorted end
 
     # keep-sorted start block=yes newline_separated=yes
+    authentik-nix.url = "github:nix-community/authentik-nix"; # keep their inputs for binary cache
+
     cstrike-mod.url = "github:hilorioze/cstrike-mod"; # keep their inputs for binary cache
 
     direnv-instant = {
@@ -242,6 +244,16 @@
           hostname = nixosConfiguration.config.networking.fqdn;
 
           sshUser = "deployer";
+
+          # reuse one authenticated connection during deployment
+          sshOpts = [
+            "-o"
+            "ControlMaster=auto"
+            "-o"
+            "ControlPersist=10m"
+            "-o"
+            "ControlPath=~/.ssh/deploy-rs-%C"
+          ];
 
           profiles.system = {
             user = "root";

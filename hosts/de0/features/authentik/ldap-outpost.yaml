@@ -1,0 +1,30 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: ldap.yaml
+
+  outpost:
+    - model: authentik_outposts.outpost
+      id: ldap-outpost
+      identifiers:
+        name: ldap
+      attrs:
+        type: ldap
+        providers:
+          - !Find [authentik_providers_ldap.ldapprovider, [name, ldap]]
+
+        config: {}
+
+    - model: authentik_core.token
+      identifiers:
+        identifier: !Format [ak-outpost-%s-api, !KeyOf ldap-outpost]
+      attrs:
+        key: !File /run/credentials/authentik-worker.service/ldap-outpost-token
+
+        intent: api
+        user: !Find [authentik_core.user, [name, Outpost ldap Service-Account], [path, goauthentik.io/outposts]]
+        expiring: false

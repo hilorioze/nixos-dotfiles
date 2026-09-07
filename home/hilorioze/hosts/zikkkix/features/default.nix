@@ -26,7 +26,6 @@
     ../../../features/niks3.nix
     ../../../features/plasma.nix
     ../../../features/ssh-agent.nix
-    ../../../features/ssh-fido2.nix
     ../../../features/thunderbird.nix
     ../../../features/wakatime.nix
     ../../../features/wl-clipboard.nix

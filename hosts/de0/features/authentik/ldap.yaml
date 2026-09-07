@@ -1,0 +1,42 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Authentication flow
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider invalidation flow
+
+  certificates:
+    - model: authentik_crypto.certificatekeypair
+      id: ldaps-certificate
+      identifiers:
+        name: LDAPS
+      attrs:
+        certificate_data: !File /run/credentials/authentik-worker.service/ldap-certificate
+        key_data: !File /run/credentials/authentik-worker.service/ldap-certificate-key
+
+  ldap:
+    - model: authentik_providers_ldap.ldapprovider
+      id: ldap-provider
+      identifiers:
+        name: ldap
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        base_dn: DC=ldap,DC=goauthentik,DC=io
+        mfa_support: false
+        tls_server_name: "@ldapHost@"
+        certificate: !KeyOf ldaps-certificate
+
+    - model: authentik_core.application
+      identifiers:
+        slug: ldap
+      attrs:
+        name: LDAP
+        provider: !KeyOf ldap-provider

@@ -163,6 +163,15 @@ in {
               ];
             }
 
+            # `hel0` mailserver reaches Authentik's LDAPS on `de0`
+            {
+              action = "accept";
+
+              src = ["tag:hel0"];
+
+              dst = ["tag:de0:6636"];
+            }
+
             # de0 (gatus) checks headscale health via https
             {
               action = "accept";

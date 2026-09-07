@@ -5,7 +5,7 @@
     settings = {
       user = {
         name = "hilorioze";
-        email = "me@hilorioze.com";
+        email = "hilorioze@hilorioze.com";
       };
 
       init.defaultBranch = "main";
