@@ -40,5 +40,6 @@
   spectacle-region-select-all = import ./spectacle-region-select-all;
   trayscale-operator-no-warning = import ./trayscale-operator-no-warning;
   write-shell-application-shellcheck-exclusions = import ./write-shell-application-shellcheck-exclusions;
+  xdg-desktop-portal-sandbox-tests-fix = import ./xdg-desktop-portal-sandbox-tests-fix;
   # keep-sorted end
 }
