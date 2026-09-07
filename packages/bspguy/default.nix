@@ -3,6 +3,7 @@
   cmake,
   copyDesktopItems,
   fetchFromGitHub,
+  freetype,
   glew,
   glfw,
   lib,
@@ -41,6 +42,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     # keep-sorted start
+    freetype
     glew
     glfw
     libGLU
