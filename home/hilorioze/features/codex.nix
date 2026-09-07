@@ -19,7 +19,11 @@
       approval_policy = "never";
       sandbox_mode = "danger-full-access";
 
-      features.memories = true;
+      features = {
+        apps = false; # disable the redundant built-in `codex_apps` MCP
+
+        memories = true;
+      };
 
       tui.status_line = [
         "current-dir"
