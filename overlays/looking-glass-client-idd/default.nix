@@ -7,7 +7,8 @@ final: prev: {
       hash = "sha256-gHVred8rgwTeRTW0AXxMlnz/ovXv6w9SyknVHiW3pKU=";
     });
 
-    patches = []; # drop inherited `nixpkgs`' `nanosvg` unvendor patch; upstream can build with vendored again
+    # drop inherited `nixpkgs`' `nanosvg` unvendor patch; upstream can build with vendored again
+    patches = final.lib.remove (prev.path + "/pkgs/by-name/lo/looking-glass-client/nanosvg-unvendor.diff") oldAttrs.patches;
 
     buildInputs =
       (final.lib.remove prev.nanosvg oldAttrs.buildInputs) # drop inherited `nixpkgs`' `nanosvg` dependency; upstream can use vendored again
