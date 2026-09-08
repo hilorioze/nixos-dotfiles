@@ -5,6 +5,7 @@
   # keep-sorted end
 }: let
   extensionID = "oauth-provider@hilorioze.com";
+
   version = "1.0.0";
 in
   writeTextFile {
@@ -17,6 +18,7 @@ in
 
       applications.gecko.id = extensionID;
       name = "OAuth provider";
+
       inherit version;
 
       oauth_provider = oauthProvider;

@@ -11,7 +11,7 @@ final: prev: {
     patches = final.lib.remove (prev.path + "/pkgs/by-name/lo/looking-glass-client/nanosvg-unvendor.diff") oldAttrs.patches;
 
     buildInputs =
-      (final.lib.remove prev.nanosvg oldAttrs.buildInputs) # drop inherited `nixpkgs`' `nanosvg` dependency; upstream can use vendored again
+      final.lib.remove prev.nanosvg oldAttrs.buildInputs # drop inherited `nixpkgs`' `nanosvg` dependency; upstream can use vendored again
       ++ (with final; [
         # keep-sorted start
         fuse3
