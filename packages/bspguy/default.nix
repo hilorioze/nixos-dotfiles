@@ -26,7 +26,7 @@ stdenv.mkDerivation (finalAttrs: {
     repo = "bspguy";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-NhkxnQ9SqddPgJZXqGjT/R6I+lhsJhFdtmHAF6fvlyc=";
+    hash = "sha256-K8TC/hEvn3EGRviEJM9s0btaobBH0D5WREA1QJ5WaNA=";
 
     fetchSubmodules = true;
   };
