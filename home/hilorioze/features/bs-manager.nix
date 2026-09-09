@@ -15,7 +15,7 @@
   };
 in {
   home = {
-    packages = [pkgs.bs-manager];
+    packages = [pkgs.unstablePkgs.bs-manager];
 
     activation.writeBsManagerConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
       config_file=${lib.escapeShellArg bsManagerConfigPath}
