@@ -9,20 +9,31 @@
   sops.secrets = {
     # keep-sorted start
     "credentials/ssh/agent/private-key" = {};
-    "credentials/ssh/fido2/private-key".path = "${config.home.homeDirectory}/.ssh/id_ed25519_sk";
+    "credentials/ssh/fido2/private-key" = {};
     # keep-sorted end
   };
 
-  services.ssh-agent.enable = true;
-
-  # select `ssh`'s direct signing path when neither `DISPLAY` (X11) nor `WAYLAND_DISPLAY` (Wayland) is set because `ssh-agent` cannot read the FIDO2 PIN from `ssh`'s TTY
+  # use direct FIDO2 signing in TTY sessions so `ssh` can read the PIN from the TTY
   programs.ssh.extraConfig = ''
     Match exec "test -z \"$DISPLAY$WAYLAND_DISPLAY\""
       IdentityAgent none
+      IdentityFile ${config.sops.secrets."credentials/ssh/fido2/private-key".path}
   '';
 
+  services.ssh-agent.enable = true;
+
   systemd.user.services = {
-    ssh-agent.Service.Environment = "SSH_ASKPASS=${lib.getExe pkgs.kdePackages.ksshaskpass}"; # configure `ssh-agent` to use `ksshaskpass` for FIDO2 PIN prompts in graphical sessions instead of OpenSSH's default `ssh-askpass`
+    ssh-agent = {
+      Install.WantedBy = lib.mkForce ["graphical-session.target"]; # wait for `$DISPLAY` or `$WAYLAND_DISPLAY` so `$SSH_ASKPASS` can be used
+
+      Unit = {
+        After = ["graphical-session.target"];
+
+        PartOf = ["graphical-session.target"];
+      };
+
+      Service.Environment = "SSH_ASKPASS=${lib.getExe pkgs.kdePackages.ksshaskpass}"; # use `ksshaskpass` for graphical FIDO2 PIN prompts
+    };
 
     ssh-agent-load-keys = {
       Install.WantedBy = ["default.target"];
@@ -52,7 +63,7 @@
         ExecStart = [
           # keep-sorted start
           "${lib.getExe' pkgs.openssh "ssh-add"} ${config.sops.secrets."credentials/ssh/agent/private-key".path}"
-          "${lib.getExe' pkgs.openssh "ssh-add"} ${config.sops.secrets."credentials/ssh/fido2/private-key".path}" # preload the FIDO2 key into `ssh-agent` because `AddKeysToAgent` only adds a file-loaded key after selecting the direct signing path and does not use the agent for the current signature
+          "${lib.getExe' pkgs.openssh "ssh-add"} ${config.sops.secrets."credentials/ssh/fido2/private-key".path}"
           # keep-sorted end
         ];
 
