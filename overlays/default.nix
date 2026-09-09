@@ -28,6 +28,7 @@
   nix-update-read-write-mode = import ./nix-update-read-write-mode;
   nix-update-script-flake-mode = import ./nix-update-script-flake-mode;
   nix-update-skip-package-environment = import ./nix-update-skip-package-environment;
+  nvidia-linux-7-2-fix = import ./nvidia-linux-7-2-fix;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;
   plasma-workspace-media-keys-no-repeat = import ./plasma-workspace-media-keys-no-repeat;
   podman-healthcheck-ignore-result = import ./podman-healthcheck-ignore-result;
