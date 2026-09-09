@@ -88,6 +88,8 @@ in {
     headscale = {
       enable = true;
 
+      package = pkgs.unstablePkgs.headscale;
+
       settings = {
         server_url = "https://hs.${config.networking.domain}";
 
