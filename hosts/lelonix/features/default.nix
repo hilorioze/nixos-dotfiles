@@ -24,6 +24,7 @@
     ../../common/features/plasmavantage.nix
     ../../common/features/platform-optimizations.nix
     ../../common/features/podman.nix
+    ../../common/features/reclaim-protection.nix
     ../../common/features/reisub.nix
     ../../common/features/rtkit.nix
     ../../common/features/steam.nix
