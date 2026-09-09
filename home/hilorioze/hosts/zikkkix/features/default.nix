@@ -14,6 +14,7 @@
     ../../../features/bs-manager.nix
     ../../../features/bspguy.nix
     ../../../features/cinny.nix
+    ../../../features/codeburn-desktop.nix
     ../../../features/codex.nix
     ../../../features/deadlocked.nix
     ../../../features/distrobox.nix
