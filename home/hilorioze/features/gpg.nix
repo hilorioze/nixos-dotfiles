@@ -1,6 +1,8 @@
-{
+{pkgs, ...}: {
   programs.gpg = {
     enable = true;
+
+    package = pkgs.gnupg-pcsc-shared-reselect-fix;
 
     publicKeys = [
       {

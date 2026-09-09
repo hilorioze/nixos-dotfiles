@@ -1,5 +1,5 @@
-_final: prev: {
-  gnupg = prev.gnupg.overrideAttrs (oldAttrs: {
+final: _prev: {
+  gnupg-pcsc-shared-reselect-fix = final.gnupg.overrideAttrs (oldAttrs: {
     patches =
       (oldAttrs.patches or [])
       ++ [
