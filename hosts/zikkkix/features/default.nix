@@ -24,7 +24,6 @@
     ../../common/features/tailscale.nix
     ../../common/features/uinput.nix
     ../../common/features/wayland.nix
-    ../../common/features/zswap.nix
     # keep-sorted end
 
     # keep-sorted start
