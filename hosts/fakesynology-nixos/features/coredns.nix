@@ -20,6 +20,8 @@
       enable = true;
 
       config = let
+        domain = config.networking.domain;
+
         lanHostNames = [
           # keep-sorted start
           "cex"
@@ -34,15 +36,15 @@
           else "${hostName}.local";
       in ''
         . {
-          # `fakesynology.hilorioze.com` -> `fakesynology.local`
+          # `fakesynology.${domain}` -> `fakesynology.local`
           ${lib.concatMapStringsSep "\n" (
-            hostName: "rewrite stop name exact ${hostName}.hilorioze.com. ${mkLanTarget hostName}."
+            hostName: "rewrite stop name exact ${hostName}.${domain}. ${mkLanTarget hostName}."
           )
           lanHostNames}
 
-          # `immich.fakesynology.hilorioze.com` -> CNAME `fakesynology.hilorioze.com` -> `fakesynology.local`
+          # `immich.fakesynology.${domain}` -> CNAME (public DNS) `fakesynology.${domain}` -> `fakesynology.local`
           ${lib.concatMapStringsSep "\n" (
-            hostName: "rewrite continue cname exact ${hostName}.hilorioze.com. ${mkLanTarget hostName}."
+            hostName: "rewrite continue cname exact ${hostName}.${domain}. ${mkLanTarget hostName}."
           )
           lanHostNames}
 
