@@ -22,11 +22,11 @@
     # keep-sorted start
     ./archisteamfarm.nix
     ./cex-proxy.nix
+    ./coredns.nix
     ./factorio.nix
     ./fakesynology-proxy.nix
     ./headscale.nix
     ./mailserver.nix
-    ./pdns-recursor.nix
     ./sops.nix
     ./tailscale.nix
     ./traefik.nix

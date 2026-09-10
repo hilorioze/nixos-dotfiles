@@ -5,6 +5,8 @@
   # keep-sorted end
   ...
 }: {
+  imports = [../../common/features/coredns.nix];
+
   networking.firewall = {
     allowedTCPPorts = [53];
     allowedUDPPorts = [53];
@@ -16,25 +18,23 @@
       DNSStubListenerExtra = "127.0.0.1:1053"; # keep available locally on a non-conflicting port
     };
 
-    coredns = {
-      enable = true;
+    coredns.config = let
+      domain = config.networking.domain;
 
-      config = let
-        domain = config.networking.domain;
+      lanHostNames = [
+        # keep-sorted start
+        "cex"
+        "fakesynology"
+        "fakesynology-nixos"
+        # keep-sorted end
+      ];
 
-        lanHostNames = [
-          # keep-sorted start
-          "cex"
-          "fakesynology"
-          "fakesynology-nixos"
-          # keep-sorted end
-        ];
-
-        mkLanTarget = hostName:
-          if hostName == config.networking.hostName
-          then "_outbound"
-          else "${hostName}.local";
-      in ''
+      mkLanTarget = hostName:
+        if hostName == config.networking.hostName
+        then "_outbound"
+        else "${hostName}.local";
+    in
+      lib.mkAfter ''
         . {
           # `fakesynology.${domain}` -> `fakesynology.local`
           ${lib.concatMapStringsSep "\n" (
@@ -51,12 +51,9 @@
           forward _outbound. ${config.services.resolved.settings.Resolve.DNSStubListenerExtra} # avoid self-resolution to irrelevant addresses
           forward local. ${config.services.resolved.settings.Resolve.DNSStubListenerExtra}
 
-          forward . 1.1.1.1 1.0.0.1 # chosen as the best-performing resolvers
-
-          cache
+          import upstream
         }
       '';
-    };
   };
 
   environment.etc."resolv.conf".text = lib.mkForce ''

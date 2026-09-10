@@ -8,17 +8,9 @@
 }: let
   cfg = config.services.headscale;
 
-  tailnetServerNodeNames = [
-    # keep-sorted start
-    "cex"
-    "de0"
-    "fakesynology"
-    "fakesynology-nixos"
-    "hel0"
-    "hilonix"
-    "lelonix"
-    "zikkkix"
-    # keep-sorted end
+  tailnetDnsAddresses = [
+    "100.64.0.1"
+    "fd7a:115c:a1e0::1"
   ];
 in {
   sops.secrets = {
@@ -64,26 +56,66 @@ in {
     # keep-sorted end
   };
 
-  networking.firewall.allowedUDPPorts = [3478];
+  networking.firewall.allowedUDPPorts = [3478]; # DERP's STUN
 
   services = {
-    pdns-recursor = {
-      # headscale assigns .1 to the first node so the first node is the control plane (hel0)
-      dns.address = [
-        "100.64.0.1"
-        "fd7a:115c:a1e0::1"
+    coredns.config = let
+      domain = config.networking.domain;
+
+      headscaleFqdn = lib.removePrefix "https://" cfg.settings.server_url;
+      tailnetDomain = cfg.settings.dns.base_domain;
+
+      tailnetServerNodeNames = [
+        # keep-sorted start
+        "cex"
+        "de0"
+        "fakesynology"
+        "fakesynology-nixos"
+        "hel0"
+        "hilonix"
+        "lelonix"
+        "zikkkix"
+        # keep-sorted end
       ];
+    in
+      lib.mkAfter ''
+        (tailnet) {
+          bind ${lib.concatStringsSep " " tailnetDnsAddresses}
+        }
 
-      forwardZonesRecurse.internal = "100.100.100.100"; # forward `.internal` zone lookups to magicdns
+        ${domain} {
+          import tailnet
 
-      luaConfig = ''addNTA("internal")''; # magicdns does not support dnssec
+          view tailnet-resolution {
+            # keep the Headscale control plane on public DNS; `tailscaled` dials the control plane outside the tailnet
+            expr type() in ['A', 'AAAA', 'ANY'] && name() != '${headscaleFqdn}.'
+          }
 
-      settings.recursor.lua_dns_script = pkgs.replaceVars ./headscale-pdns-recursor-cname-rewrite.lua.in {
-        TAILNET_SERVER_NODE_NAMES = lib.concatStringsSep "\n" (map (nodeName: "  [\"${nodeName}\"] = true,") tailnetServerNodeNames);
+          # `de0.${domain}` -> `de0.${tailnetDomain}`
+          ${lib.concatMapStringsSep "\n" (
+            hostName: "rewrite stop name exact ${hostName}.${domain}. ${hostName}.${tailnetDomain}."
+          )
+          tailnetServerNodeNames}
 
-        HEADSCALE_CONTROL_PLANE_HOST_NAME = lib.head (lib.splitString "." (lib.removePrefix "https://" cfg.settings.server_url));
-      };
-    };
+          # `grafana.${domain}` -> CNAME (public DNS) `de0.${domain}` -> `de0.${tailnetDomain}`
+          ${lib.concatMapStringsSep "\n" (
+            hostName: "rewrite continue cname exact ${hostName}.${domain}. ${hostName}.${tailnetDomain}."
+          )
+          tailnetServerNodeNames}
+
+          forward ${tailnetDomain}. 100.100.100.100
+
+          import upstream
+        }
+
+        . {
+          import tailnet
+
+          forward ${tailnetDomain}. 100.100.100.100
+
+          import upstream
+        }
+      '';
 
     headscale = {
       enable = true;
@@ -337,13 +369,10 @@ in {
         dns = {
           base_domain = "internal";
 
-          # use the control plane's pdns-recursor
-          nameservers.split."hilorioze.com" = [
-            "100.64.0.1"
-            "fd7a:115c:a1e0::1"
-          ];
+          # use the control plane's CoreDNS
+          nameservers.split.${config.networking.domain} = tailnetDnsAddresses;
 
-          # don't set headscale as the client's default resolver; only `hilorioze.com` uses split dns
+          # don't override clients' default DNS; use CoreDNS only for `${config.networking.domain}`
           override_local_dns = false;
         };
       };
@@ -362,6 +391,13 @@ in {
   };
 
   systemd.services = {
+    # wait for tailnet addresses before binding CoreDNS
+    coredns = {
+      after = ["tailscaled-autoconnect.service"];
+
+      wants = ["tailscaled-autoconnect.service"];
+    };
+
     headscale = {
       after = ["sops-nix.service"];
 
