@@ -24,7 +24,7 @@
 
   systemd.user.services = {
     ssh-agent = {
-      Install.WantedBy = lib.mkForce ["graphical-session.target"]; # wait for `$DISPLAY` or `$WAYLAND_DISPLAY` so `$SSH_ASKPASS` can be used
+      Install.WantedBy = lib.mkForce ["graphical-session.target"]; # wait for `$DISPLAY` and/or `$WAYLAND_DISPLAY` so `$SSH_ASKPASS` can be used
 
       Unit = {
         After = ["graphical-session.target"];
@@ -36,7 +36,7 @@
     };
 
     ssh-agent-load-keys = {
-      Install.WantedBy = ["default.target"];
+      Install.WantedBy = ["graphical-session.target"]; # this should have been `default.target`, but `Wants = ["ssh-agent.service"]` would otherwise start it before `$DISPLAY` and/or `$WAYLAND_DISPLAY` are available
 
       Unit = {
         Wants = [
