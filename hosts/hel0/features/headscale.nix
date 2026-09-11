@@ -8,6 +8,8 @@
 }: let
   cfg = config.services.headscale;
 
+  headscaleFqdn = lib.removePrefix "https://" cfg.settings.server_url;
+
   tailnetDnsAddresses = [
     "100.64.0.1"
     "fd7a:115c:a1e0::1"
@@ -62,7 +64,6 @@ in {
     coredns.config = let
       domain = config.networking.domain;
 
-      headscaleFqdn = lib.removePrefix "https://" cfg.settings.server_url;
       tailnetDomain = cfg.settings.dns.base_domain;
 
       tailnetServerNodeNames = [
@@ -369,8 +370,16 @@ in {
         dns = {
           base_domain = "internal";
 
-          # use the control plane's CoreDNS
-          nameservers.split.${config.networking.domain} = tailnetDnsAddresses;
+          nameservers.split = {
+            # use the control plane's CoreDNS
+            ${config.networking.domain} = tailnetDnsAddresses;
+
+            # avoid DNS deadlock during control plane reconnection
+            ${headscaleFqdn} = [
+              "1.1.1.1"
+              "1.0.0.1"
+            ];
+          };
 
           # don't override clients' default DNS; use CoreDNS only for `${config.networking.domain}`
           override_local_dns = false;
