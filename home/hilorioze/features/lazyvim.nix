@@ -26,6 +26,8 @@
       '';
 
       options = ''
+        vim.env.EDITOR = "${lib.getExe pkgs.neovim-remote} -l --remote-wait"
+
         vim.opt.wrap = true -- soft word wrap
       '';
     };
