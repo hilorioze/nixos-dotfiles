@@ -13,10 +13,12 @@
     ../../common/features/systemd-resolved.nix
     ../../common/features/tailscale-server.nix
     ../../common/features/tailscale.nix
+    ../../common/features/traefik.nix
     # keep-sorted end
 
     # keep-sorted start
     ./coredns.nix
+    ./deadlocked-relay.nix
     ./networkd-dispatcher.nix
     ./sops.nix
     ./time.nix

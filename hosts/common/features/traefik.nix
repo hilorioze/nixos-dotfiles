@@ -6,9 +6,9 @@
   ...
 }: {
   sops = {
-    secrets."credentials/cloudflare/zones/hilorioze.com/dns01-token" = {};
+    secrets."credentials/cloudflare/zones/hilorioze.com/api-token" = {};
 
-    templates."services/traefik/cloudflare.env".content = "CF_DNS_API_TOKEN=${config.sops.placeholder."credentials/cloudflare/zones/hilorioze.com/dns01-token"}";
+    templates."services/traefik/cloudflare.env".content = "CF_DNS_API_TOKEN=${config.sops.placeholder."credentials/cloudflare/zones/hilorioze.com/api-token"}";
   };
 
   networking.firewall = {

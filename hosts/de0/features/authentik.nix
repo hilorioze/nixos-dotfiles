@@ -152,7 +152,7 @@ in {
   security.acme.certs.${ldapHost} = {
     dnsProvider = "cloudflare";
 
-    credentialFiles.CF_DNS_API_TOKEN_FILE = config.sops.secrets."credentials/cloudflare/zones/${domain}/dns01-token".path;
+    credentialFiles.CF_DNS_API_TOKEN_FILE = config.sops.secrets."credentials/cloudflare/zones/${domain}/api-token".path;
 
     reloadServices = ["authentik-worker.service"];
   };

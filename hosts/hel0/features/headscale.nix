@@ -245,6 +245,20 @@ in {
               ];
             }
 
+            # de0 (gatus) checks the deadlocked relay on fakesynology-nixos
+            {
+              action = "accept";
+
+              src = ["tag:de0"];
+
+              dst = [
+                # keep-sorted start numeric=yes
+                "tag:fakesynology-nixos:443"
+                "tag:fakesynology-nixos:6346"
+                # keep-sorted end
+              ];
+            }
+
             # fluent-bit on all monitored hosts pushes logs to loki on de0
             {
               action = "accept";

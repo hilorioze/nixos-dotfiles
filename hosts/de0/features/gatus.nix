@@ -136,6 +136,37 @@
           }
 
           {
+            name = "deadlocked-relay-egress";
+            group = "services";
+
+            url = "https://deadlocked-relay.${fakesynologyNixosConfig.networking.fqdn}/client";
+
+            headers = {
+              Connection = "Upgrade";
+              Upgrade = "websocket";
+
+              Sec-WebSocket-Key = "AAAAAAAAAAAAAAAAAAAAAA=="; # RFC 6455 format: 16-byte nonce encoded as RFC 4648 base64
+              Sec-WebSocket-Version = "13";
+            };
+
+            conditions = ["[STATUS] == 101"];
+          }
+
+          {
+            name = "deadlocked-relay-ingest";
+            group = "services";
+
+            url = "tcp://${fakesynologyNixosConfig.networking.fqdn}:6346";
+            body = "$DEADLOCKED_RELAY_HEALTH_BODY";
+
+            conditions = [
+              "[CONNECTED] == true"
+
+              "[BODY] == 0000000000000000"
+            ];
+          }
+
+          {
             name = "ftbie";
             group = "services";
 
@@ -327,10 +358,14 @@
 
     requires = ["postgresql.service"];
 
-    # goldsrc `A2S_INFO` is `b"\xff\xff\xff\xffTSource Engine Query\x00"`
-    # a normal YAML/Nix string would send UTF-8 text instead of raw `0xff` bytes
-    # gatus expands `$GOLDSRC_A2S_INFO_BODY` before parsing YAML, replacing `body: $GOLDSRC_A2S_INFO_BODY`
-    # with `body: !!binary ...`; `yaml.v3` then decodes that scalar to the raw `A2S_INFO` bytes
-    environment.GOLDSRC_A2S_INFO_BODY = "!!binary /////1RTb3VyY2UgRW5naW5lIFF1ZXJ5AA=="; # b"\xff\xff\xff\xffTSource Engine Query\x00"
+    # both probes send raw binary protocol payloads
+    # normal YAML strings cannot represent arbitrary bytes such as `0xff` or NUL directly
+    # gatus expands these environment variables before parsing YAML; `yaml.v3` decodes `!!binary` to raw bytes
+    environment = {
+      # keep-sorted start
+      DEADLOCKED_RELAY_HEALTH_BODY = "!!binary AAAAAjAwMDAwMDAwMDAwMDAwMDA="; # b"\x00\x00\x00\x020000000000000000"
+      GOLDSRC_A2S_INFO_BODY = "!!binary /////1RTb3VyY2UgRW5naW5lIFF1ZXJ5AA=="; # b"\xff\xff\xff\xffTSource Engine Query\x00"
+      # keep-sorted end
+    };
   };
 }
