@@ -23,6 +23,7 @@
 
   # keep-sorted start
   gnupg-pcsc-shared-reselect-fix = import ./gnupg-pcsc-shared-reselect-fix;
+  lazyvim-wakatime = import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default;
   looking-glass-client-idd = import ./looking-glass-client-idd;
   nix-monitored-notification-utf8-fix = import ./nix-monitored-notification-utf8-fix;
   nix-update-read-write-mode = import ./nix-update-read-write-mode;

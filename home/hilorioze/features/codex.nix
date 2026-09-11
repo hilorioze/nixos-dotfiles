@@ -1,6 +1,7 @@
 {
   # keep-sorted start
   config,
+  inputs,
   lib,
   pkgs,
   # keep-sorted end
@@ -9,7 +10,22 @@
   programs.codex = {
     enable = true;
 
-    package = pkgs.unstablePkgs.codex;
+    package = pkgs.symlinkJoin {
+      name = "codex";
+
+      inherit (pkgs.codex-with-node) version;
+
+      paths = [pkgs.codex-with-node];
+
+      nativeBuildInputs = [pkgs.makeWrapper];
+
+      postBuild = ''
+        wrapProgram $out/bin/${pkgs.codex-with-node.meta.mainProgram} \
+          --add-flags --dangerously-bypass-hook-trust
+      '';
+
+      inherit (pkgs.codex-with-node) meta;
+    };
 
     enableMcpIntegration = true;
 
@@ -25,6 +41,8 @@
         memories = true;
       };
 
+      plugins."codex-cli-wakatime@wakatime" = {};
+
       tui.status_line = [
         "current-dir"
         "model-with-reasoning"
@@ -37,9 +55,27 @@
   };
 
   home = {
-    file.".codex/config.toml".enable = false; # keep the generated settings source without linking an immutable user config
+    file = {
+      ".codex/config.toml".enable = false; # keep the generated settings source without linking an immutable user config
+
+      ".codex/plugins/cache/wakatime/codex-cli-wakatime/local" = {
+        source = builtins.path {
+          path = "${inputs.codex-cli-wakatime}/plugins/codex-cli-wakatime";
+
+          filter = path: _: baseNameOf path != ".codex-plugin"; # materialize separately because codex rejects symlinked manifests
+        };
+
+        recursive = true; # expose a real directory for codex plugin discovery
+      };
+    };
 
     activation = {
+      materializeCodexWakatimeManifest = lib.hm.dag.entryAfter ["linkGeneration"] ''
+        run install -D --mode=444 \
+          ${inputs.codex-cli-wakatime}/plugins/codex-cli-wakatime/.codex-plugin/plugin.json \
+          ${lib.escapeShellArg "${config.home.homeDirectory}/.codex/plugins/cache/wakatime/codex-cli-wakatime/local/.codex-plugin/plugin.json"}
+      '';
+
       writeCodexConfig = let
         mergeSettingsFilter = lib.escapeShellArg ''
           (

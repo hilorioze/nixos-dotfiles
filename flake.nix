@@ -44,6 +44,12 @@
     # keep-sorted start block=yes newline_separated=yes
     authentik-nix.url = "github:nix-community/authentik-nix"; # keep their inputs for binary cache
 
+    codex-cli-wakatime = {
+      url = "github:wakatime/codex-cli-wakatime";
+
+      flake = false;
+    };
+
     cstrike-mod.url = "github:hilorioze/cstrike-mod"; # keep their inputs for binary cache
 
     direnv-instant = {

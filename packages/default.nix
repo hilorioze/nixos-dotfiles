@@ -4,6 +4,7 @@
   bspguy = pkgs.callPackage ./bspguy {};
   codeburn = pkgs.callPackage ./codeburn {};
   codeburn-desktop = pkgs.callPackage ./codeburn-desktop {};
+  codex-with-node = pkgs.callPackage ./codex-with-node {};
   deadlocked = pkgs.callPackage ./deadlocked {};
   ghidra-mcp = pkgs.python3Packages.callPackage ./ghidra-mcp {};
   ghidra-mcp-plugin = pkgs.callPackage ./ghidra-mcp-plugin {};

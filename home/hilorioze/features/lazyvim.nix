@@ -95,6 +95,12 @@
           grep.hidden = true;
         };
       };
+
+      wakatime = mkPlugin {
+        plugin = "wakatime/vim-wakatime";
+
+        lazy = false;
+      };
       # keep-sorted end
     };
 
