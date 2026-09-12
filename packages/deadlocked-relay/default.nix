@@ -13,6 +13,7 @@ rustPlatform.buildRustPackage {
 
   inherit (deadlocked) cargoDeps;
 
+  # build only the radar server; the workspace also contains the client
   buildAndTestSubdir = "server";
 
   meta = {
