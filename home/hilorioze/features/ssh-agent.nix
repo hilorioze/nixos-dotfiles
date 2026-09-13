@@ -39,7 +39,7 @@ in {
     ssh-agent.Service.Environment = [
       "SSH_ASKPASS=${sshAskpass}"
 
-      "SSH_ASKPASS_REQUIRE=force"
+      "SSH_ASKPASS_REQUIRE=force" # force askpass past OpenSSH's `$DISPLAY`/`$WAYLAND_DISPLAY` gate
     ];
 
     ssh-agent-load-keys = {
