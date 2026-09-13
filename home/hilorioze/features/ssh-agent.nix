@@ -5,7 +5,20 @@
   pkgs,
   # keep-sorted end
   ...
-}: {
+}: let
+  sshAskpass = pkgs.writeShellScript "ssh-askpass" ''
+    # suppress OpenSSH's initial "confirm user presence" dialog while keeping its askpass process alive until the PIN prompt
+    if [[ ''${SSH_ASKPASS_PROMPT-} == none ]]; then
+      exec ${lib.getExe' pkgs.coreutils "sleep"} infinity
+    fi
+
+    exec ${lib.getExe' pkgs.systemd "systemd-run"} \
+      --user \
+      --pipe \
+      --collect \
+      ${lib.getExe pkgs.kdePackages.ksshaskpass} "$@"
+  '';
+in {
   sops.secrets = {
     # keep-sorted start
     "credentials/ssh/agent/private-key" = {};
@@ -23,20 +36,14 @@
   services.ssh-agent.enable = true;
 
   systemd.user.services = {
-    ssh-agent = {
-      Install.WantedBy = lib.mkForce ["graphical-session.target"]; # wait for `$DISPLAY` and/or `$WAYLAND_DISPLAY` so `$SSH_ASKPASS` can be used
+    ssh-agent.Service.Environment = [
+      "SSH_ASKPASS=${sshAskpass}"
 
-      Unit = {
-        After = ["graphical-session.target"];
-
-        PartOf = ["graphical-session.target"];
-      };
-
-      Service.Environment = "SSH_ASKPASS=${lib.getExe pkgs.kdePackages.ksshaskpass}"; # use `ksshaskpass` for graphical FIDO2 PIN prompts
-    };
+      "SSH_ASKPASS_REQUIRE=force"
+    ];
 
     ssh-agent-load-keys = {
-      Install.WantedBy = ["graphical-session.target"]; # this should have been `default.target`, but `Wants = ["ssh-agent.service"]` would otherwise start it before `$DISPLAY` and/or `$WAYLAND_DISPLAY` are available
+      Install.WantedBy = ["default.target"];
 
       Unit = {
         Wants = [
