@@ -43,7 +43,7 @@ in {
     ];
 
     ssh-agent-load-keys = {
-      Install.WantedBy = ["default.target"];
+      Install.WantedBy = ["ssh-agent.service"];
 
       Unit = {
         Wants = [
