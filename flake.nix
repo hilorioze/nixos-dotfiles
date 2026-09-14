@@ -1,6 +1,8 @@
 {
   nixConfig = {
     # keep-sorted start block=yes newline_separated=yes
+    always-allow-substitutes = true;
+
     extra-substituters = [
       # https://cache.nixos.org has priority 40
       "https://nix-cache.hilorioze.com?priority=41"
