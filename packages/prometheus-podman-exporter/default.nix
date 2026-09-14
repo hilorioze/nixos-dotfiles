@@ -12,14 +12,14 @@
 buildGoModule (finalAttrs: {
   pname = "prometheus-podman-exporter";
 
-  version = "1.21.2";
+  version = "2.0.0";
 
   src = fetchFromGitHub {
     owner = "containers";
     repo = "prometheus-podman-exporter";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-7AU/LWRClwuPEEalhanglMlpXirzFELhdX+6lbu/6zA=";
+    hash = "sha256-713r7COiEEO+zGVQPhFoWPpr9ILYxABQrRshvF9bfVU=";
   };
 
   vendorHash = null;
