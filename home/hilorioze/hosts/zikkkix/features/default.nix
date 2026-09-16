@@ -30,12 +30,16 @@
     ../../../features/niks3.nix
     ../../../features/plasma.nix
     ../../../features/ssh-agent.nix
+    ../../../features/syncthing.nix
     ../../../features/thunderbird.nix
     ../../../features/ventoy.nix
     ../../../features/wakatime.nix
     ../../../features/wl-clipboard.nix
     # keep-sorted end
 
+    # keep-sorted start
     ./sops.nix
+    ./syncthing.nix
+    # keep-sorted end
   ];
 }

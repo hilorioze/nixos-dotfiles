@@ -2,22 +2,22 @@
   services.syncthing = {
     cert = "${pkgs.writeText "syncthing-cert.pem" ''
       -----BEGIN CERTIFICATE-----
-      MIIBoDCCAVKgAwIBAgIJAOd1pCBqcknFMAUGAytlcDBKMRIwEAYDVQQKEwlTeW5j
+      MIIBoDCCAVKgAwIBAgIJAItcNDlkWmcSMAUGAytlcDBKMRIwEAYDVQQKEwlTeW5j
       dGhpbmcxIDAeBgNVBAsTF0F1dG9tYXRpY2FsbHkgR2VuZXJhdGVkMRIwEAYDVQQD
-      EwlzeW5jdGhpbmcwHhcNMjYwMzA5MDAwMDAwWhcNNDYwMzA0MDAwMDAwWjBKMRIw
+      EwlzeW5jdGhpbmcwHhcNMjYwOTE2MDAwMDAwWhcNNDYwOTExMDAwMDAwWjBKMRIw
       EAYDVQQKEwlTeW5jdGhpbmcxIDAeBgNVBAsTF0F1dG9tYXRpY2FsbHkgR2VuZXJh
-      dGVkMRIwEAYDVQQDEwlzeW5jdGhpbmcwKjAFBgMrZXADIQBicHmLP2jQ3Tvw3Zmp
-      1wvA138HIj6BkgMCQKJNSFaN36NVMFMwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQW
+      dGVkMRIwEAYDVQQDEwlzeW5jdGhpbmcwKjAFBgMrZXADIQApH3kES8IiK4eUv94n
+      eFc/CVnkwmMA9oRtHPelg0LUSKNVMFMwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQW
       MBQGCCsGAQUFBwMBBggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMBQGA1UdEQQNMAuC
-      CXN5bmN0aGluZzAFBgMrZXADQQAyIkMmOwcHYIiX8fZ+Gf+BFZNFaz/Bl0HYiqBB
-      Ra8Yq3oSMr1DlTfMWcLioMcPYB1q3gxHe+UzCs4aeIAvGnUA
+      CXN5bmN0aGluZzAFBgMrZXADQQAe505Ime//OQjTVOPf7QF0xzvf5V0hLGuKR/Oc
+      GemotHunx0fRKol6Zt8ulLUBGZCPX3kyf04FJzhWhcd7Xq0I
       -----END CERTIFICATE-----
     ''}";
 
     settings.folders.Sync.devices = [
       # keep-sorted start
       "hilonix"
-      "zikkkix"
+      "lelonix"
       # keep-sorted end
     ];
   };

@@ -1,10 +1,4 @@
-{
-  # keep-sorted start
-  config,
-  pkgs,
-  # keep-sorted end
-  ...
-}: {
+{pkgs, ...}: {
   services.syncthing = {
     cert = "${pkgs.writeText "syncthing-cert.pem" ''
       -----BEGIN CERTIFICATE-----
@@ -20,15 +14,11 @@
       -----END CERTIFICATE-----
     ''}";
 
-    settings.folders."Sync" = {
-      path = "${config.home.homeDirectory}/Sync";
-
-      devices = [
-        # keep-sorted start
-        "lelonix"
-        "philone"
-        # keep-sorted end
-      ];
-    };
+    settings.folders.Sync.devices = [
+      # keep-sorted start
+      "lelonix"
+      "zikkkix"
+      # keep-sorted end
+    ];
   };
 }

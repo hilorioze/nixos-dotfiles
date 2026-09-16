@@ -356,6 +356,16 @@
           </info>
         </bookmark>
 
+        <bookmark href="file://${config.services.syncthing.settings.folders.Sync.path}">
+          <title>Sync</title>
+
+          <info>
+            <metadata owner="http://freedesktop.org">
+              <bookmark:icon name="folder"/>
+            </metadata>
+          </info>
+        </bookmark>
+
         <bookmark href="file://${config.home.homeDirectory}/projects">
           <title>projects</title>
 
