@@ -18,17 +18,17 @@
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "deadlocked";
 
-  version = "1.2.0";
+  version = "1.3.0";
 
   src = fetchFromGitHub {
     owner = "avitran0";
     repo = "deadlocked";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-CHkC71+LA4gTrPcNg/VDq+uW6wAo3HfskiL3KAxhd30=";
+    hash = "sha256-Va5QDXdrsgWCMYDlXGTLznKmi5BUWLh2/i7uC/gEfns=";
   };
 
-  cargoHash = "sha256-Kj+y0r+/lBlfsVEy5pljclkIbIHc8h4CWZNJPuEv+rg=";
+  cargoHash = "sha256-Ls0nCnFbSwM9zwGgasJnkWYqKNDDjj4Eb8tSCGTyHis=";
 
   nativeBuildInputs = [
     # keep-sorted start
