@@ -89,6 +89,7 @@
     ../../../features/steam.nix
     ../../../features/syncthing.nix
     ../../../features/thunderbird.nix
+    ../../../features/ventoy.nix
     ../../../features/vscodium.nix
     ../../../features/wakatime.nix
     ../../../features/wl-clipboard.nix

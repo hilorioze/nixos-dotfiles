@@ -31,6 +31,7 @@
     ../../../features/plasma.nix
     ../../../features/ssh-agent.nix
     ../../../features/thunderbird.nix
+    ../../../features/ventoy.nix
     ../../../features/wakatime.nix
     ../../../features/wl-clipboard.nix
     # keep-sorted end

@@ -34,6 +34,7 @@
     ../../common/features/tailscale-client.nix
     ../../common/features/tailscale.nix
     ../../common/features/uinput.nix
+    ../../common/features/ventoy.nix
     ../../common/features/wayland.nix
     ../../common/features/zswap.nix
     # keep-sorted end
