@@ -4,14 +4,14 @@ on:
       - main
 
     paths: &paths
-      - .github/workflows/build-devenv.yaml
+      - .github/workflows/build-iso.yaml
 
-      - devenv.nix
-      - devenv.lock
-      - shared.nix
-
-      # workflow reads `nixConfig` and uses `--inputs-from .`, so changes to them may affect the result
-      - flake.nix
+      - "**/*.nix"
+      - "!devenv.nix"
+      - "**/secrets.yaml"
+      - "**/*.patch"
+      - "**/*.diff"
+      - "**/*.pub"
       - flake.lock
 
   pull_request:
@@ -22,15 +22,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-devenv:
+  build-iso:
     concurrency:
-      # one run per pull request number or branch; latest completes last
-      group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+      # one run per ref; latest completes last
+      group: ${{ github.workflow }}-${{ github.ref }}
 
       cancel-in-progress: false
 
     permissions:
       id-token: write # required so `niks3` can authenticate via OIDC
+      contents: write # required for publishing releases
 
     runs-on: ubuntu-latest
 
@@ -104,4 +105,35 @@ jobs:
       - if: github.event_name != 'pull_request'
         run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
 
-      - run: nix run --inputs-from . nixpkgs#devenv -- build test
+      - id: build
+        run: |
+          result=$(nix build --no-link --print-out-paths --print-build-logs .#nixosConfigurations.hisonix.config.system.build.isoImage)
+
+          {
+            printf 'result=%s\n' $result
+
+            if [[ ${{ github.event_name }} != pull_request ]]; then
+              printf 'content_hash=%s\n' $(nix hash path --type sha256 --base32 $result)
+            fi
+          } >> $GITHUB_OUTPUT
+
+      - if: github.event_name != 'pull_request'
+        run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.build.outputs.result }}
+
+      - if: github.event_name != 'pull_request'
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+        with:
+          tag: ${{ steps.build.outputs.content_hash }}
+          commit: ${{ github.sha }} # pin release to the build commit
+
+          body: |
+            Fetch the ISO from the binary cache:
+
+            ```sh
+            nix build \
+              --extra-substituters https://nix-cache.hilorioze.com \
+              github:${{ github.repository }}/${{ github.sha }}#nixosConfigurations.hisonix.config.system.build.isoImage
+            ```
+
+          makeLatest: true
+          skipIfReleaseExists: true
