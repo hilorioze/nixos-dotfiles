@@ -125,8 +125,7 @@
         lib.hm.dag.entryAfter ["writeBoundary"] ''
           run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${lib.escapeShellArg stateDirectory}
 
-          run ${lib.getExe pkgs.sqlite} ${lib.escapeShellArg "${stateDirectory}/state.vscdb"} \
-            "PRAGMA busy_timeout = 5000;" \
+          run ${lib.getExe pkgs.sqlite} -cmd '.timeout 5000' ${lib.escapeShellArg "${stateDirectory}/state.vscdb"} \
             "PRAGMA user_version = 1; /* match VSCodium's storage schema version when creating the database */" \
             "CREATE TABLE IF NOT EXISTS ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB);" \
             "INSERT OR IGNORE INTO ItemTable (key, value) VALUES ('openai.chatgpt', '{}');" \

@@ -190,8 +190,7 @@
 
         favorite_agent=org.kde.plasma.favorites.applications
 
-        ${lib.getExe pkgs.sqlite} $resources_dir/database \
-          "PRAGMA busy_timeout = 5000;" \
+        ${lib.getExe pkgs.sqlite} -cmd '.timeout 5000' $resources_dir/database \
           "DELETE FROM ResourceLink WHERE initiatingAgent = '$favorite_agent';" \
           "DELETE FROM ResourceScoreCache WHERE initiatingAgent = '$favorite_agent';" 2>/dev/null
       '';

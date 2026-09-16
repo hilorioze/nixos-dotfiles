@@ -94,8 +94,7 @@ in {
       lib.hm.dag.entryAfter ["writeBoundary"] ''
         run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${thunderbirdProfileDir}
 
-        run ${lib.getExe pkgs.sqlite} ${thunderbirdOpenPgpDatabase} \
-          "PRAGMA busy_timeout = 5000;" \
+        run ${lib.getExe pkgs.sqlite} -cmd '.timeout 5000' ${thunderbirdOpenPgpDatabase} \
           "BEGIN;" \
           "CREATE TABLE IF NOT EXISTS acceptance_email (fpr TEXT NOT NULL, email TEXT NOT NULL, UNIQUE(fpr, email));" \
           "CREATE TABLE IF NOT EXISTS acceptance_decision (fpr TEXT NOT NULL, decision TEXT NOT NULL, UNIQUE(fpr));" \

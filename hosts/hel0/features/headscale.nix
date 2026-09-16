@@ -447,7 +447,11 @@ in {
 
       script = ''
         headscale_cmd="${lib.getExe cfg.package} --config ${cfg.configFile}"
-        sqlite_cmd="${lib.getExe pkgs.sqlite} ${cfg.settings.database.sqlite.path}"
+
+        sqlite_cmd() {
+          ${lib.getExe pkgs.sqlite} -cmd '.timeout 10000' ${cfg.settings.database.sqlite.path} \
+            "$@"
+        }
 
         ensure_user() {
           local user_name=$1
@@ -479,15 +483,15 @@ in {
           local preauth_key_prefix=$(<$preauth_key_prefix_path)
           local preauth_key_hash=$(<$preauth_key_hash_path)
 
-          local preauth_key_exists=$($sqlite_cmd "SELECT EXISTS(SELECT 1 FROM pre_auth_keys WHERE prefix = '$preauth_key_prefix' LIMIT 1)")
+          local preauth_key_exists=$(sqlite_cmd "SELECT EXISTS(SELECT 1 FROM pre_auth_keys WHERE prefix = '$preauth_key_prefix' LIMIT 1)")
 
           if [[ $preauth_key_exists == 1 ]]; then
-            $sqlite_cmd "UPDATE pre_auth_keys SET hash = '$preauth_key_hash', user_id = $user_id, reusable = $is_preauth_key_reusable, ephemeral = $is_node_ephemeral, tags = '$node_tags' WHERE prefix = '$preauth_key_prefix'"
+            sqlite_cmd "UPDATE pre_auth_keys SET hash = '$preauth_key_hash', user_id = $user_id, reusable = $is_preauth_key_reusable, ephemeral = $is_node_ephemeral, tags = '$node_tags' WHERE prefix = '$preauth_key_prefix'"
           else
-            $sqlite_cmd "INSERT INTO pre_auth_keys (key, prefix, hash, user_id, reusable, ephemeral, tags, created_at) VALUES (NULL, '$preauth_key_prefix', '$preauth_key_hash', $user_id, $is_preauth_key_reusable, $is_node_ephemeral, '$node_tags', datetime('now'))"
+            sqlite_cmd "INSERT INTO pre_auth_keys (key, prefix, hash, user_id, reusable, ephemeral, tags, created_at) VALUES (NULL, '$preauth_key_prefix', '$preauth_key_hash', $user_id, $is_preauth_key_reusable, $is_node_ephemeral, '$node_tags', datetime('now'))"
           fi
 
-          $sqlite_cmd "SELECT id FROM pre_auth_keys WHERE prefix = '$preauth_key_prefix' LIMIT 1"
+          sqlite_cmd "SELECT id FROM pre_auth_keys WHERE prefix = '$preauth_key_prefix' LIMIT 1"
         }
 
         # keep-sorted start block=yes newline_separated=true by_regex=services/headscale/([^/]+)/
@@ -561,10 +565,10 @@ in {
         ensure_preauth_key_used() {
           local key_id=$1
 
-          local node_exists=$($sqlite_cmd "SELECT EXISTS(SELECT 1 FROM nodes WHERE auth_key_id = '$key_id' LIMIT 1)")
+          local node_exists=$(sqlite_cmd "SELECT EXISTS(SELECT 1 FROM nodes WHERE auth_key_id = '$key_id' LIMIT 1)")
 
           if [[ $node_exists == 1 ]]; then
-            $sqlite_cmd "UPDATE pre_auth_keys SET used = 1 WHERE id = '$key_id' AND used = 0"
+            sqlite_cmd "UPDATE pre_auth_keys SET used = 1 WHERE id = '$key_id' AND used = 0"
           fi
         }
 
@@ -586,7 +590,7 @@ in {
         get_node_id_by_key_id() {
           local key_id=$1
 
-          $sqlite_cmd "SELECT nodes.id FROM nodes WHERE auth_key_id = '$key_id' LIMIT 1"
+          sqlite_cmd "SELECT nodes.id FROM nodes WHERE auth_key_id = '$key_id' LIMIT 1"
         }
 
         # keep-sorted start
