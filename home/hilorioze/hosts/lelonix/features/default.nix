@@ -63,6 +63,7 @@
     ../../../features/codeburn-desktop.nix
     ../../../features/codex.nix
     ../../../features/deadlocked.nix
+    ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix
     ../../../features/dolphin.nix
     ../../../features/email.nix

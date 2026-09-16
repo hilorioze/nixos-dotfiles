@@ -18,6 +18,7 @@
     ../../../features/codeburn-desktop.nix
     ../../../features/codex.nix
     ../../../features/deadlocked.nix
+    ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix
     ../../../features/email.nix
     ../../../features/git-hardware-signing.nix
