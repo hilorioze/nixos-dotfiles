@@ -194,6 +194,8 @@ in {
 
         "permissions.default.persistent-storage" = 2; # deny persistent storage prompts
 
+        "signon.firefoxRelay.feature" = "disabled"; # disable firefox relay email mask suggestions
+
         "signon.rememberSignons" = false; # disable built-in password save prompts; use keepassxc
 
         "extensions.formautofill.creditCards.enabled" = false; # disable payment info save/autofill
