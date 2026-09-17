@@ -86,6 +86,7 @@
     ../../../features/plasma.nix
     ../../../features/spectacle.nix
     ../../../features/ssh-agent.nix
+    ../../../features/steam-broker.nix
     ../../../features/steam.nix
     ../../../features/syncthing.nix
     ../../../features/thunderbird.nix
