@@ -15,6 +15,7 @@
     ../../common/features/mangohud.nix
     ../../common/features/netcat-firewall.nix
     ../../common/features/networkmanager-wol.nix
+    ../../common/features/networkmanager.nix
     ../../common/features/nix.nix
     ../../common/features/openssh.nix
     ../../common/features/partition-manager.nix
@@ -42,7 +43,6 @@
     # keep-sorted start
     ./automatic-timezoned.nix
     ./i18n.nix
-    ./networkmanager.nix
     ./nix-ld.nix
     ./plasma.nix
     ./sddm.nix
