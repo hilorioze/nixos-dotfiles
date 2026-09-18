@@ -121,7 +121,7 @@ in {
     headscale = {
       enable = true;
 
-      package = pkgs.unstablePkgs.headscale;
+      package = pkgs.unstablePkgs.headscale; # tailscale android crashes from duplicate self-node peers on older version (https://github.com/tailscale/tailscale/issues/20767)
 
       settings = {
         server_url = "https://hs.${config.networking.domain}";
