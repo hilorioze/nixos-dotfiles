@@ -22,6 +22,7 @@
   };
 
   # keep-sorted start
+  bambu-studio-cuda-fix = import ./bambu-studio-cuda-fix;
   gnupg-pcsc-shared-reselect-fix = import ./gnupg-pcsc-shared-reselect-fix;
   lazyvim-wakatime = import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default;
   looking-glass-client-idd = import ./looking-glass-client-idd;
