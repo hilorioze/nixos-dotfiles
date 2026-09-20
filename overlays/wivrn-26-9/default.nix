@@ -8,10 +8,10 @@ _final: prev: {
     });
 
     monado = oldAttrs.monado.overrideAttrs (oldMonadoAttrs: {
-      src = oldMonadoAttrs.src.overrideAttrs (_: {
+      src = oldMonadoAttrs.src.override {
         rev = "f037264d23e2472a444a157370647fcd601ed81b";
         hash = "sha256-exHbecudAy57szL7kut7/fBYCoekEs3riZzhMtFWS/c=";
-      });
+      };
     });
   });
 }
