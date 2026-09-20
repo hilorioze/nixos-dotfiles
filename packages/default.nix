@@ -13,6 +13,7 @@
   libnyquist = pkgs.callPackage ./libnyquist {};
   plasmavantage = pkgs.callPackage ./plasmavantage {};
   prometheus-podman-exporter = pkgs.callPackage ./prometheus-podman-exporter {};
+  quickshare = pkgs.callPackage ./quickshare {};
   steam-broker = pkgs.callPackage ./steam-broker {};
   thermalmonitor = pkgs.callPackage ./thermalmonitor {};
   yaas = pkgs.callPackage ./yaas {inherit (pkgs.unstablePkgs) flutter347;};

@@ -84,6 +84,7 @@
     ../../../features/niks3.nix
     ../../../features/nix.nix
     ../../../features/plasma.nix
+    ../../../features/quickshare.nix
     ../../../features/spectacle.nix
     ../../../features/ssh-agent.nix
     ../../../features/steam-broker.nix

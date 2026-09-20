@@ -29,6 +29,7 @@
     ../../../features/mcp.nix
     ../../../features/niks3.nix
     ../../../features/plasma.nix
+    ../../../features/quickshare.nix
     ../../../features/ssh-agent.nix
     ../../../features/steam-broker.nix
     ../../../features/syncthing.nix
