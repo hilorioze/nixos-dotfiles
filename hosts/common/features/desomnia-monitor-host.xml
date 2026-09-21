@@ -1,0 +1,9 @@
+<SystemMonitor version="2">
+  <NetworkMonitor
+    autoDetect="SleepProxy"
+
+    handoff="SleepProxy">
+
+    @serviceEntries@
+  </NetworkMonitor>
+</SystemMonitor>
