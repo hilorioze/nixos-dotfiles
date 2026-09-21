@@ -26,6 +26,7 @@
     ../../common/features/uinput.nix
     ../../common/features/ventoy.nix
     ../../common/features/wayland.nix
+    ../../common/features/wivrn.nix
     # keep-sorted end
 
     # keep-sorted start

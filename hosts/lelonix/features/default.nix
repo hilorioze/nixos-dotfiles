@@ -38,6 +38,7 @@
     ../../common/features/uinput.nix
     ../../common/features/ventoy.nix
     ../../common/features/wayland.nix
+    ../../common/features/wivrn.nix
     ../../common/features/zswap.nix
     # keep-sorted end
 
