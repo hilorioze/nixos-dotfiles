@@ -18,14 +18,14 @@
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "deadlocked";
 
-  version = "1.3.0";
+  version = "1.3.1";
 
   src = fetchFromGitHub {
     owner = "avitran0";
     repo = "deadlocked";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Va5QDXdrsgWCMYDlXGTLznKmi5BUWLh2/i7uC/gEfns=";
+    hash = "sha256-7icXywwcGoOs2g5ngNEWcBPmU/xwAGsQiMYRKvIfK1I=";
   };
 
   cargoHash = "sha256-Ls0nCnFbSwM9zwGgasJnkWYqKNDDjj4Eb8tSCGTyHis=";
