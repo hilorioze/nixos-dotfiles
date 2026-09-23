@@ -1,0 +1,248 @@
+diff --git a/OvmfPkg/Library/PlatformBootManagerLib/BdsPlatform.c b/OvmfPkg/Library/PlatformBootManagerLib/BdsPlatform.c
+index b696f1b3..7fda45be 100644
+--- a/OvmfPkg/Library/PlatformBootManagerLib/BdsPlatform.c
++++ b/OvmfPkg/Library/PlatformBootManagerLib/BdsPlatform.c
+@@ -10,6 +10,7 @@
+ #include <Guid/RootBridgesConnectedEventGroup.h>
+ #include <Guid/SerialPortLibVendor.h>
+ #include <Protocol/FirmwareVolume2.h>
++#include <Protocol/Smbios.h>
+ #include <Protocol/VirtioDevice.h>
+ #include <Library/PlatformBmPrintScLib.h>
+ #include <Library/Tcg2PhysicalPresenceLib.h>
+@@ -28,6 +29,199 @@ VOID       *mEmuVariableEventReg;
+ EFI_EVENT  mEmuVariableEvent;
+ UINT16     mHostBridgeDevId;
+ 
++#define SMBIOS_FIRMWARE_STRING_MAX_LENGTH  128
++
++/**
++  Return an SMBIOS string and its length.
++
++  @param[in]  Record        SMBIOS record containing the string set.
++  @param[in]  StringNumber  One-based string number from the formatted record.
++  @param[out] String        Pointer to the requested string within Record.
++  @param[out] StringLength  Length of the requested string, excluding the null
++                            terminator.
++
++  @retval EFI_SUCCESS            The requested string was found.
++  @retval EFI_INVALID_PARAMETER  A parameter was invalid.
++  @retval EFI_NOT_FOUND          The requested string was not present.
++  @retval EFI_PROTOCOL_ERROR     The string was not properly terminated or was
++                                 too long.
++**/
++STATIC
++EFI_STATUS
++GetSmbiosString (
++  IN  CONST EFI_SMBIOS_TABLE_HEADER  *Record,
++  IN  SMBIOS_TABLE_STRING              StringNumber,
++  OUT CONST CHAR8                      **String,
++  OUT UINTN                            *StringLength
++  )
++{
++  CONST CHAR8  *Current;
++  UINTN         Index;
++  UINTN         Length;
++
++  if ((Record == NULL) || (String == NULL) || (StringLength == NULL) ||
++      (StringNumber == 0))
++  {
++    return EFI_INVALID_PARAMETER;
++  }
++
++  if (Record->Length < sizeof (SMBIOS_STRUCTURE)) {
++    return EFI_PROTOCOL_ERROR;
++  }
++
++  Current = (CONST CHAR8 *)Record + Record->Length;
++  for (Index = 1; Index <= StringNumber; Index++) {
++    Length = AsciiStrnLenS (
++               Current,
++               SMBIOS_FIRMWARE_STRING_MAX_LENGTH + 1
++               );
++    if (Length == 0) {
++      return EFI_NOT_FOUND;
++    }
++
++    if (Length > SMBIOS_FIRMWARE_STRING_MAX_LENGTH) {
++      return EFI_PROTOCOL_ERROR;
++    }
++
++    if (Index == StringNumber) {
++      *String       = Current;
++      *StringLength = Length;
++      return EFI_SUCCESS;
++    }
++
++    Current += Length + 1;
++  }
++
++  return EFI_NOT_FOUND;
++}
++
++/**
++  Apply the SMBIOS Type 0 identity to the EFI system table.
++
++  BdsDxe first initializes EFI_SYSTEM_TABLE.FirmwareVendor and
++  EFI_SYSTEM_TABLE.FirmwareRevision from the normal PCD fallback. This
++  OVMF-specific hook runs afterwards and replaces the vendor from SMBIOS Type
++  0. When SMBIOS contains a valid system BIOS major/minor release pair, it is
++  encoded as (major << 16) | minor for FirmwareRevision. The SMBIOS BIOS
++  version string is intentionally not parsed because it has no defined numeric
++  representation in EFI_SYSTEM_TABLE.
++
++  @retval EFI_SUCCESS         SMBIOS identity was applied.
++  @retval EFI_NOT_FOUND       No usable SMBIOS Type 0 record was found.
++  @retval EFI_UNSUPPORTED     SMBIOS is unavailable.
++  @retval EFI_PROTOCOL_ERROR  The SMBIOS record is malformed.
++  @return                     Error status from memory allocation or SMBIOS.
++**/
++STATIC
++EFI_STATUS
++ApplySmbiosFirmwareIdentity (
++  VOID
++  )
++{
++  EFI_STATUS              Status;
++  EFI_SMBIOS_PROTOCOL     *Smbios;
++  EFI_SMBIOS_HANDLE       SmbiosHandle;
++  EFI_SMBIOS_TYPE         SmbiosType;
++  EFI_SMBIOS_TABLE_HEADER *Record;
++  SMBIOS_TABLE_TYPE0      *Type0Record;
++  CONST CHAR8             *Vendor;
++  UINTN                   VendorLength;
++  CHAR16                  *FirmwareVendor;
++  UINT32                  FirmwareRevision;
++  UINTN                   Index;
++
++  Status = gBS->LocateProtocol (
++                  &gEfiSmbiosProtocolGuid,
++                  NULL,
++                  (VOID **)&Smbios
++                  );
++  if (EFI_ERROR (Status)) {
++    return EFI_UNSUPPORTED;
++  }
++
++  SmbiosHandle = SMBIOS_HANDLE_PI_RESERVED;
++  SmbiosType   = SMBIOS_TYPE_BIOS_INFORMATION;
++  Status       = Smbios->GetNext (
++                           Smbios,
++                           &SmbiosHandle,
++                           &SmbiosType,
++                           &Record,
++                           NULL
++                           );
++  if (EFI_ERROR (Status)) {
++    return EFI_NOT_FOUND;
++  }
++
++  if (Record == NULL) {
++    return EFI_PROTOCOL_ERROR;
++  }
++
++  if (Record->Length <
++      OFFSET_OF (SMBIOS_TABLE_TYPE0, Vendor) + sizeof (SMBIOS_TABLE_STRING))
++  {
++    return EFI_PROTOCOL_ERROR;
++  }
++
++  Type0Record = (SMBIOS_TABLE_TYPE0 *)Record;
++  if (Type0Record->Vendor == 0) {
++    return EFI_NOT_FOUND;
++  }
++
++  Status = GetSmbiosString (
++             Record,
++             Type0Record->Vendor,
++             &Vendor,
++             &VendorLength
++             );
++  if (EFI_ERROR (Status)) {
++    return Status;
++  }
++
++  for (Index = 0; Index < VendorLength; Index++) {
++    if ((Vendor[Index] < 0x20) || (Vendor[Index] > 0x7e)) {
++      return EFI_PROTOCOL_ERROR;
++    }
++  }
++
++  FirmwareVendor = AllocateRuntimeZeroPool (
++                     (VendorLength + 1) * sizeof (CHAR16)
++                     );
++  if (FirmwareVendor == NULL) {
++    return EFI_OUT_OF_RESOURCES;
++  }
++
++  for (Index = 0; Index < VendorLength; Index++) {
++    FirmwareVendor[Index] = (CHAR16)Vendor[Index];
++  }
++
++  FirmwareRevision = PcdGet32 (PcdFirmwareRevision);
++  if ((Record->Length >=
++       OFFSET_OF (SMBIOS_TABLE_TYPE0, SystemBiosMinorRelease) + sizeof (UINT8)) &&
++      (Type0Record->SystemBiosMajorRelease != 0xFF) &&
++      (Type0Record->SystemBiosMinorRelease != 0xFF) &&
++      ((Type0Record->SystemBiosMajorRelease != 0) ||
++       (Type0Record->SystemBiosMinorRelease != 0)))
++  {
++    FirmwareRevision =
++      ((UINT32)Type0Record->SystemBiosMajorRelease << 16) |
++      Type0Record->SystemBiosMinorRelease;
++  }
++
++  if (gST->FirmwareVendor != NULL) {
++    FreePool (gST->FirmwareVendor);
++  }
++
++  gST->FirmwareVendor   = FirmwareVendor;
++  gST->FirmwareRevision = FirmwareRevision;
++
++  gST->Hdr.CRC32 = 0;
++  return gBS->CalculateCrc32 (
++                    (VOID *)gST,
++                    sizeof (EFI_SYSTEM_TABLE),
++                    &gST->Hdr.CRC32
++                    );
++}
++
+ //
+ // Table of host IRQs matching PCI IRQs A-D
+ // (for configuring PCI Interrupt Line register)
+@@ -224,6 +418,15 @@ PlatformBootManagerBeforeConsole (
+   BOOLEAN        FirmwareSetupEnabled;
+ 
+   DEBUG ((DEBUG_INFO, "PlatformBootManagerBeforeConsole\n"));
++
++  Status = ApplySmbiosFirmwareIdentity ();
++  if (EFI_ERROR (Status) &&
++      (Status != EFI_NOT_FOUND) &&
++      (Status != EFI_UNSUPPORTED))
++  {
++    DEBUG ((DEBUG_WARN, "Unable to apply SMBIOS firmware identity: %r\n", Status));
++  }
++
+   InstallDevicePathCallback ();
+ 
+   VisitAllInstancesOfProtocol (
+diff --git a/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf b/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
+index 9675eb08..3303be0e 100644
+--- a/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
++++ b/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
+@@ -65,6 +65,7 @@
+   gUefiOvmfPkgTokenSpaceGuid.PcdOvmfHostBridgePciDevId
+   gUefiOvmfPkgTokenSpaceGuid.PcdBootRestrictToFirmware
+   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiS3Enable
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareRevision                  ## CONSUMES
+   gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut
+   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate         ## CONSUMES
+   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits         ## CONSUMES
+@@ -77,6 +78,7 @@
+ [Protocols]
+   gEfiDecompressProtocolGuid
+   gEfiPciRootBridgeIoProtocolGuid
++  gEfiSmbiosProtocolGuid                              ## SOMETIMES_CONSUMES
+   gVirtioDeviceProtocolGuid
+   gEfiS3SaveStateProtocolGuid                   # PROTOCOL SOMETIMES_CONSUMED
+   gEfiDxeSmmReadyToLockProtocolGuid             # PROTOCOL SOMETIMES_PRODUCED

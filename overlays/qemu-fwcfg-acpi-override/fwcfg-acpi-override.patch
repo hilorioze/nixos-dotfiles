@@ -1,0 +1,170 @@
+diff --git a/hw/i386/acpi-build.c b/hw/i386/acpi-build.c
+index 1149a1b..7d4c89d 100644
+--- a/hw/i386/acpi-build.c
++++ b/hw/i386/acpi-build.c
+@@ -1186,7 +1186,9 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
+     /* create fw_cfg node, unconditionally */
+     {
+         scope = aml_scope("\\_SB.PCI0");
+-        fw_cfg_add_acpi_dsdt(scope, x86ms->fw_cfg);
++        fw_cfg_add_acpi_dsdt_with_identity(scope, x86ms->fw_cfg,
++                                           x86ms->fw_cfg_acpi_name,
++                                           x86ms->fw_cfg_acpi_hid);
+         aml_append(dsdt, scope);
+     }
+ 
+diff --git a/hw/i386/fw_cfg.c b/hw/i386/fw_cfg.c
+index 5c0bcd5..19f0d61 100644
+--- a/hw/i386/fw_cfg.c
++++ b/hw/i386/fw_cfg.c
+@@ -213,7 +213,9 @@ void fw_cfg_build_feature_control(MachineState *ms, FWCfgState *fw_cfg)
+ }
+ 
+ #ifdef CONFIG_ACPI
+-void fw_cfg_add_acpi_dsdt(Aml *scope, FWCfgState *fw_cfg)
++void fw_cfg_add_acpi_dsdt_with_identity(Aml *scope, FWCfgState *fw_cfg,
++                                        const char *acpi_name,
++                                        const char *acpi_hid)
+ {
+     /*
+      * when using port i/o, the 8-bit data register *always* overlaps
+@@ -225,10 +227,10 @@ void fw_cfg_add_acpi_dsdt(Aml *scope, FWCfgState *fw_cfg)
+     uint8_t io_size = object_property_get_bool(obj, "dma_enabled", NULL) ?
+         ROUND_UP(FW_CFG_CTL_SIZE, 4) + sizeof(dma_addr_t) :
+         FW_CFG_CTL_SIZE;
+-    Aml *dev = aml_device("FWCF");
++    Aml *dev = aml_device("%s", acpi_name);
+     Aml *crs = aml_resource_template();
+ 
+-    aml_append(dev, aml_name_decl("_HID", aml_string("QEMU0002")));
++    aml_append(dev, aml_name_decl("_HID", aml_string("%s", acpi_hid)));
+ 
+     /* device present, functioning, decoding, not shown in UI */
+     aml_append(dev, aml_name_decl("_STA", aml_int(0xB)));
+@@ -239,4 +241,9 @@ void fw_cfg_add_acpi_dsdt(Aml *scope, FWCfgState *fw_cfg)
+     aml_append(dev, aml_name_decl("_CRS", crs));
+     aml_append(scope, dev);
+ }
++
++void fw_cfg_add_acpi_dsdt(Aml *scope, FWCfgState *fw_cfg)
++{
++    fw_cfg_add_acpi_dsdt_with_identity(scope, fw_cfg, "FWCF", "QEMU0002");
++}
+ #endif
+diff --git a/hw/i386/fw_cfg.h b/hw/i386/fw_cfg.h
+index e560fd7..f8fde47 100644
+--- a/hw/i386/fw_cfg.h
++++ b/hw/i386/fw_cfg.h
+@@ -27,6 +27,9 @@ void fw_cfg_build_smbios(PCMachineState *pcms, FWCfgState *fw_cfg,
+                          SmbiosEntryPointType ep_type);
+ void fw_cfg_build_feature_control(MachineState *ms, FWCfgState *fw_cfg);
+ void fw_cfg_add_acpi_dsdt(Aml *scope, FWCfgState *fw_cfg);
++void fw_cfg_add_acpi_dsdt_with_identity(Aml *scope, FWCfgState *fw_cfg,
++                                        const char *acpi_name,
++                                        const char *acpi_hid);
+ void fw_cfg_add_e820(FWCfgState *fw_cfg);
+ 
+ #endif
+diff --git a/hw/i386/x86.c b/hw/i386/x86.c
+index 425ce12..ad85acd 100644
+--- a/hw/i386/x86.c
++++ b/hw/i386/x86.c
+@@ -356,6 +356,46 @@ static void x86_machine_set_acpi_creator_revision(Object *obj,
+     visit_type_uint32(v, name, &x86ms->acpi_creator_revision, errp);
+ }
+ 
++static char *x86_machine_get_fw_cfg_acpi_name(Object *obj, Error **errp)
++{
++    X86MachineState *x86ms = X86_MACHINE(obj);
++
++    return g_strdup(x86ms->fw_cfg_acpi_name);
++}
++
++static void x86_machine_set_fw_cfg_acpi_name(Object *obj, const char *value,
++                                             Error **errp)
++{
++    X86MachineState *x86ms = X86_MACHINE(obj);
++    size_t len = strlen(value);
++
++    if (len > 4) {
++        error_setg(errp,
++                   "User specified "X86_MACHINE_FW_CFG_ACPI_NAME
++                   " value is bigger than "
++                   "4 bytes in size");
++        return;
++    }
++
++    g_strlcpy(x86ms->fw_cfg_acpi_name, value, 5);
++}
++
++static char *x86_machine_get_fw_cfg_acpi_hid(Object *obj, Error **errp)
++{
++    X86MachineState *x86ms = X86_MACHINE(obj);
++
++    return g_strdup(x86ms->fw_cfg_acpi_hid);
++}
++
++static void x86_machine_set_fw_cfg_acpi_hid(Object *obj, const char *value,
++                                            Error **errp)
++{
++    X86MachineState *x86ms = X86_MACHINE(obj);
++
++    g_free(x86ms->fw_cfg_acpi_hid);
++    x86ms->fw_cfg_acpi_hid = g_strdup(value);
++}
++
+ static void x86_machine_get_bus_lock_ratelimit(Object *obj, Visitor *v,
+                                 const char *name, void *opaque, Error **errp)
+ {
+@@ -417,6 +457,8 @@ static void x86_machine_initfn(Object *obj)
+     x86ms->oem_table_id = g_strndup(ACPI_BUILD_APPNAME8, 8);
+     x86ms->acpi_creator_id = g_strndup(ACPI_BUILD_APPNAME8, 4);
+     x86ms->acpi_creator_revision = 1;
++    x86ms->fw_cfg_acpi_name = g_strdup("FWCF");
++    x86ms->fw_cfg_acpi_hid = g_strdup("QEMU0002");
+     x86ms->bus_lock_ratelimit = 0;
+     x86ms->above_4g_mem_start = 4 * GiB;
+ }
+@@ -493,6 +535,20 @@ static void x86_machine_class_init(ObjectClass *oc, const void *data)
+                                           "Override the default value of field Creator Revision "
+                                           "in ACPI table header.");
+ 
++    object_class_property_add_str(oc, X86_MACHINE_FW_CFG_ACPI_NAME,
++                                  x86_machine_get_fw_cfg_acpi_name,
++                                  x86_machine_set_fw_cfg_acpi_name);
++    object_class_property_set_description(oc, X86_MACHINE_FW_CFG_ACPI_NAME,
++                                          "Override the default name of the ACPI fw_cfg device. "
++                                          "The name may be up to 4 bytes in size");
++
++    object_class_property_add_str(oc, X86_MACHINE_FW_CFG_ACPI_HID,
++                                  x86_machine_get_fw_cfg_acpi_hid,
++                                  x86_machine_set_fw_cfg_acpi_hid);
++    object_class_property_set_description(oc, X86_MACHINE_FW_CFG_ACPI_HID,
++                                          "Override the default hardware ID of the ACPI fw_cfg "
++                                          "device.");
++
+     object_class_property_add(oc, X86_MACHINE_BUS_LOCK_RATELIMIT, "uint64_t",
+                                 x86_machine_get_bus_lock_ratelimit,
+                                 x86_machine_set_bus_lock_ratelimit, NULL, NULL);
+diff --git a/include/hw/i386/x86.h b/include/hw/i386/x86.h
+index 7c88ec1..9c60469 100644
+--- a/include/hw/i386/x86.h
++++ b/include/hw/i386/x86.h
+@@ -83,6 +83,8 @@ struct X86MachineState {
+     char *oem_table_id;
+     char *acpi_creator_id;
+     uint32_t acpi_creator_revision;
++    char *fw_cfg_acpi_name;
++    char *fw_cfg_acpi_hid;
+     /*
+      * Address space used by IOAPIC device. All IOAPIC interrupts
+      * will be translated to MSI messages in the address space.
+@@ -107,6 +109,8 @@ struct X86MachineState {
+ #define X86_MACHINE_OEM_TABLE_ID     "x-oem-table-id"
+ #define X86_MACHINE_ACPI_CREATOR_ID  "x-acpi-creator-id"
+ #define X86_MACHINE_ACPI_CREATOR_REVISION "x-acpi-creator-revision"
++#define X86_MACHINE_FW_CFG_ACPI_NAME "x-fw-cfg-acpi-name"
++#define X86_MACHINE_FW_CFG_ACPI_HID  "x-fw-cfg-acpi-hid"
+ #define X86_MACHINE_BUS_LOCK_RATELIMIT  "bus-lock-ratelimit"
+ 
+ #define TYPE_X86_MACHINE   MACHINE_TYPE_NAME("x86")
