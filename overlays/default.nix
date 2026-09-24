@@ -32,9 +32,13 @@
   nix-update-skip-package-environment = import ./nix-update-skip-package-environment;
   nix-update-skip-update = import ./nix-update-skip-update;
   nvidia-linux-7-2-fix = import ./nvidia-linux-7-2-fix;
+  ovmf-smbios-firmware-identity = import ./ovmf-smbios-firmware-identity;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;
   plasma-workspace-media-keys-no-repeat = import ./plasma-workspace-media-keys-no-repeat;
   podman-healthcheck-ignore-result = import ./podman-healthcheck-ignore-result;
+  qemu-acpi-creator-override = import ./qemu-acpi-creator-override;
+  qemu-fwcfg-acpi-override = import ./qemu-fwcfg-acpi-override;
+  qemu-remove-fwcfg-acpi-node = import ./qemu-remove-fwcfg-acpi-node;
   spectacle-copy-save = import ./spectacle-copy-save;
   spectacle-ocr-clipboard-fix = import ./spectacle-ocr-clipboard-fix;
   spectacle-ocr-save = import ./spectacle-ocr-save;
