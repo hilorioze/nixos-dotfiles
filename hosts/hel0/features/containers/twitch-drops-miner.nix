@@ -27,7 +27,7 @@
   userContainersList =
     map (name: {
       "twitch-drops-miner-${name}" = {
-        image = "docker.io/dungfu/twitch-drops-miner@sha256:9c8ff3a35e3cadd162c4c4bcea1c8e83fbdd7094e17f5fedeb5a58c937257269"; # 16.dev.42a490f
+        image = "docker.io/dungfu/twitch-drops-miner@sha256:b596be503d002f53dc4303a95d7b7bb495b633989844d15153e77d2251466d64"; # 16.dev.80ad0d9
 
         # workaround for `PermissionError: [Errno 13] Permission denied: '/TwitchDropsMiner/config/cookies.jar'`
         # see: https://github.com/fireph/docker-twitch-drops-miner#permissions-issues-on-mounted-volumes
