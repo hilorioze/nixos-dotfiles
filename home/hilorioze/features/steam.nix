@@ -45,6 +45,16 @@
         ];
       };
 
+      "570" = {
+        name = "Dota 2";
+
+        wrappers = [
+          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
+          (lib.getExe pkgs.gamemode)
+          (lib.getExe pkgs.mangohud)
+        ];
+      };
+
       "427520" = {
         name = "Factorio";
 
@@ -81,6 +91,16 @@
 
       "1808500" = {
         name = "ARC Raiders";
+
+        wrappers = [
+          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
+          (lib.getExe pkgs.gamemode)
+          (lib.getExe pkgs.mangohud)
+        ];
+      };
+
+      "2406770" = {
+        name = "Bodycam";
 
         wrappers = [
           osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
