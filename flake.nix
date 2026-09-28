@@ -189,6 +189,8 @@
     inherit (nixpkgs) lib;
     lib' = import ./lib {inherit lib;};
 
+    mkPackages = import ./packages;
+
     systems = [
       # keep-sorted start
       "aarch64-linux"
@@ -199,17 +201,23 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       inherit systems;
 
-      perSystem = {pkgs, ...}: let
-        pkgs' = pkgs.extend (lib.composeManyExtensions (builtins.attrValues inputs.self.overlays));
-      in {
-        # expose the locally patched `nix-update` package to `.github/workflows/update-packages.yaml`
-        apps.nix-update.program = lib.getExe pkgs'.nix-update;
+      perSystem = {
+        # keep-sorted start
+        pkgs,
+        system,
+        # keep-sorted end
+        ...
+      }: {
+        _module.args.pkgs = import nixpkgs {
+          inherit system;
 
-        packages = import ./packages {
-          inherit lib;
-
-          pkgs = pkgs';
+          overlays = [inputs.self.overlays.default];
         };
+
+        # expose the locally patched `nix-update` package to `.github/workflows/update-packages.yaml`
+        apps.nix-update.program = lib.getExe pkgs.nix-update;
+
+        packages = lib.mapAttrs (name: _: pkgs.${name}) (mkPackages {inherit pkgs;});
       };
 
       flake = {config, ...}: let
@@ -271,7 +279,11 @@
         nixosModules = import ./modules/nixos;
         homeModules = import ./modules/home-manager;
 
-        overlays = import ./overlays {inherit inputs;};
+        overlays.default = lib.composeManyExtensions (
+          # apply local packages first so later overlays can override them
+          [(final: _prev: mkPackages {pkgs = final;})]
+          ++ import ./overlays {inherit inputs;}
+        );
 
         nixosConfigurations = {
           # keep-sorted start
