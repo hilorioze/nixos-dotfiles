@@ -1,5 +1,6 @@
 {
   # keep-sorted start
+  alsa-lib,
   copyDesktopItems,
   fetchFromGitHub,
   lib,
@@ -12,6 +13,7 @@
   libxrender,
   makeDesktopItem,
   makeWrapper,
+  pkg-config,
   rustPlatform,
   # keep-sorted end
 }:
@@ -34,8 +36,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
     # keep-sorted start
     copyDesktopItems
     makeWrapper
+    pkg-config
     # keep-sorted end
   ];
+
+  buildInputs = [alsa-lib];
 
   # build only the client; the workspace also contains the radar server
   buildAndTestSubdir = "cheat";
