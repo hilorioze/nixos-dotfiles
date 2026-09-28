@@ -12,25 +12,27 @@
     networkServices =
       map (port: {
         name = "SSH";
-        protocol = "TCP";
 
+        protocol = "TCP";
         inherit port;
       })
       config.services.openssh.ports
       ++ [
         {
           name = "WiVRn";
+
           protocol = "TCP";
           port = wivrnPort;
         }
         {
           name = "WiVRn";
+
           protocol = "UDP";
           port = wivrnPort;
         }
       ];
   in
-    lib.mkDefault (pkgs.replaceVars ./desomnia-monitor-host.xml {
+    lib.mkDefault (pkgs.replaceVars ./desomnia-monitor-host.xml.in {
       serviceEntries =
         lib.concatMapStringsSep "\n    " (
           service: "<Service name=\"${service.name}\" protocol=\"${service.protocol}\" port=\"${toString service.port}\"/>"
@@ -49,6 +51,7 @@
 
     path = with pkgs; [
       # keep-sorted start
+      bash # required by `EthtoolOperator`'s `sh -c` ethtool check
       ethtool
       iproute2
       # keep-sorted end
