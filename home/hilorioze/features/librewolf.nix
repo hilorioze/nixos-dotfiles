@@ -115,6 +115,11 @@ in {
       };
 
       userChrome = ''
+        /* hide tab close button */
+        .tabbrowser-tab .tab-close-button {
+          display: none !important;
+        }
+
         /* hide all tabs button */
         #alltabs-button {
           display: none !important;
@@ -136,8 +141,6 @@ in {
 
         # use native file picker instead of GTK file picker
         "widget.use-xdg-desktop-portal.file-picker" = 1;
-
-        "toolkit.legacyUserProfileCustomizations.stylesheets" = true; # enable `userChrome.css`
 
         "middlemouse.paste" = false;
 
