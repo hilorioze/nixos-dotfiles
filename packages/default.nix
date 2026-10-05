@@ -7,6 +7,7 @@
   codex-with-node = pkgs.callPackage ./codex-with-node {};
   deadlocked = pkgs.callPackage ./deadlocked {};
   deadlocked-relay = pkgs.callPackage ./deadlocked-relay {};
+  desomnia = pkgs.callPackage ./desomnia {};
   ghidra-mcp = pkgs.python3Packages.callPackage ./ghidra-mcp {};
   ghidra-mcp-plugin = pkgs.callPackage ./ghidra-mcp-plugin {};
   half-life-asset-manager = pkgs.callPackage ./half-life-asset-manager {};
