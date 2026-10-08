@@ -10,7 +10,7 @@ on:
       - devenv.lock
       - shared.nix
 
-      # workflow reads `nixConfig` and uses `--inputs-from .`, so changes to them may affect the result
+      # workflow reads `nixConfig` and uses `.#devenv`, so changes to them may affect the result
       - flake.nix
       - flake.lock
 
@@ -104,4 +104,4 @@ jobs:
       - if: github.event_name != 'pull_request'
         run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
 
-      - run: nix run --inputs-from . nixpkgs#devenv -- build test
+      - run: nix run .#devenv -- build test

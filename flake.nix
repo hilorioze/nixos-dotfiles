@@ -202,8 +202,12 @@
       perSystem = {pkgs, ...}: let
         pkgs' = pkgs.extend (lib.composeManyExtensions (builtins.attrValues inputs.self.overlays));
       in {
-        # expose the locally patched `nix-update` package to `.github/workflows/update-packages.yaml`
-        apps.nix-update.program = lib.getExe pkgs'.nix-update;
+        apps = {
+          # keep-sorted start
+          devenv.program = lib.getExe pkgs'.devenv; # expose the overlaid `devenv` package to `.github/workflows/{build-devenv,update-devenv-lock}.yaml`
+          nix-update.program = lib.getExe pkgs'.nix-update; # expose the locally patched `nix-update` package to `.github/workflows/update-packages.yaml`
+          # keep-sorted end
+        };
 
         packages = import ./packages {
           inherit lib;
