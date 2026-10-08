@@ -83,6 +83,7 @@
     ../../../features/mcp.nix
     ../../../features/niks3.nix
     ../../../features/nix.nix
+    ../../../features/opencode.nix
     ../../../features/plasma.nix
     ../../../features/quickshare.nix
     ../../../features/spectacle.nix

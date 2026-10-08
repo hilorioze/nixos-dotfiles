@@ -28,6 +28,7 @@
     ../../../features/lazyvim.nix
     ../../../features/mcp.nix
     ../../../features/niks3.nix
+    ../../../features/opencode.nix
     ../../../features/plasma.nix
     ../../../features/quickshare.nix
     ../../../features/ssh-agent.nix
