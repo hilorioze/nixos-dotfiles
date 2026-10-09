@@ -3,6 +3,7 @@
   config,
   inputs,
   lib,
+  outputs,
   pkgs,
   # keep-sorted end
   ...
@@ -12,6 +13,14 @@
   authentikHost = "idm.${domain}";
   authentikHttpAddress = lib.head config.services.authentik.settings.listen.http;
   ldapHost = config.networking.fqdn;
+
+  authentikPkgs =
+    inputs.authentik-nix.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.extend
+    outputs.overlays.nodejs-v8-climits-fix;
+
+  authentikScope = inputs.authentik-nix.lib.mkAuthentikScope {
+    pkgs = authentikPkgs;
+  };
 
   mkInitialPasswordCredential = username: "initial-password-${username}";
   mkInitialPasswordSecret = username: "services/authentik/users/${username}/initial-password";
@@ -97,6 +106,8 @@ in {
 
     authentik = {
       enable = true;
+
+      inherit (authentikScope) authentikComponents;
 
       environmentFile = config.sops.templates."services/authentik/secret-key.env".path;
 
