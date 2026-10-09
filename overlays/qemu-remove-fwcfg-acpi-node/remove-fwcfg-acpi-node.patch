@@ -1,0 +1,20 @@
+diff --git a/hw/i386/acpi-build.c b/hw/i386/acpi-build.c
+index 7d4c89d..8828c76 100644
+--- a/hw/i386/acpi-build.c
++++ b/hw/i386/acpi-build.c
+@@ -1183,15 +1183,6 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
+     aml_append(scope, aml_name_decl("_S5", pkg));
+     aml_append(dsdt, scope);
+ 
+-    /* create fw_cfg node, unconditionally */
+-    {
+-        scope = aml_scope("\\_SB.PCI0");
+-        fw_cfg_add_acpi_dsdt_with_identity(scope, x86ms->fw_cfg,
+-                                           x86ms->fw_cfg_acpi_name,
+-                                           x86ms->fw_cfg_acpi_hid);
+-        aml_append(dsdt, scope);
+-    }
+-
+     sb_scope = aml_scope("\\_SB");
+     {
+         Object *pci_host = acpi_get_i386_pci_host();
