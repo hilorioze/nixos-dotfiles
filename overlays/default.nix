@@ -32,6 +32,7 @@
   nix-update-script-flake-mode = import ./nix-update-script-flake-mode;
   nix-update-skip-package-environment = import ./nix-update-skip-package-environment;
   nix-update-skip-update = import ./nix-update-skip-update;
+  nodejs-v8-climits-fix = import ./nodejs-v8-climits-fix;
   nvidia-linux-7-2-fix = import ./nvidia-linux-7-2-fix;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;
   plasma-workspace-media-keys-no-repeat = import ./plasma-workspace-media-keys-no-repeat;
