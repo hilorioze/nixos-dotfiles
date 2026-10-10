@@ -21,6 +21,7 @@
     ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix
     ../../../features/email.nix
+    ../../../features/gh.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
     ../../../features/half-life-asset-manager.nix
