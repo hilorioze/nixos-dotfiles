@@ -41,6 +41,8 @@
     settings = {
       attribution = false; # requires claude code 2.1.281+, which `unstablePkgs` always provides
 
+      autoCompactWindow = 280000;
+
       statusLine = {
         type = "command";
 
