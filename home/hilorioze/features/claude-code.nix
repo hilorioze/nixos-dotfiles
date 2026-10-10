@@ -51,26 +51,45 @@
   in {
     file.${settingsPath}.enable = false; # keep the generated settings source without linking an immutable user config
 
-    activation.writeClaudeCodeConfig = let
-      mergeSettingsFilter = lib.escapeShellArg ''
-        (
-          .[0]
-          # keep only settings managed dynamically by claude code
-          | with_entries(select(.key | IN("model", "modelSettings")))
-        )
-        # apply the declarative settings with higher priority
-        * .[1]
-      '';
-    in
-      lib.hm.dag.entryAfter ["linkGeneration"] ''
-        config_file=${lib.escapeShellArg settingsPath}
-        settings_file=${lib.escapeShellArg config.home.file.${settingsPath}.source}
+    activation = {
+      writeClaudeCodeConfig = let
+        mergeSettingsFilter = lib.escapeShellArg ''
+          (
+            .[0]
+            # keep only settings managed dynamically by claude code
+            | with_entries(select(.key | IN("model", "modelSettings")))
+          )
+          # apply the declarative settings with higher priority
+          * .[1]
+        '';
+      in
+        lib.hm.dag.entryAfter ["linkGeneration"] ''
+          config_file=${lib.escapeShellArg settingsPath}
+          settings_file=${lib.escapeShellArg config.home.file.${settingsPath}.source}
 
-        if [[ -s $config_file ]]; then
-          run ${pkgs.runtimeShell} -c '${lib.getExe pkgs.jq} --slurp "$1" $2 $3 | ${lib.getExe' pkgs.moreutils "sponge"} $2' -- ${mergeSettingsFilter} $config_file $settings_file
-        else
-          run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $settings_file $config_file
-        fi
-      '';
+          if [[ -s $config_file ]]; then
+            run ${pkgs.runtimeShell} -c '${lib.getExe pkgs.jq} --slurp "$1" $2 $3 | ${lib.getExe' pkgs.moreutils "sponge"} $2' -- ${mergeSettingsFilter} $config_file $settings_file
+          else
+            run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $settings_file $config_file
+          fi
+        '';
+
+      # the lsp plugin recommendation ignores `lspServers`, so the only way to silence it is the global config, which claude code itself keeps writing
+      writeClaudeCodeGlobalConfig = let
+        globalConfig = pkgs.writeText "claude-code-global-config.json" (builtins.toJSON {
+          lspRecommendationDisabled = true;
+        });
+      in
+        lib.hm.dag.entryAfter ["linkGeneration"] ''
+          config_file=${lib.escapeShellArg "${config.home.homeDirectory}/.claude.json"}
+          global_config_file=${lib.escapeShellArg globalConfig}
+
+          if [[ -s $config_file ]]; then
+            run ${pkgs.runtimeShell} -c '${lib.getExe pkgs.jq} --slurp ".[0] * .[1]" $1 $2 | ${lib.getExe' pkgs.moreutils "sponge"} $1' -- $config_file $global_config_file
+          else
+            run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $global_config_file $config_file
+          fi
+        '';
+    };
   };
 }
