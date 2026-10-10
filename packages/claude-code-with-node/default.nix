@@ -25,5 +25,5 @@ in
 
     passthru.skipUpdate = true; # version follows the 'nixpkgs-unstable' input
 
-    inherit (claude-code) meta;
+    meta = claude-code.meta // {platforms = ["x86_64-linux"];};
   }

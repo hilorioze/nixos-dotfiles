@@ -34,5 +34,5 @@ in
 
     passthru.skipUpdate = true; # version follows the 'nixpkgs-unstable' input
 
-    inherit (playwright-mcp) meta;
+    meta = playwright-mcp.meta // {platforms = ["x86_64-linux"];};
   }
