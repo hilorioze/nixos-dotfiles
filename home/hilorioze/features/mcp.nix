@@ -19,6 +19,9 @@
         args = [
           "--extension"
           "--executable-path=${lib.getExe config.programs.chromium.package}"
+
+          # keep snapshots and console logs out of the workspace (defaults to `./.playwright-mcp`)
+          "--output-dir=${config.xdg.cacheHome}/playwright-mcp"
         ];
 
         # prevent `nixpkgs`' wrapper from forcing isolated mode, which takes precedence over `--extension`;
