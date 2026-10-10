@@ -179,4 +179,6 @@ jobs:
           commit-message: 'chore(deps/packages): update'
           title: 'chore(deps/packages): update'
 
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> # defaults to the user who triggered the run
+
           body-path: ${{ steps.update-packages.outputs.body-path }}

@@ -152,4 +152,6 @@ jobs:
           commit-message: "chore(deps/devenv): update"
           title: "chore(deps/devenv): update"
 
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> # defaults to the user who triggered the run
+
           body-path: ${{ steps.update-devenv-lock.outputs.body-path }}
