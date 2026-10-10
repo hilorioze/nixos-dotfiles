@@ -4,6 +4,7 @@ on:
       # keep-sorted start
       - .github/workflows/build-devenv.yaml
       - .github/workflows/build-nixos.yaml
+      - .github/workflows/build-packages.yaml
       # keep-sorted end
 
     types:

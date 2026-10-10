@@ -1,0 +1,170 @@
+on:
+  push:
+    branches: &branches
+      - main
+
+    paths: &paths
+      - .github/workflows/build-packages.yaml
+
+      - packages/**
+      - overlays/**
+      - shared.nix
+
+      # workflow reads `nixConfig` and builds `.#packages` against the pinned inputs, so changes to them may affect the result
+      - flake.nix
+      - flake.lock
+
+  pull_request:
+    branches: *branches
+
+    paths: *paths
+
+  workflow_dispatch:
+    inputs:
+      target-packages:
+        description: 'Build `all` packages or pass a JSON array like `["a2s","yaas"]`'
+
+        type: string
+        required: false
+        default: all
+
+jobs:
+  collect-targets:
+    outputs:
+      target-packages: ${{ steps.collect-targets.outputs['target-packages'] }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          extra_nix_config: &extra_nix_config |
+            accept-flake-config = true
+
+            fsync-metadata = false # performance over durability in CI; store is transient
+
+      - id: collect-targets
+        env:
+          TARGET_PACKAGES: ${{ inputs['target-packages'] || 'all' }}
+        run: |
+          include=$(nix eval --json .#packages --apply '
+            packages: let
+              # no `ubuntu-latest-arm` alias; pinned to `ubuntu-24.04-arm`
+              # update when a newer image or the alias becomes available
+              runners = {
+                # keep-sorted start
+                aarch64-linux = "ubuntu-24.04-arm";
+                x86_64-linux = "ubuntu-latest";
+                # keep-sorted end
+              };
+
+              collectTargets = system: let
+                supportedPackages = builtins.filter (package: !packages.${system}.${package}.meta.unsupported) (builtins.attrNames packages.${system});
+              in
+                map (package: {
+                  inherit package system;
+
+                  runner = runners.${system};
+                })
+                supportedPackages;
+            in
+              builtins.concatMap collectTargets (builtins.attrNames packages)
+          ')
+
+          if [[ $TARGET_PACKAGES != all ]]; then
+            include=$(jq --compact-output --argjson target_packages "$TARGET_PACKAGES" 'map(select(.package | IN($target_packages[])))' <<<$include)
+          fi
+
+          printf 'target-packages={"include": %s}\n' "$include" >> $GITHUB_OUTPUT
+
+  build-packages:
+    needs: collect-targets
+
+    permissions:
+      id-token: write # required so `niks3` can authenticate via OIDC
+
+    strategy:
+      matrix: ${{ fromJSON(needs.collect-targets.outputs['target-packages']) }}
+
+      fail-fast: false # don't cancel the matrix if one job fails
+
+    concurrency:
+      # one run per package, system and pull request number or branch; latest completes last
+      group: ${{ github.workflow }}-${{ matrix.package }}-${{ matrix.system }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+
+      cancel-in-progress: false
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          extra_nix_config: *extra_nix_config
+
+      - run: |
+          {
+            printf 'NIX_CONFIG<<EOF\n'
+            printf 'extra-substituters = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
+            printf 'extra-trusted-public-keys = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
+            printf 'EOF\n'
+          } >> $GITHUB_ENV
+
+      - if: github.event_name != 'pull_request'
+        id: fetch-niks3-bin
+        run: |
+          # `niks3-action` looks for `niks3-hook` next to `niks3`
+          # `--inputs-from github:${{ github.repository }}` keeps CLI and server on the same version to avoid API mismatches
+          niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:${{ github.repository }} --print-build-logs --expr $'
+          let
+            pkgs = import <nixpkgs> {};
+
+            lib = pkgs.lib;
+
+            niks3ActionBinDir = pkgs.symlinkJoin {
+              name = "niks3-action-bin-dir";
+
+              paths = with import <niks3/nix/packages> {inherit pkgs;}; [
+                # keep-sorted start
+                niks3
+                niks3-hook
+                # keep-sorted end
+              ];
+            };
+          in
+            pkgs.linkFarm "niks3-action-bin" [
+              # keep-sorted start block=yes newline_separated=yes
+              {
+                name = "bin/niks3";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3";
+              }
+
+              {
+                name = "bin/niks3-hook";
+
+                path = lib.getExe\' niks3ActionBinDir "niks3-hook";
+              }
+              # keep-sorted end
+            ]
+            ')
+
+          printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
+
+      - if: github.event_name != 'pull_request'
+        uses: Mic92/niks3-action@f0743610fddd7d96239c78d9e457440fc15019e2 # v1.4.0
+        with:
+          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
+
+          server-url: ${{ vars.NIKS3_SERVER }}
+
+      # cache the built `fetch-niks3-bin` output so later runs can reuse it
+      - if: github.event_name != 'pull_request'
+        run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
+
+      - env:
+          NIXPKGS_ALLOW_UNFREE: 1 # required to build unfree packages; only read with `--impure`
+        run: nix build --impure --no-link --print-build-logs .#packages.${{ matrix.system }}.${{ matrix.package }}
