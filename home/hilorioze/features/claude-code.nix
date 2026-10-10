@@ -81,6 +81,7 @@
       writeClaudeCodeGlobalConfig = let
         globalConfig = pkgs.writeText "claude-code-global-config.json" (builtins.toJSON {
           # keep-sorted start
+          autoConnectIde = true; # automatically connect to a running ide from an external terminal
           hasSeenAutoModeOutsideReadPrompt = true; # the answer to the first read outside the working directories
           lspRecommendationDisabled = true; # the lsp plugin recommendation ignores `lspServers`
           # keep-sorted end
