@@ -2,6 +2,7 @@
   # keep-sorted start
   a2s = pkgs.callPackage ./a2s {};
   bspguy = pkgs.callPackage ./bspguy {};
+  claude-code-status-line = pkgs.callPackage ./claude-code-status-line {};
   codeburn = pkgs.callPackage ./codeburn {};
   codeburn-desktop = pkgs.callPackage ./codeburn-desktop {};
   codex-with-node = pkgs.callPackage ./codex-with-node {};

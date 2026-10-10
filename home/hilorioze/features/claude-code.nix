@@ -13,7 +13,15 @@
 
     enableMcpIntegration = true;
 
-    settings.attribution = false; # requires claude code 2.1.281+, which `unstablePkgs` always provides
+    settings = {
+      attribution = false; # requires claude code 2.1.281+, which `unstablePkgs` always provides
+
+      statusLine = {
+        type = "command";
+
+        command = lib.getExe pkgs.claude-code-status-line;
+      };
+    };
   };
 
   home = let
