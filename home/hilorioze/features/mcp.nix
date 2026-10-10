@@ -24,9 +24,14 @@
           "--output-dir=${config.xdg.cacheHome}/playwright-mcp"
         ];
 
-        # prevent `nixpkgs`' wrapper from forcing isolated mode, which takes precedence over `--extension`;
-        # must be the profile that has the extension, since `--extension` opens its connect page with this `--user-data-dir`
-        env.PLAYWRIGHT_MCP_USER_DATA_DIR = "${config.xdg.configHome}/chromium";
+        env = {
+          # drop the client's library path (e.g. `claude-code`'s `alsa-lib`), which can break launching the browser built against another `glibc`
+          LD_LIBRARY_PATH = "";
+
+          # prevent `nixpkgs`' wrapper from forcing isolated mode, which takes precedence over `--extension`;
+          # must be the profile that has the extension, since `--extension` opens its connect page with this `--user-data-dir`
+          PLAYWRIGHT_MCP_USER_DATA_DIR = "${config.xdg.configHome}/chromium";
+        };
       };
       # keep-sorted end
     };
