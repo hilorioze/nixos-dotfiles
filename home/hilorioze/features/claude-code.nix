@@ -77,10 +77,13 @@
           fi
         '';
 
-      # the lsp plugin recommendation ignores `lspServers`, so the only way to silence it is the global config, which claude code itself keeps writing
+      # these are only read from the global config, which claude code itself keeps writing
       writeClaudeCodeGlobalConfig = let
         globalConfig = pkgs.writeText "claude-code-global-config.json" (builtins.toJSON {
-          lspRecommendationDisabled = true;
+          # keep-sorted start
+          hasSeenAutoModeOutsideReadPrompt = true; # the answer to the first read outside the working directories
+          lspRecommendationDisabled = true; # the lsp plugin recommendation ignores `lspServers`
+          # keep-sorted end
         });
       in
         lib.hm.dag.entryAfter ["linkGeneration"] ''
