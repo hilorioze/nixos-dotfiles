@@ -1,6 +1,7 @@
 {
   # keep-sorted start
   config,
+  inputs,
   lib,
   pkgs,
   # keep-sorted end
@@ -9,9 +10,11 @@
   programs.claude-code = {
     enable = true;
 
-    package = pkgs.unstablePkgs.claude-code;
+    package = pkgs.claude-code-with-node; # the wakatime plugin hooks need node
 
     enableMcpIntegration = true;
+
+    plugins = [inputs.claude-code-wakatime];
 
     lspServers = {
       # keep-sorted start block=yes newline_separated=yes

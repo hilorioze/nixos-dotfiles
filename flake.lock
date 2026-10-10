@@ -128,6 +128,22 @@
         "type": "gitlab"
       }
     },
+    "claude-code-wakatime": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783730816,
+        "narHash": "sha256-YakGUXt+q7aHLAufD9LxYVVK4BgP8ASOpvrvvXLUVcY=",
+        "owner": "wakatime",
+        "repo": "claude-code-wakatime",
+        "rev": "e7f755d168ff735fdf31922de81f599e37a4ec94",
+        "type": "github"
+      },
+      "original": {
+        "owner": "wakatime",
+        "repo": "claude-code-wakatime",
+        "type": "github"
+      }
+    },
     "client-ts-generator-src": {
       "flake": false,
       "locked": {
@@ -1419,6 +1435,7 @@
     "root": {
       "inputs": {
         "authentik-nix": "authentik-nix",
+        "claude-code-wakatime": "claude-code-wakatime",
         "codex-cli-wakatime": "codex-cli-wakatime",
         "cstrike-mod": "cstrike-mod",
         "deploy-rs": "deploy-rs",

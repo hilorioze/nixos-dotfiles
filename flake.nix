@@ -46,6 +46,12 @@
     # keep-sorted start block=yes newline_separated=yes
     authentik-nix.url = "github:nix-community/authentik-nix"; # keep their inputs for binary cache
 
+    claude-code-wakatime = {
+      url = "github:wakatime/claude-code-wakatime";
+
+      flake = false;
+    };
+
     codex-cli-wakatime = {
       url = "github:wakatime/codex-cli-wakatime";
 
