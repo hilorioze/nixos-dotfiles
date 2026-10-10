@@ -13,6 +13,28 @@
 
     enableMcpIntegration = true;
 
+    lspServers = {
+      # keep-sorted start block=yes newline_separated=yes
+      nil = {
+        command = lib.getExe pkgs.nil;
+
+        extensionToLanguage.".nix" = "nix";
+      };
+
+      pyright = {
+        command = lib.getExe' pkgs.pyright "pyright-langserver";
+        args = ["--stdio"];
+
+        extensionToLanguage = {
+          # keep-sorted start
+          ".py" = "python";
+          ".pyi" = "python";
+          # keep-sorted end
+        };
+      };
+      # keep-sorted end
+    };
+
     settings = {
       attribution = false; # requires claude code 2.1.281+, which `unstablePkgs` always provides
 
