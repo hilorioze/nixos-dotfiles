@@ -14,7 +14,7 @@
       ghidra.command = lib.getExe pkgs.ghidra-mcp;
 
       playwright = {
-        command = lib.getExe pkgs.unstablePkgs.playwright-mcp;
+        command = lib.getExe pkgs.playwright-mcp-with-extension-token;
 
         args = [
           "--extension"

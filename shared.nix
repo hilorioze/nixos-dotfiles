@@ -1,4 +1,8 @@
 {
+  ignoredFlake8Rules = [
+    "E501" # line too long; long lines are intentional
+  ];
+
   ignoredShellcheckRules = [
     # keep-sorted start
     "SC2016" # expressions in single quotes; intentional, referenced have no shell expansion
