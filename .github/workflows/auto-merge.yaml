@@ -1,8 +1,10 @@
 on:
   workflow_run:
     workflows:
-      - .github/workflows/build.yaml
+      # keep-sorted start
       - .github/workflows/build-devenv.yaml
+      - .github/workflows/build-nixos.yaml
+      # keep-sorted end
 
     types:
       - completed

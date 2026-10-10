@@ -194,16 +194,14 @@
   }: let
     inherit (nixpkgs) lib;
     lib' = import ./lib {inherit lib;};
-
-    systems = [
-      # keep-sorted start
-      "aarch64-linux"
-      "x86_64-linux"
-      # keep-sorted end
-    ];
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
-      inherit systems;
+      systems = [
+        # keep-sorted start
+        "aarch64-linux"
+        "x86_64-linux"
+        # keep-sorted end
+      ];
 
       perSystem = {pkgs, ...}: let
         pkgs' = pkgs.extend (lib.composeManyExtensions (builtins.attrValues inputs.self.overlays));
@@ -274,8 +272,6 @@
           };
         };
       in {
-        inherit systems; # exported for `atelier` CI discovery
-
         lib = lib';
 
         nixosModules = import ./modules/nixos;
