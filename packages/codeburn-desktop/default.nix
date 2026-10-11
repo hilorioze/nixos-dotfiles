@@ -14,14 +14,14 @@
 buildNpmPackage (finalAttrs: {
   pname = "codeburn-desktop";
 
-  version = "0.9.26";
+  version = "0.9.27";
 
   src = fetchFromGitHub {
     owner = "getagentseal";
     repo = "codeburn";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-+mU3eys0pRFCMd/dh8D/FqElAToTBMuIB2U+upcO0C8=";
+    hash = "sha256-P00axAx78eVa6O2P+5F0aqooPCtX9G1phg3ZgEDFNPE=";
   };
 
   postPatch = ''
@@ -32,7 +32,7 @@ buildNpmPackage (finalAttrs: {
 
   sourceRoot = "source/app";
 
-  npmDepsHash = "sha256-xFV5uV0K4f1nynwafmYJXgXkMuXMMQcB7JzwirzJnoU=";
+  npmDepsHash = "sha256-Vhzn6CQ0OQtvmzP3fGbnMHuElztapcY8YdtYjNyYlgs=";
 
   nativeBuildInputs = [
     # keep-sorted start
