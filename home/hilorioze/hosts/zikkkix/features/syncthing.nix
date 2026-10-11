@@ -14,7 +14,7 @@
       -----END CERTIFICATE-----
     ''}";
 
-    settings.folders.Sync.devices = [
+    settings.folders.sync.devices = [
       # keep-sorted start
       "hilonix"
       "lelonix"

@@ -1,12 +1,18 @@
 {config, ...}: {
-  imports = [../../common/features/syncthing.nix];
-
   sops.secrets."apps/syncthing/private-key" = {};
 
   services.syncthing = {
+    enable = true;
+
     key = config.sops.secrets."apps/syncthing/private-key".path;
 
     settings = {
+      options = {
+        urAccepted = -1; # disable usage reporting
+
+        crashReportingEnabled = false;
+      };
+
       devices = {
         # keep-sorted start
         hilonix.id = "GFGZO74-4OYK3ER-NTZYIJN-OLC6GYO-2EVMICU-HKZPQES-SFZMO7A-YDFS6AZ";
@@ -16,7 +22,7 @@
         # keep-sorted end
       };
 
-      folders.Sync = {
+      folders.sync = {
         path = "${config.home.homeDirectory}/Sync";
 
         devices = ["philone"];
