@@ -5,6 +5,7 @@
     ../../common/features/avahi.nix
     ../../common/features/bluetooth.nix
     ../../common/features/gamemode.nix
+    ../../common/features/gpu-screen-recorder.nix
     ../../common/features/home-manager.nix
     ../../common/features/netcat-firewall.nix
     ../../common/features/networkmanager.nix
