@@ -8,17 +8,17 @@
 buildNpmPackage (finalAttrs: {
   pname = "codeburn";
 
-  version = "0.9.25";
+  version = "0.9.26";
 
   src = fetchFromGitHub {
     owner = "getagentseal";
     repo = "codeburn";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-MVgXl+fN9qZZmXhlgLXTX0toldDM1oH99Mc5bxScu7g=";
+    hash = "sha256-+mU3eys0pRFCMd/dh8D/FqElAToTBMuIB2U+upcO0C8=";
   };
 
-  npmDepsHash = "sha256-ucqpt5HTi8d8sD9eUl9ja7PyG0kyy1TASXgii/0xaNk=";
+  npmDepsHash = "sha256-W/Q+nLFrT10soNwdklDW/j+G++yRaQ3pA9BdGd33auQ=";
 
   npmBuildScript = "build:cli"; # upstream builds the web dashboard by default; build the CLI instead
 
