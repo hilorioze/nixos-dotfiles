@@ -43,6 +43,8 @@
 
       autoCompactWindow = 280000;
 
+      autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
+
       statusLine = {
         type = "command";
 
