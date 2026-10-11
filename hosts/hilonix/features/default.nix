@@ -49,6 +49,7 @@
     # keep-sorted start
     ./amnezia-vpn.nix
     ./coolercontrol.nix
+    ./gpu-screen-recorder.nix
     ./i18n.nix
     ./looking-glass.nix
     ./networkmanager.nix
