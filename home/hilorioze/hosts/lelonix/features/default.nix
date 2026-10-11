@@ -69,6 +69,7 @@
     ../../../features/gh.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
+    ../../../features/gpu-screen-recorder.nix
     ../../../features/half-life-asset-manager.nix
     ../../../features/haruna.nix
     ../../../features/imhex.nix
