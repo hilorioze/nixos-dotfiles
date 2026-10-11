@@ -26,7 +26,6 @@
     ../../../../common/features/meslo-nerd-font.nix
     ../../../../common/features/mousai.nix
     ../../../../common/features/nix-alien.nix
-    ../../../../common/features/obs-studio.nix
     ../../../../common/features/onlyoffice.nix
     ../../../../common/features/pear-desktop.nix
     ../../../../common/features/podman-compose.nix
