@@ -338,7 +338,7 @@
             name = "syncthing-de0";
             group = "platform";
 
-            url = "http://${de0Config.services.syncthing.guiAddress}/rest/noauth/health";
+            url = "http://${de0Host}:8384/rest/noauth/health";
 
             conditions = [
               "[STATUS] == 200"

@@ -5,7 +5,12 @@
   # keep-sorted end
   ...
 }: {
-  sops.secrets."services/syncthing/private-key".owner = config.services.syncthing.user;
+  sops.secrets = {
+    # keep-sorted start
+    "services/syncthing/gui/password".owner = config.services.syncthing.user;
+    "services/syncthing/private-key".owner = config.services.syncthing.user;
+    # keep-sorted end
+  };
 
   services.syncthing = {
     enable = true;
@@ -25,7 +30,13 @@
     ''}";
     key = config.sops.secrets."services/syncthing/private-key".path;
 
+    guiAddress = "0.0.0.0:8384";
+
+    guiPasswordFile = config.sops.secrets."services/syncthing/gui/password".path;
+
     settings = {
+      gui.user = "root"; # `guiPasswordFile` is only enforced when a user is set
+
       options = {
         urAccepted = -1; # disable usage reporting
 
