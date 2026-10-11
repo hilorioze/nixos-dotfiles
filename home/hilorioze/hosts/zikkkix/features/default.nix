@@ -22,6 +22,7 @@
     ../../../features/distrobox.nix
     ../../../features/email.nix
     ../../../features/gh.nix
+    ../../../features/ghidra.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
     ../../../features/gpu-screen-recorder.nix

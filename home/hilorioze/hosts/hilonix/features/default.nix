@@ -67,6 +67,7 @@
     ../../../features/dolphin.nix
     ../../../features/email.nix
     ../../../features/gh.nix
+    ../../../features/ghidra.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
     ../../../features/gpu-screen-recorder.nix
@@ -101,7 +102,6 @@
     # keep-sorted end
 
     # keep-sorted start
-    ./ghidra.nix
     ./kdeconnect.nix
     ./librewolf.nix
     ./looking-glass.nix
