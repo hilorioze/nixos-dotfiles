@@ -144,6 +144,22 @@
         "type": "github"
       }
     },
+    "claude-plugins-official": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791686481,
+        "narHash": "sha256-f5mnVFXVkaMoahQv5pu5fS0gGV1uaowi/mpJM0gm/I8=",
+        "owner": "anthropics",
+        "repo": "claude-plugins-official",
+        "rev": "f359d43b406057f1a8cdbc4ea93b827642c162e6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anthropics",
+        "repo": "claude-plugins-official",
+        "type": "github"
+      }
+    },
     "client-ts-generator-src": {
       "flake": false,
       "locked": {
@@ -1436,6 +1452,7 @@
       "inputs": {
         "authentik-nix": "authentik-nix",
         "claude-code-wakatime": "claude-code-wakatime",
+        "claude-plugins-official": "claude-plugins-official",
         "codex-cli-wakatime": "codex-cli-wakatime",
         "cstrike-mod": "cstrike-mod",
         "deploy-rs": "deploy-rs",

@@ -14,7 +14,12 @@
 
     enableMcpIntegration = true;
 
-    plugins = [inputs.claude-code-wakatime];
+    plugins = [
+      # keep-sorted start by_regex=inputs\.([\w-]+)
+      inputs.claude-code-wakatime
+      "${inputs.claude-plugins-official}/plugins/frontend-design"
+      # keep-sorted end
+    ];
 
     lspServers = {
       # keep-sorted start block=yes newline_separated=yes

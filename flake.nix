@@ -52,6 +52,12 @@
       flake = false;
     };
 
+    claude-plugins-official = {
+      url = "github:anthropics/claude-plugins-official";
+
+      flake = false;
+    };
+
     codex-cli-wakatime = {
       url = "github:wakatime/codex-cli-wakatime";
 
