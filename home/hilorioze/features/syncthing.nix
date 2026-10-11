@@ -31,6 +31,13 @@
       folders.sync = {
         path = "${config.home.homeDirectory}/Sync";
 
+        # deletions and overwrites from other devices propagate right away; keep thinned-out history of the replaced files
+        versioning = {
+          type = "staggered";
+
+          params.maxAge = toString (365 * 24 * 3600); # 1y in seconds
+        };
+
         devices = [
           "philone"
 
