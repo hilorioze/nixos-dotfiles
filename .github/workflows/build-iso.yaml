@@ -23,15 +23,15 @@ on:
 
 jobs:
   build-iso:
-    concurrency:
-      # one run per ref; latest completes last
-      group: ${{ github.workflow }}-${{ github.ref }}
-
-      cancel-in-progress: false
-
     permissions:
       id-token: write # required so `niks3` can authenticate via OIDC
       contents: write # required for publishing releases
+
+    concurrency:
+      # one run per pull request number or branch; latest completes last
+      group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+
+      cancel-in-progress: false
 
     runs-on: ubuntu-latest
 

@@ -14,20 +14,20 @@ on:
 
   schedule:
     # run weekly on mondays at 00:00 UTC
-    - cron: "0 0 * * 1"
+    - cron: '0 0 * * 1'
 
   workflow_dispatch:
 
 jobs:
   update-devenv-lock:
+    permissions:
+      id-token: write # required so `niks3` can authenticate via OIDC
+
     concurrency:
       # one workflow run at a time; latest completes last
       group: ${{ github.workflow }}
 
       cancel-in-progress: false
-
-    permissions:
-      id-token: write # required so `niks3` can authenticate via OIDC
 
     runs-on: ubuntu-latest
 
@@ -149,8 +149,8 @@ jobs:
             devenv
             automated
 
-          commit-message: "chore(deps/devenv): update"
-          title: "chore(deps/devenv): update"
+          commit-message: 'chore(deps/devenv): update'
+          title: 'chore(deps/devenv): update'
 
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> # defaults to the user who triggered the run
 

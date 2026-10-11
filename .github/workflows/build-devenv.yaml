@@ -23,14 +23,14 @@ on:
 
 jobs:
   build-devenv:
+    permissions:
+      id-token: write # required so `niks3` can authenticate via OIDC
+
     concurrency:
       # one run per pull request number or branch; latest completes last
       group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
 
       cancel-in-progress: false
-
-    permissions:
-      id-token: write # required so `niks3` can authenticate via OIDC
 
     runs-on: ubuntu-latest
 
