@@ -2,6 +2,8 @@
   # keep-sorted start
   a2s = pkgs.callPackage ./a2s {};
   bspguy = pkgs.callPackage ./bspguy {};
+  claude-code-status-line = pkgs.callPackage ./claude-code-status-line {};
+  claude-code-with-node = pkgs.callPackage ./claude-code-with-node {};
   codeburn = pkgs.callPackage ./codeburn {};
   codeburn-desktop = pkgs.callPackage ./codeburn-desktop {};
   codex-with-node = pkgs.callPackage ./codex-with-node {};
@@ -12,6 +14,7 @@
   half-life-asset-manager = pkgs.callPackage ./half-life-asset-manager {};
   libnyquist = pkgs.callPackage ./libnyquist {};
   plasmavantage = pkgs.callPackage ./plasmavantage {};
+  playwright-mcp-with-extension-token = pkgs.callPackage ./playwright-mcp-with-extension-token {};
   prometheus-podman-exporter = pkgs.callPackage ./prometheus-podman-exporter {};
   quickshare = pkgs.callPackage ./quickshare {};
   steam-broker = pkgs.callPackage ./steam-broker {};

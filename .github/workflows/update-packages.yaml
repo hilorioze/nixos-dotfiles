@@ -17,14 +17,14 @@ on:
 
 jobs:
   update-packages:
+    permissions:
+      id-token: write # required so `niks3` can authenticate via OIDC
+
     concurrency:
       # one workflow run at a time; latest completes last
       group: ${{ github.workflow }}
 
       cancel-in-progress: false
-
-    permissions:
-      id-token: write # required so `niks3` can authenticate via OIDC
 
     runs-on: ubuntu-latest
 
@@ -86,7 +86,7 @@ jobs:
 
           printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
 
-      - uses: Mic92/niks3-action@12d3e320b2a99b7938f9634bd337cd9fec104609 # v1.1.0
+      - uses: Mic92/niks3-action@f0743610fddd7d96239c78d9e457440fc15019e2 # v1.4.0
         with:
           niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
 
@@ -178,5 +178,7 @@ jobs:
 
           commit-message: 'chore(deps/packages): update'
           title: 'chore(deps/packages): update'
+
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> # defaults to the user who triggered the run
 
           body-path: ${{ steps.update-packages.outputs.body-path }}

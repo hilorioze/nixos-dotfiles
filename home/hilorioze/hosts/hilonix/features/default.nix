@@ -67,6 +67,7 @@
     ../../../features/distrobox.nix
     ../../../features/dolphin.nix
     ../../../features/email.nix
+    ../../../features/gh.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
     ../../../features/half-life-asset-manager.nix
@@ -83,6 +84,7 @@
     ../../../features/mcp.nix
     ../../../features/niks3.nix
     ../../../features/nix.nix
+    ../../../features/opencode.nix
     ../../../features/plasma.nix
     ../../../features/quickshare.nix
     ../../../features/spectacle.nix

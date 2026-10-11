@@ -54,9 +54,11 @@
     };
   };
 
-  home = {
+  home = let
+    settingsPath = ".codex/config.toml";
+  in {
     file = {
-      ".codex/config.toml".enable = false; # keep the generated settings source without linking an immutable user config
+      ${settingsPath}.enable = false; # keep the generated settings source without linking an immutable user config
 
       ".codex/plugins/cache/wakatime/codex-cli-wakatime/local" = {
         source = builtins.path {
@@ -90,8 +92,8 @@
         '';
       in
         lib.hm.dag.entryAfter ["linkGeneration"] ''
-          config_file=${lib.escapeShellArg "${config.home.homeDirectory}/.codex/config.toml"}
-          settings_file=${lib.escapeShellArg config.home.file.".codex/config.toml".source}
+          config_file=${lib.escapeShellArg "${config.home.homeDirectory}/${settingsPath}"}
+          settings_file=${lib.escapeShellArg config.home.file.${settingsPath}.source}
 
           if [[ -s $config_file ]]; then
             run ${pkgs.runtimeShell} -c '${lib.getExe' pkgs.yq "tomlq"} --toml-output --slurp "$1" $2 $3 | ${lib.getExe' pkgs.moreutils "sponge"} $2' -- ${mergeSettingsFilter} $config_file $settings_file

@@ -16,6 +16,12 @@
 
       lsp.package = pkgs.nil;
     };
+
+    python = {
+      enable = true;
+
+      package = pkgs.python3.withPackages (pythonPackages: [pythonPackages.plyvel]);
+    };
     # keep-sorted end
   };
 
@@ -33,6 +39,8 @@
       deadnix.enable = true;
 
       keep-sorted.enable = true;
+
+      ruff-check.enable = true;
 
       statix.enable = true;
       # keep-sorted end
@@ -79,6 +87,8 @@
     flake-checker.enable = true;
 
     pre-commit-hook-ensure-sops.enable = true;
+
+    pyright.enable = true;
 
     shellcheck = {
       enable = true;

@@ -23,6 +23,7 @@
 
   # keep-sorted start
   bambu-studio-cuda-fix = import ./bambu-studio-cuda-fix;
+  devenv-unstable = import ./devenv-unstable;
   gnupg-pcsc-shared-reselect-fix = import ./gnupg-pcsc-shared-reselect-fix;
   lazyvim-wakatime = import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default;
   looking-glass-client-idd = import ./looking-glass-client-idd;
@@ -31,6 +32,7 @@
   nix-update-script-flake-mode = import ./nix-update-script-flake-mode;
   nix-update-skip-package-environment = import ./nix-update-skip-package-environment;
   nix-update-skip-update = import ./nix-update-skip-update;
+  nodejs-v8-climits-fix = import ./nodejs-v8-climits-fix;
   nvidia-linux-7-2-fix = import ./nvidia-linux-7-2-fix;
   ovmf-smbios-firmware-identity = import ./ovmf-smbios-firmware-identity;
   plasma-pa-volume-step-snap = import ./plasma-pa-volume-step-snap;

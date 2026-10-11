@@ -8,17 +8,17 @@
 buildGoModule (finalAttrs: {
   pname = "a2s";
 
-  version = "0.3.2";
+  version = "0.4.0";
 
   src = fetchFromGitHub {
     owner = "WoozyMasta";
     repo = "a2s";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-p0vy4BXrSR1LgC22pH5bGu5B0W0b/MzQ8lU7XBVctSc=";
+    hash = "sha256-Mh1hcp1efM3a+T2IWxz+q29AovwKVQdTNxzUQ93RFD8=";
   };
 
-  vendorHash = "sha256-Yl1F6444pt/mmnxGjRYafZeY25+OUdbl6WB0Jy9zglw=";
+  vendorHash = "sha256-EuFKcbzcSvgfZJJxLhe04LMC2CGF7AeoNkHXBA6/bIc=";
 
   # build only the cli package; the rest are libraries
   subPackages = ["cmd/a2s"];

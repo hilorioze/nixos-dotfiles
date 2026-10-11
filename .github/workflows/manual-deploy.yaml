@@ -43,26 +43,30 @@ jobs:
         env:
           TARGET_NODES: ${{ inputs['target-nodes'] }}
         run: |
-          if [[ $TARGET_NODES == all ]]; then
-            target_nodes=$(nix eval --apply builtins.attrNames --json .#deploy.nodes)
-          else
-            target_nodes=$TARGET_NODES
+          include=$(nix eval --json .#deploy.nodes --apply '
+            nodes: let
+              # no `ubuntu-latest-arm` alias; pinned to `ubuntu-24.04-arm`
+              # update when a newer image or the alias becomes available
+              runners = {
+                # keep-sorted start
+                aarch64-linux = "ubuntu-24.04-arm";
+                x86_64-linux = "ubuntu-latest";
+                # keep-sorted end
+              };
+            in
+              map (node: {
+                inherit node;
+
+                runner = runners.${nodes.${node}.profiles.system.path.system};
+
+                fqdn = nodes.${node}.hostname;
+              })
+              (builtins.attrNames nodes)
+          ')
+
+          if [[ $TARGET_NODES != all ]]; then
+            include=$(jq --compact-output --argjson target_nodes "$TARGET_NODES" 'map(select(.node | IN($target_nodes[])))' <<<$include)
           fi
-
-          include='[]'
-          for node in $(jq --raw-output '.[]' <<<$target_nodes); do
-            system=$(nix eval --raw .#deploy.nodes.${node}.profiles.system.path.system)
-            fqdn=$(nix eval --raw .#deploy.nodes.${node}.hostname)
-
-            # no `ubuntu-latest-arm` alias; pinned to `ubuntu-24.04-arm`
-            # update when a newer image or the alias becomes available
-            case $system in
-              aarch64-linux) runner=ubuntu-24.04-arm ;;
-              x86_64-linux)  runner=ubuntu-latest ;;
-            esac
-
-            include=$(jq --compact-output --arg node $node --arg runner $runner --arg fqdn $fqdn '. + [{"node": $node, "runner": $runner, "fqdn": $fqdn}]' <<<$include)
-          done
 
           {
             printf 'target-nodes={"include": %s}\n' "$include"
@@ -75,7 +79,7 @@ jobs:
     needs: collect-targets
 
     permissions:
-      id-token: write
+      id-token: write # required so `niks3` can authenticate via OIDC
 
     strategy:
       matrix: ${{ fromJSON(needs.collect-targets.outputs['target-nodes']) }}
@@ -105,7 +109,7 @@ jobs:
         with:
           extra_nix_config: *extra_nix_config
 
-      - uses: tailscale/github-action@780049a30b6ff5c378a9e7b389d15ece7a204888 # v4.1.3
+      - uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
         with:
           authkey: ${{ secrets.DEPLOYER_TAILSCALE_AUTH_KEY }}
 
@@ -159,7 +163,7 @@ jobs:
 
           printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
 
-      - uses: Mic92/niks3-action@12d3e320b2a99b7938f9634bd337cd9fec104609 # v1.1.0
+      - uses: Mic92/niks3-action@f0743610fddd7d96239c78d9e457440fc15019e2 # v1.4.0
         with:
           niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
 

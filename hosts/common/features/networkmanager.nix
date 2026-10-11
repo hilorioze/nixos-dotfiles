@@ -1,4 +1,10 @@
-{config, ...}: {
+{
+  # keep-sorted start
+  config,
+  pkgs,
+  # keep-sorted end
+  ...
+}: {
   sops = {
     secrets = {
       # keep-sorted start
@@ -21,6 +27,8 @@
 
   networking.networkmanager = {
     enable = true;
+
+    plugins = [pkgs.networkmanager-openvpn];
 
     wifi.powersave = false; # prevent latency spikes
 

@@ -21,6 +21,7 @@
     ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix
     ../../../features/email.nix
+    ../../../features/gh.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
     ../../../features/half-life-asset-manager.nix
@@ -28,6 +29,7 @@
     ../../../features/lazyvim.nix
     ../../../features/mcp.nix
     ../../../features/niks3.nix
+    ../../../features/opencode.nix
     ../../../features/plasma.nix
     ../../../features/quickshare.nix
     ../../../features/ssh-agent.nix

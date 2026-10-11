@@ -355,7 +355,7 @@
           </info>
         </bookmark>
 
-        <bookmark href="file://${config.services.syncthing.settings.folders.Sync.path}">
+        <bookmark href="file://${config.services.syncthing.settings.folders.sync.path}">
           <title>Sync</title>
 
           <info>

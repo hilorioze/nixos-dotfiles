@@ -42,6 +42,12 @@
         opts = {};
       };
 
+      claudecode = mkPlugin {
+        plugin = "coder/claudecode.nvim";
+
+        lazy = false; # start the ide integration server with neovim, so claude running elsewhere can connect to it
+      };
+
       conform = mkPlugin {
         plugin = "stevearc/conform.nvim";
 
@@ -108,6 +114,8 @@
 
     extras = {
       # keep-sorted start block=yes newline_separated=yes
+      ai.claudecode.enable = true; # ide integration for claude; also adds the `<leader>a` keys that run it inside neovim
+
       coding = {
         # keep-sorted start
         mini-surround.enable = true;

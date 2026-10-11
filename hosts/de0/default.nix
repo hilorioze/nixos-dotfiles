@@ -14,7 +14,11 @@
     # required for OCI Cloud Shell serial console output
     kernelParams = ["console=ttyS0,9600"];
 
-    loader.efi.efiSysMountPoint = "/efi";
+    loader = {
+      efi.efiSysMountPoint = "/efi";
+
+      systemd-boot.configurationLimit = 2; # one fallback is enough, older generations only fill up the 1 GiB ESP
+    };
   };
 
   disko.devices.disk.main = {

@@ -335,6 +335,19 @@
           (mkSnmpExporterEndpoint "fakesynology")
 
           {
+            name = "syncthing-de0";
+            group = "platform";
+
+            url = "http://${de0Host}:8384/rest/noauth/health";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == OK"
+            ];
+          }
+
+          {
             name = "tailnet-derp-hel0";
             group = "platform";
 

@@ -10,7 +10,11 @@
     # keep-sorted end
   ];
 
-  boot.loader.efi.efiSysMountPoint = "/efi";
+  boot.loader = {
+    efi.efiSysMountPoint = "/efi";
+
+    systemd-boot.configurationLimit = 2; # one fallback is enough, older generations only fill up the 1 GiB ESP
+  };
 
   disko.devices.disk.main = {
     device = "/dev/sda";

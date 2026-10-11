@@ -1,5 +1,6 @@
 {
   # keep-sorted start
+  alsa-lib,
   copyDesktopItems,
   fetchFromGitHub,
   lib,
@@ -12,30 +13,34 @@
   libxrender,
   makeDesktopItem,
   makeWrapper,
+  pkg-config,
   rustPlatform,
   # keep-sorted end
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "deadlocked";
 
-  version = "1.3.0";
+  version = "1.4.1";
 
   src = fetchFromGitHub {
     owner = "avitran0";
     repo = "deadlocked";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Va5QDXdrsgWCMYDlXGTLznKmi5BUWLh2/i7uC/gEfns=";
+    hash = "sha256-3/oK4sKQvp0LQG3/Z1Pi0lTQn/GJMgg1/R6RH7YNYnw=";
   };
 
-  cargoHash = "sha256-Ls0nCnFbSwM9zwGgasJnkWYqKNDDjj4Eb8tSCGTyHis=";
+  cargoHash = "sha256-DlfqbMtYz+rw/7Dxyp/AvQXWhodR2vr7Z0nzKGD+iVI=";
 
   nativeBuildInputs = [
     # keep-sorted start
     copyDesktopItems
     makeWrapper
+    pkg-config
     # keep-sorted end
   ];
+
+  buildInputs = [alsa-lib];
 
   # build only the client; the workspace also contains the radar server
   buildAndTestSubdir = "cheat";

@@ -14,6 +14,7 @@
     ../../common/features/postgresql.nix
     ../../common/features/rabbitmq.nix
     ../../common/features/redis.nix
+    ../../common/features/syncthing-firewall.nix
     ../../common/features/systemd-boot.nix
     ../../common/features/tailscale-server.nix
     ../../common/features/tailscale.nix
@@ -36,6 +37,7 @@
     ./podman.nix
     ./prometheus.nix
     ./sops.nix
+    ./syncthing.nix
     # keep-sorted end
   ];
 }
