@@ -27,6 +27,7 @@
   (import ./bambu-studio-cuda-fix)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
+  (import ./gpu-screen-recorder-ui-unused-gpu-fix)
   (import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default)
   (import ./looking-glass-client-idd)
   (import ./nix-monitored-notification-utf8-fix)
