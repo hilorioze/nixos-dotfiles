@@ -62,7 +62,7 @@ stdenv.mkDerivation (finalAttrs: {
       desktopName = "bspguy";
       icon = "bspguy";
 
-      exec = "bspguy %f";
+      exec = "${finalAttrs.meta.mainProgram} %f";
 
       mimeTypes = ["application/x-goldsrc-bsp"];
 
@@ -73,7 +73,7 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    install -D --mode=755 bspguy $out/bin/bspguy
+    install -D --mode=755 bspguy $out/bin/${finalAttrs.meta.mainProgram}
 
     install -D --mode=644 $src/src/data/icons/app.png $out/share/icons/hicolor/64x64/apps/bspguy.png
 

@@ -44,7 +44,7 @@
     passthru.libraryPath = "lib/libhub.so";
   };
 in
-  flutter347.buildFlutterApplication {
+  flutter347.buildFlutterApplication (finalAttrs: {
     inherit pname;
 
     inherit version;
@@ -157,7 +157,7 @@ in
         name = "yaas";
         desktopName = "YAAS";
         genericName = "Meta Quest sideloader";
-        exec = "yaas";
+        exec = finalAttrs.meta.mainProgram;
         icon = "yaas";
         categories = ["Utility"];
       })
@@ -193,4 +193,4 @@ in
 
       platforms = ["x86_64-linux"];
     };
-  }
+  })
