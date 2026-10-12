@@ -104,4 +104,7 @@
       };
     };
   };
+
+  # no cellular modem; only grabs USB serial ports (phone EDL, etc.)
+  systemd.services.ModemManager.enable = false;
 }
