@@ -210,7 +210,7 @@
       ];
 
       perSystem = {pkgs, ...}: let
-        pkgs' = pkgs.extend (lib.composeManyExtensions (builtins.attrValues inputs.self.overlays));
+        pkgs' = pkgs.extend inputs.self.overlays.default;
       in {
         apps = {
           # keep-sorted start
@@ -283,7 +283,7 @@
         nixosModules = import ./modules/nixos;
         homeModules = import ./modules/home-manager;
 
-        overlays = import ./overlays {inherit inputs;};
+        overlays.default = lib.composeManyExtensions (import ./overlays {inherit inputs;});
 
         nixosConfigurations = {
           # keep-sorted start

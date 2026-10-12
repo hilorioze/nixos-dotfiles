@@ -6,7 +6,7 @@
     ++ (builtins.attrValues outputs.nixosModules);
 
   nixpkgs = {
-    overlays = builtins.attrValues outputs.overlays;
+    overlays = [outputs.overlays.default];
 
     config.allowUnfree = true;
   };
