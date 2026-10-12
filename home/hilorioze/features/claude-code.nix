@@ -7,53 +7,57 @@
   # keep-sorted end
   ...
 }: {
-  programs.claude-code = {
-    enable = true;
+  programs = {
+    git.ignores = [".claude/worktrees/"]; # worktrees are nested repositories, which `git add --all` would stage as gitlinks
 
-    package = pkgs.claude-code-with-node; # the wakatime plugin hooks need node
+    claude-code = {
+      enable = true;
 
-    enableMcpIntegration = true;
+      package = pkgs.claude-code-with-node; # the wakatime plugin hooks need node
 
-    plugins = [
-      # keep-sorted start by_regex=inputs\.([\w-]+)
-      inputs.claude-code-wakatime
-      "${inputs.claude-plugins-official}/plugins/frontend-design"
-      # keep-sorted end
-    ];
+      enableMcpIntegration = true;
 
-    lspServers = {
-      # keep-sorted start block=yes newline_separated=yes
-      nil = {
-        command = lib.getExe pkgs.nil;
+      plugins = [
+        # keep-sorted start by_regex=inputs\.([\w-]+)
+        inputs.claude-code-wakatime
+        "${inputs.claude-plugins-official}/plugins/frontend-design"
+        # keep-sorted end
+      ];
 
-        extensionToLanguage.".nix" = "nix";
-      };
+      lspServers = {
+        # keep-sorted start block=yes newline_separated=yes
+        nil = {
+          command = lib.getExe pkgs.nil;
 
-      pyright = {
-        command = lib.getExe' pkgs.pyright "pyright-langserver";
-        args = ["--stdio"];
-
-        extensionToLanguage = {
-          # keep-sorted start
-          ".py" = "python";
-          ".pyi" = "python";
-          # keep-sorted end
+          extensionToLanguage.".nix" = "nix";
         };
+
+        pyright = {
+          command = lib.getExe' pkgs.pyright "pyright-langserver";
+          args = ["--stdio"];
+
+          extensionToLanguage = {
+            # keep-sorted start
+            ".py" = "python";
+            ".pyi" = "python";
+            # keep-sorted end
+          };
+        };
+        # keep-sorted end
       };
-      # keep-sorted end
-    };
 
-    settings = {
-      attribution = false; # requires claude code 2.1.281+, which `unstablePkgs` always provides
+      settings = {
+        attribution = false; # requires claude code 2.1.281+, which `unstablePkgs` always provides
 
-      autoCompactWindow = 280000;
+        autoCompactWindow = 280000;
 
-      autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
+        autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
 
-      statusLine = {
-        type = "command";
+        statusLine = {
+          type = "command";
 
-        command = lib.getExe pkgs.claude-code-status-line;
+          command = lib.getExe pkgs.claude-code-status-line;
+        };
       };
     };
   };
