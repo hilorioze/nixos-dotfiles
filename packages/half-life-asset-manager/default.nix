@@ -1,14 +1,12 @@
 {
   # keep-sorted start
-  cmake,
-  fetchFromGitHub,
-  gitMinimal,
-  glm,
+  autoPatchelfHook,
+  dpkg,
+  fetchurl,
   lib,
-  libnyquist,
+  nix-update-script,
   openal,
   qt5,
-  spdlog,
   stdenv,
   # keep-sorted end
 }:
@@ -17,53 +15,58 @@ stdenv.mkDerivation (finalAttrs: {
 
   version = "3.0.0";
 
-  src = fetchFromGitHub {
-    owner = "SamVanheer";
-    repo = "HalfLifeAssetManager";
+  src = fetchurl {
+    url = "https://github.com/SamVanheer/HalfLifeAssetManager/releases/download/HLAM-V${finalAttrs.version}/halflifeassetmanager_${finalAttrs.version}_amd64.deb";
 
-    tag = "HLAM-V${finalAttrs.version}";
-    hash = "sha256-WkPRdWK+FNbe7qe91sdyq7FKckSUQxuk0WNdAMz24zU=";
+    hash = "sha256-pOao67XEQ6uF37d+LRIlgUx80vcBR6EjIMdU6VLUF2I=";
   };
 
   postPatch = ''
-    substituteInPlace distribution/linux/hlam.desktop \
-      --replace-fail 'Exec=hlam %u' 'Exec=hlam %f'
+    substituteInPlace usr/share/applications/hlam.desktop \
+      --replace-fail 'Exec=hlam %u' 'Exec=${finalAttrs.meta.mainProgram} %f'
 
-    echo 'MimeType=application/x-goldsrc-mdl;' >> distribution/linux/hlam.desktop
+    echo 'MimeType=application/x-goldsrc-mdl;' >> usr/share/applications/hlam.desktop
   '';
 
   strictDeps = true;
 
   nativeBuildInputs = [
     # keep-sorted start
-    cmake
-    gitMinimal
+    autoPatchelfHook
+    dpkg
     qt5.wrapQtAppsHook
     # keep-sorted end
   ];
 
   buildInputs = [
     # keep-sorted start
-    glm
-    libnyquist
     openal
     qt5.qtbase
-    spdlog
+    stdenv.cc.cc.lib
     # keep-sorted end
   ];
 
-  # `glm` 1.0+ requires explicit opt-in via `GLM_ENABLE_EXPERIMENTAL` for GTX headers; upstream does not declare it
-  env.NIX_CFLAGS_COMPILE = "-DGLM_ENABLE_EXPERIMENTAL";
+  installPhase = ''
+    runHook preInstall
 
-  postInstall = ''
+    cp --recursive usr $out
+
     install -D --mode=644 ${./mimetype.xml} $out/share/mime/packages/hlam.xml
+
+    runHook postInstall
   '';
+
+  # release tags carry a prefix that is not part of the version
+  passthru.updateScript.command = nix-update-script {
+    extraArgs = ["--version-regex=^HLAM-V(.+)$"];
+  };
 
   meta = {
     description = "Tool for viewing and editing Half-Life 1 models";
     homepage = "https://github.com/SamVanheer/HalfLifeAssetManager";
 
     license = lib.licenses.unfreeRedistributable;
+    sourceProvenance = [lib.sourceTypes.binaryNativeCode];
 
     mainProgram = "hlam";
 

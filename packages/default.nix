@@ -12,7 +12,6 @@
   ghidra-mcp = pkgs.python3Packages.callPackage ./ghidra-mcp {};
   ghidra-mcp-plugin = pkgs.callPackage ./ghidra-mcp-plugin {};
   half-life-asset-manager = pkgs.callPackage ./half-life-asset-manager {};
-  libnyquist = pkgs.callPackage ./libnyquist {};
   plasmavantage = pkgs.callPackage ./plasmavantage {};
   playwright-mcp-with-extension-token = pkgs.callPackage ./playwright-mcp-with-extension-token {};
   prometheus-podman-exporter = pkgs.callPackage ./prometheus-podman-exporter {};
