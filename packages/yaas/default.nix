@@ -9,7 +9,6 @@
   mpv-unwrapped,
   nix-update-script,
   p7zip,
-  protobuf,
   rinf_cli,
   rustPlatform,
   stdenvNoCC,
@@ -136,7 +135,6 @@ in
     nativeBuildInputs = [
       # keep-sorted start
       copyDesktopItems
-      protobuf
       rinf_cli
       # keep-sorted end
     ];
