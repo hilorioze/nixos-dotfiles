@@ -51,6 +51,7 @@
     ./coolercontrol.nix
     ./gpu-screen-recorder.nix
     ./i18n.nix
+    ./led-strip-sync.nix
     ./looking-glass.nix
     ./networkmanager.nix
     ./nix-ld.nix
