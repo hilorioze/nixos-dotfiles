@@ -1,86 +1,122 @@
 {
   # keep-sorted start
-  buildNpmPackage,
-  codeburn,
-  copyDesktopItems,
-  electron,
-  fetchFromGitHub,
+  alsa-lib,
+  at-spi2-atk,
+  autoPatchelfHook,
+  cairo,
+  cups,
+  dbus,
+  dpkg,
+  expat,
+  fetchurl,
+  glib,
+  gtk3,
   lib,
+  libgbm,
+  libgcc,
   libglvnd,
-  makeDesktopItem,
+  libx11,
+  libxcb,
+  libxcomposite,
+  libxdamage,
+  libxext,
+  libxfixes,
+  libxkbcommon,
+  libxrandr,
   makeWrapper,
+  nix-update-script,
+  nspr,
+  nss,
+  pango,
+  stdenvNoCC,
+  systemd,
   # keep-sorted end
 }:
-buildNpmPackage (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "codeburn-desktop";
 
   version = "0.9.27";
 
-  src = fetchFromGitHub {
-    owner = "getagentseal";
-    repo = "codeburn";
+  src = fetchurl {
+    url = "https://github.com/getagentseal/codeburn/releases/download/desktop-v${finalAttrs.version}/codeburn-desktop_${finalAttrs.version}_amd64.deb";
 
-    tag = "v${finalAttrs.version}";
-    hash = "sha256-P00axAx78eVa6O2P+5F0aqooPCtX9G1phg3ZgEDFNPE=";
+    hash = "sha256-A89rxL+TebEF698+d8jOXBBaRTu5kkSmXd5VLMxS3f8=";
   };
 
   postPatch = ''
-    # the wrapper sets `CODEBURN_BIN` to the separate CLI package; skip upstream's CLI bundling hook
-    substituteInPlace package.json \
-      --replace-fail '"afterPack": "./scripts/after-pack.cjs"' '"afterPack": null'
+    substituteInPlace usr/share/applications/codeburn.desktop \
+      --replace-fail 'Exec=/opt/CodeBurn/codeburn %U' 'Exec=${finalAttrs.meta.mainProgram} %U'
   '';
 
-  sourceRoot = "source/app";
-
-  npmDepsHash = "sha256-Vhzn6CQ0OQtvmzP3fGbnMHuElztapcY8YdtYjNyYlgs=";
+  strictDeps = true;
 
   nativeBuildInputs = [
     # keep-sorted start
-    copyDesktopItems
+    autoPatchelfHook
+    dpkg
     makeWrapper
     # keep-sorted end
   ];
 
-  # `electron-builder` supplies the runtime tree; skip `buildNpmPackage`'s redundant npm install
-  dontNpmInstall = true;
+  buildInputs = [
+    # keep-sorted start
+    alsa-lib
+    at-spi2-atk
+    cairo
+    cups
+    dbus
+    expat
+    glib
+    gtk3
+    libgbm
+    libgcc
+    libx11
+    libxcb
+    libxcomposite
+    libxdamage
+    libxext
+    libxfixes
+    libxkbcommon
+    libxrandr
+    nspr
+    nss
+    pango
+    systemd
+    # keep-sorted end
+  ];
 
-  postBuild = ''
-    ./node_modules/.bin/electron-builder --linux dir \
-      -c.electronDist=${electron.dist}
-  '';
+  installPhase = ''
+    runHook preInstall
 
-  postInstall = ''
-    mkdir --parents $out/lib/codeburn-desktop
-    cp --recursive release/linux-unpacked/. $out/lib/codeburn-desktop/
+    mkdir --parents $out/lib
+    cp --recursive opt/CodeBurn $out/lib/codeburn-desktop
 
-    install -D --mode=644 build/icon.png \
-      $out/share/icons/hicolor/512x512/apps/codeburn-desktop.png # source is 1024x1024, but KDE's icon loader ignores it
+    cp --recursive usr/share $out/
 
-    makeWrapper $out/lib/codeburn-desktop/codeburn $out/bin/codeburn-desktop \
+    # only the 1024x1024 icon is shipped, but KDE's icon loader ignores it
+    mkdir --parents $out/share/icons/hicolor/512x512
+    mv $out/share/icons/hicolor/1024x1024/apps $out/share/icons/hicolor/512x512/apps
+    rmdir $out/share/icons/hicolor/1024x1024
+
+    makeWrapper $out/lib/codeburn-desktop/codeburn $out/bin/${finalAttrs.meta.mainProgram} \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [libglvnd]} \
       --set CHROME_DEVEL_SANDBOX $out/lib/codeburn-desktop/chrome-sandbox \
-      --set CODEBURN_BIN ${lib.getExe codeburn} \
       --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}"
+
+    runHook postInstall
   '';
 
-  desktopItems = [
-    (makeDesktopItem {
-      name = "codeburn-desktop";
-
-      desktopName = "CodeBurn";
-      icon = "codeburn-desktop";
-
-      exec = "codeburn-desktop";
-
-      categories = ["Development"];
-    })
-  ];
+  # desktop releases are tagged separately from the CLI and menubar ones
+  passthru.updateScript.command = nix-update-script {
+    extraArgs = ["--version-regex=^desktop-v(.+)$"];
+  };
 
   meta = {
     description = "Desktop application for tracking AI coding token usage and cost";
     homepage = "https://github.com/getagentseal/codeburn";
 
     license = lib.licenses.mit;
+    sourceProvenance = [lib.sourceTypes.binaryNativeCode];
 
     mainProgram = "codeburn-desktop";
 
