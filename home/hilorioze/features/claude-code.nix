@@ -58,6 +58,8 @@
 
           command = lib.getExe pkgs.claude-code-status-line;
         };
+
+        switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
       };
     };
   };
