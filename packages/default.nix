@@ -1,6 +1,7 @@
 {pkgs, ...}: {
   # keep-sorted start
   a2s = pkgs.callPackage ./a2s {};
+  blutter = pkgs.callPackage ./blutter {};
   bspguy = pkgs.callPackage ./bspguy {};
   claude-code-status-line = pkgs.callPackage ./claude-code-status-line {};
   claude-code-with-node = pkgs.callPackage ./claude-code-with-node {};
