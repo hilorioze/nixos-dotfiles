@@ -11,6 +11,7 @@
     ../../../features/atuin.nix
     ../../../features/bambu-studio.nix
     ../../../features/blender.nix
+    ../../../features/blutter.nix
     ../../../features/bs-manager.nix
     ../../../features/bspguy.nix
     ../../../features/cinny.nix

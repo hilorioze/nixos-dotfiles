@@ -53,6 +53,7 @@
     ../../../features/atuin.nix
     ../../../features/bambu-studio.nix
     ../../../features/blender.nix
+    ../../../features/blutter.nix
     ../../../features/bruno.nix
     ../../../features/bs-manager.nix
     ../../../features/bspguy.nix
