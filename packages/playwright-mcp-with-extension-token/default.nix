@@ -9,12 +9,10 @@
 }: let
   inherit (unstablePkgs) playwright-mcp;
 
-  inherit (import ../../shared.nix) ignoredFlake8Rules;
-
   readExtensionToken = writers.writePython3 "read-extension-token" {
     libraries = [python3Packages.plyvel];
 
-    flakeIgnore = ignoredFlake8Rules;
+    flakeIgnore = (import ../../shared.nix).ignoredFlake8Rules;
   } (builtins.readFile ./read-extension-token.py);
 in
   symlinkJoin {
