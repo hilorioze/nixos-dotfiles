@@ -135,17 +135,18 @@
       env = let
         appId = 620980;
       in {
-        # keep-sorted start
+        SteamEnv = true;
+
         STEAM_COMPAT_APP_ID = appId;
+        SteamAppId = appId;
+        SteamGameId = appId;
+        SteamOverlayGameId = appId;
+
         STEAM_COMPAT_CLIENT_INSTALL_PATH = "/home/hilorioze/.steam/steam";
         STEAM_COMPAT_DATA_PATH = "${bsManagerBasePath}/SharedContent/compatdata";
         STEAM_COMPAT_INSTALL_PATH = instancePath;
-        SteamAppId = appId;
-        SteamEnv = true;
-        SteamGameId = appId;
-        SteamOverlayGameId = appId;
+
         WINEDLLOVERRIDES = "winhttp=n,b";
-        # keep-sorted end
       };
 
       wrappers = [
