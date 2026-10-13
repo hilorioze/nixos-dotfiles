@@ -20,6 +20,7 @@
     ../../common/features/reclaim-protection.nix
     ../../common/features/reisub.nix
     ../../common/features/rtkit.nix
+    ../../common/features/smartd.nix
     ../../common/features/systemd-boot.nix
     ../../common/features/tailscale-client.nix
     ../../common/features/tailscale.nix

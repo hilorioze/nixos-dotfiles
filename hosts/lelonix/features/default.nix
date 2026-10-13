@@ -29,6 +29,7 @@
     ../../common/features/reclaim-protection.nix
     ../../common/features/reisub.nix
     ../../common/features/rtkit.nix
+    ../../common/features/smartd.nix
     ../../common/features/steam.nix
     ../../common/features/syncthing-firewall.nix
     ../../common/features/systemd-boot.nix
