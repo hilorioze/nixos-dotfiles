@@ -12,6 +12,7 @@
 
     # keep-sorted start
     ./git.nix
+    ./jq.nix
     ./nixos-dotfiles-lazy-git-repo.nix
     ./ripgrep.nix
     ./shell.nix
