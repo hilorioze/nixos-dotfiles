@@ -135,4 +135,6 @@
         '';
     };
   };
+
+  systemd.user.tmpfiles.rules = ["e %h/.codex/sessions - - - 30d"]; # rollouts grow to 1G each and are never pruned
 }
