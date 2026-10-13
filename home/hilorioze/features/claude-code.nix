@@ -60,6 +60,8 @@
         };
 
         switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
+
+        worktree.bgIsolation = "none"; # let background sessions edit the main checkout
       };
     };
   };
