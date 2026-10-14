@@ -19,7 +19,7 @@
     } {
       "main.wayland_warning_shown" = true; # shut up about x11
 
-      "record.container" = "mkv";
+      "record.container" = "matroska";
 
       "record.record_options.codec" = "hevc";
       "record.record_options.video_quality" = "high";
