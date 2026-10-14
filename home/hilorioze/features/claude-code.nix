@@ -6,14 +6,53 @@
   pkgs,
   # keep-sorted end
   ...
-}: {
+}: let
+  gatewayPort = 8318;
+
+  cliproxyapiStateDirectory = "${config.xdg.stateHome}/${config.systemd.user.services.cliproxyapi.Service.StateDirectory}";
+in {
   programs = {
     git.ignores = [".claude/worktrees/"]; # worktrees are nested repositories, which `git add --all` would stage as gitlinks
 
     claude-code = {
       enable = true;
 
-      package = pkgs.claude-code-with-node; # the wakatime plugin hooks need node
+      package = pkgs.symlinkJoin {
+        name = "claude-code";
+
+        inherit (pkgs.claude-code-with-node) version;
+
+        paths = [pkgs.claude-code-with-node]; # the wakatime plugin hooks need node
+
+        nativeBuildInputs = [pkgs.makeWrapper];
+
+        # `CLAUDE_CODE_DIRECT=1` skips the gateway, which adds the models of every cliproxyapi account to `/model`
+        postBuild = ''
+          wrapProgram $out/bin/${pkgs.claude-code-with-node.meta.mainProgram} \
+            --run ${lib.escapeShellArg ''
+            picker=()
+
+            if [[ -n ''${CLAUDE_CODE_DIRECT-} ]]; then
+              unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN # a claude started from a gateway session inherits them
+            else
+              export ANTHROPIC_BASE_URL=http://127.0.0.1:${toString gatewayPort} ANTHROPIC_AUTH_TOKEN=$(< ${cliproxyapiStateDirectory}/inference-key)
+
+              # claude reads the picker once, at launch; its quotas are laid out for this terminal
+              if [[ -t 0 ]]; then
+                read -r _ columns < <(${lib.getExe' pkgs.coreutils "stty"} size)
+
+                # the key stays out of the process list
+                if settings=$(${lib.getExe pkgs.curl} --fail --silent --max-time 3 --header @- "$ANTHROPIC_BASE_URL/model-picker?width=$columns" <<< "Authorization: Bearer $ANTHROPIC_AUTH_TOKEN"); then
+                  picker=(--settings "$settings")
+                fi
+              fi
+            fi
+          ''} \
+            --add-flags '"''${picker[@]}"'
+        '';
+
+        inherit (pkgs.claude-code-with-node) meta;
+      };
 
       enableMcpIntegration = true;
 
@@ -114,6 +153,25 @@
             run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $global_config_file $config_file
           fi
         '';
+    };
+  };
+
+  systemd.user.services.claude-code-gateway = {
+    Install.WantedBy = ["default.target"];
+
+    Unit.Description = "Claude model gateway";
+
+    Service = {
+      Environment = [
+        "CLAUDE_CODE_GATEWAY_PORT=${toString gatewayPort}"
+
+        "CLIPROXYAPI_STATE_DIRECTORY=${cliproxyapiStateDirectory}"
+      ];
+
+      ExecStart = lib.getExe pkgs.claude-code-gateway;
+
+      Restart = "always";
+      RestartSec = 2;
     };
   };
 }

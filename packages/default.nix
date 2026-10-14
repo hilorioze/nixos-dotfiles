@@ -3,6 +3,7 @@
   a2s = pkgs.callPackage ./a2s {};
   blutter = pkgs.callPackage ./blutter {};
   bspguy = pkgs.callPackage ./bspguy {};
+  claude-code-gateway = pkgs.callPackage ./claude-code-gateway {};
   claude-code-status-line = pkgs.callPackage ./claude-code-status-line {};
   claude-code-with-node = pkgs.callPackage ./claude-code-with-node {};
   codeburn-desktop = pkgs.callPackage ./codeburn-desktop {};
