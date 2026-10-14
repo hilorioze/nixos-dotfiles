@@ -51,6 +51,11 @@
           forward _outbound. ${config.services.resolved.settings.Resolve.DNSStubListenerExtra} # avoid self-resolution to irrelevant addresses
           forward local. ${config.services.resolved.settings.Resolve.DNSStubListenerExtra}
 
+          # no IPv6 on the LAN; resolved answers SERVFAIL after a 4s mDNS timeout
+          template IN AAAA local. {
+            rcode NOERROR
+          }
+
           import upstream
         }
       '';
