@@ -92,6 +92,8 @@ in {
 
         autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
 
+        preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
+
         statusLine = {
           type = "command";
 
@@ -140,6 +142,7 @@ in {
           autoConnectIde = true; # automatically connect to a running ide from an external terminal
           hasSeenAutoModeOutsideReadPrompt = true; # the answer to the first read outside the working directories
           lspRecommendationDisabled = true; # the lsp plugin recommendation ignores `lspServers`
+          messageIdleNotifThresholdMs = 0; # notify as soon as a turn ends instead of after a minute of idling
           # keep-sorted end
         });
       in
