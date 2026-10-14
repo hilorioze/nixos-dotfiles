@@ -23,6 +23,15 @@ BEHAVES_AS: str = "claude-fable-5"  # what the disguise made of every foreign mo
 
 FRAMING_HEADERS: set[str] = {"connection", "content-length", "host", "transfer-encoding"}  # aiohttp frames both directions itself
 
+CLASSIFIER_PROMPT: str = "You are a security monitor for autonomous AI coding agents."  # auto mode's own check, once the model gives no verdict
+
+# what each agent checks its actions with: codex the auto-review model of its catalog, antigravity the flash tier
+# (the tier's own `gemini-3.8-flash-tiered` is missing from cliproxyapi)
+REVIEWERS: dict[str, str] = {
+    "codex": "codex/codex-auto-review",
+    "antigravity": "antigravity/gemini-3.8-flash-high",
+}
+
 CLIPROXYAPI_TIMEOUT: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10)
 
 QUOTA_MIN_AGE: float = 30  # the status line renders many times per turn
@@ -38,6 +47,8 @@ attempted_at: dict[str, float] = {}
 snapshots: dict[str, dict[str, Any]] = {}
 
 claude_lineup: dict[str, Any] = {}
+
+session_providers: dict[str, str] = {}
 
 
 def read_key(name: str) -> str:
@@ -422,8 +433,33 @@ def label_model(model: dict[str, Any]) -> str:
     return model["display_name"] if provider == "claude" else f"{provider.capitalize()} · {model['display_name']}"
 
 
+def route_classifier(session: str, body: bytes) -> bytes:
+    payload: dict[str, Any] = json.loads(body)
+
+    # the action under check comes from the latest answer with tools of the session
+    if payload.get("tools"):
+        session_providers[session] = split_model(payload["model"])[0]
+
+        return body
+
+    # the check brings a prompt of its own; the user's text in claude's prompt never leads a block
+    classifier: bool = any(block["text"].startswith(CLASSIFIER_PROMPT) for block in payload["system"])
+    if not classifier:
+        return body
+
+    # claude checks with sonnet whatever proposed the action; a foreign model's own provider pays for it instead
+    reviewer: str | None = REVIEWERS.get(session_providers[session])
+    if reviewer is None:
+        return body
+
+    return json.dumps({**payload, "model": reviewer}).encode()
+
+
 async def relay(request: web.Request) -> web.StreamResponse:
     body: bytes = await request.read()
+    if request.path == "/v1/messages":
+        body = route_classifier(request.headers["X-Claude-Code-Session-Id"], body)
+
     headers: list[tuple[str, str]] = [(name, value) for name, value in request.headers.items() if name.lower() not in FRAMING_HEADERS]
 
     # claude hanging up cancels the handler, which closes the upstream connection
