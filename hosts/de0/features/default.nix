@@ -28,6 +28,8 @@
     # keep-sorted start
     ./alertmanager.nix
     ./authentik.nix
+    ./claude-code-gateway.nix
+    ./cliproxyapi.nix
     ./gatus.nix
     ./grafana.nix
     ./homepage-dashboard.nix

@@ -26,6 +26,8 @@
           aiohttp
           plyvel
           # keep-sorted end
+
+          (callPackage ./packages/cliproxyapi-accounts {}) # imported by the scripts that talk to cliproxyapi
         ]);
     };
     # keep-sorted end

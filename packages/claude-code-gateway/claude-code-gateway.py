@@ -3,17 +3,25 @@ import datetime
 import json
 import os
 import re
-import sys
 import time
-from collections.abc import Callable, Coroutine
+from collections.abc import Callable
 from typing import Any
 
 import aiohttp
 from aiohttp import web
+from cliproxyapi_accounts import (
+    ACCOUNT_ERRORS,
+    CLIPROXYAPI_TIMEOUT,
+    CLIPROXYAPI_URL,
+    FETCHERS,
+    call_management,
+    format_window_length,
+    print_account_error,
+    read_key,
+)
 
+HOST: str = os.environ["CLAUDE_CODE_GATEWAY_HOST"]
 PORT: int = int(os.environ["CLAUDE_CODE_GATEWAY_PORT"])
-
-CLIPROXYAPI_STATE_DIRECTORY: str = os.environ["CLIPROXYAPI_STATE_DIRECTORY"]
 
 CLAUDE_CATALOG_URL: str = "https://downloads.claude.ai/model-catalog/v1/catalog.json"  # what claude orders its own picker by
 
@@ -32,10 +40,8 @@ REVIEWERS: dict[str, str] = {
     "antigravity": "antigravity/gemini-3.8-flash-high",
 }
 
-CLIPROXYAPI_TIMEOUT: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10)
-
 QUOTA_MIN_AGE: float = 30  # the status line renders many times per turn
-QUOTA_MAX_AGE: float = 300  # other hosts spend the same subscriptions unseen
+QUOTA_MAX_AGE: float = 300  # the subscriptions are spent outside cliproxyapi too
 
 PICKER_QUOTA_TIMEOUT: float = 2  # claude waits for the picker before it starts
 PICKER_CATALOG_TIMEOUT: float = 2
@@ -49,58 +55,6 @@ snapshots: dict[str, dict[str, Any]] = {}
 claude_lineup: dict[str, Any] = {}
 
 session_providers: dict[str, str] = {}
-
-
-def read_key(name: str) -> str:
-    with open(os.path.join(CLIPROXYAPI_STATE_DIRECTORY, name)) as file:
-        return file.read()
-
-
-def read_upstream() -> str:
-    with open(os.path.join(CLIPROXYAPI_STATE_DIRECTORY, "config.yaml")) as file:
-        server: dict[str, Any] = json.load(file)["server"]
-
-    return f"http://{server['host']}:{server['port']}"
-
-
-async def call_management(method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
-    headers: dict[str, str] = {"Authorization": f"Bearer {read_key('management-key')}"}
-
-    async with (
-        aiohttp.ClientSession(timeout=CLIPROXYAPI_TIMEOUT, raise_for_status=True) as client,
-        client.request(method, f"{read_upstream()}/v0/management{path}", json=payload, headers=headers) as answer,
-    ):
-        return await answer.json()
-
-
-async def call_provider(account: dict[str, Any], method: str, url: str, headers: dict[str, str], data: str = "") -> Any:
-    # cliproxyapi sends the request itself and puts the account's oauth token in place of `$TOKEN$`
-    response: dict[str, Any] = await call_management("POST", "/api-call", {
-        "auth_index": account["auth_index"],
-        "method": method,
-        "url": url,
-        "header": {"Authorization": "Bearer $TOKEN$", **headers},
-        "data": data,
-    })
-
-    if response["status_code"] != 200:
-        raise RuntimeError(f"{url} answered {response['status_code']}")
-
-    return json.loads(response["body"])
-
-
-def parse_time(value: str | None) -> float | None:
-    if value is None:
-        return None
-
-    return datetime.datetime.fromisoformat(value).timestamp()
-
-
-def format_window(seconds: int) -> str:
-    if seconds % 86400 == 0:
-        return f"{seconds // 86400}d"
-
-    return f"{seconds // 3600}h"
 
 
 def read_claude_quota(quota: dict[str, Any]) -> list[dict[str, Any]]:
@@ -130,7 +84,7 @@ def read_codex_quota(quota: dict[str, Any]) -> list[dict[str, Any]]:
         reset_at: str | None = signals.get(f"x-codex-{name}-reset-at")
 
         windows.append({
-            "label": format_window(int(signals[f"x-codex-{name}-window-minutes"]) * 60),  # which window is the short one depends on the plan
+            "label": format_window_length(int(signals[f"x-codex-{name}-window-minutes"]) * 60),  # which window is the short one depends on the plan
             "remaining": 100 - float(signals[f"x-codex-{name}-used-percent"]),
             "resets_at": float(reset_at) if reset_at else observed_at + float(signals[f"x-codex-{name}-reset-after-seconds"]),
         })
@@ -138,64 +92,10 @@ def read_codex_quota(quota: dict[str, Any]) -> list[dict[str, Any]]:
     return windows
 
 
-async def fetch_claude_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
-    usage: dict[str, Any] = await call_provider(account, "GET", "https://api.anthropic.com/api/oauth/usage", {"anthropic-beta": "oauth-2025-04-20"})
-
-    windows: list[dict[str, Any]] = [
-        {"label": label, "remaining": 100 - usage[key]["utilization"], "resets_at": parse_time(usage[key]["resets_at"])}
-        for key, label in (("five_hour", "5h"), ("seven_day", "7d"))
-        if usage.get(key)
-    ]
-
-    return [{"name": None, "windows": windows}]
-
-
-async def fetch_codex_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
-    usage: dict[str, Any] = await call_provider(account, "GET", "https://chatgpt.com/backend-api/wham/usage", {"User-Agent": "codex_cli_rs"})
-
-    windows: list[dict[str, Any]] = [
-        {"label": format_window(window["limit_window_seconds"]), "remaining": 100 - window["used_percent"], "resets_at": window["reset_at"]}
-        for window in (usage["rate_limit"].get("primary_window"), usage["rate_limit"].get("secondary_window"))
-        if window
-    ]
-
-    return [{"name": None, "windows": windows}]
-
-
-async def fetch_antigravity_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
-    summary: dict[str, Any] = await call_provider(
-        account,
-        "POST",
-        "https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary",
-        {"Content-Type": "application/json", "User-Agent": "antigravity"},  # any other user agent gets 403
-        json.dumps({"project": account["project_id"]}),
-    )
-
-    # gemini and the third-party models are separate pools
-    return [
-        {
-            "name": group["displayName"],
-            "windows": [
-                {"label": bucket["bucketId"].rsplit("-", 1)[-1].replace("weekly", "7d"), "remaining": bucket["remainingFraction"] * 100, "resets_at": parse_time(bucket.get("resetTime"))}
-                for bucket in reversed(group["buckets"])  # listed longest first
-                if "remainingFraction" in bucket
-            ],
-        }
-        for group in summary["groups"]
-    ]
-
-
-# rate limit headers of an account's last answer, kept by cliproxyapi
+# rate limit headers of an account's last answer, kept by cliproxyapi; antigravity answers carry none
 OBSERVERS: dict[str, Callable[[dict[str, Any]], list[dict[str, Any]]]] = {
     "claude": read_claude_quota,
     "codex": read_codex_quota,
-}
-
-# asked only while nothing current is observed; antigravity answers carry no limits
-FETCHERS: dict[str, Callable[[dict[str, Any]], Coroutine[Any, Any, list[dict[str, Any]]]]] = {
-    "claude": fetch_claude_quota,
-    "codex": fetch_codex_quota,
-    "antigravity": fetch_antigravity_quota,
 }
 
 
@@ -220,7 +120,7 @@ def observe_quota(account: dict[str, Any], now: float) -> bool:
     if not quota["signals"]:
         return False
 
-    # other hosts spend the account unseen; headers of an old answer miss that
+    # the account is spent outside cliproxyapi too; headers of an old answer miss that
     observed_at: float = datetime.datetime.fromisoformat(quota["observed_at"]).timestamp()
     if now - observed_at > QUOTA_MAX_AGE:
         return False
@@ -242,9 +142,9 @@ def observe_quota(account: dict[str, Any], now: float) -> bool:
 async def refresh_quota(account: dict[str, Any], started_at: float) -> None:
     try:
         pools: list[dict[str, Any]] = await FETCHERS[account["provider"]](account)
-    except (aiohttp.ClientError, OSError, RuntimeError, LookupError, TypeError, ValueError) as error:
-        # the repr of a response error carries the management key; the last known quota stays and gets marked stale
-        print(f"{account['provider']} quota: {type(error).__name__}: {error}", file=sys.stderr)
+    except ACCOUNT_ERRORS as error:
+        print_account_error(account, error)  # the last known quota stays and gets marked stale
+
         return
 
     snapshots[account["auth_index"]] = {"pools": pools, "fetched_at": started_at, "observed": False}
@@ -385,7 +285,7 @@ async def read_catalog() -> list[dict[str, Any]]:
 
     async with (
         aiohttp.ClientSession(timeout=CLIPROXYAPI_TIMEOUT) as client,
-        client.get(f"{read_upstream()}/v1/models", headers=headers) as answer,
+        client.get(f"{CLIPROXYAPI_URL}/v1/models", headers=headers) as answer,
     ):
         catalog: dict[str, Any] = await answer.json()
 
@@ -456,6 +356,12 @@ def route_classifier(session: str, body: bytes) -> bytes:
 
 
 async def relay(request: web.Request) -> web.StreamResponse:
+    # cliproxyapi sees the key only after the whole body is read, and takes relayed calls as local ones,
+    # which lets anyone fill the gateway's memory with one huge body or, with five wrong management keys, get 127.0.0.1 banned from management along with the gateway and the warmup;
+    # gatus checks `/healthz` without a key
+    if request.path != "/healthz" and request.headers.get("Authorization") != f"Bearer {read_key('inference-key')}":
+        raise web.HTTPUnauthorized
+
     body: bytes = await request.read()
     if request.path == "/v1/messages":
         body = route_classifier(request.headers["X-Claude-Code-Session-Id"], body)
@@ -465,7 +371,7 @@ async def relay(request: web.Request) -> web.StreamResponse:
     # claude hanging up cancels the handler, which closes the upstream connection
     async with (
         aiohttp.ClientSession(auto_decompress=False, timeout=aiohttp.ClientTimeout(total=None)) as client,
-        client.request(request.method, f"{read_upstream()}{request.raw_path}", headers=headers, data=body) as answer,
+        client.request(request.method, f"{CLIPROXYAPI_URL}{request.raw_path}", headers=headers, data=body) as answer,
     ):
         response: web.StreamResponse = web.StreamResponse(
             status=answer.status,
@@ -542,7 +448,7 @@ def main() -> None:
         web.route("*", "/{path:.*}", relay),
     ])
 
-    web.run_app(application, host="127.0.0.1", port=PORT, handler_cancellation=True)
+    web.run_app(application, host=HOST, port=PORT, handler_cancellation=True)
 
 
 if __name__ == "__main__":

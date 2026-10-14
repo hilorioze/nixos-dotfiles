@@ -6,6 +6,8 @@
   claude-code-gateway = pkgs.callPackage ./claude-code-gateway {};
   claude-code-status-line = pkgs.callPackage ./claude-code-status-line {};
   claude-code-with-node = pkgs.callPackage ./claude-code-with-node {};
+  cliproxyapi-accounts = pkgs.python3Packages.callPackage ./cliproxyapi-accounts {};
+  cliproxyapi-warmup = pkgs.callPackage ./cliproxyapi-warmup {};
   codeburn-desktop = pkgs.callPackage ./codeburn-desktop {};
   codex-with-node = pkgs.callPackage ./codex-with-node {};
   deadlocked = pkgs.callPackage ./deadlocked {};

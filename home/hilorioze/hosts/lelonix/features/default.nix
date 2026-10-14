@@ -60,7 +60,6 @@
     ../../../features/chromium.nix
     ../../../features/cinny.nix
     ../../../features/claude-code.nix
-    ../../../features/cliproxyapi.nix
     ../../../features/codeburn-desktop.nix
     ../../../features/codex.nix
     ../../../features/deadlocked.nix

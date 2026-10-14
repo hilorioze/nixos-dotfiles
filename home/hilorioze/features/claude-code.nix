@@ -3,14 +3,13 @@
   config,
   inputs,
   lib,
+  outputs,
   pkgs,
   # keep-sorted end
   ...
-}: let
-  gatewayPort = 8318;
+}: {
+  sops.secrets."apps/cliproxyapi/inference-key" = {};
 
-  cliproxyapiStateDirectory = "${config.xdg.stateHome}/${config.systemd.user.services.cliproxyapi.Service.StateDirectory}";
-in {
   programs = {
     git.ignores = [".claude/worktrees/"]; # worktrees are nested repositories, which `git add --all` would stage as gitlinks
 
@@ -35,7 +34,8 @@ in {
             if [[ -n ''${CLAUDE_CODE_DIRECT-} ]]; then
               unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN # a claude started from a gateway session inherits them
             else
-              export ANTHROPIC_BASE_URL=http://127.0.0.1:${toString gatewayPort} ANTHROPIC_AUTH_TOKEN=$(< ${cliproxyapiStateDirectory}/inference-key)
+              # cliproxyapi runs only on de0: a second instance would rotate the accounts' refresh tokens out from under it
+              export ANTHROPIC_BASE_URL=https://claude-code-gateway.${outputs.nixosConfigurations.de0.config.networking.fqdn} ANTHROPIC_AUTH_TOKEN=$(< ${config.sops.secrets."apps/cliproxyapi/inference-key".path})
 
               # claude reads the picker once, at launch; its quotas are laid out for this terminal
               if [[ -t 0 ]]; then
@@ -158,25 +158,6 @@ in {
             run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $global_config_file $config_file
           fi
         '';
-    };
-  };
-
-  systemd.user.services.claude-code-gateway = {
-    Install.WantedBy = ["default.target"];
-
-    Unit.Description = "Claude model gateway";
-
-    Service = {
-      Environment = [
-        "CLAUDE_CODE_GATEWAY_PORT=${toString gatewayPort}"
-
-        "CLIPROXYAPI_STATE_DIRECTORY=${cliproxyapiStateDirectory}"
-      ];
-
-      ExecStart = lib.getExe pkgs.claude-code-gateway;
-
-      Restart = "always";
-      RestartSec = 2;
     };
   };
 }
