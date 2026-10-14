@@ -92,6 +92,8 @@ in {
 
         autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
 
+        awaySummaryEnabled = false; # disable the "※ recap" block generated after being away
+
         preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
 
         statusLine = {
