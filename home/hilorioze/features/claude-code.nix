@@ -162,4 +162,22 @@
         '';
     };
   };
+
+  # the unit name claude looks for before spawning a daemon of its own
+  systemd.user.services."com.anthropic.claude-daemon" = {
+    Install.WantedBy = ["default.target"]; # claude starts the unit itself only when a server-side flag is set; otherwise its first client spawns a daemon of its own
+
+    Unit = {
+      Description = "Claude daemon";
+
+      After = ["sops-nix.service"]; # the package reads the gateway key once, when the daemon starts
+    };
+
+    Service = {
+      # not `finalPackage`: its `--plugin-dir` flags come first and turn `daemon run` into a prompt
+      ExecStart = "${lib.getExe config.programs.claude-code.package} daemon run";
+
+      KillMode = "process"; # the default `control-group` kills the sessions along with the daemon; `process` leaves them for the new daemon to adopt
+    };
+  };
 }
