@@ -20,6 +20,7 @@ in {
 
       # keep-sorted start
       "services/lampac/users/danil/id" = {};
+      "services/lampac/users/guest/id" = {};
       "services/lampac/users/hilorioze/id" = {};
       "services/lampac/users/living-room-tv/id" = {};
       "services/lampac/users/zikkk/id" = {};
@@ -47,6 +48,7 @@ in {
           in [
             # keep-sorted start
             (mkUser "danil")
+            (mkUser "guest")
             (mkUser "hilorioze")
             (mkUser "living-room-tv")
             (mkUser "zikkk")
