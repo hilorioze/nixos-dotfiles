@@ -163,8 +163,7 @@ async def read_quotas(timeout: float) -> dict[str, list[dict[str, Any]]]:
 
         observed: bool = account["provider"] in OBSERVERS and observe_quota(account, now)
 
-        # a provider without a fetcher shows its accounts alone
-        if not observed and account["provider"] in FETCHERS and is_outdated(account, now) and now - attempted_at.get(index, 0) > QUOTA_MIN_AGE:
+        if not observed and is_outdated(account, now) and now - attempted_at.get(index, 0) > QUOTA_MIN_AGE:
             attempted_at[index] = now
             refreshes[index] = asyncio.create_task(refresh_quota(account, now))
 
