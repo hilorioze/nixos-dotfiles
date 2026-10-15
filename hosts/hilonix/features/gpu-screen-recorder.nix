@@ -1,5 +1,5 @@
 {pkgs, ...}: {
-  # restrict the overlay and the recorder it spawns to use the host GPU
+  # restrict the overlay and the recorder it spawns to use the host gpu
   programs.gpu-screen-recorder.ui.package = pkgs.unstablePkgs.gpu-screen-recorder-ui.overrideAttrs (oldAttrs: {
     postInstall =
       oldAttrs.postInstall

@@ -33,7 +33,7 @@
     ../../common/features/steam.nix
     ../../common/features/syncthing-firewall.nix
     ../../common/features/systemd-boot.nix
-    ../../common/features/systemd-initrd.nix # required for TPM access in initrd
+    ../../common/features/systemd-initrd.nix # required for tpm access in initrd
     ../../common/features/tailscale-client.nix
     ../../common/features/tailscale.nix
     ../../common/features/uinput.nix

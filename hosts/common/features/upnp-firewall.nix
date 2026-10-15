@@ -1,7 +1,7 @@
 {pkgs, ...}: {
-  # UPnP discovery sends `M-SEARCH` to the multicast address `239.255.255.250:1900`, and devices answer from their own address and any port
+  # upnp discovery sends `M-SEARCH` to the multicast address `239.255.255.250:1900`, and devices answer from their own address and any port
   # conntrack expects the answer from `239.255.255.250:1900`, so it treats the real one as a new inbound connection and the firewall drops it
-  # every outgoing `M-SEARCH` stores its source address and port in an ipset for 3 seconds, and inbound UDP to a stored address and port is accepted
+  # every outgoing `M-SEARCH` stores its source address and port in an ipset for 3 seconds, and inbound udp to a stored address and port is accepted
   # https://github.com/miniupnp/miniupnp/blob/f33ae48402835b5b93029b1861a32630f9f17d1b/miniupnpc/README#L67-L88
   networking.firewall = {
     extraPackages = [pkgs.ipset];

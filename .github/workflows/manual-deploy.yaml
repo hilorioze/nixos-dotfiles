@@ -37,7 +37,7 @@ jobs:
             extra-substituters = ${{ needs.collect-targets.outputs['extra-substituters'] }}
             extra-trusted-public-keys = ${{ needs.collect-targets.outputs['extra-trusted-public-keys'] }}
 
-            fsync-metadata = false # performance over durability in CI; store is transient
+            fsync-metadata = false # performance over durability in ci; store is transient
 
       - id: collect-targets
         env:
@@ -79,7 +79,7 @@ jobs:
     needs: collect-targets
 
     permissions:
-      id-token: write # required so `niks3` can authenticate via OIDC
+      id-token: write # required so niks3 can authenticate via oidc
 
     strategy:
       matrix: ${{ fromJSON(needs.collect-targets.outputs['target-nodes']) }}
@@ -99,7 +99,7 @@ jobs:
 
       - uses: wimpysworld/nothing-but-nix@687c797a730352432950c707ab493fcc951818d7 # v10
         with:
-          hatchet-protocol: 'carve' # keep `node` available for the `$RUNNER_TEMP/niks3/fetch-oidc-token.mjs` script
+          hatchet-protocol: 'carve' # keep node available for the `$RUNNER_TEMP/niks3/fetch-oidc-token.mjs` script
 
           root-safe-haven: 1024 # halved; logs show 1 GiB free on / suffices
 
@@ -126,7 +126,7 @@ jobs:
       - id: fetch-niks3-bin
         run: |
           # `niks3-action` looks for `niks3-hook` next to `niks3`
-          # `--inputs-from github:${{ github.repository }}` keeps CLI and server on the same version to avoid API mismatches
+          # `--inputs-from github:${{ github.repository }}` keeps cli and server on the same version to avoid api mismatches
           niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:${{ github.repository }} --print-build-logs --expr $'
           let
             pkgs = import <nixpkgs> {};

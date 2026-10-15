@@ -15,7 +15,7 @@ CODEX_HEADERS: dict[str, str] = json.loads(Path(os.environ["CLIPROXYAPI_CODEX_HE
 
 CLIPROXYAPI_TIMEOUT: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10)
 
-ACCOUNT_ERRORS: tuple[type[Exception], ...] = (aiohttp.ClientError, OSError, RuntimeError, LookupError, TypeError, ValueError)  # one broken account must not stop the others
+ACCOUNT_ERRORS: tuple[type[Exception], ...] = (aiohttp.ClientError, OSError, RuntimeError, LookupError, TypeError, ValueError)  # one failing account must not stop the others
 
 WINDOW_LENGTHS: dict[str, int] = {"5h": 18000, "7d": 604800}
 

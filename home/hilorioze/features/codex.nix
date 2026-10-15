@@ -36,7 +36,7 @@
       sandbox_mode = "danger-full-access";
 
       features = {
-        apps = false; # disable the redundant built-in `codex_apps` MCP
+        apps = false; # disable the redundant built-in `codex_apps` mcp
 
         memories = true;
       };
@@ -102,7 +102,7 @@
           fi
         '';
 
-      # these settings are stored in the extension's VSCodium global state rather than `config.toml` or `settings.json`
+      # these settings are stored in the extension's vscodium global state rather than `config.toml` or `settings.json`
       configureCodexExtension = let
         stateDirectory = "${config.xdg.configHome}/VSCodium/User/globalStorage";
 
@@ -128,7 +128,7 @@
           run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${lib.escapeShellArg stateDirectory}
 
           run ${lib.getExe pkgs.sqlite} -cmd '.timeout 5000' ${lib.escapeShellArg "${stateDirectory}/state.vscdb"} \
-            "PRAGMA user_version = 1; /* match VSCodium's storage schema version when creating the database */" \
+            "PRAGMA user_version = 1; /* match vscodium's storage schema version when creating the database */" \
             "CREATE TABLE IF NOT EXISTS ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB);" \
             "INSERT OR IGNORE INTO ItemTable (key, value) VALUES ('openai.chatgpt', '{}');" \
             ${lib.escapeShellArg "UPDATE ItemTable SET value = json_patch(value, '${codexExtensionSettings}') WHERE key = 'openai.chatgpt';"}

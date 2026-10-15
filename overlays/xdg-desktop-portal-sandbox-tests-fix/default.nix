@@ -1,6 +1,6 @@
 _final: prev: {
   xdg-desktop-portal = prev.xdg-desktop-portal.overrideAttrs (oldAttrs: {
-    # `bwrap` cannot configure loopback inside the Nix build sandbox
+    # bwrap cannot configure loopback inside the nix build sandbox
     preCheck =
       (oldAttrs.preCheck or "")
       + ''

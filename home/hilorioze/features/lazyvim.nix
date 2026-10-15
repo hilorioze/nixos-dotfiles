@@ -52,16 +52,16 @@
         plugin = "stevearc/conform.nvim";
 
         opts = {
-          # use `devenv`'s generated wrapper instead of looking for `treefmt.toml`
+          # use devenv's generated wrapper instead of looking for `treefmt.toml`
           formatters.treefmt.require_cwd = false;
 
           formatters_by_ft.nix = ["treefmt"];
         };
       };
 
-      # `editor.outline` loads before `ui.edgy` due to alphabetical ordering in `lazyvim-nix`,
+      # `editor.outline` loads before `ui.edgy` due to alphabetical ordering in lazyvim-nix,
       # causing `ui.edgy`'s fresh `opts` to drop the `Outline` panel; re-add it in
-      # `programs.lazyvim.plugins`, which `lazyvim-nix` always appends after extras
+      # `programs.lazyvim.plugins`, which lazyvim-nix always appends after extras
       edgy = mkPlugin {
         plugin = "folke/edgy.nvim";
 

@@ -32,14 +32,14 @@
     inherit domain lib mkInitialPasswordCredential users;
   });
 
-  # reapply `!File` values when the secret's SOPS source changes
+  # reapply `!File` values when the secret's sops source changes
   mailBlueprint = pkgs.writeText "mail.yaml" ''
     ${builtins.readFile ./authentik/mail.yaml}
 
     # sops-trigger: ${config.sops.secrets."services/authentik/ldap/users/mail-directory/password".sopsFileHash}
   '';
 
-  # reapply `!File` values when the secret's SOPS source changes
+  # reapply `!File` values when the secret's sops source changes
   ldapOutpostBlueprint = pkgs.writeText "ldap-outpost.yaml" ''
     ${builtins.readFile ./authentik/ldap-outpost.yaml}
 
@@ -105,7 +105,7 @@ in {
 
         listen = {
           http = ["127.0.0.1:9000"];
-          https = []; # disable default `[::]:9443`; `traefik` terminates TLS
+          https = []; # disable default `[::]:9443`; traefik terminates tls
 
           ldap = [];
           ldaps = ["0.0.0.0:6636"];
@@ -115,7 +115,7 @@ in {
         };
       };
 
-      worker.listenHTTP = "127.0.0.1:9001"; # use IPv4 loopback instead of default `[::1]:9001`
+      worker.listenHTTP = "127.0.0.1:9001"; # use ipv4 loopback instead of default `[::1]:9001`
     };
 
     authentik-ldap = {

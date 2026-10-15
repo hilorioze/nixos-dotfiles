@@ -30,7 +30,7 @@ in
         --run 'export PLAYWRIGHT_MCP_EXTENSION_TOKEN=$(${readExtensionToken} "$PLAYWRIGHT_MCP_USER_DATA_DIR")'
     '';
 
-    passthru.skipUpdate = true; # version follows the 'nixpkgs-unstable' input
+    passthru.skipUpdate = true; # version follows the `nixpkgs-unstable` input
 
     meta = playwright-mcp.meta // {platforms = ["x86_64-linux"];};
   }

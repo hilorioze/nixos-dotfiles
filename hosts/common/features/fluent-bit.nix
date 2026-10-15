@@ -17,7 +17,7 @@
 
           read_from_tail = true;
 
-          strip_underscores = true; # _SYSTEMD_UNIT -> SYSTEMD_UNIT
+          strip_underscores = true; # `_SYSTEMD_UNIT` -> `SYSTEMD_UNIT`
         }
       ];
 

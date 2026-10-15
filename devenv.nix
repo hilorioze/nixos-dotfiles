@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   packages = with pkgs; [
     # keep-sorted start
-    age # ships `age-plugin-tag`; required to encrypt to age1tag1 recipients
+    age # ships age-plugin-tag; required to encrypt to `age1tag1` recipients
     deploy-rs
     sops
     # keep-sorted end
@@ -65,7 +65,7 @@
       args =
         (map (code: "-ignore=${code}") ignoredShellcheckRules)
         ++ [
-          ''-ignore=property \"collect-targets\" is not defined'' # anchor references `needs.collect-targets` itself; should and only exists in downstream jobs
+          ''-ignore=property \"collect-targets\" is not defined'' # the anchor references `needs.collect-targets`, which exists only in the downstream jobs that reuse it
         ];
     };
 
@@ -81,10 +81,10 @@
 
       types = ["text"];
 
-      # `eclint` only processes the first positional path, so let it discover tracked files itself
+      # eclint only processes the first positional path, so let it discover tracked files itself
       pass_filenames = false;
 
-      # `eclint` does not support `.editorconfig`'s `unset` value
+      # eclint does not support `.editorconfig`'s `unset` value
       excludes = ["\\.diff$" "\\.patch$"];
 
       args = ["-exclude" "{*.{diff,patch},**/*.{diff,patch}}"];
@@ -134,6 +134,6 @@
     };
   };
 
-  # ensure generated files (like `.devcontainer/devcontainer.json`) exist before `treefmt` runs to prevent race conditions
+  # ensure generated files (like `.devcontainer/devcontainer.json`) exist before treefmt runs to prevent race conditions
   tasks."devenv:treefmt:run".after = ["devenv:files"];
 }

@@ -27,7 +27,7 @@
       server = {
         host = "0.0.0.0"; # the firewall keeps the port off the internet; tailscale accepts tailnet traffic before it gets there
 
-        commercial-mode = true; # no request log with prompts on disk
+        commercial-mode = true; # with `request-log` off, failed requests still get written to disk with their prompts
       };
 
       access.api-keys = [{_secret = config.sops.secrets."services/cliproxyapi/inference-key".path;}];
@@ -44,11 +44,11 @@
         session-affinity = true; # prompt cache is per account; round-robin loses it on every switch
       };
 
-      multimedia.disable-image-generation = "chat"; # claude drops the image, the quota is spent anyway
+      multimedia.disable-image-generation = "chat"; # cliproxyapi adds an image tool to codex requests; claude drops the images, the quota is spent anyway
     };
   };
 
-  # starts every quota window: 5h ones when the learned demand gets the most out of them, longer ones as soon as no idle 5h one waits for its planned start; ranks accounts so the soonest reset is spent first
+  # starts 5h windows when the learned demand gets the most out of them, longer ones once the 5h one runs; routes to the account whose 5h window resets soonest
   systemd.services.cliproxyapi-warmup = {
     wantedBy = ["multi-user.target"];
 
@@ -100,7 +100,7 @@
       text = ''
         provider=$1
 
-        # a token written as root can't be read by the service, so its refreshes are lost
+        # the service can't rewrite a token file written as root, so after a restart it reads a refresh token that was already rotated
         if [[ $(id --user --name) != ${config.systemd.services.cliproxyapi.serviceConfig.User} ]]; then
           echo "run as the service user: sudo --user ${config.systemd.services.cliproxyapi.serviceConfig.User} cliproxyapi-login $provider" >&2
 

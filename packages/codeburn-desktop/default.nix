@@ -106,7 +106,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
-  # desktop releases are tagged separately from the CLI and menubar ones
+  # desktop releases are tagged separately from the cli and menubar ones
   passthru.updateScript.command = nix-update-script {
     extraArgs = ["--version-regex=^desktop-v(.+)$"];
   };

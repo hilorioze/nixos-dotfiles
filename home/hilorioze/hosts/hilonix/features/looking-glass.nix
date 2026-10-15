@@ -11,12 +11,12 @@
       };
 
       spice = {
-        clipboard = false; # LGMP clipboard only; no SPICE fallback
+        clipboard = false; # lgmp clipboard only; no spice fallback
 
-        input = false; # LGMP input only; no SPICE fallback
+        input = false; # lgmp input only; no spice fallback
       };
 
-      audio.micDefault = "deny"; # deny mic access by default; toggle explicitly via ScrLk+E
+      audio.micDefault = "deny"; # deny mic access by default; toggle explicitly via `ScrLk+E`
     };
   };
 }

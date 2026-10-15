@@ -86,7 +86,7 @@
       };
 
       settings = {
-        attribution = false; # requires claude code 2.1.281+, which `unstablePkgs` always provides
+        attribution = false; # requires claude 2.1.281+, which `unstablePkgs` always provides
 
         autoCompactWindow = 280000;
 
@@ -119,7 +119,7 @@
         mergeSettingsFilter = lib.escapeShellArg ''
           (
             .[0]
-            # keep only settings managed dynamically by claude code
+            # keep only settings managed dynamically by claude
             | with_entries(select(.key | IN("model", "modelSettings")))
           )
           # apply the declarative settings with higher priority
@@ -137,12 +137,12 @@
           fi
         '';
 
-      # these are only read from the global config, which claude code itself keeps writing
+      # these are only read from the global config, which claude itself keeps writing
       writeClaudeCodeGlobalConfig = let
         globalConfig = pkgs.writeText "claude-code-global-config.json" (builtins.toJSON {
           # keep-sorted start
           autoConnectIde = true; # automatically connect to a running ide from an external terminal
-          hasSeenAutoModeOutsideReadPrompt = true; # the answer to the first read outside the working directories
+          hasSeenAutoModeOutsideReadPrompt = true; # skip the one-time auto mode prompt on reads outside the working directories
           lspRecommendationDisabled = true; # the lsp plugin recommendation ignores `lspServers`
           messageIdleNotifThresholdMs = 0; # notify as soon as a turn ends instead of after a minute of idling
           # keep-sorted end

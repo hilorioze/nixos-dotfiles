@@ -105,7 +105,7 @@ in
           dontBuild = true;
 
           postPatch = ''
-            # avoid `mpv.pc`'s private dependency chain; the plugin only needs headers and `libmpv`
+            # avoid `mpv.pc`'s private dependency chain; the plugin only needs headers and libmpv
             substituteInPlace linux/CMakeLists.txt \
               --replace-fail "pkg_check_modules(mpv IMPORTED_TARGET mpv)" "
                 add_library(PkgConfig::mpv INTERFACE IMPORTED)
@@ -146,7 +146,7 @@ in
     postInstall = ''
       install -D --mode=644 ${src}/assets/png/app_icon.png $out/share/icons/hicolor/512x512/apps/yaas.png
 
-      # rinf expects its Rust symbols to be visible to the process on Linux
+      # rinf expects its rust symbols to be visible to the process on linux
       patchelf --add-needed libhub.so $out/app/${pname}/yaas
     '';
 
@@ -169,7 +169,7 @@ in
     ]}";
 
     passthru = {
-      # expose the nested rust dependencies so `nix-update` can refresh `cargoHash`
+      # expose the nested rust dependencies so nix-update can refresh `cargoHash`
       inherit (rustDep) cargoDeps;
 
       # upstream only publishes a mutable nightly prerelease; follow `master` instead

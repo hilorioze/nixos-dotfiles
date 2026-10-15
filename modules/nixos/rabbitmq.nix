@@ -316,7 +316,7 @@
               default = null;
             };
 
-            # `rabbitmq` exports vhost `limits` in definitions, but importing definitions does not restore them; the actual limit state lives in the `vhost-limits` runtime parameter
+            # rabbitmq exports vhost `limits` in definitions, but importing definitions does not restore them; the actual limit state lives in the `vhost-limits` runtime parameter
             # limits = mkOption {
             #   type = json;
             #

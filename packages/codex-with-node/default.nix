@@ -23,7 +23,7 @@ in
         --prefix PATH : ${lib.makeBinPath [nodejs]}
     '';
 
-    passthru.skipUpdate = true; # version follows the 'nixpkgs-unstable' input
+    passthru.skipUpdate = true; # version follows the `nixpkgs-unstable` input
 
     meta = codex.meta // {platforms = ["x86_64-linux"];};
   }

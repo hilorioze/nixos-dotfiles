@@ -7,7 +7,7 @@
   ...
 }: let
   sshAskpass = pkgs.writeShellScript "ssh-askpass" ''
-    # suppress OpenSSH's initial "confirm user presence" dialog while keeping its askpass process alive until the PIN prompt
+    # suppress openssh's initial "confirm user presence" dialog while keeping its askpass process alive until the pin prompt
     if [[ ''${SSH_ASKPASS_PROMPT-} == none ]]; then
       exec ${lib.getExe' pkgs.coreutils "sleep"} infinity
     fi
@@ -26,7 +26,7 @@ in {
     # keep-sorted end
   };
 
-  # use direct FIDO2 signing in TTY sessions so `ssh` can read the PIN from the TTY
+  # use direct fido2 signing in tty sessions so ssh can read the pin from the tty
   programs.ssh.extraConfig = ''
     Match exec "test -z \"$DISPLAY$WAYLAND_DISPLAY\""
       IdentityAgent none
@@ -39,7 +39,7 @@ in {
     ssh-agent.Service.Environment = [
       "SSH_ASKPASS=${sshAskpass}"
 
-      "SSH_ASKPASS_REQUIRE=force" # force askpass past OpenSSH's `$DISPLAY`/`$WAYLAND_DISPLAY` gate
+      "SSH_ASKPASS_REQUIRE=force" # force askpass past openssh's `$DISPLAY`/`$WAYLAND_DISPLAY` gate
     ];
 
     ssh-agent-load-keys = {

@@ -9,7 +9,7 @@
 
     # keep-sorted start
     ./auto-login.nix
-    ./disable-kde-pim.nix # Avoid bundling an entire MariaDB installation on the ISO.
+    ./disable-kde-pim.nix # avoid bundling an entire mariadb installation on the iso
     ./plasma-keyboard.nix
     # keep-sorted end
   ];

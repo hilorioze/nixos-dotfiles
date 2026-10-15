@@ -11,7 +11,7 @@
   ];
 
   boot = {
-    # required for OCI Cloud Shell serial console output
+    # required for OCI cloud shell serial console output
     kernelParams = ["console=ttyS0,9600"];
 
     loader = {

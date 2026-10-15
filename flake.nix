@@ -214,8 +214,8 @@
       in {
         apps = {
           # keep-sorted start
-          devenv.program = lib.getExe pkgs'.devenv; # expose the overlaid `devenv` package to `.github/workflows/{build-devenv,update-devenv-lock}.yaml`
-          nix-update.program = lib.getExe pkgs'.nix-update; # expose the locally patched `nix-update` package to `.github/workflows/update-packages.yaml`
+          devenv.program = lib.getExe pkgs'.devenv; # expose the overlaid devenv package to `.github/workflows/{build-devenv,update-devenv-lock}.yaml`
+          nix-update.program = lib.getExe pkgs'.nix-update; # expose the locally patched nix-update package to `.github/workflows/update-packages.yaml`
           # keep-sorted end
         };
 
@@ -242,7 +242,7 @@
         mkDeployNode = nixosConfiguration: let
           inherit (nixosConfiguration) pkgs;
 
-          # keep the pinned `deploy-rs` lib, but use `nixpkgs`' cached binary to avoid rebuilding `deploy-rs` from source
+          # keep the pinned deploy-rs lib, but use nixpkgs' cached binary to avoid rebuilding deploy-rs from source
           deployLib =
             (
               deploy-rs.overlays.default

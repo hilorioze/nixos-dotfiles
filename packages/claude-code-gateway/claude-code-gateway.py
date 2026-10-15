@@ -27,11 +27,11 @@ CLAUDE_CATALOG_URL: str = "https://downloads.claude.ai/model-catalog/v1/catalog.
 
 CLOAK_PREFIX: str = "claude-fable-5-dd-"  # cliproxyapi's disguise for foreign ids: claude lists only claude-like ones
 
-BEHAVES_AS: str = "claude-fable-5"  # what the disguise made of every foreign model
+BEHAVES_AS: str = "claude-fable-5"  # the model claude handled every disguised one as
 
 FRAMING_HEADERS: set[str] = {"connection", "content-length", "host", "transfer-encoding"}  # aiohttp frames both directions itself
 
-CLASSIFIER_PROMPT: str = "You are a security monitor for autonomous AI coding agents."  # auto mode's own check, once the model gives no verdict
+CLASSIFIER_PROMPT: str = "You are a security monitor for autonomous AI coding agents."  # auto mode's local check, sent when the api gives no verdict of its own
 
 # what each agent checks its actions with: codex the auto-review model of its catalog, antigravity the flash tier
 # (the tier's own `gemini-3.8-flash-tiered` is missing from cliproxyapi)
@@ -43,7 +43,7 @@ REVIEWERS: dict[str, str] = {
 QUOTA_MIN_AGE: float = 30  # the status line renders many times per turn
 QUOTA_MAX_AGE: float = 300  # the subscriptions are spent outside cliproxyapi too
 
-PICKER_QUOTA_TIMEOUT: float = 2  # claude waits for the picker before it starts
+PICKER_QUOTA_TIMEOUT: float = 2  # the wrapper waits for the picker before claude starts
 PICKER_CATALOG_TIMEOUT: float = 2
 STATUS_LINE_QUOTA_TIMEOUT: float = 1
 
@@ -84,7 +84,7 @@ def read_codex_quota(quota: dict[str, Any]) -> list[dict[str, Any]]:
         reset_at: str | None = signals.get(f"x-codex-{name}-reset-at")
 
         windows.append({
-            "label": format_window_length(int(signals[f"x-codex-{name}-window-minutes"]) * 60),  # which window is the short one depends on the plan
+            "label": format_window_length(int(signals[f"x-codex-{name}-window-minutes"]) * 60),  # the primary window is 5h on plus, 30d on free
             "remaining": 100 - float(signals[f"x-codex-{name}-used-percent"]),
             "resets_at": float(reset_at) if reset_at else observed_at + float(signals[f"x-codex-{name}-reset-after-seconds"]),
         })
@@ -92,7 +92,7 @@ def read_codex_quota(quota: dict[str, Any]) -> list[dict[str, Any]]:
     return windows
 
 
-# rate limit headers of an account's last answer, kept by cliproxyapi; antigravity answers carry none
+# rate limit headers of an account's last answer; cliproxyapi keeps them only for claude and codex
 OBSERVERS: dict[str, Callable[[dict[str, Any]], list[dict[str, Any]]]] = {
     "claude": read_claude_quota,
     "codex": read_codex_quota,
@@ -112,7 +112,7 @@ def is_outdated(account: dict[str, Any], now: float) -> bool:
 
     aged: bool = now - snapshot["fetched_at"] > QUOTA_MAX_AGE
 
-    return snapshot["observed"] or aged or is_reset(snapshot, now)  # observed headers that went old leave it to a fetch
+    return snapshot["observed"] or aged or is_reset(snapshot, now)  # a snapshot from headers stands only while `observe_quota` accepts them, then a fetch replaces it
 
 
 def observe_quota(account: dict[str, Any], now: float) -> bool:
@@ -130,7 +130,7 @@ def observe_quota(account: dict[str, Any], now: float) -> bool:
     windows: list[dict[str, Any]] = OBSERVERS[account["provider"]]({**quota, "signals": signals})
     snapshot: dict[str, Any] = {"pools": [{"name": None, "windows": windows}], "fetched_at": observed_at, "observed": True}
 
-    # a 429 carries no limits, a reset window says nothing current
+    # a lone `retry-after` carries no windows, headers past a reset describe the previous window
     if not windows or is_reset(snapshot, now):
         return False
 
@@ -222,7 +222,7 @@ def shorten(part: str, length: int) -> str:
 
 
 def abbreviate_label(label: str, labels: set[str], width: int) -> str:
-    # an email gives way by its name and host, the zone stays; any other label as a whole
+    # an email shrinks by its name and host, the zone stays; any other label shrinks as a whole
     user, at, domain = label.partition("@")
     host, dot, zone = domain.rpartition(".")
 
@@ -234,7 +234,7 @@ def abbreviate_label(label: str, labels: set[str], width: int) -> str:
 
     name: str = label
 
-    # the part with more to spare gives way first, never below what tells the accounts apart
+    # the part with more to spare shrinks first, never below what tells the accounts apart
     while len(name) > width and lengths != minimums:
         index: int = 0 if lengths[0] - minimums[0] >= lengths[1] - minimums[1] else 1
         lengths[index] -= 1
@@ -308,7 +308,7 @@ async def read_claude_lineup() -> list[str] | None:
         models: list[str] = [model["id"] for model in selector["models"]]
         expires_at: float = datetime.datetime.fromisoformat(catalog["expires_at"]).timestamp()
     except (aiohttp.ClientError, TimeoutError, LookupError, ValueError):
-        return None  # an outside file; the picker keeps cliproxyapi's order without it
+        return None  # downloaded from claude's servers; the picker keeps cliproxyapi's order without it
 
     claude_lineup.update(models=models, expires_at=expires_at)
 
@@ -336,7 +336,7 @@ def label_model(model: dict[str, Any]) -> str:
 def route_classifier(session: str, body: bytes) -> bytes:
     payload: dict[str, Any] = json.loads(body)
 
-    # the action under check comes from the latest answer with tools of the session
+    # the action under check comes from the answer to the session's latest request with tools
     if payload.get("tools"):
         session_providers[session] = split_model(payload["model"])[0]
 
@@ -368,7 +368,8 @@ async def relay(request: web.Request) -> web.StreamResponse:
 
     headers: list[tuple[str, str]] = [(name, value) for name, value in request.headers.items() if name.lower() not in FRAMING_HEADERS]
 
-    # claude hanging up cancels the handler, which closes the upstream connection
+    # claude hanging up cancels the handler, which closes the upstream connection;
+    # the body stays compressed, as its `content-encoding` says
     async with (
         aiohttp.ClientSession(auto_decompress=False, timeout=aiohttp.ClientTimeout(total=None)) as client,
         client.request(request.method, f"{CLIPROXYAPI_URL}{request.raw_path}", headers=headers, data=body) as answer,
@@ -420,7 +421,8 @@ async def serve_model_picker(request: web.Request) -> web.Response:
 
     labels: list[str] = [label_model(model) for model in catalog]
 
-    # a row is the indent, pointer, index, the longest label and the gaps between them
+    # a row is the padding, pointer, index, the longest label, the current model's checkmark and the gaps between them;
+    # claude puts its "Default (recommended)" row on top of these
     width: int = int(request.query["width"]) - max(map(len, labels)) - len(f"{len(catalog) + 1}.") - 12
 
     options: list[dict[str, str]] = []

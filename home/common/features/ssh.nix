@@ -10,7 +10,7 @@
   programs.ssh = {
     enable = true;
 
-    enableDefaultConfig = false; # its default is already deprecated and home-manager recommends setting it to false
+    enableDefaultConfig = false; # its default is already deprecated and home-manager recommends setting it to `false`
 
     settings."*".HostKeyAlgorithms = "ssh-ed25519";
   };

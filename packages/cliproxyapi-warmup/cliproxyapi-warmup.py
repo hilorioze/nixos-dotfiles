@@ -53,7 +53,7 @@ async def warm_codex(account: dict[str, Any], pool: str | None) -> None:
         "POST",
         "https://chatgpt.com/backend-api/codex/responses",
         {"Content-Type": "application/json"},
-        json.dumps({"model": "gpt-6-luna", "input": [{"role": "user", "content": "hi"}], "store": False, "stream": True}),  # refused unless streamed and unstored
+        json.dumps({"model": "gpt-6-luna", "input": [{"role": "user", "content": "hi"}], "store": False, "stream": True}),  # codex answers 400 unless streamed and unstored
     )
 
 
@@ -88,7 +88,7 @@ def is_idle(window: dict[str, Any], fetched_at: float) -> bool:
 
 
 def is_warmable(entry: dict[str, Any]) -> bool:
-    # a request is refused while some window of the pool is spent
+    # a request gets 429 while some window of the pool is spent
     return all(window["remaining"] > 0 for window in entry["pool"]["windows"])
 
 
@@ -105,7 +105,7 @@ def find_entry_id(entry: dict[str, Any]) -> tuple[str, str | None]:
 
 
 def find_slot(at: float) -> int:
-    moment: time.struct_time = time.gmtime(at)  # a DST switch shifts the learned demand by an hour until it is relearned
+    moment: time.struct_time = time.gmtime(at)  # the accounts are shared, no one's zone fits; a DST switch shifts the learned demand by an hour until it is relearned
 
     return (moment.tm_wday * 86400 + moment.tm_hour * 3600 + moment.tm_min * 60) // SLOT_LENGTH
 
@@ -137,7 +137,7 @@ def forecast_demand(profile: list[list[float]], at: float, now: float) -> float:
 
 
 def measure_spending(before: dict[str, Any], window: dict[str, Any]) -> float:
-    # a window keeps its reset time; everything spent from a new one is new
+    # a window keeps its reset time; from a new one everything spent counts
     if before["resets_at"] is not None and window["resets_at"] is not None and abs(window["resets_at"] - before["resets_at"]) < RESET_TOLERANCE:
         return max(before["remaining"] - window["remaining"], 0)
 
@@ -153,7 +153,7 @@ def learn_demand(profile: list[list[float]], members: list[dict[str, Any]], prev
     duration: float = sum(member["fetched_at"] - previous[find_entry_id(member)]["fetched_at"] for member in compared) / len(compared)
     spent: float = sum(measure_spending(previous[find_entry_id(member)]["window"], member["window"]) for member in compared)
 
-    # the demand of a spent group goes unseen; it was at least a window per window length
+    # the demand of a spent group goes unseen; it was at least a window per 5h for each account
     if all(member["window"]["remaining"] <= 0 for member in members):
         spent += len(members) * 100 * duration / WINDOW_LENGTHS["5h"]
 
@@ -208,7 +208,7 @@ def plan_warmups(members: list[dict[str, Any]], demands: list[float], now: float
         windows.append({"resets_at": None if idle else member["window"]["resets_at"], "remaining": 100 if idle else member["window"]["remaining"]})
 
     idle_indexes: list[int] = [index for index, window in enumerate(windows) if window["resets_at"] is None]
-    options: list[float | None] = [now + step * SLOT_LENGTH for step in range(WINDOW_LENGTHS["5h"] // SLOT_LENGTH + 1)] + [None]  # None waits for the first request
+    options: list[float | None] = [now + step * SLOT_LENGTH for step in range(WINDOW_LENGTHS["5h"] // SLOT_LENGTH + 1)] + [None]  # `None` waits for the first request
     starts: list[float | None] = [None] * len(windows)
 
     # every idle window takes its best start given the others'; the second round lets them settle together

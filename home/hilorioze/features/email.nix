@@ -8,14 +8,14 @@
 
       imap = {
         host = "imap.hilorioze.com";
-        port = 993; # `imaps`; required: `home-manager` default is `143` (`imap`)
+        port = 993; # `imaps`; required: home-manager default is `143` (`imap`)
 
         authentication = "xoauth2";
       };
 
       smtp = {
         host = "smtp.hilorioze.com";
-        port = 465; # `smtps`; required: `home-manager` default is `587` (`smtp`)
+        port = 465; # `smtps`; required: home-manager default is `587` (`smtp`)
 
         authentication = "xoauth2";
       };
@@ -26,8 +26,8 @@
         signByDefault = true;
       };
 
-      userName = address; # login credential passed to `imap`/`smtp` servers (`mail.server.server_*.userName`); distinct from `address`
-      # `passwordCommand` is useless here because `thunderbird` uses its own internal password store
+      userName = address; # login credential passed to imap/smtp servers (`mail.server.server_*.userName`); distinct from `address`
+      # `passwordCommand` is useless here because thunderbird uses its own internal password store
 
       thunderbird.enable = true;
     };

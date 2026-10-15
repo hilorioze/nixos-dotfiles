@@ -25,10 +25,10 @@
         ];
 
         env = {
-          # drop the client's library path (e.g. `claude-code`'s `alsa-lib`), which can break launching the browser built against another `glibc`
+          # drop the client's library path (e.g. claude's alsa-lib), which can break launching the browser built against another glibc
           LD_LIBRARY_PATH = "";
 
-          # prevent `nixpkgs`' wrapper from forcing isolated mode, which takes precedence over `--extension`;
+          # prevent nixpkgs' wrapper from forcing isolated mode, which takes precedence over `--extension`;
           # must be the profile that has the extension, since `--extension` opens its connect page with this `--user-data-dir`
           PLAYWRIGHT_MCP_USER_DATA_DIR = "${config.xdg.configHome}/chromium";
         };

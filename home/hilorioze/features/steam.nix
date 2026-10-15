@@ -15,17 +15,17 @@
       "10" = {
         name = "Counter-Strike";
 
-        # skip `pressure-vessel`, which overwrites `LD_LIBRARY_PATH` after launch options are applied
+        # skip pressure-vessel, which overwrites `LD_LIBRARY_PATH` after launch options are applied
         compatTool = "Steam-Play-None";
 
         env = {
-          # use `nixpkgs`' `freetype`: legacy `steam-runtime`'s `freetype` cannot load normal truetype fonts
-          # `sdl3`'s audio backends require both `libpulseaudio` and `pipewire`
+          # use nixpkgs' freetype: legacy steam-runtime's freetype cannot load normal truetype fonts
+          # sdl3's audio backends require both libpulseaudio and pipewire
           LD_LIBRARY_PATH = "${lib.getLib pkgs.pkgsi686Linux.freetype}/lib:${lib.getLib pkgs.pkgsi686Linux.libpulseaudio}/lib:${lib.getLib pkgs.pkgsi686Linux.pipewire}/lib:$LD_LIBRARY_PATH";
 
           LD_PRELOAD = "${pkgs.pkgsi686Linux.sdl2-compat}/lib/libSDL2-2.0.so.0:${pkgs.pkgsi686Linux.cstrike-mod}/lib/libcstrike_mod.so:$LD_PRELOAD";
 
-          # nvidia as offload GPU can't create a `wayland` window
+          # nvidia as offload gpu can't create a wayland window
           SDL_VIDEODRIVER = "x11";
         };
 
@@ -80,7 +80,7 @@
       "1422450" = {
         name = "Deadlock";
 
-        compatTool = config.programs.steam.config.defaultCompatTool; # not available natively yet; forces proton_experimental for some reason, so set our own
+        compatTool = config.programs.steam.config.defaultCompatTool; # not available natively yet; forces `proton_experimental` for some reason, so set our own
 
         wrappers = [
           osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram

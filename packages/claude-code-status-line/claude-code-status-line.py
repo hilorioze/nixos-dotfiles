@@ -126,7 +126,7 @@ def main() -> None:
 
     model_id: str | None = get(session, "model", "id")
 
-    # before the first answer there is no context yet, nor an account of the session: every one gets a line
+    # before the first answer there is no context yet, nor an account of the session: every account gets a line
     quotas: list[str] = read_quota(model_id, width, True).splitlines() if context is None and model_id else []
 
     if quotas:

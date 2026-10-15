@@ -44,9 +44,9 @@
     lib.mkMerge [
       {
         "*" = {
-          ServerAliveInterval = 25; # keep NAT entries alive during inactivity
+          ServerAliveInterval = 25; # keep nat entries alive during inactivity
 
-          XAuthLocation = lib.getExe pkgs.xauth; # required for X11 forwarding (`ssh -Y`)
+          XAuthLocation = lib.getExe pkgs.xauth; # required for x11 forwarding (`ssh -Y`)
         };
       }
 

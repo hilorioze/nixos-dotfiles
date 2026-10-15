@@ -37,14 +37,14 @@ in {
       profiles.default = {
         isDefault = true; # lol, why is it not like in firefox?: "true if profile ID is 0"
 
-        withExternalGnupg = true; # allow `thunderbird` to use system `gpg-agent` via `gpgme`
+        withExternalGnupg = true; # allow thunderbird to use system gpg-agent via gpgme
 
         # explicit account display order instead of `accounts.email.accounts` default alphabetical order; also include the manually configured mailbox's id
         accountsOrder = [
           "hilorioze@hilorioze.com"
           "hilorioze@gmail.com"
           "account2" # manually configured mailbox's id
-          # `home-manager` already automatically appends "Local Folders", which `thunderbird` assigns `account1`
+          # home-manager already automatically appends "Local Folders", which thunderbird assigns `account1`
         ];
 
         extensions = [thunderbirdOAuthProvider];
@@ -53,10 +53,10 @@ in {
           # fixes extensions being disabled right after a fresh install
           "extensions.autoDisableScopes" = 14;
 
-          # omit `User-Agent` from outgoing messages because it might be stripped in transit and invalidate the `openpgp` signature
+          # omit `User-Agent` from outgoing messages because it might be stripped in transit and invalidate the openpgp signature
           "mailnews.headers.sendUserAgent" = false;
 
-          # suppress `thunderbird`'s "Know your rights" first-run notification
+          # suppress thunderbird's "Know your rights" first-run notification
           "mail.rights.override" = true;
 
           # disable telemetry data submission; this also prevents the first-run privacy policy tab, making `dataSubmissionPolicyBypassNotification` unnecessary
@@ -71,10 +71,10 @@ in {
   home.activation = let
     thunderbirdProfileDir = "${config.home.homeDirectory}/.thunderbird/${config.programs.thunderbird.profiles.default.name}";
 
-    # keep the fingerprint lowercased to match `thunderbird`'s normalized value in the `openpgp` acceptance database; `gpg` accepts it as well
+    # keep the fingerprint lowercased to match thunderbird's normalized value in the openpgp acceptance database; gpg accepts it as well
     gpgPrimaryKeyFingerprint = "96715efaa4fb67f96d3b335258da93fdd2d02b8d";
   in {
-    # merge the public key into `thunderbird`'s `pubring.gpg` because it requires the public key in its `rnp` keyring even when signing with external `gpg` via `gpgme`; also preserve other public keys already imported there
+    # merge the public key into thunderbird's `pubring.gpg` because it requires the public key in its rnp keyring even when signing with external gpg via gpgme; also preserve other public keys already imported there
     exportGpgPublicKeyToThunderbird = lib.hm.dag.entryAfter ["writeBoundary" "importGpgKeys"] ''
       run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${thunderbirdProfileDir}
 
@@ -83,9 +83,9 @@ in {
         --import-keys -
     '';
 
-    # mark own public key as verified in `thunderbird`'s separate `openpgp` acceptance database because `gpg` ownertrust is not imported by `gpgme`
+    # mark own public key as verified in thunderbird's separate openpgp acceptance database because gpg ownertrust is not imported by gpgme
     # create the acceptance schema as well, so accepting this key works for both fresh and existing profiles
-    # `personal` requires secret material in `rnp`; this profile keeps it in external `gpg`, so accept the exported public key as `verified`
+    # `personal` requires secret material in rnp; this profile keeps it in external gpg, so accept the exported public key as `verified`
     acceptOwnGpgPublicKeyInThunderbird = let
       thunderbirdOpenPgpDatabase = "${thunderbirdProfileDir}/openpgp.sqlite";
 

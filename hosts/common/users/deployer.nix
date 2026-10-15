@@ -16,7 +16,7 @@
 
       group = config.users.groups.deployer.name;
 
-      shell = pkgs.bash; # nix copy over ssh-ng requires a real shell
+      shell = pkgs.bash; # `nix copy` over `ssh-ng` requires a real shell
 
       openssh.authorizedKeys.keys = [
         # keep-sorted start
