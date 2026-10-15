@@ -27,7 +27,7 @@ CLAUDE_CATALOG_URL: str = "https://downloads.claude.ai/model-catalog/v1/catalog.
 
 CLOAK_PREFIX: str = "claude-fable-5-dd-"  # cliproxyapi's disguise for foreign ids: claude lists only claude-like ones
 
-BEHAVES_AS: str = "claude-fable-5"  # the model claude handled every disguised one as
+BEHAVES_AS: str = "claude-opus-5-5"  # claude knows a foreign model only through a catalog one: set the most capable one claude doesn't gate behind usage credits
 
 TIER_SEPARATOR: str = ":"  # a picker id `codex/gpt-5.5:priority` is the model asked in that service tier
 
