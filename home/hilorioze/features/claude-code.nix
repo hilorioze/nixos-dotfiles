@@ -96,6 +96,8 @@
 
         preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
 
+        promptSuggestionEnabled = false; # disable the guess of the next message, a model request over the whole conversation after every reply
+
         statusLine = {
           type = "command";
 
