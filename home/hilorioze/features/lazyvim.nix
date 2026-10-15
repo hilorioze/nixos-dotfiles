@@ -2,11 +2,20 @@
   # keep-sorted start
   inputs,
   lib,
+  osConfig,
   pkgs,
   # keep-sorted end
   ...
 }: {
-  imports = [inputs.lazyvim-nix.homeManagerModules.default];
+  # lazyvim-nix bumped nvim-treesitter to `5cb0114` without regenerating `data/parser-manifest.json`, so parsers stay at `539abf6` revisions and newer queries fail on old grammars, e.g. `(change)` in diff
+  imports = let
+    lazyvim-nix = inputs.nixpkgs.legacyPackages.${osConfig.nixpkgs.hostPlatform.system}.applyPatches {
+      name = "lazyvim-nix";
+      src = inputs.lazyvim-nix;
+
+      patches = [./lazyvim-nix-parser-manifest.patch];
+    };
+  in ["${lazyvim-nix}/nix/module.nix"];
 
   programs.lazyvim = {
     enable = true;
