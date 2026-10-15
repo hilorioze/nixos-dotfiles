@@ -29,6 +29,8 @@ CLOAK_PREFIX: str = "claude-fable-5-dd-"  # cliproxyapi's disguise for foreign i
 
 BEHAVES_AS: str = "claude-fable-5"  # the model claude handled every disguised one as
 
+TIER_SEPARATOR: str = ":"  # a picker id `codex/gpt-5.5:priority` is the model asked in that service tier
+
 FRAMING_HEADERS: set[str] = {"connection", "content-length", "host", "transfer-encoding"}  # aiohttp frames both directions itself
 
 CLASSIFIER_PROMPT: str = "You are a security monitor for autonomous AI coding agents."  # auto mode's local check, sent when the api gives no verdict of its own
@@ -187,8 +189,12 @@ async def read_quotas(timeout: float) -> dict[str, list[dict[str, Any]]]:
     return quotas
 
 
+def uncloak_model(model_id: str) -> str:
+    return model_id.removeprefix(CLOAK_PREFIX)[::-1] if model_id.startswith(CLOAK_PREFIX) else model_id
+
+
 def split_model(model_id: str) -> tuple[str, str]:
-    name: str = model_id.removeprefix(CLOAK_PREFIX)[::-1] if model_id.startswith(CLOAK_PREFIX) else model_id
+    name: str = uncloak_model(model_id)
 
     # every account but the claude one carries its provider as the model prefix
     provider, separator, model = name.partition("/")
@@ -292,6 +298,19 @@ async def read_catalog() -> list[dict[str, Any]]:
     return catalog["data"]
 
 
+async def read_service_tiers() -> dict[str, list[dict[str, str]]]:
+    headers: dict[str, str] = {"Authorization": f"Bearer {read_key('inference-key')}"}
+
+    # the catalog cliproxyapi gives codex; the claude one doesn't tell which models have a faster tier
+    async with (
+        aiohttp.ClientSession(timeout=CLIPROXYAPI_TIMEOUT) as client,
+        client.get(f"{CLIPROXYAPI_URL}/v1/models", params={"client_version": ""}, headers=headers) as answer,
+    ):
+        catalog: dict[str, Any] = await answer.json()
+
+    return {model["slug"]: model["service_tiers"] for model in catalog["models"]}
+
+
 async def read_claude_lineup() -> list[str] | None:
     if claude_lineup and time.time() < claude_lineup["expires_at"]:
         return claude_lineup["models"]
@@ -327,10 +346,23 @@ def order_models(catalog: list[dict[str, Any]], lineup: list[str] | None) -> lis
     return claude + others
 
 
-def label_model(model: dict[str, Any]) -> str:
+def label_model(model: dict[str, Any], tier: dict[str, str] | None) -> str:
     provider, _ = split_model(model["id"])
 
-    return model["display_name"] if provider == "claude" else f"{provider.capitalize()} · {model['display_name']}"
+    label: str = model["display_name"] if provider == "claude" else f"{provider.capitalize()} · {model['display_name']}"
+
+    return label if tier is None else f"{label} {tier['name']}"
+
+
+def apply_tier(body: bytes) -> bytes:
+    payload: dict[str, Any] = json.loads(body)
+
+    model, separator, tier = payload["model"].partition(TIER_SEPARATOR)
+    if not separator:
+        return body
+
+    # effort stays whatever claude asked, the tier only buys speed
+    return json.dumps({**payload, "model": model, "service_tier": tier}).encode()
 
 
 def route_classifier(session: str, body: bytes) -> bytes:
@@ -363,6 +395,8 @@ async def relay(request: web.Request) -> web.StreamResponse:
         raise web.HTTPUnauthorized
 
     body: bytes = await request.read()
+    if request.path in {"/v1/messages", "/v1/messages/count_tokens"}:
+        body = apply_tier(body)
     if request.path == "/v1/messages":
         body = route_classifier(request.headers["X-Claude-Code-Session-Id"], body)
 
@@ -395,7 +429,7 @@ async def serve_quotas(request: web.Request) -> web.Response:
 
     quotas: dict[str, list[dict[str, Any]]] = await read_quotas(STATUS_LINE_QUOTA_TIMEOUT)
 
-    provider, model = split_model(request.query["model"])
+    provider, model = split_model(request.query["model"].partition(TIER_SEPARATOR)[0])
 
     accounts: list[dict[str, Any]] = quotas.get(provider, [])
 
@@ -413,27 +447,39 @@ async def serve_model_picker(request: web.Request) -> web.Response:
     if request.headers.get("Authorization") != f"Bearer {read_key('inference-key')}":
         raise web.HTTPUnauthorized
 
-    models, quotas, lineup = await asyncio.gather(read_catalog(), read_quotas(PICKER_QUOTA_TIMEOUT), read_claude_lineup())
+    models, tiers, quotas, lineup = await asyncio.gather(read_catalog(), read_service_tiers(), read_quotas(PICKER_QUOTA_TIMEOUT), read_claude_lineup())
 
     catalog: list[dict[str, Any]] = order_models(models, lineup)
 
+    # a faster tier is picked like a model, per session; its rows follow all the plain ones
+    rows: list[tuple[dict[str, Any], dict[str, str] | None]] = [
+        *((model, None) for model in catalog),
+        *((model, tier) for model in catalog for tier in tiers.get(uncloak_model(model["id"]), [])),
+    ]
+
     account_labels: set[str] = collect_labels(quotas)
 
-    labels: list[str] = [label_model(model) for model in catalog]
+    labels: list[str] = [label_model(model, tier) for model, tier in rows]
 
     # a row is the padding, pointer, index, the longest label, the current model's checkmark and the gaps between them;
     # claude puts its "Default (recommended)" row on top of these
-    width: int = int(request.query["width"]) - max(map(len, labels)) - len(f"{len(catalog) + 1}.") - 12
+    width: int = int(request.query["width"]) - max(map(len, labels)) - len(f"{len(rows) + 1}.") - 12
 
     options: list[dict[str, str]] = []
-    for model, label in zip(catalog, labels, strict=True):
+    for (model, tier), label in zip(rows, labels, strict=True):
         provider, name = split_model(model["id"])
 
-        option: dict[str, str] = {"model": model["id"], "label": label, "description": describe_quota(name, quotas.get(provider, []), account_labels, width)}
-
         # under its own id a foreign model gets its own effort in `modelSettings`, not the one of the disguise
+        model_id: str = uncloak_model(model["id"])
+
+        option: dict[str, str] = {
+            "model": model_id if tier is None else f"{model_id}{TIER_SEPARATOR}{tier['id']}",
+            "label": label,
+            "description": describe_quota(name, quotas.get(provider, []), account_labels, width),
+        }
+
         if provider != "claude":
-            option.update(model=f"{provider}/{name}", behavesAs=BEHAVES_AS)
+            option["behavesAs"] = BEHAVES_AS
 
         options.append(option)
 
