@@ -89,11 +89,11 @@
     (pkgs.writeShellApplication {
       name = "cliproxyapi-login";
 
-      runtimeInputs = [
+      runtimeInputs = with pkgs; [
         # keep-sorted start
         config.services.cliproxyapi.package
-        pkgs.jq
-        pkgs.moreutils
+        jq
+        moreutils
         # keep-sorted end
       ];
 

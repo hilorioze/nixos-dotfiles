@@ -9,7 +9,13 @@
 }: {
   imports = [../../common/features/steam.nix];
 
-  programs.steam.config = {
+  programs.steam.config = let
+    wrappers = [
+      osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
+      (lib.getExe pkgs.gamemode)
+      (lib.getExe pkgs.mangohud)
+    ];
+  in {
     apps = {
       # keep-sorted start block=yes newline_separated=yes numeric=yes
       "10" = {
@@ -21,7 +27,7 @@
         env = {
           # use nixpkgs' freetype: legacy steam-runtime's freetype cannot load normal truetype fonts
           # sdl3's audio backends require both libpulseaudio and pipewire
-          LD_LIBRARY_PATH = "${lib.getLib pkgs.pkgsi686Linux.freetype}/lib:${lib.getLib pkgs.pkgsi686Linux.libpulseaudio}/lib:${lib.getLib pkgs.pkgsi686Linux.pipewire}/lib:$LD_LIBRARY_PATH";
+          LD_LIBRARY_PATH = "${lib.makeLibraryPath (with pkgs.pkgsi686Linux; [freetype libpulseaudio pipewire])}:$LD_LIBRARY_PATH";
 
           LD_PRELOAD = "${pkgs.pkgsi686Linux.sdl2-compat}/lib/libSDL2-2.0.so.0:${pkgs.pkgsi686Linux.cstrike-mod}/lib/libcstrike_mod.so:$LD_PRELOAD";
 
@@ -48,21 +54,13 @@
       "570" = {
         name = "Dota 2";
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "427520" = {
         name = "Factorio";
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "590830" = {
@@ -70,11 +68,7 @@
 
         compatTool = config.programs.steam.config.defaultCompatTool; # https://github.com/Facepunch/sbox-issues/issues/9759
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "1422450" = {
@@ -82,41 +76,25 @@
 
         compatTool = config.programs.steam.config.defaultCompatTool; # not available natively yet; forces `proton_experimental` for some reason, so set our own
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "1808500" = {
         name = "ARC Raiders";
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "2406770" = {
         name = "Bodycam";
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "4465480" = {
         name = "Counter-Strike:Global Offensive";
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
       # keep-sorted end
     };
@@ -149,12 +127,7 @@
         WINEDLLOVERRIDES = "winhttp=n,b";
       };
 
-      wrappers = [
-        osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-        (lib.getExe pkgs.gamemode)
-        (lib.getExe pkgs.mangohud)
-        (lib.getExe pkgs.steam-run)
-      ];
+      wrappers = wrappers ++ [(lib.getExe pkgs.steam-run)];
 
       args = [
         "run"

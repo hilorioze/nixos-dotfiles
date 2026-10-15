@@ -39,17 +39,17 @@ in {
           enable = true;
 
           users = let
-            mkUser = id: {
-              inherit id;
+            mkUser = name: {
+              id = config.sops.placeholder."services/lampac/users/${name}/id";
 
               expires = "9999-12-31T23:59:59.9999999";
             };
           in [
             # keep-sorted start
-            (mkUser config.sops.placeholder."services/lampac/users/danil/id")
-            (mkUser config.sops.placeholder."services/lampac/users/hilorioze/id")
-            (mkUser config.sops.placeholder."services/lampac/users/living-room-tv/id")
-            (mkUser config.sops.placeholder."services/lampac/users/zikkk/id")
+            (mkUser "danil")
+            (mkUser "hilorioze")
+            (mkUser "living-room-tv")
+            (mkUser "zikkk")
             # keep-sorted end
           ];
         };
