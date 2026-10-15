@@ -2,6 +2,7 @@
   # keep-sorted start
   config,
   inputs,
+  pkgs,
   # keep-sorted end
   ...
 }: {
@@ -9,6 +10,8 @@
 
   programs.silentSDDM = {
     enable = true;
+
+    package = pkgs.silent-sddm;
 
     backgrounds.wallpaper = config.stylix.image;
 

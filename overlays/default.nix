@@ -39,6 +39,7 @@
   (import ./plasma-pa-volume-step-snap)
   (import ./plasma-workspace-media-keys-no-repeat)
   (import ./podman-healthcheck-ignore-result)
+  (import ./silent-sddm-double-scale-fix inputs.silent-sddm)
   (import ./spectacle-copy-save)
   (import ./spectacle-ocr-clipboard-fix)
   (import ./spectacle-ocr-save)
