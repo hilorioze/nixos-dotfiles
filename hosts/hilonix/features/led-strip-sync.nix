@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  lib,
+  pkgs,
+  ...
+}: let
   ledStripControl =
     pkgs.writers.writePython3 "led-strip-control" {
       libraries = [pkgs.python3Packages.bleak];
@@ -9,6 +13,8 @@
       import asyncio
 
       from bleak import BleakClient
+      from bleak.backends.bluezdbus.manager import BlueZManager, get_global_bluez_manager
+      from bleak.exc import BleakBluetoothNotAvailableError
 
       STRIP_WRITE_UUID: str = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
@@ -69,7 +75,22 @@
           return arguments
 
 
+      async def wait_for_adapter() -> None:
+          manager: BlueZManager = await get_global_bluez_manager()
+
+          while True:
+              try:
+                  manager.get_default_adapter()
+              except BleakBluetoothNotAvailableError:
+                  await asyncio.sleep(0.1)
+              else:
+                  return
+
+
       async def send_packets(*, address: str, packets: list[bytes]) -> None:
+          # bluetoothd registers and powers the adapter a moment after its own start and after each resume
+          await wait_for_adapter()
+
           async with BleakClient(address) as client:
               for packet in packets:
                   await client.write_gatt_char(STRIP_WRITE_UUID, packet, response=False)
@@ -106,44 +127,49 @@
 
   ledStripTurnOnCommand = "${ledStripControlCommand} on --color ${ledStripColor} --brightness ${toString ledStripBrightness}";
   ledStripTurnOffCommand = "${ledStripControlCommand} off";
+
+  ledStripService = {
+    environment.BLEAK_LOGGING = "1"; # temporary: scan, connect, write and disconnect timings in the journal until the slow resume is found
+
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
 in {
   systemd.services = {
-    led-strip-power-sync = {
-      description = "LED strip follows the power state";
+    led-strip-power-sync = lib.mkMerge [
+      ledStripService
+      {
+        description = "LED strip follows the power state";
 
-      wantedBy = ["multi-user.target"];
+        wantedBy = ["multi-user.target"];
 
-      after = ["bluetooth.service"]; # also stops it before bluetooth goes down on shutdown
+        after = ["bluetooth.service"]; # also stops it before bluetooth goes down on shutdown
 
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
+        serviceConfig = {
+          ExecStart = ledStripTurnOnCommand;
+          ExecStop = ledStripTurnOffCommand;
+        };
+      }
+    ];
 
-        ExecStart = ledStripTurnOnCommand;
-        ExecStop = ledStripTurnOffCommand;
+    led-strip-sleep-sync = lib.mkMerge [
+      ledStripService
+      {
+        description = "LED strip follows the sleep state";
 
-        # the adapter powers up a moment after `bluetooth.service` is started
-        Restart = "on-failure";
-        RestartSec = 2;
-      };
-    };
+        wantedBy = ["sleep.target"];
 
-    led-strip-sleep-sync = {
-      description = "LED strip follows the sleep state";
+        before = ["sleep.target"];
 
-      wantedBy = ["sleep.target"];
+        unitConfig.StopWhenUnneeded = true; # runs `ExecStop` once `sleep.target` is stopped on resume
 
-      before = ["sleep.target"];
-
-      unitConfig.StopWhenUnneeded = true; # runs `ExecStop` once `sleep.target` is stopped on resume
-
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-
-        ExecStart = ledStripTurnOffCommand;
-        ExecStop = ledStripTurnOnCommand;
-      };
-    };
+        serviceConfig = {
+          ExecStart = ledStripTurnOffCommand;
+          ExecStop = ledStripTurnOnCommand;
+        };
+      }
+    ];
   };
 }
