@@ -73,8 +73,10 @@ in {
     };
 
     ports = [
+      # keep-sorted start
       "${toString peerListenPort}:${toString peerListenPort}/tcp"
       "${toString peerListenPort}:${toString peerListenPort}/udp"
+      # keep-sorted end
     ];
 
     volumes = let
@@ -111,8 +113,10 @@ in {
       # module template; the runtime file ends up in `data/ts/settings.json`
       "${torrServerSettingsFile}:/lampac/module/TorrServer/settings.json:ro"
 
+      # keep-sorted start
       "lampac-cache:/lampac/cache"
       "lampac-database:/lampac/database"
+      # keep-sorted end
     ];
   };
 }

@@ -8,8 +8,10 @@ final: prev: {
     cmakeFlags =
       oldAttrs.cmakeFlags
       ++ final.lib.optionals final.config.cudaSupport [
+        # keep-sorted start
         "-DCUDAToolkit_ROOT=${final.cudaPackages.cudatoolkit}"
         "-DCUDA_CUDART=${final.cudaPackages.cudatoolkit}/lib/libcudart.so"
+        # keep-sorted end
       ];
   });
 }

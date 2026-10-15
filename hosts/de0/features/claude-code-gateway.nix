@@ -35,8 +35,10 @@
       DynamicUser = true;
 
       LoadCredential = [
+        # keep-sorted start
         "inference-key:${config.sops.secrets."services/cliproxyapi/inference-key".path}"
         "management-key:${config.sops.secrets."services/cliproxyapi/management-key".path}"
+        # keep-sorted end
       ];
 
       Restart = "always";
