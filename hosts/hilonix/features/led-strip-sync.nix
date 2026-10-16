@@ -136,11 +136,7 @@
   ledStripTurnOnCommand = "${ledStripControlCommand} on --color ${ledStripColor} --brightness ${toString ledStripBrightness}";
   ledStripTurnOffCommand = "${ledStripControlCommand} off";
 
-  ledStripService = {
-    environment.BLEAK_LOGGING = "1"; # temporary: scan, connect, write and disconnect timings in the journal until the slow resume is found
-
-    serviceConfig.Type = "oneshot";
-  };
+  ledStripService.serviceConfig.Type = "oneshot";
 in {
   systemd = {
     tmpfiles.rules = ["f ${ledStripLock} 0644 root root -"];
