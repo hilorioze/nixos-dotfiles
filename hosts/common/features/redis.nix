@@ -2,7 +2,7 @@
   sops = {
     secrets."services/redis/users/hilorioze/hashed-password" = {};
 
-    templates."config/redis.acl" = {
+    templates."services/redis.acl" = {
       content = ''
         user default reset off
 
@@ -18,6 +18,6 @@
 
     bind = "0.0.0.0";
 
-    settings.aclfile = config.sops.templates."config/redis.acl".path;
+    settings.aclfile = config.sops.templates."services/redis.acl".path;
   };
 }

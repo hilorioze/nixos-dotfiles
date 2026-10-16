@@ -27,7 +27,7 @@ in {
       # keep-sorted end
     };
 
-    templates."config/lampac-init.conf" = {
+    templates."services/lampac/init.conf" = {
       content = builtins.toJSON {
         LampaWeb.initPlugins = {
           # keep-sorted start
@@ -107,7 +107,7 @@ in {
         ];
       });
     in [
-      "${config.sops.templates."config/lampac-init.conf".path}:/lampac/init.conf:ro"
+      "${config.sops.templates."services/lampac/init.conf".path}:/lampac/init.conf:ro"
 
       # `watch_together` needs `/watchtogether.js`, but the bundled module is disabled
       "${watchTogetherManifest}:/lampac/module/WatchTogether/manifest.json:ro"

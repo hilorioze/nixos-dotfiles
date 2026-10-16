@@ -2,7 +2,7 @@
   sops = {
     secrets."credentials/cloudflare/zones/hilorioze.com/api-token" = {};
 
-    templates."config/cloudflare-ddns.env" = {
+    templates."services/cloudflare-ddns.env" = {
       content = ''
         CLOUDFLARE_API_TOKEN=${config.sops.placeholder."credentials/cloudflare/zones/hilorioze.com/api-token"}
       '';
@@ -14,7 +14,7 @@
   services.cloudflare-ddns = {
     enable = true;
 
-    credentialsFile = config.sops.templates."config/cloudflare-ddns.env".path;
+    credentialsFile = config.sops.templates."services/cloudflare-ddns.env".path;
 
     domains = [config.networking.fqdn];
 

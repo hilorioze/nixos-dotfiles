@@ -21,7 +21,7 @@
     };
 
     templates = {
-      "config/bloodzonebot.env".content = ''
+      "services/bloodzonebot.env".content = ''
         BOT_TOKEN=${config.sops.placeholder."services/bloodzonebot/bot-token"}
 
         SENTRY_DSN=${config.sops.placeholder."services/bloodzonebot/sentry-dsn"}
@@ -31,7 +31,7 @@
         AMQP_DSN=amqp://bloodzonebot:${config.sops.placeholder."services/bloodzonebot/amqp-password"}@host.docker.internal:5672/bloodzonebot
       '';
 
-      "config/redis.acl".content = lib.mkAfter ''
+      "services/redis.acl".content = lib.mkAfter ''
         user bloodzonebot reset on #${config.sops.placeholder."services/redis/users/bloodzonebot/hashed-password"} allkeys allchannels allcommands
       '';
     };
@@ -56,7 +56,7 @@
         POSTGRES_HOST = "host.docker.internal";
         POSTGRES_USER = "bloodzonebot";
       };
-      environmentFiles = [config.sops.templates."config/bloodzonebot.env".path];
+      environmentFiles = [config.sops.templates."services/bloodzonebot.env".path];
     };
   in {
     # keep-sorted start block=yes newline_separated=yes

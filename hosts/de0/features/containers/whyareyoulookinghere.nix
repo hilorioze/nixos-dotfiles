@@ -17,7 +17,7 @@
     };
 
     templates = {
-      "config/whyareyoulookinghere.env".content = ''
+      "services/whyareyoulookinghere.env".content = ''
         BOT_TOKEN=${config.sops.placeholder."services/whyareyoulookinghere/bot-token"}
 
         SENTRY_DSN=${config.sops.placeholder."services/whyareyoulookinghere/sentry-dsn"}
@@ -25,7 +25,7 @@
         REDIS_DSN=redis://whyareyoulookinghere:${config.sops.placeholder."services/whyareyoulookinghere/redis-password"}@host.docker.internal:6379/1
       '';
 
-      "config/redis.acl".content = lib.mkAfter ''
+      "services/redis.acl".content = lib.mkAfter ''
         user whyareyoulookinghere reset on #${config.sops.placeholder."services/redis/users/whyareyoulookinghere/hashed-password"} allkeys allchannels allcommands
       '';
     };
@@ -42,7 +42,7 @@
         passwordFile = config.sops.secrets."credentials/ghcr/hilorioze/pull/token".path;
       };
 
-      environmentFiles = [config.sops.templates."config/whyareyoulookinghere.env".path];
+      environmentFiles = [config.sops.templates."services/whyareyoulookinghere.env".path];
     };
   in {
     # keep-sorted start block=yes newline_separated=yes

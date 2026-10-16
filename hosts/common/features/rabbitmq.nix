@@ -2,7 +2,7 @@
   sops = {
     secrets."services/rabbitmq/users/hilorioze/hashed-password" = {};
 
-    templates."config/rabbitmq-definitions.json" = {
+    templates."services/rabbitmq/definitions.json" = {
       content = builtins.toJSON config.services.rabbitmq.definitions;
 
       owner = config.systemd.services.rabbitmq.serviceConfig.User;
@@ -14,7 +14,7 @@
 
     listenAddress = "0.0.0.0";
 
-    configItems.load_definitions = config.sops.templates."config/rabbitmq-definitions.json".path;
+    configItems.load_definitions = config.sops.templates."services/rabbitmq/definitions.json".path;
 
     definitions = {
       users = [
