@@ -6,6 +6,7 @@
     ../../common/features/avahi.nix
     ../../common/features/bluetooth.nix
     ../../common/features/coolercontrol.nix
+    ../../common/features/desomnia.nix
     ../../common/features/flatpak.nix
     ../../common/features/gamemode.nix
     ../../common/features/gpu-screen-recorder.nix
@@ -40,6 +41,7 @@
     ../../common/features/upnp-firewall.nix
     ../../common/features/ventoy.nix
     ../../common/features/wayland.nix
+    ../../common/features/wivrn.nix
     ../../common/features/zswap.nix
     # keep-sorted end
 

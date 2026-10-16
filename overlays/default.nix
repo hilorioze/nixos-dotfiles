@@ -23,8 +23,11 @@
     };
   })
 
+  (import ./nix-update-unstable) # must precede the local overlays that extend it
+
   # keep-sorted start
   (import ./bambu-studio-cuda-fix)
+  (import ./desomnia-dbus-completion-fix)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)

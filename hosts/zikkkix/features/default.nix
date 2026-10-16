@@ -4,6 +4,7 @@
     ../../common/features/appimage.nix
     ../../common/features/avahi.nix
     ../../common/features/bluetooth.nix
+    ../../common/features/desomnia.nix
     ../../common/features/gamemode.nix
     ../../common/features/gpu-screen-recorder.nix
     ../../common/features/home-manager.nix
@@ -28,6 +29,7 @@
     ../../common/features/upnp-firewall.nix
     ../../common/features/ventoy.nix
     ../../common/features/wayland.nix
+    ../../common/features/wivrn.nix
     # keep-sorted end
 
     # keep-sorted start

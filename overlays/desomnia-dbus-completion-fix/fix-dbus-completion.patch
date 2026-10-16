@@ -1,0 +1,18 @@
+diff --git a/DesomniaDaemon/DBus/Interface/Adapter/Login1Manager.cs b/DesomniaDaemon/DBus/Interface/Adapter/Login1Manager.cs
+index 9d02679..3e1003f 100644
+--- a/DesomniaDaemon/DBus/Interface/Adapter/Login1Manager.cs
++++ b/DesomniaDaemon/DBus/Interface/Adapter/Login1Manager.cs
+@@ -32,8 +32,11 @@ namespace MadWizard.Desomnia.Daemon.DBus.Interface.Adapter
+         {
+             return await proxy.WatchPrepareForSleepAsync((Notification<bool> notification) =>
+             {
+-                if (notification.Exception is not null)
+-                    onError?.Invoke(notification.Exception);
++                if (notification.IsCompletion)
++                {
++                    if (notification.Exception is not null)
++                        onError?.Invoke(notification.Exception);
++                }
+                 else if (notification.HasValue)
+                     handler(notification.Value);
+             }, ObserverFlags.None);

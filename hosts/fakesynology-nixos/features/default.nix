@@ -3,6 +3,7 @@
     # keep-sorted start
     ../../common/features/cloudflare-ddns.nix
     ../../common/features/dconf.nix # fixes `ca.desrt.dconf` error (https://github.com/nix-community/home-manager/blob/f384af1bec6423a0d4ba1855917ab948f64e5808/docs/manual/faq/ca-desrt-dconf.md)
+    ../../common/features/desomnia.nix
     ../../common/features/fluent-bit.nix
     ../../common/features/home-manager.nix
     ../../common/features/netcat-firewall.nix
@@ -19,6 +20,7 @@
     # keep-sorted start
     ./coredns.nix
     ./deadlocked-relay.nix
+    ./desomnia.nix
     ./networkd-dispatcher.nix
     ./sops.nix
     ./time.nix

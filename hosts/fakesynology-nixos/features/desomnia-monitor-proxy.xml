@@ -1,0 +1,9 @@
+<SystemMonitor version="2">
+  <NetworkMonitor
+    watchMode="promiscuous"
+
+    autoDetect="Host"
+
+    sleepProxyPort="@sleepProxyPort@">
+  </NetworkMonitor>
+</SystemMonitor>
