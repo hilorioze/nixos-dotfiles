@@ -240,6 +240,8 @@ in {
               dst = [
                 # keep-sorted start
                 "tag:hel0:27015"
+                "tag:hel0:27016"
+                "tag:hel0:27256"
                 "tag:hel0:28255"
                 # keep-sorted end
               ];

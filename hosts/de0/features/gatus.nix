@@ -217,6 +217,10 @@
 
           (mkGoldsrcProxyEndpoint 27015)
 
+          (mkGoldsrcProxyEndpoint 27016)
+
+          (mkGoldsrcProxyEndpoint 27256)
+
           (mkGoldsrcProxyEndpoint 28255)
 
           {
