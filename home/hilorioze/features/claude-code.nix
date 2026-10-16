@@ -35,14 +35,14 @@
               unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN # a claude started from a gateway session inherits them
             else
               # cliproxyapi runs only on de0: a second instance would rotate the accounts' refresh tokens out from under it
-              export ANTHROPIC_BASE_URL=https://claude-code-gateway.${outputs.nixosConfigurations.de0.config.networking.fqdn} ANTHROPIC_AUTH_TOKEN=$(< ${config.sops.secrets."apps/cliproxyapi/inference-key".path})
+              export ANTHROPIC_BASE_URL=https://claude-code-gateway.${outputs.nixosConfigurations.de0.config.networking.fqdn} ANTHROPIC_AUTH_TOKEN=$(<${config.sops.secrets."apps/cliproxyapi/inference-key".path})
 
               # claude reads the picker once, at launch; its quotas are laid out for this terminal
               if [[ -t 0 ]]; then
                 read -r _ columns < <(${lib.getExe' pkgs.coreutils "stty"} size)
 
                 # the key stays out of the process list
-                if settings=$(${lib.getExe pkgs.curl} --fail --silent --max-time 3 --header @- "$ANTHROPIC_BASE_URL/model-picker?width=$columns" <<< "Authorization: Bearer $ANTHROPIC_AUTH_TOKEN"); then
+                if settings=$(${lib.getExe pkgs.curl} --fail --silent --max-time 3 --header @- "$ANTHROPIC_BASE_URL/model-picker?width=$columns" <<<"Authorization: Bearer $ANTHROPIC_AUTH_TOKEN"); then
                   picker=(--settings "$settings")
                 fi
               fi

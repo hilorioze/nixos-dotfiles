@@ -122,7 +122,7 @@
       # cache `/nix` between rebuilds
       mounts = ["source=devcontainer-nix,target=/nix,type=volume"];
 
-      onCreateCommand = ''sudo sh -c 'printf "accept-flake-config = true\n" >> /etc/nix/nix.conf' '';
+      onCreateCommand = ''sudo sh -c 'printf "accept-flake-config = true\n" >>/etc/nix/nix.conf' '';
 
       customizations.vscode.extensions = [
         # keep-sorted start

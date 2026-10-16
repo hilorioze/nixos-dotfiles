@@ -25,7 +25,7 @@ stdenv.mkDerivation (finalAttrs: {
     substituteInPlace usr/share/applications/hlam.desktop \
       --replace-fail 'Exec=hlam %u' 'Exec=${finalAttrs.meta.mainProgram} %f'
 
-    echo 'MimeType=application/x-goldsrc-mdl;' >> usr/share/applications/hlam.desktop
+    echo 'MimeType=application/x-goldsrc-mdl;' >>usr/share/applications/hlam.desktop
   '';
 
   strictDeps = true;
