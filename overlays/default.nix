@@ -25,6 +25,7 @@
 
   # keep-sorted start
   (import ./bambu-studio-cuda-fix)
+  (import ./claude-code-alsa-rpath)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)
