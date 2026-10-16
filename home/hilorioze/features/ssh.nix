@@ -41,10 +41,6 @@
     mkSynologyHost = name: mkSshHost "${name}.hilorioze.com" {User = name;};
   in
     lib.mkMerge [
-      {
-        "*".ServerAliveInterval = 25; # keep nat entries alive during inactivity
-      }
-
       # keep-sorted start
       (mkSynologyHost "cex")
       (mkSynologyHost "fakesynology")

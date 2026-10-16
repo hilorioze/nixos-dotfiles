@@ -12,6 +12,10 @@
 
     enableDefaultConfig = false; # its default is already deprecated and home-manager recommends setting it to `false`
 
-    settings."*".HostKeyAlgorithms = "ssh-ed25519";
+    settings."*" = {
+      HostKeyAlgorithms = "ssh-ed25519";
+
+      ServerAliveInterval = 25; # keep nat entries alive during inactivity
+    };
   };
 }
