@@ -68,6 +68,9 @@
 
         jq --null-input --arg user_agent "$user_agent" --arg originator "$originator" '{"User-Agent": $user_agent, Originator: $originator}' > $out
       '';
+
+      # let antigravity quota requests pass as agy: daily-cloudcode-pa lists the gemini group only for a recent `antigravity/cli/<version>`
+      CLIPROXYAPI_ANTIGRAVITY_USER_AGENT = "antigravity/cli/${pkgs.unstablePkgs.antigravity-cli.version}";
     };
 
     serviceConfig = {

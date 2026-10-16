@@ -13,6 +13,8 @@ CLIPROXYAPI_URL: str = os.environ["CLIPROXYAPI_URL"]
 
 CODEX_HEADERS: dict[str, str] = json.loads(Path(os.environ["CLIPROXYAPI_CODEX_HEADERS"]).read_text())
 
+ANTIGRAVITY_USER_AGENT: str = os.environ["CLIPROXYAPI_ANTIGRAVITY_USER_AGENT"]
+
 CLIPROXYAPI_TIMEOUT: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10)
 
 ACCOUNT_ERRORS: tuple[type[Exception], ...] = (aiohttp.ClientError, OSError, RuntimeError, LookupError, TypeError, ValueError)  # one failing account must not stop the others
@@ -124,7 +126,7 @@ async def fetch_antigravity_quota(account: dict[str, Any]) -> list[dict[str, Any
         account,
         "POST",
         "https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary",
-        {"Content-Type": "application/json", "User-Agent": "antigravity"},  # any other user agent gets 403
+        {"Content-Type": "application/json", "User-Agent": ANTIGRAVITY_USER_AGENT},
         json.dumps({"project": account["project_id"]}),
     )
 

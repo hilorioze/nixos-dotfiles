@@ -26,7 +26,7 @@
       CLAUDE_CODE_GATEWAY_HOST = "127.0.0.1";
       CLAUDE_CODE_GATEWAY_PORT = "8318";
 
-      inherit (config.systemd.services.cliproxyapi-warmup.environment) CLIPROXYAPI_CODEX_HEADERS CLIPROXYAPI_URL;
+      inherit (config.systemd.services.cliproxyapi-warmup.environment) CLIPROXYAPI_ANTIGRAVITY_USER_AGENT CLIPROXYAPI_CODEX_HEADERS CLIPROXYAPI_URL;
     };
 
     serviceConfig = {
