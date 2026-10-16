@@ -2,7 +2,6 @@
   # keep-sorted start
   lib,
   outputs,
-  pkgs,
   # keep-sorted end
   ...
 }: {
@@ -43,11 +42,7 @@
   in
     lib.mkMerge [
       {
-        "*" = {
-          ServerAliveInterval = 25; # keep nat entries alive during inactivity
-
-          XAuthLocation = lib.getExe pkgs.xauth; # required for x11 forwarding (`ssh -Y`)
-        };
+        "*".ServerAliveInterval = 25; # keep nat entries alive during inactivity
       }
 
       # keep-sorted start
