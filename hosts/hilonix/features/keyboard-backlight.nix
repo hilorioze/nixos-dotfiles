@@ -86,18 +86,36 @@
 
   keyboardBacklightColor = "00ffff";
   keyboardBacklightBrightness = 3; # 0..6; 0, 16, 32, 48, 65, 84, 100 percent respectively
+
+  keyboardBacklightControlCommand = "${keyboardBacklightControl} --device ${keyboardDevice} --color ${keyboardBacklightColor}";
 in {
   services.udev.extraRules = ''
     SUBSYSTEM=="hidraw", ENV{ID_VENDOR_ID}=="${keyboardVendorId}", ENV{ID_MODEL_ID}=="${keyboardProductId}", ENV{ID_USB_INTERFACE_NUM}=="01", TAG+="systemd", ENV{SYSTEMD_WANTS}+="keyboard-backlight.service"
   '';
 
-  systemd.services.keyboard-backlight = {
-    description = "Keyboard backlight";
+  systemd.services = {
+    keyboard-backlight = {
+      description = "Keyboard backlight";
 
-    serviceConfig = {
-      Type = "oneshot";
+      wantedBy = ["displays-on.target"];
 
-      ExecStart = "${keyboardBacklightControl} --device ${keyboardDevice} --color ${keyboardBacklightColor} --brightness ${toString keyboardBacklightBrightness}";
+      serviceConfig = {
+        Type = "oneshot";
+
+        ExecStart = "${keyboardBacklightControlCommand} --brightness ${toString keyboardBacklightBrightness}";
+      };
+    };
+
+    keyboard-backlight-off = {
+      description = "Keyboard backlight off";
+
+      wantedBy = ["displays-off.target"];
+
+      serviceConfig = {
+        Type = "oneshot";
+
+        ExecStart = "${keyboardBacklightControlCommand} --brightness 0";
+      };
     };
   };
 }
