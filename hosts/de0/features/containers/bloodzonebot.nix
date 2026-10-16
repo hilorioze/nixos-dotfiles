@@ -7,29 +7,50 @@
 }: {
   sops = {
     secrets = {
-      # keep-sorted start
       "credentials/ghcr/hilorioze/pull/token" = {};
+
+      # keep-sorted start
       "services/bloodzonebot/amqp-password" = {};
       "services/bloodzonebot/bot-token" = {};
       "services/bloodzonebot/postgres-password" = {};
       "services/bloodzonebot/redis-password" = {};
       "services/bloodzonebot/sentry-dsn" = {};
-      "services/postgresql/users/bloodzonebot/hashed-password".owner = config.systemd.services.postgresql-setup.serviceConfig.User;
+      # keep-sorted end
+
+      "services/postgresql/users/bloodzonebot/hashed-password" = {
+        owner = config.systemd.services.postgresql-setup.serviceConfig.User;
+
+        restartUnits = ["postgresql-setup.service"];
+      };
+
+      # keep-sorted start
       "services/rabbitmq/users/bloodzonebot/hashed-password" = {};
       "services/redis/users/bloodzonebot/hashed-password" = {};
       # keep-sorted end
     };
 
     templates = {
-      "services/bloodzonebot.env".content = ''
-        BOT_TOKEN=${config.sops.placeholder."services/bloodzonebot/bot-token"}
+      "services/bloodzonebot.env" = {
+        content = ''
+          BOT_TOKEN=${config.sops.placeholder."services/bloodzonebot/bot-token"}
 
-        SENTRY_DSN=${config.sops.placeholder."services/bloodzonebot/sentry-dsn"}
+          SENTRY_DSN=${config.sops.placeholder."services/bloodzonebot/sentry-dsn"}
 
-        POSTGRES_PASSWORD=${config.sops.placeholder."services/bloodzonebot/postgres-password"}
-        REDIS_DSN=redis://bloodzonebot:${config.sops.placeholder."services/bloodzonebot/redis-password"}@host.docker.internal:6379/0
-        AMQP_DSN=amqp://bloodzonebot:${config.sops.placeholder."services/bloodzonebot/amqp-password"}@host.docker.internal:5672/bloodzonebot
-      '';
+          POSTGRES_PASSWORD=${config.sops.placeholder."services/bloodzonebot/postgres-password"}
+          REDIS_DSN=redis://bloodzonebot:${config.sops.placeholder."services/bloodzonebot/redis-password"}@host.docker.internal:6379/0
+          AMQP_DSN=amqp://bloodzonebot:${config.sops.placeholder."services/bloodzonebot/amqp-password"}@host.docker.internal:5672/bloodzonebot
+        '';
+
+        restartUnits = [
+          # keep-sorted start
+          "podman-bloodzonebot-bloodzone-event-publisher.service"
+          "podman-bloodzonebot-bloodzone-event-telegram-notification-publisher.service"
+          "podman-bloodzonebot-bloodzoneapi.service"
+          "podman-bloodzonebot-telegram-bot.service"
+          "podman-bloodzonebot-telegram-message-queue-sender.service"
+          # keep-sorted end
+        ];
+      };
 
       "services/redis.acl".content = lib.mkAfter ''
         user bloodzonebot reset on #${config.sops.placeholder."services/redis/users/bloodzonebot/hashed-password"} allkeys allchannels allcommands

@@ -17,13 +17,23 @@
     };
 
     templates = {
-      "services/whyareyoulookinghere.env".content = ''
-        BOT_TOKEN=${config.sops.placeholder."services/whyareyoulookinghere/bot-token"}
+      "services/whyareyoulookinghere.env" = {
+        content = ''
+          BOT_TOKEN=${config.sops.placeholder."services/whyareyoulookinghere/bot-token"}
 
-        SENTRY_DSN=${config.sops.placeholder."services/whyareyoulookinghere/sentry-dsn"}
+          SENTRY_DSN=${config.sops.placeholder."services/whyareyoulookinghere/sentry-dsn"}
 
-        REDIS_DSN=redis://whyareyoulookinghere:${config.sops.placeholder."services/whyareyoulookinghere/redis-password"}@host.docker.internal:6379/1
-      '';
+          REDIS_DSN=redis://whyareyoulookinghere:${config.sops.placeholder."services/whyareyoulookinghere/redis-password"}@host.docker.internal:6379/1
+        '';
+
+        # the bot publisher requires the api and restarts with it
+        restartUnits = [
+          # keep-sorted start
+          "podman-whyareyoulookinghere-school-meals-api.service"
+          "podman-whyareyoulookinghere-telegram-bot.service"
+          # keep-sorted end
+        ];
+      };
 
       "services/redis.acl".content = lib.mkAfter ''
         user whyareyoulookinghere reset on #${config.sops.placeholder."services/redis/users/whyareyoulookinghere/hashed-password"} allkeys allchannels allcommands

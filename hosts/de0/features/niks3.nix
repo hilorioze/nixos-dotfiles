@@ -8,12 +8,18 @@
   imports = [inputs.niks3.nixosModules.niks3];
 
   sops = {
-    secrets = {
+    secrets = let
+      niks3Secret = {
+        owner = config.services.niks3.user;
+
+        restartUnits = ["niks3.service"];
+      };
+    in {
       # keep-sorted start
-      "services/niks3/auth/api-token".owner = config.services.niks3.user;
-      "services/niks3/cache/signing-keypair".owner = config.services.niks3.user;
-      "services/niks3/storage/s3/access-key-id".owner = config.services.niks3.user;
-      "services/niks3/storage/s3/secret-access-key".owner = config.services.niks3.user;
+      "services/niks3/auth/api-token" = niks3Secret;
+      "services/niks3/cache/signing-keypair" = niks3Secret;
+      "services/niks3/storage/s3/access-key-id" = niks3Secret;
+      "services/niks3/storage/s3/secret-access-key" = niks3Secret;
       # keep-sorted end
     };
   };

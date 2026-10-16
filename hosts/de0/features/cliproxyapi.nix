@@ -12,9 +12,15 @@
   documentation.nixos.enable = false; # the module's manual chapter has redirect ids that 26.05 doesn't know
 
   sops.secrets = {
-    # keep-sorted start
-    "services/cliproxyapi/inference-key" = {};
-    "services/cliproxyapi/management-key" = {};
+    # keep-sorted start block=yes newline_separated=yes
+    "services/cliproxyapi/inference-key".restartUnits = ["cliproxyapi.service"];
+
+    "services/cliproxyapi/management-key".restartUnits = [
+      # keep-sorted start
+      "cliproxyapi-warmup.service"
+      "cliproxyapi.service"
+      # keep-sorted end
+    ];
     # keep-sorted end
   };
 

@@ -20,6 +20,8 @@
         inherit (config.users.users.${config.systemd.services.traefik.serviceConfig.User}) group; # bind the secret to the traefik user's group, so changing `services.traefik.group` won't leak it; upstream sets the user's group to "traefik": https://github.com/NixOS/nixpkgs/blob/7241bcbb4f099a66aafca120d37c65e8dda32717/nixos/modules/services/web-servers/traefik.nix#L160
 
         mode = "0440"; # give read access for the group we just set above
+
+        restartUnits = ["traefik.service"];
       };
     })
     users;

@@ -6,9 +6,18 @@
   ...
 }: {
   sops.secrets = {
-    # keep-sorted start
-    "services/syncthing/gui/password".owner = config.services.syncthing.user;
-    "services/syncthing/private-key".owner = config.services.syncthing.user;
+    # keep-sorted start block=yes newline_separated=yes
+    "services/syncthing/gui/password" = {
+      owner = config.services.syncthing.user;
+
+      restartUnits = ["syncthing-init.service"];
+    };
+
+    "services/syncthing/private-key" = {
+      owner = config.services.syncthing.user;
+
+      restartUnits = ["syncthing.service"];
+    };
     # keep-sorted end
   };
 

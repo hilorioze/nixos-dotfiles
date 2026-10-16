@@ -10,6 +10,8 @@
       '';
 
       owner = config.services.redis.servers."".user;
+
+      restartUnits = ["redis.service"];
     };
   };
 

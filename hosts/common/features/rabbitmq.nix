@@ -6,6 +6,8 @@
       content = builtins.toJSON config.services.rabbitmq.definitions;
 
       owner = config.systemd.services.rabbitmq.serviceConfig.User;
+
+      restartUnits = ["rabbitmq.service"];
     };
   };
 

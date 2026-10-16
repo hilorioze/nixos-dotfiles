@@ -13,12 +13,16 @@
       # keep-sorted end
     };
 
-    templates."services/networkmanager.env".content = ''
-      # keep-sorted start
-      REDMI_PSK=${config.sops.placeholder."credentials/wifi/Redmi/psk"}
-      WARP_WG_PRIVATE_KEY=${config.sops.placeholder."credentials/wireguard/interfaces/warp/private-key"}
-      # keep-sorted end
-    '';
+    templates."services/networkmanager.env" = {
+      content = ''
+        # keep-sorted start
+        REDMI_PSK=${config.sops.placeholder."credentials/wifi/Redmi/psk"}
+        WARP_WG_PRIVATE_KEY=${config.sops.placeholder."credentials/wireguard/interfaces/warp/private-key"}
+        # keep-sorted end
+      '';
+
+      restartUnits = ["NetworkManager-ensure-profiles.service"];
+    };
   };
 
   boot.extraModprobeConfig = ''

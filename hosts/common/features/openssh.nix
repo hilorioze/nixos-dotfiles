@@ -1,5 +1,5 @@
 {config, ...}: {
-  sops.secrets."services/openssh/host-keys/ed25519" = {};
+  sops.secrets."services/openssh/host-keys/ed25519".restartUnits = ["sshd.service"];
 
   services.openssh = {
     enable = true;

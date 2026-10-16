@@ -8,6 +8,8 @@
       '';
 
       owner = config.services.cloudflare-ddns.user;
+
+      restartUnits = ["cloudflare-ddns.service"];
     };
   };
 

@@ -15,7 +15,15 @@
     "fd7a:115c:a1e0::1"
   ];
 in {
-  sops.secrets = {
+  sops.secrets = let
+    headscaleSecret = {
+      owner = config.services.headscale.user;
+
+      restartUnits = ["headscale.service"];
+    };
+
+    preauthKeySecret.restartUnits = ["headscale-setup.service"];
+  in {
     # to generate preauth-key:
     #
     # prefix=$(head -c 12 /dev/urandom | base64 -w0 | tr '+/' '-_' | tr -d '=' | head -c 12)
@@ -27,34 +35,34 @@ in {
     # printf 'prefix: %s\nbcrypt-hash: %s\n' "$prefix" "$hash"
 
     # keep-sorted start
-    "services/headscale/control-plane/private-key".owner = config.services.headscale.user;
-    "services/headscale/derp/private-key".owner = config.services.headscale.user;
-    "services/headscale/preauth-keys/alex/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/alex/prefix" = {};
-    "services/headscale/preauth-keys/cex/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/cex/prefix" = {};
-    "services/headscale/preauth-keys/de0/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/de0/prefix" = {};
-    "services/headscale/preauth-keys/deployer/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/deployer/prefix" = {};
-    "services/headscale/preauth-keys/fakesynology-nixos/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/fakesynology-nixos/prefix" = {};
-    "services/headscale/preauth-keys/fakesynology/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/fakesynology/prefix" = {};
-    "services/headscale/preauth-keys/guests/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/guests/prefix" = {};
-    "services/headscale/preauth-keys/hel0/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/hel0/prefix" = {};
-    "services/headscale/preauth-keys/hilonix/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/hilonix/prefix" = {};
-    "services/headscale/preauth-keys/lelonix/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/lelonix/prefix" = {};
-    "services/headscale/preauth-keys/philone/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/philone/prefix" = {};
-    "services/headscale/preauth-keys/puest/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/puest/prefix" = {};
-    "services/headscale/preauth-keys/zikkkix/bcrypt-hash" = {};
-    "services/headscale/preauth-keys/zikkkix/prefix" = {};
+    "services/headscale/control-plane/private-key" = headscaleSecret;
+    "services/headscale/derp/private-key" = headscaleSecret;
+    "services/headscale/preauth-keys/alex/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/alex/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/cex/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/cex/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/de0/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/de0/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/deployer/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/deployer/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/fakesynology-nixos/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/fakesynology-nixos/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/fakesynology/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/fakesynology/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/guests/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/guests/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/hel0/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/hel0/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/hilonix/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/hilonix/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/lelonix/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/lelonix/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/philone/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/philone/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/puest/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/puest/prefix" = preauthKeySecret;
+    "services/headscale/preauth-keys/zikkkix/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/zikkkix/prefix" = preauthKeySecret;
     # keep-sorted end
   };
 

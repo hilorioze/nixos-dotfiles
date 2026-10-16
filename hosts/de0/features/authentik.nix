@@ -69,12 +69,7 @@ in {
 
         "services/authentik/ldap/users/mail-directory/password" = {};
 
-        "services/authentik/secret-key".restartUnits = [
-          # keep-sorted start
-          "authentik-worker.service"
-          "authentik.service"
-          # keep-sorted end
-        ];
+        "services/authentik/secret-key".restartUnits = ["authentik-worker.service"]; # authentik requires the worker and restarts with it
         # keep-sorted end
       }
       // lib.mapAttrs' (username: _: lib.nameValuePair (mkInitialPasswordSecret username) {}) users;

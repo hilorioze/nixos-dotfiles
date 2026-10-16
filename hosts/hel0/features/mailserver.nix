@@ -25,14 +25,13 @@ in {
   sops = {
     secrets = {
       # keep-sorted start block=yes newline_separated=yes
-      "services/rspamd/dkim/${domain}/private-key".owner = config.services.rspamd.user;
+      "services/rspamd/dkim/${domain}/private-key" = {
+        owner = config.services.rspamd.user;
 
-      ${ldapBindSecret}.restartUnits = [
-        # keep-sorted start
-        "dovecot.service"
-        "postfix.service"
-        # keep-sorted end
-      ];
+        restartUnits = ["rspamd.service"];
+      };
+
+      ${ldapBindSecret}.restartUnits = ["dovecot.service"]; # postfix requires dovecot and restarts with it
       # keep-sorted end
     };
 

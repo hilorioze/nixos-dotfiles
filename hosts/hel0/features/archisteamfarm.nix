@@ -25,6 +25,8 @@
       group = config.systemd.services.archisteamfarm.serviceConfig.Group;
 
       mode = "0440"; # give read access for the group we just set above
+
+      restartUnits = ["archisteamfarm.service"];
     };
   }) (builtins.attrNames botSettings);
 in {
@@ -35,6 +37,8 @@ in {
           group = config.systemd.services.archisteamfarm.serviceConfig.Group;
 
           mode = "0440"; # give read access for the group we just set above
+
+          restartUnits = ["archisteamfarm.service"];
         };
       }
     ]

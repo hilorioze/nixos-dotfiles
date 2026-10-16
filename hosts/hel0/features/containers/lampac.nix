@@ -58,6 +58,8 @@ in {
       };
 
       uid = 1000; # match the container's uid
+
+      restartUnits = ["podman-lampac.service"];
     };
   };
 

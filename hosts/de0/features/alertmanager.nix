@@ -5,7 +5,11 @@
   # keep-sorted end
   ...
 }: {
-  sops.secrets."services/alertmanager/telegram-bot-token".owner = config.systemd.services.alertmanager.serviceConfig.User;
+  sops.secrets."services/alertmanager/telegram-bot-token" = {
+    owner = config.systemd.services.alertmanager.serviceConfig.User;
+
+    restartUnits = ["alertmanager.service"];
+  };
 
   users = {
     users.alertmanager = {

@@ -5,10 +5,16 @@
   # keep-sorted end
   ...
 }: {
-  sops.secrets = {
+  sops.secrets = let
+    grafanaSecret = {
+      owner = config.systemd.services.grafana.serviceConfig.User;
+
+      restartUnits = ["grafana.service"];
+    };
+  in {
     # keep-sorted start
-    "services/grafana/admin-password".owner = config.systemd.services.grafana.serviceConfig.User;
-    "services/grafana/secret-key".owner = config.systemd.services.grafana.serviceConfig.User;
+    "services/grafana/admin-password" = grafanaSecret;
+    "services/grafana/secret-key" = grafanaSecret;
     # keep-sorted end
   };
 

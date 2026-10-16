@@ -6,6 +6,13 @@
   # keep-sorted end
   ...
 }: {
+  sops.secrets = {
+    # keep-sorted start
+    "services/cliproxyapi/inference-key".restartUnits = ["claude-code-gateway.service"];
+    "services/cliproxyapi/management-key".restartUnits = ["claude-code-gateway.service"];
+    # keep-sorted end
+  };
+
   services.traefik.dynamicConfigOptions.http = {
     routers.claude-code-gateway = {
       entryPoints = ["https"];
