@@ -26,12 +26,22 @@ in {
     # keep-sorted end
   };
 
-  # use direct fido2 signing in tty sessions so ssh can read the pin from the tty
-  programs.ssh.extraConfig = ''
-    Match exec "test -z \"$DISPLAY$WAYLAND_DISPLAY\""
-      IdentityAgent none
-      IdentityFile ${config.sops.secrets."credentials/ssh/fido2/private-key".path}
-  '';
+  programs.ssh = {
+    # log in as `agent` with its own key in any session, without the fido2 key or forwarding ssh-agent
+    settings."Match user agent" = {
+      IdentityFile = config.sops.secrets."credentials/ssh/agent/private-key".path;
+      IdentityAgent = "none";
+
+      ForwardAgent = false;
+    };
+
+    # use direct fido2 signing in tty sessions so ssh can read the pin from the tty
+    extraConfig = ''
+      Match exec "test -z \"$DISPLAY$WAYLAND_DISPLAY\""
+        IdentityAgent none
+        IdentityFile ${config.sops.secrets."credentials/ssh/fido2/private-key".path}
+    '';
+  };
 
   services.ssh-agent.enable = true;
 
