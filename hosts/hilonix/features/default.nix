@@ -50,6 +50,7 @@
     # keep-sorted start
     ./amnezia-vpn.nix
     ./coolercontrol.nix
+    ./display-watch.nix
     ./gpu-screen-recorder.nix
     ./i18n.nix
     ./keyboard-backlight.nix
