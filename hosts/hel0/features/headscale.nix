@@ -88,7 +88,7 @@ in {
           import tailnet
 
           view tailnet-resolution {
-            # keep the Headscale control plane on public DNS; `tailscaled` dials the control plane outside the tailnet
+            # keep the headscale control plane on public dns; tailscaled dials the control plane outside the tailnet
             expr type() in ['A', 'AAAA', 'ANY'] && name() != '${headscaleFqdn}.'
           }
 
@@ -98,7 +98,7 @@ in {
           )
           tailnetServerNodeNames}
 
-          # `grafana.${domain}` -> CNAME (public DNS) `de0.${domain}` -> `de0.${tailnetDomain}`
+          # `grafana.${domain}` -> CNAME (public dns) `de0.${domain}` -> `de0.${tailnetDomain}`
           ${lib.concatMapStringsSep "\n" (
             hostName: "rewrite continue cname exact ${hostName}.${domain}. ${hostName}.${tailnetDomain}."
           )
@@ -152,7 +152,7 @@ in {
           };
 
           acls = [
-            # all clients can reach `hel0` on port 53 for split dns
+            # all clients can reach hel0 on port 53 for split dns
             {
               action = "accept";
 
@@ -184,7 +184,7 @@ in {
               ];
             }
 
-            # `de0` (`prometheus`) scrapes `snmp-exporter` on `fakesynology` and `cex`
+            # de0 (prometheus) scrapes snmp-exporter on fakesynology and cex
             {
               action = "accept";
 
@@ -198,7 +198,7 @@ in {
               ];
             }
 
-            # `hel0` mailserver reaches Authentik's LDAPS on `de0`
+            # hel0 mailserver reaches authentik's ldaps on de0
             {
               action = "accept";
 
@@ -216,7 +216,7 @@ in {
               dst = ["tag:hel0:443"];
             }
 
-            # `de0` (`gatus`) checks `mailserver` health on `hel0`
+            # de0 (gatus) checks mailserver health on hel0
             {
               action = "accept";
 
@@ -240,6 +240,8 @@ in {
               dst = [
                 # keep-sorted start
                 "tag:hel0:27015"
+                "tag:hel0:27016"
+                "tag:hel0:27256"
                 "tag:hel0:28255"
                 # keep-sorted end
               ];
@@ -302,7 +304,7 @@ in {
               ];
             }
 
-            # deployer can SSH to all deployable nodes
+            # deployer can ssh to all deployable nodes
             {
               action = "accept";
 
@@ -330,7 +332,7 @@ in {
               dst = ["tag:de0:443"];
             }
 
-            # everyone can reach `factorio` server on `hel0`
+            # everyone can reach factorio server on hel0
             {
               action = "accept";
 
@@ -339,7 +341,7 @@ in {
               dst = ["tag:hel0:${toString config.services.factorio.port}"];
             }
 
-            # `hel0` can reach dsm hosts to expose them publicly
+            # hel0 can reach dsm hosts to expose them publicly
             {
               action = "accept";
 
@@ -385,17 +387,17 @@ in {
           base_domain = "internal";
 
           nameservers.split = {
-            # use the control plane's CoreDNS
+            # use the control plane's coredns
             ${config.networking.domain} = tailnetDnsAddresses;
 
-            # avoid DNS deadlock during control plane reconnection
+            # avoid dns deadlock during control plane reconnection
             ${headscaleFqdn} = [
               "1.1.1.1"
               "1.0.0.1"
             ];
           };
 
-          # don't override clients' default DNS; use CoreDNS only for `${config.networking.domain}`
+          # don't override clients' default dns; use coredns only for `${config.networking.domain}`
           override_local_dns = false;
         };
       };
@@ -414,7 +416,7 @@ in {
   };
 
   systemd.services = {
-    # wait for tailnet addresses before binding CoreDNS
+    # wait for tailnet addresses before binding coredns
     coredns = {
       after = ["tailscaled-autoconnect.service"];
 
@@ -514,7 +516,7 @@ in {
           ${config.sops.secrets."services/headscale/preauth-keys/deployer/bcrypt-hash".path} \
           '["tag:deployer"]' \
           1 \
-          1) # reusable and ephemeral (for ephemeral CI runners)
+          1) # reusable and ephemeral (for ephemeral ci runners)
 
         fakesynology_key_id=$(reconcile_preauth_key $servers_id \
           ${config.sops.secrets."services/headscale/preauth-keys/fakesynology/prefix".path} \
@@ -635,7 +637,7 @@ in {
           fi
         }
 
-        rename_node_by_node_id $alex_node_id alex # iOS sends "localhost" as hostname; rename to the desired name
+        rename_node_by_node_id $alex_node_id alex # ios sends `localhost` as hostname; rename to the desired name
       '';
     };
   };

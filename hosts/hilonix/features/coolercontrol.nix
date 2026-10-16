@@ -12,8 +12,9 @@
     # coolercontrold panics if `[legacy690]` is missing
     [legacy690]
 
+    # the controller has no brightness setting, so the color itself is dimmed: this is [0, 255, 255] at 1/8
     [device-settings.f226946857a3141b80fefa0bae8de91cdba1c6eedf91d96ea7bef76ce88b4e90]
-    sync = { lighting = { mode = "static", colors = [[0, 71, 255]] } }
+    sync = { lighting = { mode = "static", colors = [[0, 32, 32]] } }
   '';
 in {
   imports = [../../common/features/coolercontrol.nix];

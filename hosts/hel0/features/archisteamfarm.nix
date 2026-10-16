@@ -6,11 +6,11 @@
   ...
 }: let
   commonBotSettings = {
-    OnlineStatus = 0; # Offline
+    OnlineStatus = 0; # `Offline`
 
-    FarmingPreferences = 16; # SkipRefundableGames (16)
+    FarmingPreferences = 16; # `SkipRefundableGames`
 
-    RemoteCommunication = 0; # No allowed third-party communication
+    RemoteCommunication = 0; # no third-party communication allowed
   };
 
   botSettings = {

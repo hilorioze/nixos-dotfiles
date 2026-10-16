@@ -59,7 +59,7 @@
               priority_mode = {
                 __type = "PriorityMode";
 
-                data = 2; # Low availability first
+                data = 2; # "Low availability first"
               };
             };
           };

@@ -7,22 +7,22 @@ final: prev: {
       hash = "sha256-gHVred8rgwTeRTW0AXxMlnz/ovXv6w9SyknVHiW3pKU=";
     });
 
-    # drop inherited `nixpkgs`' `nanosvg` unvendor patch; upstream can build with vendored again
+    # drop inherited nixpkgs' nanosvg unvendor patch; upstream can build with vendored again
     patches = final.lib.remove (prev.path + "/pkgs/by-name/lo/looking-glass-client/nanosvg-unvendor.diff") oldAttrs.patches;
 
     buildInputs =
-      final.lib.remove prev.nanosvg oldAttrs.buildInputs # drop inherited `nixpkgs`' `nanosvg` dependency; upstream can use vendored again
+      final.lib.remove prev.nanosvg oldAttrs.buildInputs # drop inherited nixpkgs' nanosvg dependency; upstream can use vendored again
       ++ (with final; [
         # keep-sorted start
         fuse3
-        usbredir # for USB audio support
+        usbredir # for usb audio support
         # keep-sorted end
       ]);
 
     cmakeFlags =
       oldAttrs.cmakeFlags
       ++ [
-        (final.lib.cmakeBool "ENABLE_BACKTRACE" false) # avoid `elfutils` and `libunwind` build dependencies required only for crash backtraces
+        (final.lib.cmakeBool "ENABLE_BACKTRACE" false) # avoid elfutils and libunwind build dependencies required only for crash backtraces
       ];
   });
 }

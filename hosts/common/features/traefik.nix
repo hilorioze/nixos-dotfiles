@@ -62,7 +62,7 @@
                 inherit sha256;
               }));
           in
-            # trust `X-Forwarded-*` and `X-Real-IP` headers from cloudflare edge IPs
+            # trust `X-Forwarded-*` and `X-Real-IP` headers from cloudflare edge ips
             readLinesFromURL "https://www.cloudflare.com/ips-v4" "sha256-8Cxtg7wBqwroV3Fg4DbXAMdFU1m84FTfiE5dfZ5Onns="
             ++ readLinesFromURL "https://www.cloudflare.com/ips-v6" "sha256-np054+g7rQDE3sr9U8Y/piAp89ldto3pN9K+KCNMoKk=";
         };
@@ -75,7 +75,7 @@
         dnsChallenge = {
           provider = "cloudflare";
 
-          # bypass local DNS caching during ACME propagation checks
+          # bypass local dns caching during ACME propagation checks
           resolvers = [
             "1.1.1.1:53"
             "1.0.0.1:53"

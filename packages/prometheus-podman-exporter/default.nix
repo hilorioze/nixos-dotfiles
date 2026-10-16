@@ -7,7 +7,6 @@
   lib,
   pkg-config,
   # keep-sorted end
-  ...
 }:
 buildGoModule (finalAttrs: {
   pname = "prometheus-podman-exporter";

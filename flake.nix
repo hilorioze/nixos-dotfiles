@@ -46,6 +46,18 @@
     # keep-sorted start block=yes newline_separated=yes
     authentik-nix.url = "github:nix-community/authentik-nix"; # keep their inputs for binary cache
 
+    claude-code-wakatime = {
+      url = "github:wakatime/claude-code-wakatime";
+
+      flake = false;
+    };
+
+    claude-plugins-official = {
+      url = "github:anthropics/claude-plugins-official";
+
+      flake = false;
+    };
+
     codex-cli-wakatime = {
       url = "github:wakatime/codex-cli-wakatime";
 
@@ -188,36 +200,30 @@
   }: let
     inherit (nixpkgs) lib;
     lib' = import ./lib {inherit lib;};
-
-    mkPackages = import ./packages;
-
-    systems = [
-      # keep-sorted start
-      "aarch64-linux"
-      "x86_64-linux"
-      # keep-sorted end
-    ];
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
-      inherit systems;
-
-      perSystem = {
+      systems = [
         # keep-sorted start
-        pkgs,
-        system,
+        "aarch64-linux"
+        "x86_64-linux"
         # keep-sorted end
-        ...
-      }: {
-        _module.args.pkgs = import nixpkgs {
-          inherit system;
+      ];
 
-          overlays = [inputs.self.overlays.default];
+      perSystem = {pkgs, ...}: let
+        pkgs' = pkgs.extend inputs.self.overlays.default;
+      in {
+        apps = {
+          # keep-sorted start
+          devenv.program = lib.getExe pkgs'.devenv; # expose the overlaid devenv package to `.github/workflows/{build-devenv,update-devenv-lock}.yaml`
+          nix-update.program = lib.getExe pkgs'.nix-update; # expose the locally patched nix-update package to `.github/workflows/update-packages.yaml`
+          # keep-sorted end
         };
 
-        # expose the locally patched `nix-update` package to `.github/workflows/update-packages.yaml`
-        apps.nix-update.program = lib.getExe pkgs.nix-update;
+        packages = import ./packages {
+          inherit lib;
 
-        packages = lib.mapAttrs (name: _: pkgs.${name}) (mkPackages {inherit pkgs;});
+          pkgs = pkgs';
+        };
       };
 
       flake = {config, ...}: let
@@ -236,7 +242,7 @@
         mkDeployNode = nixosConfiguration: let
           inherit (nixosConfiguration) pkgs;
 
-          # keep the pinned `deploy-rs` lib, but use `nixpkgs`' cached binary to avoid rebuilding `deploy-rs` from source
+          # keep the pinned deploy-rs lib, but use nixpkgs' cached binary to avoid rebuilding deploy-rs from source
           deployLib =
             (
               deploy-rs.overlays.default
@@ -272,18 +278,12 @@
           };
         };
       in {
-        inherit systems; # exported for `atelier` CI discovery
-
         lib = lib';
 
         nixosModules = import ./modules/nixos;
         homeModules = import ./modules/home-manager;
 
-        overlays.default = lib.composeManyExtensions (
-          # apply local packages first so later overlays can override them
-          [(final: _prev: mkPackages {pkgs = final;})]
-          ++ import ./overlays {inherit inputs;}
-        );
+        overlays.default = lib.composeManyExtensions (import ./overlays {inherit inputs;});
 
         nixosConfigurations = {
           # keep-sorted start

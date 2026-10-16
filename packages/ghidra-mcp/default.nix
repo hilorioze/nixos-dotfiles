@@ -1,8 +1,7 @@
 {
   # keep-sorted start
   buildPythonPackage,
-  fetchFromGitHub,
-  hatchling,
+  fetchurl,
   lib,
   mcp,
   # keep-sorted end
@@ -12,21 +11,17 @@ buildPythonPackage (finalAttrs: {
 
   version = "6.0.0";
 
-  src = fetchFromGitHub {
-    owner = "bethington";
-    repo = "ghidra-mcp";
+  src = fetchurl {
+    url = "https://github.com/bethington/ghidra-mcp/releases/download/v${finalAttrs.version}/ghidra_mcp_bridge-${finalAttrs.version}-py3-none-any.whl";
 
-    tag = "v${finalAttrs.version}";
-    hash = "sha256-LnhhJwycO8NQV+YaTP7ZoxGkoGLkc14BwY66wczbpp0=";
+    hash = "sha256-cZOaiQAJgmZkcgFm2PeG86LqJGD37/zYPHN1m6QkEzQ=";
   };
 
-  pyproject = true;
-
-  build-system = [hatchling];
+  format = "wheel";
 
   dependencies = [mcp];
 
-  # `nixpkgs` ships `mcp` 1.26.0, but upstream requires >=1.28.1
+  # nixpkgs ships mcp 1.26.0, but upstream requires >=1.28.1
   pythonRelaxDeps = ["mcp"];
 
   meta = {

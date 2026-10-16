@@ -89,20 +89,20 @@
         floating = true;
 
         widgets = [
-          # Thermal Monitor
+          # "Thermal Monitor"
           {
             name = "org.kde.olib.thermalmonitor";
 
             config = config.programs.thermalmonitor.settings;
           }
 
-          # Margins Separator
+          # "Margins Separator"
           "org.kde.plasma.marginsseparator"
 
-          # Flexible spacer
+          # "Flexible spacer"
           "org.kde.plasma.panelspacer"
 
-          # Application Menu
+          # "Application Menu"
           {
             kicker = {
               behavior.showIconsOnRootLevel = true;
@@ -120,10 +120,10 @@
             };
           }
 
-          # Virtual Desktop Pager
+          # "Virtual Desktop Pager"
           "org.kde.plasma.pager"
 
-          # Icons-Only Task Manager
+          # "Icons-Only Task Manager"
           {
             iconTasks = {
               settings.General.interactiveMute = false;
@@ -133,7 +133,7 @@
                 "preferred://browser"
                 "applications:com.ayugram.desktop.desktop"
                 "applications:Cinny.desktop"
-                "applications:org.kde.konsole.desktop" # use an explicit launcher: plasma's `preferred://terminal` maps to `konsole`, but only `org.kde.konsole.desktop` resolves here
+                "applications:org.kde.konsole.desktop" # use an explicit launcher: plasma's `preferred://terminal` maps to konsole, but only `org.kde.konsole.desktop` resolves here
                 "preferred://mailer"
               ];
 
@@ -145,16 +145,16 @@
             };
           }
 
-          # Flexible spacer
+          # "Flexible spacer"
           "org.kde.plasma.panelspacer"
 
-          # Margins Separator
+          # "Margins Separator"
           "org.kde.plasma.marginsseparator"
 
-          # System Tray
+          # "System Tray"
           "org.kde.plasma.systemtray"
 
-          # Digital Clock
+          # "Digital Clock"
           {
             digitalClock = {
               time.showSeconds = "always";
@@ -175,13 +175,13 @@
             };
           }
 
-          # Show Desktop
+          # "Show Desktop"
           "org.kde.plasma.showdesktop"
         ];
       }
     ];
 
-    # existing profiles need a one-time KAStats purge because app favorites are stored in KAStats; `kactivitymanagerd-statsrc` only stores ordering
+    # existing profiles need a one-time kastats purge because app favorites are stored in kastats; `kactivitymanagerd-statsrc` only stores ordering
     startup.startupScript.clear_kicker_app_favorites = {
       text = ''
         # `IgnoreDefaults` prevents new kicker instances from restoring these entries
@@ -213,10 +213,10 @@
         Effect-overview.BorderActivate = 9; # disable overview hot corner
 
         Windows = {
-          FocusPolicy = 1; # FocusFollowsMouse
-          NextFocusPrefersMouse = true; # Mouse precedence
+          FocusPolicy = 1; # `FocusFollowsMouse`
+          NextFocusPrefersMouse = true; # "Mouse precedence"
 
-          CommandAll1 = "Activate, raise and move"; # KWin left-click action for titlebar/frame clicks: activates the window, raises it, and starts dragging it.
+          CommandAll1 = "Activate, raise and move"; # kwin left-click action for titlebar/frame clicks: activates the window, raises it, and starts dragging it
         };
       };
 
@@ -238,7 +238,7 @@
 
             <GroupState-RecentlySaved-IsHidden>true</GroupState-RecentlySaved-IsHidden>
 
-            <!-- Prevents KDE from auto-adding recentlyused:/ bookmarks by pretending they already exist -->
+            <!-- keep KDE from auto-adding `recentlyused:/` bookmarks by pretending they already exist -->
             <withRecentlyUsed>true</withRecentlyUsed>
           </metadata>
         </info>
@@ -355,7 +355,7 @@
           </info>
         </bookmark>
 
-        <bookmark href="file://${config.services.syncthing.settings.folders.Sync.path}">
+        <bookmark href="file://${config.services.syncthing.settings.folders.sync.path}">
           <title>Sync</title>
 
           <info>

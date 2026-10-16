@@ -5,9 +5,7 @@ _final: prev: {
       plasma-pa = prev.kdePackages.plasma-pa.overrideAttrs (oldAttrs: {
         patches =
           (oldAttrs.patches or [])
-          ++ [
-            ./volume-step-snap.patch
-          ];
+          ++ [./volume-step-snap.patch];
       });
     };
 }

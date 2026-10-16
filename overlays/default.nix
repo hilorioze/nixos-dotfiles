@@ -1,4 +1,6 @@
 {inputs}: [
+  (final: _prev: import ../packages {pkgs = final;}) # apply local packages first so later overlays can override them
+
   # keep-sorted start by_regex=inputs\.([\w-]+)
   inputs.cstrike-mod.overlays.default
   inputs.firefox-addons.overlays.default
@@ -12,6 +14,7 @@
   inputs.steam-voicechat-fix.overlays.default
   # keep-sorted end
 
+  # must precede the local overlays that extend it
   (_final: prev: {
     unstablePkgs = import inputs.nixpkgs-unstable {
       localSystem = prev.stdenv.hostPlatform.system;
@@ -25,7 +28,9 @@
   # keep-sorted start
   (import ./bambu-studio-cuda-fix)
   (import ./desomnia-dbus-completion-fix)
+  (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
+  (import ./gpu-screen-recorder-ui-unused-gpu-fix)
   (import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default)
   (import ./looking-glass-client-idd)
   (import ./nix-monitored-notification-utf8-fix)
@@ -37,6 +42,7 @@
   (import ./plasma-pa-volume-step-snap)
   (import ./plasma-workspace-media-keys-no-repeat)
   (import ./podman-healthcheck-ignore-result)
+  (import ./silent-sddm-double-scale-fix inputs.silent-sddm)
   (import ./spectacle-copy-save)
   (import ./spectacle-ocr-clipboard-fix)
   (import ./spectacle-ocr-save)

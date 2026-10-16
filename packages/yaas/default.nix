@@ -9,7 +9,6 @@
   mpv-unwrapped,
   nix-update-script,
   p7zip,
-  protobuf,
   rinf_cli,
   rustPlatform,
   stdenvNoCC,
@@ -18,14 +17,14 @@
 }: let
   pname = "yaas";
 
-  version = "0-unstable-2026-09-17";
+  version = "0-unstable-2026-10-12";
 
   src = fetchFromGitHub {
     owner = "skrimix";
     repo = "yaas";
 
-    rev = "ce3c45d580257185623e8330bca9aeb85caed8ad";
-    hash = "sha256-W4gGLz+5yzDdM7gyimV1LNXXcGZIgw62f6jQJAj+MgA=";
+    rev = "f75ccd027d396a7f5322a646dad89f52b926fdb5";
+    hash = "sha256-WZsVrDrb15POCQr4WRtYfDE262ASuGxhA6PQTNea1oE=";
   };
 
   rustDep = rustPlatform.buildRustPackage {
@@ -37,14 +36,14 @@
 
     buildAndTestSubdir = "native/hub";
 
-    cargoHash = "sha256-TGsnevAIWOIP07W4hEk+Kne+deuvRSj2+2EuU2qY87w=";
+    cargoHash = "sha256-k551dTlNoMaav/XlBUWxBi6cfmCPVx9xiMrbNeJ3lVA=";
 
     doCheck = false;
 
     passthru.libraryPath = "lib/libhub.so";
   };
 in
-  flutter347.buildFlutterApplication {
+  flutter347.buildFlutterApplication (finalAttrs: {
     inherit pname;
 
     inherit version;
@@ -106,7 +105,7 @@ in
           dontBuild = true;
 
           postPatch = ''
-            # avoid `mpv.pc`'s private dependency chain; the plugin only needs headers and `libmpv`
+            # avoid `mpv.pc`'s private dependency chain; the plugin only needs headers and libmpv
             substituteInPlace linux/CMakeLists.txt \
               --replace-fail "pkg_check_modules(mpv IMPORTED_TARGET mpv)" "
                 add_library(PkgConfig::mpv INTERFACE IMPORTED)
@@ -136,7 +135,6 @@ in
     nativeBuildInputs = [
       # keep-sorted start
       copyDesktopItems
-      protobuf
       rinf_cli
       # keep-sorted end
     ];
@@ -148,7 +146,7 @@ in
     postInstall = ''
       install -D --mode=644 ${src}/assets/png/app_icon.png $out/share/icons/hicolor/512x512/apps/yaas.png
 
-      # rinf expects its Rust symbols to be visible to the process on Linux
+      # rinf expects its rust symbols to be visible to the process on linux
       patchelf --add-needed libhub.so $out/app/${pname}/yaas
     '';
 
@@ -157,7 +155,7 @@ in
         name = "yaas";
         desktopName = "YAAS";
         genericName = "Meta Quest sideloader";
-        exec = "yaas";
+        exec = finalAttrs.meta.mainProgram;
         icon = "yaas";
         categories = ["Utility"];
       })
@@ -171,7 +169,7 @@ in
     ]}";
 
     passthru = {
-      # expose the nested rust dependencies so `nix-update` can refresh `cargoHash`
+      # expose the nested rust dependencies so nix-update can refresh `cargoHash`
       inherit (rustDep) cargoDeps;
 
       # upstream only publishes a mutable nightly prerelease; follow `master` instead
@@ -193,4 +191,4 @@ in
 
       platforms = ["x86_64-linux"];
     };
-  }
+  })

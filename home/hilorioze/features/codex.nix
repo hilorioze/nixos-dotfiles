@@ -36,7 +36,7 @@
       sandbox_mode = "danger-full-access";
 
       features = {
-        apps = false; # disable the redundant built-in `codex_apps` MCP
+        apps = false; # disable the redundant built-in `codex_apps` mcp
 
         memories = true;
       };
@@ -54,9 +54,11 @@
     };
   };
 
-  home = {
+  home = let
+    settingsPath = ".codex/config.toml";
+  in {
     file = {
-      ".codex/config.toml".enable = false; # keep the generated settings source without linking an immutable user config
+      ${settingsPath}.enable = false; # keep the generated settings source without linking an immutable user config
 
       ".codex/plugins/cache/wakatime/codex-cli-wakatime/local" = {
         source = builtins.path {
@@ -90,8 +92,8 @@
         '';
       in
         lib.hm.dag.entryAfter ["linkGeneration"] ''
-          config_file=${lib.escapeShellArg "${config.home.homeDirectory}/.codex/config.toml"}
-          settings_file=${lib.escapeShellArg config.home.file.".codex/config.toml".source}
+          config_file=${lib.escapeShellArg "${config.home.homeDirectory}/${settingsPath}"}
+          settings_file=${lib.escapeShellArg config.home.file.${settingsPath}.source}
 
           if [[ -s $config_file ]]; then
             run ${pkgs.runtimeShell} -c '${lib.getExe' pkgs.yq "tomlq"} --toml-output --slurp "$1" $2 $3 | ${lib.getExe' pkgs.moreutils "sponge"} $2' -- ${mergeSettingsFilter} $config_file $settings_file
@@ -100,7 +102,7 @@
           fi
         '';
 
-      # these settings are stored in the extension's VSCodium global state rather than `config.toml` or `settings.json`
+      # these settings are stored in the extension's vscodium global state rather than `config.toml` or `settings.json`
       configureCodexExtension = let
         stateDirectory = "${config.xdg.configHome}/VSCodium/User/globalStorage";
 
@@ -126,11 +128,13 @@
           run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${lib.escapeShellArg stateDirectory}
 
           run ${lib.getExe pkgs.sqlite} -cmd '.timeout 5000' ${lib.escapeShellArg "${stateDirectory}/state.vscdb"} \
-            "PRAGMA user_version = 1; /* match VSCodium's storage schema version when creating the database */" \
+            "PRAGMA user_version = 1; /* match vscodium's storage schema version when creating the database */" \
             "CREATE TABLE IF NOT EXISTS ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB);" \
             "INSERT OR IGNORE INTO ItemTable (key, value) VALUES ('openai.chatgpt', '{}');" \
             ${lib.escapeShellArg "UPDATE ItemTable SET value = json_patch(value, '${codexExtensionSettings}') WHERE key = 'openai.chatgpt';"}
         '';
     };
   };
+
+  systemd.user.tmpfiles.rules = ["e %h/.codex/sessions - - - 30d"]; # rollouts grow to 1G each and are never pruned
 }

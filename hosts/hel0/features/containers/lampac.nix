@@ -20,6 +20,7 @@ in {
 
       # keep-sorted start
       "services/lampac/users/danil/id" = {};
+      "services/lampac/users/guest/id" = {};
       "services/lampac/users/hilorioze/id" = {};
       "services/lampac/users/living-room-tv/id" = {};
       "services/lampac/users/zikkk/id" = {};
@@ -39,17 +40,18 @@ in {
           enable = true;
 
           users = let
-            mkUser = id: {
-              inherit id;
+            mkUser = name: {
+              id = config.sops.placeholder."services/lampac/users/${name}/id";
 
               expires = "9999-12-31T23:59:59.9999999";
             };
           in [
             # keep-sorted start
-            (mkUser config.sops.placeholder."services/lampac/users/danil/id")
-            (mkUser config.sops.placeholder."services/lampac/users/hilorioze/id")
-            (mkUser config.sops.placeholder."services/lampac/users/living-room-tv/id")
-            (mkUser config.sops.placeholder."services/lampac/users/zikkk/id")
+            (mkUser "danil")
+            (mkUser "guest")
+            (mkUser "hilorioze")
+            (mkUser "living-room-tv")
+            (mkUser "zikkk")
             # keep-sorted end
           ];
         };
@@ -73,8 +75,10 @@ in {
     };
 
     ports = [
+      # keep-sorted start
       "${toString peerListenPort}:${toString peerListenPort}/tcp"
       "${toString peerListenPort}:${toString peerListenPort}/udp"
+      # keep-sorted end
     ];
 
     volumes = let
@@ -111,8 +115,10 @@ in {
       # module template; the runtime file ends up in `data/ts/settings.json`
       "${torrServerSettingsFile}:/lampac/module/TorrServer/settings.json:ro"
 
+      # keep-sorted start
       "lampac-cache:/lampac/cache"
       "lampac-database:/lampac/database"
+      # keep-sorted end
     ];
   };
 }

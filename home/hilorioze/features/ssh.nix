@@ -2,7 +2,6 @@
   # keep-sorted start
   lib,
   outputs,
-  pkgs,
   # keep-sorted end
   ...
 }: {
@@ -42,22 +41,19 @@
     mkSynologyHost = name: mkSshHost "${name}.hilorioze.com" {User = name;};
   in
     lib.mkMerge [
-      {
-        "*" = {
-          ServerAliveInterval = 25; # keep NAT entries alive during inactivity
-
-          XAuthLocation = lib.getExe pkgs.xauth; # required for X11 forwarding (`ssh -Y`)
-        };
-      }
-
+      # keep-sorted start
       (mkSynologyHost "cex")
       (mkSynologyHost "fakesynology")
-      (mkNixosHost "fakesynology-nixos")
+      # keep-sorted end
+
+      # keep-sorted start
       (mkNixosHost "de0")
+      (mkNixosHost "fakesynology-nixos")
       (mkNixosHost "hel0")
       (mkNixosHost "hilonix")
       (mkNixosHost "lelonix")
       (mkNixosHost "zikkkix")
+      # keep-sorted end
 
       (mkSshHost "node0.rayttage.net" {})
     ];

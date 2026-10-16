@@ -23,15 +23,15 @@ on:
 
 jobs:
   build-iso:
+    permissions:
+      id-token: write # required so niks3 can authenticate via oidc
+      contents: write # required for publishing releases
+
     concurrency:
-      # one run per ref; latest completes last
-      group: ${{ github.workflow }}-${{ github.ref }}
+      # one run per pull request number or branch; latest completes last
+      group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
 
       cancel-in-progress: false
-
-    permissions:
-      id-token: write # required so `niks3` can authenticate via OIDC
-      contents: write # required for publishing releases
 
     runs-on: ubuntu-latest
 
@@ -43,7 +43,7 @@ jobs:
           extra_nix_config: |
             accept-flake-config = true
 
-            fsync-metadata = false # performance over durability in CI; store is transient
+            fsync-metadata = false # performance over durability in ci; store is transient
 
       - run: |
           {
@@ -57,7 +57,7 @@ jobs:
         id: fetch-niks3-bin
         run: |
           # `niks3-action` looks for `niks3-hook` next to `niks3`
-          # `--inputs-from github:${{ github.repository }}` keeps CLI and server on the same version to avoid API mismatches
+          # `--inputs-from github:${{ github.repository }}` keeps cli and server on the same version to avoid api mismatches
           niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:${{ github.repository }} --print-build-logs --expr $'
           let
             pkgs = import <nixpkgs> {};
@@ -95,7 +95,7 @@ jobs:
           printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
 
       - if: github.event_name != 'pull_request'
-        uses: Mic92/niks3-action@12d3e320b2a99b7938f9634bd337cd9fec104609 # v1.1.0
+        uses: Mic92/niks3-action@f0743610fddd7d96239c78d9e457440fc15019e2 # v1.4.0
         with:
           niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
 

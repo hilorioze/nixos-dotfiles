@@ -77,7 +77,11 @@ in {
 
   xdg.configFile = {
     "kdeconnect/config".source = (pkgs.formats.ini {}).generate "kdeconnect-config.ini" {
-      General.keyAlgorithm = "EC";
+      General = {
+        keyAlgorithm = "EC";
+
+        disabled_providers = "AsyncLinkProvider"; # disable the bluetooth link provider: not used, keeps the adapter discovering all the time and significantly slows down other connections
+      };
     };
 
     # keep-sorted start block=yes newline_separated=yes

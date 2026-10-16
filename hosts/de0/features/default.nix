@@ -14,6 +14,7 @@
     ../../common/features/postgresql.nix
     ../../common/features/rabbitmq.nix
     ../../common/features/redis.nix
+    ../../common/features/syncthing-firewall.nix
     ../../common/features/systemd-boot.nix
     ../../common/features/tailscale-server.nix
     ../../common/features/tailscale.nix
@@ -27,6 +28,8 @@
     # keep-sorted start
     ./alertmanager.nix
     ./authentik.nix
+    ./claude-code-gateway.nix
+    ./cliproxyapi.nix
     ./gatus.nix
     ./grafana.nix
     ./homepage-dashboard.nix
@@ -36,6 +39,7 @@
     ./podman.nix
     ./prometheus.nix
     ./sops.nix
+    ./syncthing.nix
     # keep-sorted end
   ];
 }

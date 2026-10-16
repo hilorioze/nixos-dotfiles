@@ -2,11 +2,20 @@
   # keep-sorted start
   inputs,
   lib,
+  osConfig,
   pkgs,
   # keep-sorted end
   ...
 }: {
-  imports = [inputs.lazyvim-nix.homeManagerModules.default];
+  # lazyvim-nix bumped nvim-treesitter to `5cb0114` without regenerating `data/parser-manifest.json`, so parsers stay at `539abf6` revisions and newer queries fail on old grammars, e.g. `(change)` in diff
+  imports = let
+    lazyvim-nix = inputs.nixpkgs.legacyPackages.${osConfig.nixpkgs.hostPlatform.system}.applyPatches {
+      name = "lazyvim-nix";
+      src = inputs.lazyvim-nix;
+
+      patches = [./lazyvim-nix-parser-manifest.patch];
+    };
+  in ["${lazyvim-nix}/nix/module.nix"];
 
   programs.lazyvim = {
     enable = true;
@@ -42,20 +51,26 @@
         opts = {};
       };
 
+      claudecode = mkPlugin {
+        plugin = "coder/claudecode.nvim";
+
+        lazy = false; # start the ide integration server with neovim, so claude running elsewhere can connect to it
+      };
+
       conform = mkPlugin {
         plugin = "stevearc/conform.nvim";
 
         opts = {
-          # use `devenv`'s generated wrapper instead of looking for `treefmt.toml`
+          # use devenv's generated wrapper instead of looking for `treefmt.toml`
           formatters.treefmt.require_cwd = false;
 
           formatters_by_ft.nix = ["treefmt"];
         };
       };
 
-      # `editor.outline` loads before `ui.edgy` due to alphabetical ordering in `lazyvim-nix`,
+      # `editor.outline` loads before `ui.edgy` due to alphabetical ordering in lazyvim-nix,
       # causing `ui.edgy`'s fresh `opts` to drop the `Outline` panel; re-add it in
-      # `programs.lazyvim.plugins`, which `lazyvim-nix` always appends after extras
+      # `programs.lazyvim.plugins`, which lazyvim-nix always appends after extras
       edgy = mkPlugin {
         plugin = "folke/edgy.nvim";
 
@@ -108,6 +123,8 @@
 
     extras = {
       # keep-sorted start block=yes newline_separated=yes
+      ai.claudecode.enable = true; # ide integration for claude; also adds the `<leader>a` keys that run it inside neovim
+
       coding = {
         # keep-sorted start
         mini-surround.enable = true;

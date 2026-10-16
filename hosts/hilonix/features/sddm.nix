@@ -16,6 +16,13 @@
       data = [
         {
           edidIdentifier = "AOC 12802 1502 50 2023 0";
+
+          mode = {
+            width = 2560;
+            height = 1440;
+
+            refreshRate = 143912; # higher refresh rates fail with the current MST hub and DP cable
+          };
         }
 
         {

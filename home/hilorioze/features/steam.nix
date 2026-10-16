@@ -9,23 +9,29 @@
 }: {
   imports = [../../common/features/steam.nix];
 
-  programs.steam.config = {
+  programs.steam.config = let
+    wrappers = [
+      osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
+      (lib.getExe pkgs.gamemode)
+      (lib.getExe pkgs.mangohud)
+    ];
+  in {
     apps = {
       # keep-sorted start block=yes newline_separated=yes numeric=yes
       "10" = {
         name = "Counter-Strike";
 
-        # skip `pressure-vessel`, which overwrites `LD_LIBRARY_PATH` after launch options are applied
+        # skip pressure-vessel, which overwrites `LD_LIBRARY_PATH` after launch options are applied
         compatTool = "Steam-Play-None";
 
         env = {
-          # use `nixpkgs`' `freetype`: legacy `steam-runtime`'s `freetype` cannot load normal truetype fonts
-          # `sdl3`'s audio backends require both `libpulseaudio` and `pipewire`
-          LD_LIBRARY_PATH = "${lib.getLib pkgs.pkgsi686Linux.freetype}/lib:${lib.getLib pkgs.pkgsi686Linux.libpulseaudio}/lib:${lib.getLib pkgs.pkgsi686Linux.pipewire}/lib:$LD_LIBRARY_PATH";
+          # use nixpkgs' freetype: legacy steam-runtime's freetype cannot load normal truetype fonts
+          # sdl3's audio backends require both libpulseaudio and pipewire
+          LD_LIBRARY_PATH = "${lib.makeLibraryPath (with pkgs.pkgsi686Linux; [freetype libpulseaudio pipewire])}:$LD_LIBRARY_PATH";
 
           LD_PRELOAD = "${pkgs.pkgsi686Linux.sdl2-compat}/lib/libSDL2-2.0.so.0:${pkgs.pkgsi686Linux.cstrike-mod}/lib/libcstrike_mod.so:$LD_PRELOAD";
 
-          # nvidia as offload GPU can't create a `wayland` window
+          # nvidia as offload gpu can't create a wayland window
           SDL_VIDEODRIVER = "x11";
         };
 
@@ -45,14 +51,16 @@
         ];
       };
 
+      "570" = {
+        name = "Dota 2";
+
+        inherit wrappers;
+      };
+
       "427520" = {
         name = "Factorio";
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "590830" = {
@@ -60,43 +68,33 @@
 
         compatTool = config.programs.steam.config.defaultCompatTool; # https://github.com/Facepunch/sbox-issues/issues/9759
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "1422450" = {
         name = "Deadlock";
 
-        compatTool = config.programs.steam.config.defaultCompatTool; # not available natively yet; forces proton_experimental for some reason, so set our own
+        compatTool = config.programs.steam.config.defaultCompatTool; # not available natively yet; forces `proton_experimental` for some reason, so set our own
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
 
       "1808500" = {
         name = "ARC Raiders";
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
+      };
+
+      "2406770" = {
+        name = "Bodycam";
+
+        inherit wrappers;
       };
 
       "4465480" = {
         name = "Counter-Strike:Global Offensive";
 
-        wrappers = [
-          osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-          (lib.getExe pkgs.gamemode)
-          (lib.getExe pkgs.mangohud)
-        ];
+        inherit wrappers;
       };
       # keep-sorted end
     };
@@ -115,25 +113,21 @@
       env = let
         appId = 620980;
       in {
-        # keep-sorted start
+        SteamEnv = true;
+
         STEAM_COMPAT_APP_ID = appId;
+        SteamAppId = appId;
+        SteamGameId = appId;
+        SteamOverlayGameId = appId;
+
         STEAM_COMPAT_CLIENT_INSTALL_PATH = "/home/hilorioze/.steam/steam";
         STEAM_COMPAT_DATA_PATH = "${bsManagerBasePath}/SharedContent/compatdata";
         STEAM_COMPAT_INSTALL_PATH = instancePath;
-        SteamAppId = appId;
-        SteamEnv = true;
-        SteamGameId = appId;
-        SteamOverlayGameId = appId;
+
         WINEDLLOVERRIDES = "winhttp=n,b";
-        # keep-sorted end
       };
 
-      wrappers = [
-        osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-        (lib.getExe pkgs.gamemode)
-        (lib.getExe pkgs.mangohud)
-        (lib.getExe pkgs.steam-run)
-      ];
+      wrappers = wrappers ++ [(lib.getExe pkgs.steam-run)];
 
       args = [
         "run"

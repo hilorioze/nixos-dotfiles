@@ -20,7 +20,7 @@
 
     provider = {
       ipv4 = "local";
-      ipv6 = "local";
+      ipv6 = "none";
     };
 
     updateCron = "@once";

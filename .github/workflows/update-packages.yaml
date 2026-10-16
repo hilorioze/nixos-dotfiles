@@ -10,21 +10,21 @@ on:
       - flake.lock
 
   schedule:
-    # run weekly on mondays at 00:00 UTC
+    # run weekly on mondays at 00:00 utc
     - cron: '0 0 * * 1'
 
   workflow_dispatch:
 
 jobs:
   update-packages:
+    permissions:
+      id-token: write # required so niks3 can authenticate via oidc
+
     concurrency:
       # one workflow run at a time; latest completes last
       group: ${{ github.workflow }}
 
       cancel-in-progress: false
-
-    permissions:
-      id-token: write # required so `niks3` can authenticate via OIDC
 
     runs-on: ubuntu-latest
 
@@ -36,7 +36,7 @@ jobs:
           extra_nix_config: |
             accept-flake-config = true
 
-            fsync-metadata = false # performance over durability in CI; store is transient
+            fsync-metadata = false # performance over durability in ci; store is transient
 
       - run: |
           {
@@ -49,7 +49,7 @@ jobs:
       - id: fetch-niks3-bin
         run: |
           # `niks3-action` looks for `niks3-hook` next to `niks3`
-          # `--inputs-from github:${{ github.repository }}` keeps CLI and server on the same version to avoid API mismatches
+          # `--inputs-from github:${{ github.repository }}` keeps cli and server on the same version to avoid api mismatches
           niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:${{ github.repository }} --print-build-logs --expr $'
           let
             pkgs = import <nixpkgs> {};
@@ -86,7 +86,7 @@ jobs:
 
           printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
 
-      - uses: Mic92/niks3-action@12d3e320b2a99b7938f9634bd337cd9fec104609 # v1.1.0
+      - uses: Mic92/niks3-action@f0743610fddd7d96239c78d9e457440fc15019e2 # v1.4.0
         with:
           niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
 
@@ -102,7 +102,7 @@ jobs:
           messages=$RUNNER_TEMP/nix-update
           mkdir $messages
 
-          # pinned `nix-update` evaluates package update scripts through `<nixpkgs>`
+          # pinned nix-update evaluates package update scripts through `<nixpkgs>`
           NIX_PATH=nixpkgs=$(nix eval --raw --inputs-from . nixpkgs#legacyPackages.x86_64-linux.path)
           export NIX_PATH
 
@@ -118,7 +118,7 @@ jobs:
           table=$RUNNER_TEMP/nix-update-table.md
           details=$RUNNER_TEMP/nix-update-details.md
 
-          # `wc` and `cat` below expect these files even when no packages were updated
+          # wc and cat below expect these files even when no packages were updated
           touch $table $details
 
           for message in $messages/*.md; do
@@ -178,5 +178,7 @@ jobs:
 
           commit-message: 'chore(deps/packages): update'
           title: 'chore(deps/packages): update'
+
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> # defaults to the user who triggered the run
 
           body-path: ${{ steps.update-packages.outputs.body-path }}

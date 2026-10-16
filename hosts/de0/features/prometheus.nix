@@ -29,11 +29,11 @@
           mkNodeTarget = nixosConfiguration: "${nixosConfiguration.config.networking.fqdn}:${toString nixosConfiguration.config.services.prometheus.exporters.node.port}";
         in [
           {
-            targets = [
+            targets = with outputs.nixosConfigurations; [
               # keep-sorted start
-              (mkNodeTarget outputs.nixosConfigurations.de0)
-              (mkNodeTarget outputs.nixosConfigurations.fakesynology-nixos)
-              (mkNodeTarget outputs.nixosConfigurations.hel0)
+              (mkNodeTarget de0)
+              (mkNodeTarget fakesynology-nixos)
+              (mkNodeTarget hel0)
               # keep-sorted end
             ];
           }

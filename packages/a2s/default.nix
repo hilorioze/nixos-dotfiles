@@ -1,33 +1,37 @@
 {
   # keep-sorted start
-  buildGoModule,
-  fetchFromGitHub,
+  fetchurl,
   lib,
+  stdenvNoCC,
   # keep-sorted end
 }:
-buildGoModule (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "a2s";
 
-  version = "0.3.2";
+  version = "0.4.0";
 
-  src = fetchFromGitHub {
-    owner = "WoozyMasta";
-    repo = "a2s";
+  src = fetchurl {
+    url = "https://github.com/WoozyMasta/a2s/releases/download/v${finalAttrs.version}/a2s-linux-amd64";
 
-    tag = "v${finalAttrs.version}";
-    hash = "sha256-p0vy4BXrSR1LgC22pH5bGu5B0W0b/MzQ8lU7XBVctSc=";
+    hash = "sha256-IrOu9r92GObT+BDjuJQaBXBCD7FIIaHRQbYOxUDSQr4=";
   };
 
-  vendorHash = "sha256-Yl1F6444pt/mmnxGjRYafZeY25+OUdbl6WB0Jy9zglw=";
+  dontUnpack = true;
 
-  # build only the cli package; the rest are libraries
-  subPackages = ["cmd/a2s"];
+  installPhase = ''
+    runHook preInstall
+
+    install -D --mode=755 $src $out/bin/${finalAttrs.meta.mainProgram}
+
+    runHook postInstall
+  '';
 
   meta = {
     description = "Command-line utility for querying Steam A2S server information";
     homepage = "https://github.com/WoozyMasta/a2s";
 
     license = lib.licenses.agpl3Only;
+    sourceProvenance = [lib.sourceTypes.binaryNativeCode];
 
     mainProgram = "a2s";
 

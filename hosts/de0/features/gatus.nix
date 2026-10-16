@@ -36,7 +36,7 @@
       enable = true;
 
       settings = {
-        metrics = true; # /metrics endpoint for prometheus
+        metrics = true; # `/metrics` endpoint for prometheus
 
         storage = let
           retentionDays = 30;
@@ -45,7 +45,7 @@
         in {
           type = "postgres";
 
-          # `lib/pq` uses `/tmp` by default; force the postgresql service socket dir
+          # lib/pq uses `/tmp` by default; force the postgresql service socket dir
           path = "postgresql:///gatus?host=/run/${config.systemd.services.postgresql.serviceConfig.RuntimeDirectory}";
 
           # per endpoint
@@ -82,7 +82,7 @@
             url = "udp://${hel0Host}:${toString port}";
             body = "$GOLDSRC_A2S_INFO_BODY";
 
-            conditions = ["[BODY] == pat(*cstrike*)"]; # `cstrike` is the game directory in the `A2S_INFO` reply
+            conditions = ["[BODY] == pat(*cstrike*)"]; # `cstrike` is the game directory in the A2S_INFO reply
           };
 
           mkNodeExporterEndpoint = nixosConfig: {
@@ -136,6 +136,32 @@
           }
 
           {
+            name = "claude-code-gateway";
+            group = "services";
+
+            url = "https://claude-code-gateway.${de0Host}/healthz"; # relayed to cliproxyapi, so both have to answer
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == ok"
+            ];
+          }
+
+          {
+            name = "cliproxyapi";
+            group = "services";
+
+            url = "http://${de0Host}:${toString de0Config.services.cliproxyapi.settings.server.port}/healthz";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == ok"
+            ];
+          }
+
+          {
             name = "deadlocked-relay-egress";
             group = "services";
 
@@ -145,7 +171,7 @@
               Connection = "Upgrade";
               Upgrade = "websocket";
 
-              Sec-WebSocket-Key = "AAAAAAAAAAAAAAAAAAAAAA=="; # RFC 6455 format: 16-byte nonce encoded as RFC 4648 base64
+              Sec-WebSocket-Key = "AAAAAAAAAAAAAAAAAAAAAA=="; # rfc 6455 format: 16-byte nonce encoded as rfc 4648 base64
               Sec-WebSocket-Version = "13";
             };
 
@@ -190,6 +216,10 @@
           }
 
           (mkGoldsrcProxyEndpoint 27015)
+
+          (mkGoldsrcProxyEndpoint 27016)
+
+          (mkGoldsrcProxyEndpoint 27256)
 
           (mkGoldsrcProxyEndpoint 28255)
 
@@ -335,6 +365,19 @@
           (mkSnmpExporterEndpoint "fakesynology")
 
           {
+            name = "syncthing-de0";
+            group = "platform";
+
+            url = "http://${de0Host}:8384/rest/noauth/health";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == OK"
+            ];
+          }
+
+          {
             name = "tailnet-derp-hel0";
             group = "platform";
 
@@ -359,8 +402,8 @@
     requires = ["postgresql.service"];
 
     # both probes send raw binary protocol payloads
-    # normal YAML strings cannot represent arbitrary bytes such as `0xff` or NUL directly
-    # gatus expands these environment variables before parsing YAML; `yaml.v3` decodes `!!binary` to raw bytes
+    # normal yaml strings cannot represent arbitrary bytes such as `0xff` or NUL directly
+    # gatus expands these environment variables before parsing yaml; yaml.v3 decodes `!!binary` to raw bytes
     environment = {
       # keep-sorted start
       DEADLOCKED_RELAY_HEALTH_BODY = "!!binary AAAAAjAwMDAwMDAwMDAwMDAwMDA="; # b"\x00\x00\x00\x020000000000000000"

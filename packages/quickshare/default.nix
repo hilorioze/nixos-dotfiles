@@ -32,9 +32,11 @@ in
 
     extraPkgs = pkgs:
       with pkgs; [
+        # keep-sorted start
         bluez
         curl
         zstd
+        # keep-sorted end
       ];
 
     extraInstallCommands = ''

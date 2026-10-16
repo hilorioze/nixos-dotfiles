@@ -4,7 +4,7 @@
   home.packages = [pkgs.kdePackages.kio-zeroconf];
 
   programs.plasma = {
-    # dolphin global fallback view property used for directories without local settings when GlobalViewProps=false
+    # dolphin global fallback view property used for directories without local settings when `GlobalViewProps=false`
     dataFile."dolphin/view_properties/global/.directory".Settings.HiddenFilesShown = true;
 
     configFile = {
@@ -72,7 +72,7 @@
     # keep-sorted start
     "application/x-gnome-saved-search" = "org.kde.dolphin.desktop";
     "inode/directory" = "org.kde.dolphin.desktop";
-    # "x-scheme-handler/file" = "org.kde.dolphin.desktop"; # routes ALL file:// urls through dolphin first, breaking direct app launches (e.g. PDF -> Dolphin -> Okular instead of PDF -> Okular)
+    # "x-scheme-handler/file" = "org.kde.dolphin.desktop"; # routes all `file://` urls through dolphin first, breaking direct app launches (e.g. pdf -> dolphin -> okular instead of pdf -> okular)
     # keep-sorted end
   };
 }

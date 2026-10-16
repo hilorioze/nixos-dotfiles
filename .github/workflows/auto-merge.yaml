@@ -1,8 +1,11 @@
 on:
   workflow_run:
     workflows:
-      - .github/workflows/build.yaml
+      # keep-sorted start
       - .github/workflows/build-devenv.yaml
+      - .github/workflows/build-nixos.yaml
+      - .github/workflows/build-packages.yaml
+      # keep-sorted end
 
     types:
       - completed
@@ -48,7 +51,7 @@ jobs:
         env:
           PR_NUMBER: ${{ steps.resolve-pull-request.outputs.number }}
         run: |
-          # wait for all PR checks to pass
+          # wait for all pr checks to pass
           gh pr checks \
             $PR_NUMBER \
             --watch \

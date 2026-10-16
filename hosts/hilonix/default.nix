@@ -61,9 +61,9 @@
 
     "/mnt/vol" = {
       device = "/dev/disk/by-partlabel/vol";
-      fsType = "ntfs-3g"; # never use `ntfs3` here; it honors WSL `$LX*` EAs and breaks shared access
+      fsType = "ntfs-3g"; # never use `ntfs3` here; it honors wsl `$LX*` extended attributes and breaks shared access
       options = [
-        # `ntfs-3g` mounts world-accessible by default; no additional access-control options needed
+        # ntfs-3g mounts world-accessible by default; no additional access-control options needed
         # keep-sorted start
         "big_writes"
         "noatime"
@@ -100,7 +100,7 @@
   };
 
   hardware.nvidia = {
-    videoAcceleration = false; # keep host VA-API users off the passthrough GPU
+    videoAcceleration = false; # keep host va-api users off the passthrough gpu
 
     powerManagement = {
       enable = true; # enable power management through systemd (sleep, hibernation, etc.)

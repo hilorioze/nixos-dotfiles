@@ -8,26 +8,26 @@ on:
 
       - devenv.yaml
 
-      # workflow reads `nixConfig` and uses `--inputs-from .`, so changes to them may affect the result
+      # workflow reads `nixConfig` and uses `.#devenv`, so changes to them may affect the result
       - flake.nix
       - flake.lock
 
   schedule:
-    # run weekly on mondays at 00:00 UTC
-    - cron: "0 0 * * 1"
+    # run weekly on mondays at 00:00 utc
+    - cron: '0 0 * * 1'
 
   workflow_dispatch:
 
 jobs:
   update-devenv-lock:
+    permissions:
+      id-token: write # required so niks3 can authenticate via oidc
+
     concurrency:
       # one workflow run at a time; latest completes last
       group: ${{ github.workflow }}
 
       cancel-in-progress: false
-
-    permissions:
-      id-token: write # required so `niks3` can authenticate via OIDC
 
     runs-on: ubuntu-latest
 
@@ -39,7 +39,7 @@ jobs:
           extra_nix_config: |
             accept-flake-config = true
 
-            fsync-metadata = false # performance over durability in CI; store is transient
+            fsync-metadata = false # performance over durability in ci; store is transient
 
       - run: |
           {
@@ -52,7 +52,7 @@ jobs:
       - id: fetch-niks3-bin
         run: |
           # `niks3-action` looks for `niks3-hook` next to `niks3`
-          # `--inputs-from github:${{ github.repository }}` keeps CLI and server on the same version to avoid API mismatches
+          # `--inputs-from github:${{ github.repository }}` keeps cli and server on the same version to avoid api mismatches
           niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:${{ github.repository }} --print-build-logs --expr $'
           let
             pkgs = import <nixpkgs> {};
@@ -89,7 +89,7 @@ jobs:
 
           printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
 
-      - uses: Mic92/niks3-action@12d3e320b2a99b7938f9634bd337cd9fec104609 # v1.1.0
+      - uses: Mic92/niks3-action@f0743610fddd7d96239c78d9e457440fc15019e2 # v1.4.0
         with:
           niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
 
@@ -100,10 +100,10 @@ jobs:
 
       - id: update-devenv-lock
         run: |
-          nix run --inputs-from . nixpkgs#devenv -- update
+          nix run .#devenv -- update
 
-          # auto-generate files (e.g. `.devcontainer/devcontainer.json`) and format code (`treefmt` & `git-hooks`) after lock and file updates
-          nix run --inputs-from . nixpkgs#devenv -- test || true
+          # auto-generate files (e.g. `.devcontainer/devcontainer.json`) and format code (treefmt & git-hooks) after lock and file updates
+          nix run .#devenv -- test || true
 
           body=$RUNNER_TEMP/devenv-lock-body.md
 
@@ -149,7 +149,9 @@ jobs:
             devenv
             automated
 
-          commit-message: "chore(deps/devenv): update"
-          title: "chore(deps/devenv): update"
+          commit-message: 'chore(deps/devenv): update'
+          title: 'chore(deps/devenv): update'
+
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> # defaults to the user who triggered the run
 
           body-path: ${{ steps.update-devenv-lock.outputs.body-path }}

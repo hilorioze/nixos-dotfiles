@@ -1,44 +1,59 @@
 {
   # keep-sorted start
+  alsa-lib,
+  autoPatchelfHook,
   copyDesktopItems,
-  fetchFromGitHub,
+  fetchurl,
   lib,
+  libgcc,
   libglvnd,
   libx11,
-  libxcb,
   libxcursor,
   libxi,
   libxkbcommon,
   libxrender,
   makeDesktopItem,
-  makeWrapper,
-  rustPlatform,
+  stdenvNoCC,
   # keep-sorted end
 }:
-rustPlatform.buildRustPackage (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "deadlocked";
 
-  version = "1.3.1";
+  version = "1.4.1";
 
-  src = fetchFromGitHub {
-    owner = "avitran0";
-    repo = "deadlocked";
+  src = fetchurl {
+    url = "https://github.com/avitran0/deadlocked/releases/download/v${finalAttrs.version}/deadlocked";
 
-    tag = "v${finalAttrs.version}";
-    hash = "sha256-7icXywwcGoOs2g5ngNEWcBPmU/xwAGsQiMYRKvIfK1I=";
+    hash = "sha256-wpl8Q6RIcPz5DbXITayqhvZ18PjwqvipFN/weLnj+bk=";
   };
 
-  cargoHash = "sha256-Ls0nCnFbSwM9zwGgasJnkWYqKNDDjj4Eb8tSCGTyHis=";
+  dontUnpack = true;
 
   nativeBuildInputs = [
     # keep-sorted start
+    autoPatchelfHook
     copyDesktopItems
-    makeWrapper
     # keep-sorted end
   ];
 
-  # build only the client; the workspace also contains the radar server
-  buildAndTestSubdir = "cheat";
+  buildInputs = [
+    # keep-sorted start
+    alsa-lib
+    libgcc
+    # keep-sorted end
+  ];
+
+  # loaded with `dlopen`
+  runtimeDependencies = [
+    # keep-sorted start
+    libglvnd
+    libx11
+    libxcursor
+    libxi
+    libxkbcommon
+    libxrender
+    # keep-sorted end
+  ];
 
   desktopItems = [
     (makeDesktopItem {
@@ -46,27 +61,18 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
       desktopName = "deadlocked";
 
-      exec = "deadlocked";
+      exec = finalAttrs.meta.mainProgram;
 
       categories = ["Game"];
     })
   ];
 
-  postInstall = let
-    runtimeLibs = [
-      # keep-sorted start
-      libglvnd
-      libx11
-      libxcb
-      libxcursor
-      libxi
-      libxkbcommon
-      libxrender
-      # keep-sorted end
-    ];
-  in ''
-    wrapProgram $out/bin/deadlocked \
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath runtimeLibs}"
+  installPhase = ''
+    runHook preInstall
+
+    install -D --mode=755 $src $out/bin/${finalAttrs.meta.mainProgram}
+
+    runHook postInstall
   '';
 
   meta = {
@@ -74,6 +80,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://github.com/avitran0/deadlocked";
 
     license = lib.licenses.gpl3Only;
+    sourceProvenance = [lib.sourceTypes.binaryNativeCode];
 
     mainProgram = "deadlocked";
 

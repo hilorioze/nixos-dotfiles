@@ -1,4 +1,10 @@
-{config, ...}: {
+{
+  # keep-sorted start
+  config,
+  pkgs,
+  # keep-sorted end
+  ...
+}: {
   sops = {
     secrets = {
       # keep-sorted start
@@ -21,6 +27,8 @@
 
   networking.networkmanager = {
     enable = true;
+
+    plugins = [pkgs.networkmanager-openvpn];
 
     wifi.powersave = false; # prevent latency spikes
 
@@ -89,11 +97,14 @@
 
             allowed-ips = "0.0.0.0/0;::/0;";
 
-            persistent-keepalive = 25; # keep NAT entries alive during inactivity
+            persistent-keepalive = 25; # keep nat entries alive during inactivity
           };
         };
         # keep-sorted end
       };
     };
   };
+
+  # no cellular modem; only grabs usb serial ports (phone edl, etc.)
+  systemd.services.ModemManager.enable = false;
 }

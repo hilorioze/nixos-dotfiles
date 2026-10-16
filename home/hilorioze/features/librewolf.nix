@@ -115,6 +115,11 @@ in {
       };
 
       userChrome = ''
+        /* hide tab close button */
+        .tabbrowser-tab .tab-close-button {
+          display: none !important;
+        }
+
         /* hide all tabs button */
         #alltabs-button {
           display: none !important;
@@ -134,10 +139,8 @@ in {
         # fixes extensions being disabled right after a fresh install
         "extensions.autoDisableScopes" = 0;
 
-        # use native file picker instead of GTK file picker
+        # use native file picker instead of gtk file picker
         "widget.use-xdg-desktop-portal.file-picker" = 1;
-
-        "toolkit.legacyUserProfileCustomizations.stylesheets" = true; # enable `userChrome.css`
 
         "middlemouse.paste" = false;
 
@@ -149,13 +152,13 @@ in {
         "browser.search.suggest.enabled" = true;
         "browser.urlbar.suggest.searches" = true;
 
-        # enable search and form history (disabled by `librewolf` by default)
+        # enable search and form history (disabled by librewolf by default)
         "browser.formfill.enable" = true;
 
-        # disable fingerprinting resistance so websites can follow the system theme (enabled by default in `librewolf`)
+        # disable fingerprinting resistance so websites can follow the system theme (enabled by default in librewolf)
         "privacy.resistFingerprinting" = false;
 
-        # keep browsing data between sessions (`librewolf` clears it on shutdown by default)
+        # keep browsing data between sessions (librewolf clears it on shutdown by default)
         "privacy.sanitize.sanitizeOnShutdown" = false;
 
         "widget.gtk.overlay-scrollbars.enabled" = false; # always show scrollbars
@@ -183,10 +186,10 @@ in {
 
         "browser.toolbars.bookmarks.visibility" = "never";
 
-        "media.videocontrols.picture-in-picture.video-toggle.has-used" = true; # mark PiP intro popup as already shown
+        "media.videocontrols.picture-in-picture.video-toggle.has-used" = true; # mark pip intro popup as already shown
 
-        "intl.locale.requested" = "en-GB"; # UI locale
-        "intl.regional_prefs.use_os_locales" = true; # use OS regional formatting
+        "intl.locale.requested" = "en-GB"; # ui locale
+        "intl.regional_prefs.use_os_locales" = true; # use os regional formatting
 
         "intl.accept_languages" = "en-IE,en-GB,en-US,en,uk"; # preferred content languages/`Accept-Language`
 
@@ -204,7 +207,7 @@ in {
 
         "network.trr.mode" = 5; # disable DoH
 
-        # enable firefox sync (`librewolf` disables it by default)
+        # enable firefox sync (librewolf disables it by default)
         "identity.fxaccounts.enabled" = true;
 
         # disable unwanted sync categories

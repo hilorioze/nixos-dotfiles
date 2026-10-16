@@ -9,9 +9,9 @@
 
       ONLINE_MODE = "FALSE";
 
-      TYPE = "FTBA"; # Feed the Beast App; "FTB" used to be a CurseForge alias
+      TYPE = "FTBA"; # "Feed the Beast App"; "FTB" used to be a curseforge alias
 
-      FTB_MODPACK_ID = "23"; # FTB Infinity Evolved 1.7
+      FTB_MODPACK_ID = "23"; # "FTB Infinity Evolved 1.7"
       FTB_MODPACK_VERSION_ID = "99"; # 3.1.0
 
       OPS = "80cf2d45-be52-358a-a7ba-26fe414d560c"; # hiloriozeoffline

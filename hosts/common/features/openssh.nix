@@ -14,9 +14,7 @@
     ];
 
     settings = {
-      X11Forwarding = true;
-
-      # Disable password authentication
+      # disable password authentication
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
     };

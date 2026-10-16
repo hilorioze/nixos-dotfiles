@@ -1,0 +1,56 @@
+diff --git a/src/CursorTracker/CursorTrackerDrm.cpp b/src/CursorTracker/CursorTrackerDrm.cpp
+index e71b377..8e92889 100644
+--- a/src/CursorTracker/CursorTrackerDrm.cpp
++++ b/src/CursorTracker/CursorTrackerDrm.cpp
+@@ -72,6 +72,30 @@ namespace gsr {
+         return hardware_accelerated;
+     }
+ 
++    // The cursor can only be on a gpu that has a monitor connected. Keeping any other gpu open makes this process
++    // the drm master of it, which keeps the compositor from taking it and the gpu from being passed to a virtual machine
++    static bool drm_fd_has_connected_monitor(int drm_fd) {
++        drmModeResPtr resources = drmModeGetResources(drm_fd);
++        if(!resources)
++            return false;
++
++        bool has_connected_monitor = false;
++        for(int i = 0; i < resources->count_connectors; ++i) {
++            drmModeConnectorPtr connector = drmModeGetConnectorCurrent(drm_fd, resources->connectors[i]);
++            if(!connector)
++                continue;
++
++            has_connected_monitor = connector->connection == DRM_MODE_CONNECTED;
++            drmModeFreeConnector(connector);
++
++            if(has_connected_monitor)
++                break;
++        }
++
++        drmModeFreeResources(resources);
++        return has_connected_monitor;
++    }
++
+     static bool rectangles_intersect(mgl::IntRect rect1, mgl::IntRect rect2) {
+         return rect1.position.x < rect2.position.x + rect2.size.x && rect1.position.x + rect1.size.x > rect2.position.x &&
+             rect1.position.y < rect2.position.y + rect2.size.y && rect1.position.y + rect1.size.y > rect2.position.y;
+@@ -272,17 +296,17 @@ namespace gsr {
+         drmModeFreeResources(resources);
+     }
+ 
+-    // The monitor that the cursor is on can be connected to any gpu, so every gpu is used
++    // The monitor that the cursor is on can be connected to any gpu, so every gpu that has a monitor connected is used
+     CursorTrackerDrm::CursorTrackerDrm(struct wl_display *wayland_dpy) : wayland_dpy(wayland_dpy) {
+         for(int i = 0; i < MAX_DRI_CARDS; ++i) {
+             char card_path[128];
+             snprintf(card_path, sizeof(card_path), DRM_DEV_NAME, DRM_DIR_NAME, i);
+ 
+-            const int drm_fd = open(card_path, O_RDONLY);
++            const int drm_fd = open(card_path, O_RDONLY | O_CLOEXEC);
+             if(drm_fd <= 0)
+                 continue;
+ 
+-            if(!drm_fd_is_hardware_accelerated_gpu(drm_fd)) {
++            if(!drm_fd_is_hardware_accelerated_gpu(drm_fd) || !drm_fd_has_connected_monitor(drm_fd)) {
+                 close(drm_fd);
+                 continue;
+             }

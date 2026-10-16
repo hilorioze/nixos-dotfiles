@@ -2,8 +2,6 @@ _final: prev: {
   nix-update = prev.nix-update.overrideAttrs (previousAttrs: {
     patches =
       (previousAttrs.patches or [])
-      ++ [
-        ./skip-update.patch
-      ];
+      ++ [./skip-update.patch];
   });
 }

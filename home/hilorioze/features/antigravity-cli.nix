@@ -1,4 +1,11 @@
-{pkgs, ...}: {
+{
+  # keep-sorted start
+  config,
+  lib,
+  pkgs,
+  # keep-sorted end
+  ...
+}: {
   programs.antigravity-cli = {
     enable = true;
 
@@ -15,5 +22,33 @@
       enableTelemetry = false;
       notifications = true;
     };
+  };
+
+  home = let
+    settingsPath = ".gemini/antigravity-cli/settings.json";
+  in {
+    file.${settingsPath}.enable = false; # keep the generated settings source without linking an immutable user config
+
+    activation.writeAntigravityConfig = let
+      mergeSettingsFilter = lib.escapeShellArg ''
+        (
+          .[0]
+          # keep only settings managed dynamically by antigravity
+          | with_entries(select(.key | IN("model", "trustedWorkspaces")))
+        )
+        # apply the declarative settings with higher priority
+        * .[1]
+      '';
+    in
+      lib.hm.dag.entryAfter ["linkGeneration"] ''
+        config_file=${lib.escapeShellArg "${config.home.homeDirectory}/${settingsPath}"}
+        settings_file=${lib.escapeShellArg config.home.file.${settingsPath}.source}
+
+        if [[ -s $config_file ]]; then
+          run ${pkgs.runtimeShell} -c '${lib.getExe pkgs.jq} --slurp "$1" $2 $3 | ${lib.getExe' pkgs.moreutils "sponge"} $2' -- ${mergeSettingsFilter} $config_file $settings_file
+        else
+          run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $settings_file $config_file
+        fi
+      '';
   };
 }

@@ -5,9 +5,7 @@ _final: prev: {
       spectacle = prev.kdePackages.spectacle.overrideAttrs (oldAttrs: {
         patches =
           (oldAttrs.patches or [])
-          ++ [
-            ./region-select-all.patch
-          ];
+          ++ [./region-select-all.patch];
       });
     };
 }

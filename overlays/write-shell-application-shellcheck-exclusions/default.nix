@@ -1,12 +1,10 @@
-_final: prev: let
-  inherit (import ../../shared.nix) ignoredShellcheckRules;
-in {
+_final: prev: {
   writeShellApplication = args:
     prev.writeShellApplication (
       args
       // {
         excludeShellChecks =
-          ignoredShellcheckRules
+          (import ../../shared.nix).ignoredShellcheckRules
           ++ (args.excludeShellChecks or []);
       }
     );

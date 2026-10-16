@@ -69,7 +69,7 @@
   systemd.user.services."vm-starting-notification@".serviceConfig = {
     ExecStart = "${lib.getExe pkgs.libnotify} --expire-time=0 --wait %I Starting";
 
-    # `notify-send` only closes `--wait` notifications gracefully on `SIGINT`
+    # notify-send only closes `--wait` notifications gracefully on SIGINT
     KillSignal = "SIGINT";
   };
 }

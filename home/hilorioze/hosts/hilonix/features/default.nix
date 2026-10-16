@@ -26,7 +26,6 @@
     ../../../../common/features/meslo-nerd-font.nix
     ../../../../common/features/mousai.nix
     ../../../../common/features/nix-alien.nix
-    ../../../../common/features/obs-studio.nix
     ../../../../common/features/onlyoffice.nix
     ../../../../common/features/podman-compose.nix
     ../../../../common/features/qtscrcpy.nix
@@ -54,11 +53,13 @@
     ../../../features/atuin.nix
     ../../../features/bambu-studio.nix
     ../../../features/blender.nix
+    ../../../features/blutter.nix
     ../../../features/bruno.nix
     ../../../features/bs-manager.nix
     ../../../features/bspguy.nix
     ../../../features/chromium.nix
     ../../../features/cinny.nix
+    ../../../features/claude-code.nix
     ../../../features/codeburn-desktop.nix
     ../../../features/codex.nix
     ../../../features/deadlocked.nix
@@ -66,8 +67,11 @@
     ../../../features/distrobox.nix
     ../../../features/dolphin.nix
     ../../../features/email.nix
+    ../../../features/gh.nix
+    ../../../features/ghidra.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/gpg.nix
+    ../../../features/gpu-screen-recorder.nix
     ../../../features/half-life-asset-manager.nix
     ../../../features/haruna.nix
     ../../../features/imhex.nix
@@ -82,6 +86,7 @@
     ../../../features/mcp.nix
     ../../../features/niks3.nix
     ../../../features/nix.nix
+    ../../../features/opencode.nix
     ../../../features/plasma.nix
     ../../../features/quickshare.nix
     ../../../features/spectacle.nix
@@ -98,7 +103,6 @@
     # keep-sorted end
 
     # keep-sorted start
-    ./ghidra.nix
     ./kdeconnect.nix
     ./librewolf.nix
     ./looking-glass.nix

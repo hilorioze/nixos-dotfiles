@@ -14,7 +14,7 @@
 
   services = {
     resolved.settings.Resolve = {
-      DNSStubListener = false; # free `:53` for CoreDNS listening globally
+      DNSStubListener = false; # free `:53` for coredns listening globally
       DNSStubListenerExtra = "127.0.0.1:1053"; # keep available locally on a non-conflicting port
     };
 
@@ -42,7 +42,7 @@
           )
           lanHostNames}
 
-          # `immich.fakesynology.${domain}` -> CNAME (public DNS) `fakesynology.${domain}` -> `fakesynology.local`
+          # `immich.fakesynology.${domain}` -> CNAME (public dns) `fakesynology.${domain}` -> `fakesynology.local`
           ${lib.concatMapStringsSep "\n" (
             hostName: "rewrite continue cname exact ${hostName}.${domain}. ${mkLanTarget hostName}."
           )
@@ -50,6 +50,11 @@
 
           forward _outbound. ${config.services.resolved.settings.Resolve.DNSStubListenerExtra} # avoid self-resolution to irrelevant addresses
           forward local. ${config.services.resolved.settings.Resolve.DNSStubListenerExtra}
+
+          # no ipv6 on the lan; resolved answers SERVFAIL after a 4s mdns timeout
+          template IN AAAA local. {
+            rcode NOERROR
+          }
 
           import upstream
         }

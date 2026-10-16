@@ -60,7 +60,7 @@ in {
     stateVersion = 5;
 
     fqdn = imapHost;
-    sendingFqdn = fqdn; # must match rDNS of the server's IP
+    sendingFqdn = fqdn; # must match rdns of the server's ip
 
     systemDomain = domain;
     domains = [domain];

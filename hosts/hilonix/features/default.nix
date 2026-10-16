@@ -9,6 +9,7 @@
     ../../common/features/desomnia.nix
     ../../common/features/flatpak.nix
     ../../common/features/gamemode.nix
+    ../../common/features/gpu-screen-recorder.nix
     ../../common/features/home-manager.nix
     ../../common/features/kdeconnect-firewall.nix
     ../../common/features/kdiskmark.nix
@@ -28,13 +29,15 @@
     ../../common/features/reclaim-protection.nix
     ../../common/features/reisub.nix
     ../../common/features/rtkit.nix
+    ../../common/features/smartd.nix
     ../../common/features/steam.nix
     ../../common/features/syncthing-firewall.nix
     ../../common/features/systemd-boot.nix
-    ../../common/features/systemd-initrd.nix # required for TPM access in initrd
+    ../../common/features/systemd-initrd.nix # required for tpm access in initrd
     ../../common/features/tailscale-client.nix
     ../../common/features/tailscale.nix
     ../../common/features/uinput.nix
+    ../../common/features/upnp-firewall.nix
     ../../common/features/ventoy.nix
     ../../common/features/wayland.nix
     ../../common/features/wireshark-usbmon.nix
@@ -48,7 +51,10 @@
     # keep-sorted start
     ./amnezia-vpn.nix
     ./coolercontrol.nix
+    ./gpu-screen-recorder.nix
     ./i18n.nix
+    ./keyboard-backlight.nix
+    ./led-strip-sync.nix
     ./looking-glass.nix
     ./networkmanager.nix
     ./nix-ld.nix

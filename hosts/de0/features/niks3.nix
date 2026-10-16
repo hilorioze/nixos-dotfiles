@@ -77,7 +77,7 @@
       };
 
       database = {
-        # force `pgx` to use the postgresql service socket dir instead of its default host discovery
+        # force pgx to use the postgresql service socket dir instead of its default host discovery
         connectionString = "postgresql:///niks3?host=/run/${config.systemd.services.postgresql.serviceConfig.RuntimeDirectory}";
 
         createLocally = false;
