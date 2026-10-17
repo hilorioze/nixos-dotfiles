@@ -75,16 +75,6 @@
 
           mailserverHost = hel0Config.mailserver.fqdn;
 
-          mkGoldsrcProxyEndpoint = port: {
-            name = "goldsrc-proxy-rs-${toString port}";
-            group = "services";
-
-            url = "udp://${hel0Host}:${toString port}";
-            body = "$GOLDSRC_A2S_INFO_BODY";
-
-            conditions = ["[BODY] == pat(*cstrike*)"]; # `cstrike` is the game directory in the A2S_INFO reply
-          };
-
           mkNodeExporterEndpoint = nixosConfig: {
             name = "node-exporter-${nixosConfig.networking.hostName}";
             group = "telemetry";
@@ -214,14 +204,6 @@
 
             conditions = ["[STATUS] == 200"];
           }
-
-          (mkGoldsrcProxyEndpoint 27015)
-
-          (mkGoldsrcProxyEndpoint 27016)
-
-          (mkGoldsrcProxyEndpoint 27256)
-
-          (mkGoldsrcProxyEndpoint 28255)
 
           {
             name = "grafana";
@@ -401,14 +383,9 @@
 
     requires = ["postgresql.service"];
 
-    # both probes send raw binary protocol payloads
-    # normal yaml strings cannot represent arbitrary bytes such as `0xff` or NUL directly
-    # gatus expands these environment variables before parsing yaml; yaml.v3 decodes `!!binary` to raw bytes
-    environment = {
-      # keep-sorted start
-      DEADLOCKED_RELAY_HEALTH_BODY = "!!binary AAAAAjAwMDAwMDAwMDAwMDAwMDA="; # b"\x00\x00\x00\x020000000000000000"
-      GOLDSRC_A2S_INFO_BODY = "!!binary /////1RTb3VyY2UgRW5naW5lIFF1ZXJ5AA=="; # b"\xff\xff\xff\xffTSource Engine Query\x00"
-      # keep-sorted end
-    };
+    # the probe sends a raw binary protocol payload
+    # normal yaml strings cannot represent arbitrary bytes such as NUL directly
+    # gatus expands this environment variable before parsing yaml; yaml.v3 decodes `!!binary` to raw bytes
+    environment.DEADLOCKED_RELAY_HEALTH_BODY = "!!binary AAAAAjAwMDAwMDAwMDAwMDAwMDA="; # b"\x00\x00\x00\x020000000000000000"
   };
 }

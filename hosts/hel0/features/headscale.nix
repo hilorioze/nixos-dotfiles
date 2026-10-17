@@ -239,22 +239,6 @@ in {
               ];
             }
 
-            # de0 can reach the goldsrc proxies on hel0 for gatus health checks
-            {
-              action = "accept";
-
-              src = ["tag:de0"];
-
-              dst = [
-                # keep-sorted start
-                "tag:hel0:27015"
-                "tag:hel0:27016"
-                "tag:hel0:27256"
-                "tag:hel0:28255"
-                # keep-sorted end
-              ];
-            }
-
             # de0 (gatus) checks the deadlocked relay on fakesynology-nixos
             {
               action = "accept";
