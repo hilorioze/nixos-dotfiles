@@ -1,0 +1,44 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: system/bootstrap.yaml
+
+  akadmin:
+    - model: authentik_core.user
+      identifiers:
+        username: akadmin
+      attrs:
+        is_active: false
+
+        groups: []
+
+  groups:
+    - model: authentik_core.group
+      id: mail-users
+      identifiers:
+        name: mail-users
+
+  hilorioze:
+    - model: authentik_core.user
+      state: created
+      identifiers:
+        username: hilorioze
+      attrs:
+        name: hilorioze
+
+        password: !File /run/credentials/authentik-worker.service/initial-password-hilorioze
+
+    - model: authentik_core.user
+      identifiers:
+        username: hilorioze
+      attrs:
+        name: hilorioze
+        email: hilorioze@@domain@
+
+        groups:
+          - !Find [authentik_core.group, [name, authentik Admins]]
+          - !KeyOf mail-users

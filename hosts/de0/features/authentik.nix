@@ -13,24 +13,11 @@
   authentikHttpAddress = lib.head config.services.authentik.settings.listen.http;
   ldapHost = config.networking.fqdn;
 
-  mkInitialPasswordCredential = username: "initial-password-${username}";
+  users = ["hilorioze"]; # each also needs its block in `authentik/users.yaml`
   mkInitialPasswordSecret = username: "services/authentik/users/${username}/initial-password";
-
-  getUserPasswordSecret = username: builtins.getAttr (mkInitialPasswordSecret username) config.sops.secrets;
 
   # bootstrap-only throwaway hash
   bootstrapPasswordHash = "pbkdf2_sha256$1000000$VtonnTnTF8QFxmNWSgCcf2$gUd6YTti7U4tXhh9LUJ5QWCKroJe3anKm5B47dhqWLk=";
-
-  users.hilorioze.groups = [
-    # keep-sorted start
-    "authentik Admins"
-    "mail-users"
-    # keep-sorted end
-  ];
-
-  usersBlueprint = pkgs.writeText "users.yaml" (import ./authentik/users.nix {
-    inherit domain lib mkInitialPasswordCredential users;
-  });
 
   # reapply `!File` values when the secret's sops source changes
   mailBlueprint = pkgs.writeText "mail.yaml" ''
@@ -57,7 +44,7 @@
     install --mode 0644 ${pkgs.replaceVars ./authentik/ldap.yaml {inherit ldapHost;}} $out/ldap.yaml
     install --mode 0644 ${ldapOutpostBlueprint} $out/ldap-outpost.yaml
     install --mode 0644 ${pkgs.replaceVars ./authentik/traefik.yaml {inherit domain;}} $out/traefik.yaml
-    install --mode 0644 ${usersBlueprint} $out/users.yaml
+    install --mode 0644 ${pkgs.replaceVars ./authentik/users.yaml {inherit domain;}} $out/users.yaml
   '';
 in {
   imports = [inputs.authentik-nix.nixosModules.default];
@@ -73,7 +60,7 @@ in {
         "services/authentik/secret-key".restartUnits = ["authentik-worker.service"]; # authentik requires the worker and restarts with it
         # keep-sorted end
       }
-      // lib.mapAttrs' (username: _: lib.nameValuePair (mkInitialPasswordSecret username) {}) users;
+      // lib.genAttrs (map mkInitialPasswordSecret users) (_: {});
 
     templates = {
       "services/authentik/secret-key.env".content = "AUTHENTIK_SECRET_KEY=${config.sops.placeholder."services/authentik/secret-key"}";
@@ -190,9 +177,9 @@ in {
     requires = ["acme-${ldapHost}.service"];
 
     serviceConfig.LoadCredential = let
-      mkInitialPasswordLoadCredential = username: "${mkInitialPasswordCredential username}:${(getUserPasswordSecret username).path}";
+      mkInitialPasswordLoadCredential = username: "initial-password-${username}:${config.sops.secrets.${mkInitialPasswordSecret username}.path}";
     in
-      lib.mapAttrsToList (username: _: mkInitialPasswordLoadCredential username) users
+      map mkInitialPasswordLoadCredential users
       ++ [
         # keep-sorted start
         "ldap-bind-password:${config.sops.secrets."services/authentik/ldap/users/mail-directory/password".path}"
