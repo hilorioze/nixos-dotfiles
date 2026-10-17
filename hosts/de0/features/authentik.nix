@@ -11,6 +11,7 @@
 
   authentikHost = "idm.${domain}";
   authentikHttpAddress = lib.head config.services.authentik.settings.listen.http;
+  authentikLdapAddress = lib.head config.services.authentik.settings.listen.ldap;
   ldapHost = config.networking.fqdn;
 
   users = ["hilorioze"]; # each also needs its block in `authentik/users.yaml`
@@ -41,7 +42,7 @@
       $out/
 
     install --mode 0644 ${mailBlueprint} $out/mail.yaml
-    install --mode 0644 ${pkgs.replaceVars ./authentik/ldap.yaml {inherit ldapHost;}} $out/ldap.yaml
+    install --mode 0644 ${./authentik/ldap.yaml} $out/ldap.yaml
     install --mode 0644 ${ldapOutpostBlueprint} $out/ldap-outpost.yaml
     install --mode 0644 ${pkgs.replaceVars ./authentik/traefik.yaml {inherit domain;}} $out/traefik.yaml
     install --mode 0644 ${pkgs.replaceVars ./authentik/users.yaml {inherit domain;}} $out/users.yaml
@@ -95,8 +96,8 @@ in {
           http = ["127.0.0.1:9000"];
           https = []; # disable default `[::]:9443`; traefik terminates tls
 
-          ldap = [];
-          ldaps = ["0.0.0.0:6636"];
+          ldap = ["127.0.0.1:3389"];
+          ldaps = []; # traefik terminates tls
 
           metrics = []; # disable unused default `[::]:9300`
           radius = []; # disable unused default `[::]:1812`
@@ -115,78 +116,94 @@ in {
     };
 
     traefik = {
-      dynamicConfigOptions.http = {
-        middlewares.oidc-login.forwardAuth.address = "http://${authentikHttpAddress}/outpost.goauthentik.io/auth/traefik"; # the embedded outpost through loopback instead of the `forward-auth` entrypoint
+      dynamicConfigOptions = {
+        http = {
+          middlewares.oidc-login.forwardAuth.address = "http://${authentikHttpAddress}/outpost.goauthentik.io/auth/traefik"; # the embedded outpost through loopback instead of the `forward-auth` entrypoint
 
-        routers = {
-          authentik-http = {
-            entryPoints = ["http"];
-            rule = "Host(`${authentikHost}`)";
+          routers = {
+            authentik-http = {
+              entryPoints = ["http"];
+              rule = "Host(`${authentikHost}`)";
 
-            middlewares = ["redirect-to-https"];
+              middlewares = ["redirect-to-https"];
 
-            service = "noop@internal";
+              service = "noop@internal";
+            };
+
+            authentik = {
+              entryPoints = ["https"];
+              rule = "Host(`${authentikHost}`)";
+
+              service = "authentik";
+            };
+
+            authentik-forward-auth = {
+              entryPoints = ["forward-auth"];
+              rule = "Host(`${authentikHost}`) && Path(`/outpost.goauthentik.io/auth/traefik`)";
+
+              service = "authentik";
+            };
           };
 
-          authentik = {
-            entryPoints = ["https"];
-            rule = "Host(`${authentikHost}`)";
-
-            service = "authentik";
-          };
-
-          authentik-forward-auth = {
-            entryPoints = ["forward-auth"];
-            rule = "Host(`${authentikHost}`) && Path(`/outpost.goauthentik.io/auth/traefik`)";
-
-            service = "authentik";
-          };
+          services.authentik.loadBalancer.servers = [{url = "http://${authentikHttpAddress}";}];
         };
 
-        services.authentik.loadBalancer.servers = [{url = "http://${authentikHttpAddress}";}];
+        tcp = {
+          routers.authentik-ldap = {
+            entryPoints = ["ldaps"];
+            rule = "HostSNI(`${ldapHost}`)";
+
+            tls.certResolver = "cloudflare";
+            service = "authentik-ldap";
+          };
+
+          services.authentik-ldap.loadBalancer = {
+            servers = [{address = authentikLdapAddress;}];
+
+            serversTransport = "authentik-ldap";
+          };
+
+          serversTransports.authentik-ldap.proxyProtocol = {}; # pass client addresses on, so authentik's brute-force protection sees them instead of traefik's loopback
+        };
       };
 
-      # the other hosts' traefik asks the embedded outpost here whether a request may pass
-      staticConfigOptions.entryPoints.forward-auth = {
-        address = ":9443";
+      staticConfigOptions.entryPoints = {
+        # keep-sorted start block=yes newline_separated=yes numeric=yes by_regex=address\s*=\s*[^;]*?:(\d+)
+        ldaps.address = ":6636";
 
-        http.tls.certResolver = "cloudflare";
+        # the other hosts' traefik asks the embedded outpost here whether a request may pass
+        forward-auth = {
+          address = ":9443";
 
-        forwardedHeaders.insecure = true; # the outpost picks the app by their `X-Forwarded-*` headers; spoofing them here gains nothing, since this entrypoint serves only the session check, not the login or any service
-      };
-    };
-  };
+          http.tls.certResolver = "cloudflare";
 
-  security.acme.certs.${ldapHost} = {
-    dnsProvider = "cloudflare";
-
-    credentialFiles.CF_DNS_API_TOKEN_FILE = config.sops.secrets."credentials/cloudflare/zones/${domain}/api-token".path;
-
-    reloadServices = ["authentik-worker.service"];
-  };
-
-  systemd.services.authentik-worker = {
-    after = ["acme-${ldapHost}.service"];
-
-    environment = {
-      AUTHENTIK_BOOTSTRAP_PASSWORD_HASH = bootstrapPasswordHash;
-
-      AUTHENTIK_LISTEN__METRICS = lib.mkForce null; # inherit `listen.metrics`; the worker rejects an empty environment override
-    };
-
-    requires = ["acme-${ldapHost}.service"];
-
-    serviceConfig.LoadCredential = let
-      mkInitialPasswordLoadCredential = username: "initial-password-${username}:${config.sops.secrets.${mkInitialPasswordSecret username}.path}";
-    in
-      map mkInitialPasswordLoadCredential users
-      ++ [
-        # keep-sorted start
-        "ldap-bind-password:${config.sops.secrets."services/authentik/ldap/users/mail-directory/password".path}"
-        "ldap-certificate-key:${config.security.acme.certs.${ldapHost}.directory}/key.pem"
-        "ldap-certificate:${config.security.acme.certs.${ldapHost}.directory}/fullchain.pem"
-        "ldap-outpost-token:${config.sops.secrets."services/authentik/ldap/outposts/mail-directory/token".path}"
+          forwardedHeaders.insecure = true; # the outpost picks the app by their `X-Forwarded-*` headers; spoofing them here gains nothing, since this entrypoint serves only the session check, not the login or any service
+        };
         # keep-sorted end
-      ];
+      };
+    };
+  };
+
+  systemd.services = {
+    authentik-ldap.restartTriggers = [config.environment.etc."authentik/config.yml".source]; # the module restarts only the server and worker on a config change, leaving the outpost on its old listeners
+
+    authentik-worker = {
+      environment = {
+        AUTHENTIK_BOOTSTRAP_PASSWORD_HASH = bootstrapPasswordHash;
+
+        AUTHENTIK_LISTEN__METRICS = lib.mkForce null; # inherit `listen.metrics`; the worker rejects an empty environment override
+      };
+
+      serviceConfig.LoadCredential = let
+        mkInitialPasswordLoadCredential = username: "initial-password-${username}:${config.sops.secrets.${mkInitialPasswordSecret username}.path}";
+      in
+        map mkInitialPasswordLoadCredential users
+        ++ [
+          # keep-sorted start
+          "ldap-bind-password:${config.sops.secrets."services/authentik/ldap/users/mail-directory/password".path}"
+          "ldap-outpost-token:${config.sops.secrets."services/authentik/ldap/outposts/mail-directory/token".path}"
+          # keep-sorted end
+        ];
+    };
   };
 }
