@@ -1,0 +1,5 @@
+{
+  home.file.".android/adbkey.pub".text = ''
+    QAAAAD9HEYdB13k7n91fJpnMGXqQDY9Kf78D/5qXmFpS3lKjhde+IeGWk9YRoTSxu2b1OuPfSHxgOO7CQnp0TaUgOxKOkfiC+yXY3kcfxH6F6sbgB/kt1Wo/iym92MwFpjkVNO5GFuB6z+WZvo2JfP7m7ZVT8jkkZIRau2iH5+/xie+onRZdx3KC2bykMWqoNOv/njAnaYqL8WDUDSo6G1POHAWQarG0PyRXNwpwB34CvH9n1YABoUIj/Aa8o8s5d+tfSWjX7M5ruwZqrkyx64oG0/FpUEzsfbAb8rYp/jVyPpN6LXBhJfWEPzVDBYXHXapKrLdH7iwEiBR5ZRD+81n6ZhXaYG+oe8w+N9l7YRmfCp+0k8RPwuc5mvs2vp/+ROzpipmbPVvQvdrIMhMElJFqJntt8yHeOWmaHUH5Z7Wh+xQcWKdGH8Cyk1Vd20s/QnyOfiPat4S7CqFBE96Om8DSIzb6sOBFsbnWbLpzCmBlVVPuGBaNIBfDGvetIwAvtjzDvC+Vhvyo2oUNF/GMmiaa+Z3l211c2wg1TxqRAin8hNxZlWYDV1+C5O6+HOlaknjy2UdMzv+sI9vd9ZYz2hzJEUQfAeMZkzxYolY4Vxq7qgWz083KDH/C2MM0xcFQuL74C18Myr/LYLl7uRX34zK1imAHqq2mPA5DdmM+on6PrRlDrHtAIwEAAQA= hilorioze@hilonix
+  '';
+}

@@ -7,6 +7,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ../../../features/adb.nix
     ../../../features/antigravity-cli.nix
     ../../../features/atuin.nix
     ../../../features/bambu-studio.nix
@@ -45,6 +46,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ./adb.nix
     ./sops.nix
     ./syncthing.nix
     # keep-sorted end

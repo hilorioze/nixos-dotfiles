@@ -1,6 +1,7 @@
 {
   imports = [
     # keep-sorted start
+    ../../common/features/adb.nix
     ../../common/features/appimage.nix
     ../../common/features/avahi.nix
     ../../common/features/bluetooth.nix

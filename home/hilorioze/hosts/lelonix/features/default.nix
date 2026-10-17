@@ -47,6 +47,7 @@
     # keep-sorted start
 
     ../../../features/a2s.nix
+    ../../../features/adb.nix
     ../../../features/antigravity-cli.nix
     ../../../features/ark.nix
     ../../../features/attic.nix
@@ -102,6 +103,7 @@
     # keep-sorted end
 
     # keep-sorted start
+    ./adb.nix
     ./kdeconnect.nix
     ./librewolf.nix
     ./plasma.nix
