@@ -31,13 +31,43 @@
 
     environmentFiles = [config.sops.templates."services/traefik/cloudflare.env".path];
 
-    dynamicConfigOptions.http.middlewares.redirect-to-https.redirectScheme = {
-      scheme = "https";
+    dynamicConfigOptions.http = {
+      middlewares = {
+        redirect-to-https.redirectScheme = {
+          scheme = "https";
 
-      permanent = true;
+          permanent = true;
+        };
+
+        oidc-login.forwardAuth.address = lib.mkDefault "https://idm.${config.networking.domain}:9443/outpost.goauthentik.io/auth/traefik"; # authentik's host sets its own through loopback
+      };
+
+      routers = let
+        dashboardHost = "traefik.${config.networking.fqdn}";
+      in {
+        traefik-http = {
+          entryPoints = ["http"];
+          rule = "Host(`${dashboardHost}`)";
+
+          middlewares = ["redirect-to-https"];
+
+          service = "noop@internal";
+        };
+
+        traefik = {
+          entryPoints = ["https"];
+          rule = "Host(`${dashboardHost}`)";
+
+          middlewares = ["oidc-login"];
+
+          service = "api@internal";
+        };
+      };
     };
 
     staticConfigOptions = {
+      api = {}; # the dashboard; without `insecure` it is reachable only through the router to `api@internal`
+
       accessLog = {};
 
       global = {

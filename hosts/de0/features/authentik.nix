@@ -56,6 +56,7 @@
     install --mode 0644 ${mailBlueprint} $out/mail.yaml
     install --mode 0644 ${pkgs.replaceVars ./authentik/ldap.yaml {inherit ldapHost;}} $out/ldap.yaml
     install --mode 0644 ${ldapOutpostBlueprint} $out/ldap-outpost.yaml
+    install --mode 0644 ${pkgs.replaceVars ./authentik/traefik.yaml {inherit domain;}} $out/traefik.yaml
     install --mode 0644 ${usersBlueprint} $out/users.yaml
   '';
 in {
@@ -85,7 +86,12 @@ in {
     };
   };
 
-  networking.firewall.allowedTCPPorts = [6636];
+  networking.firewall.allowedTCPPorts = [
+    # keep-sorted start numeric=yes
+    6636
+    9443
+    # keep-sorted end
+  ];
 
   services = {
     postgresql.authRules = ["local authentik authentik peer"];
@@ -121,26 +127,46 @@ in {
       environmentFile = config.sops.templates."services/authentik-ldap/outpost.env".path;
     };
 
-    traefik.dynamicConfigOptions.http = {
-      routers = {
-        authentik-http = {
-          entryPoints = ["http"];
-          rule = "Host(`${authentikHost}`)";
+    traefik = {
+      dynamicConfigOptions.http = {
+        middlewares.oidc-login.forwardAuth.address = "http://${authentikHttpAddress}/outpost.goauthentik.io/auth/traefik"; # the embedded outpost through loopback instead of the `forward-auth` entrypoint
 
-          middlewares = ["redirect-to-https"];
+        routers = {
+          authentik-http = {
+            entryPoints = ["http"];
+            rule = "Host(`${authentikHost}`)";
 
-          service = "noop@internal";
+            middlewares = ["redirect-to-https"];
+
+            service = "noop@internal";
+          };
+
+          authentik = {
+            entryPoints = ["https"];
+            rule = "Host(`${authentikHost}`)";
+
+            service = "authentik";
+          };
+
+          authentik-forward-auth = {
+            entryPoints = ["forward-auth"];
+            rule = "Host(`${authentikHost}`) && Path(`/outpost.goauthentik.io/auth/traefik`)";
+
+            service = "authentik";
+          };
         };
 
-        authentik = {
-          entryPoints = ["https"];
-          rule = "Host(`${authentikHost}`)";
-
-          service = "authentik";
-        };
+        services.authentik.loadBalancer.servers = [{url = "http://${authentikHttpAddress}";}];
       };
 
-      services.authentik.loadBalancer.servers = [{url = "http://${authentikHttpAddress}";}];
+      # the other hosts' traefik asks the embedded outpost here whether a request may pass
+      staticConfigOptions.entryPoints.forward-auth = {
+        address = ":9443";
+
+        http.tls.certResolver = "cloudflare";
+
+        forwardedHeaders.insecure = true; # the outpost picks the app by their `X-Forwarded-*` headers; spoofing them here gains nothing, since this entrypoint serves only the session check, not the login or any service
+      };
     };
   };
 

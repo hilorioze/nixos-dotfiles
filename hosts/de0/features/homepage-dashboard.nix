@@ -30,15 +30,26 @@
             inherit href icon;
           };
         };
+
+        mkTraefikDashboardService = nixosConfiguration: let
+          inherit (nixosConfiguration.config.networking) fqdn hostName;
+        in
+          mkService "Traefik (${hostName})" "traefik.svg" "https://traefik.${fqdn}";
       in [
         {
           Infrastructure = [
-            # keep-sorted start block=yes newline_separated=yes case=no by_regex=mkService\s+"([^"]+)
+            # keep-sorted start block=yes newline_separated=yes case=no by_regex=(?:mkService\s+"|\(mk)([^"\s]+)
             (mkService "Gatus" "gatus.svg" "https://status.${config.networking.domain}")
 
             (mkService "Grafana" "grafana.svg" outputs.nixosConfigurations.de0.config.services.grafana.settings.server.root_url)
 
             (mkService "Synology DSM" "synology.svg" "https://fakesynology.${config.networking.domain}")
+
+            (mkTraefikDashboardService outputs.nixosConfigurations.de0)
+
+            (mkTraefikDashboardService outputs.nixosConfigurations.fakesynology-nixos)
+
+            (mkTraefikDashboardService outputs.nixosConfigurations.hel0)
             # keep-sorted end
           ];
         }

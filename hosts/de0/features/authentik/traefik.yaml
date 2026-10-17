@@ -1,0 +1,105 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: system/bootstrap.yaml
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider authorization flow (implicit consent)
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider invalidation flow
+
+  de0:
+    - model: authentik_providers_proxy.proxyprovider
+      id: traefik-de0-provider
+      identifiers:
+        name: traefik-de0
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://traefik.de0.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: traefik-de0
+      attrs:
+        name: Traefik (de0)
+        provider: !KeyOf traefik-de0-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, traefik-de0]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 0
+
+  fakesynology-nixos:
+    - model: authentik_providers_proxy.proxyprovider
+      id: traefik-fakesynology-nixos-provider
+      identifiers:
+        name: traefik-fakesynology-nixos
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://traefik.fakesynology-nixos.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: traefik-fakesynology-nixos
+      attrs:
+        name: Traefik (fakesynology-nixos)
+        provider: !KeyOf traefik-fakesynology-nixos-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, traefik-fakesynology-nixos]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 0
+
+  hel0:
+    - model: authentik_providers_proxy.proxyprovider
+      id: traefik-hel0-provider
+      identifiers:
+        name: traefik-hel0
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://traefik.hel0.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: traefik-hel0
+      attrs:
+        name: Traefik (hel0)
+        provider: !KeyOf traefik-hel0-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, traefik-hel0]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 0
+
+  outpost:
+    - model: authentik_outposts.outpost
+      identifiers:
+        managed: goauthentik.io/outposts/embedded
+      attrs:
+        type: proxy
+        providers:
+          - !KeyOf traefik-de0-provider
+          - !KeyOf traefik-fakesynology-nixos-provider
+          - !KeyOf traefik-hel0-provider

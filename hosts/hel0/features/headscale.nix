@@ -267,6 +267,20 @@ in {
               dst = ["tag:de0:3100"];
             }
 
+            # traefik on the other hosts asks authentik's embedded outpost on de0 whether a request may pass
+            {
+              action = "accept";
+
+              src = [
+                # keep-sorted start
+                "tag:fakesynology-nixos"
+                "tag:hel0"
+                # keep-sorted end
+              ];
+
+              dst = ["tag:de0:9443"];
+            }
+
             # home devices can reach all nodes and internet via exit nodes
             {
               action = "accept";

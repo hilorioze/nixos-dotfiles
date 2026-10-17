@@ -96,6 +96,17 @@
               "[BODY] == pat(*snmp_scrape_duration_seconds*)"
             ];
           };
+
+          mkTraefikDashboardEndpoint = nixosConfig: {
+            name = "traefik-dashboard-${nixosConfig.networking.hostName}";
+            group = "platform";
+
+            url = "https://traefik.${nixosConfig.networking.fqdn}/";
+
+            client.ignore-redirect = true; # the redirect to the authentik login proves both traefik and the authentik session check answer
+
+            conditions = ["[STATUS] == 302"];
+          };
         in [
           # keep-sorted start block=yes newline_separated=yes case=no by_regex=(?:name\s*=\s*"|\(mk)([^"\s]+)
           {
@@ -367,6 +378,12 @@
 
             conditions = ["[STATUS] == 200"];
           }
+
+          (mkTraefikDashboardEndpoint de0Config)
+
+          (mkTraefikDashboardEndpoint fakesynologyNixosConfig)
+
+          (mkTraefikDashboardEndpoint hel0Config)
           # keep-sorted end
         ];
       };
