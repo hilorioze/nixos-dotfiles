@@ -74,21 +74,31 @@
     '';
 
   systemctl = lib.getExe' pkgs.systemd "systemctl";
+
+  displaysTarget.unitConfig.X-OnlyManualStart = true; # switches leave these targets alone; otherwise each one reruns the lighting units they want, and a failed bluetooth write fails the whole switch
 in {
   systemd = {
     targets = {
-      displays-on.description = "Displays on";
+      displays-on = lib.mkMerge [
+        displaysTarget
 
-      displays-off = {
-        description = "Displays off";
+        {description = "Displays on";}
+      ];
 
-        wantedBy = ["sleep.target"]; # powerdevil turns the displays off only right before sleep, too late for the watcher
+      displays-off = lib.mkMerge [
+        displaysTarget
 
-        before = ["sleep.target"];
+        {
+          description = "Displays off";
 
-        conflicts = ["displays-on.target"];
-        after = ["display-watch-sleep.service"]; # the watcher is stopped first, so it can't start the turn-ons again in between
-      };
+          wantedBy = ["sleep.target"]; # powerdevil turns the displays off only right before sleep, too late for the watcher
+
+          before = ["sleep.target"];
+
+          conflicts = ["displays-on.target"];
+          after = ["display-watch-sleep.service"]; # the watcher is stopped first, so it can't start the turn-ons again in between
+        }
+      ];
     };
 
     services = {
