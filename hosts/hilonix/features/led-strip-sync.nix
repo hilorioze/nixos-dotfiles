@@ -4,8 +4,8 @@
   ...
 }: let
   ledStripControl =
-    pkgs.writers.writePython3 "led-strip-control" {
-      libraries = [pkgs.python3Packages.bleak];
+    pkgs.unstablePkgs.writers.writePython3 "led-strip-control" {
+      libraries = [pkgs.unstablePkgs.python3Packages.bleak]; # bleak before 3.0.0 closes the bus when the strip drops the connection, failing the disconnect with `EOFError`
 
       flakeIgnore = (import ../../../shared.nix).ignoredFlake8Rules;
     } ''
