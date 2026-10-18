@@ -51,6 +51,9 @@
       };
 
       multimedia.disable-image-generation = "chat"; # cliproxyapi adds an image tool to codex requests; claude drops the images, the quota is spent anyway
+
+      # break up with zero-width characters the identity line claude sends in non-interactive sessions: google answers it with `RESOURCE_EXHAUSTED`, and the cooldown that follows fails interactive sessions on the account too
+      antigravity.sensitive-words = ["Claude Agent SDK"];
     };
   };
 
