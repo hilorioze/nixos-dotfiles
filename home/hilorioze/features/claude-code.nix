@@ -97,9 +97,13 @@
         awaySummaryEnabled = false; # disable the "※ recap" block generated after being away
         promptSuggestionEnabled = false; # disable the guess of the next message, a model request over the whole conversation after every reply
 
+        promptCacheTtl = "1h"; # claude sets 1h only for a claude.ai login; with the gateway's token it falls back to 5m, and every break over 5 min writes the whole context again
+
         preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
 
         switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
+
+        env.ENABLE_TOOL_SEARCH = "true"; # behind a base url other than anthropic's, claude stops deferring mcp tools and sends every tool definition with each request
 
         statusLine = {
           type = "command";
