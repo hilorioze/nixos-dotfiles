@@ -5,6 +5,7 @@ import os
 import re
 import time
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 import aiohttp
@@ -22,6 +23,8 @@ from cliproxyapi_accounts import (
 
 HOST: str = os.environ["CLAUDE_CODE_GATEWAY_HOST"]
 PORT: int = int(os.environ["CLAUDE_CODE_GATEWAY_PORT"])
+
+SESSIONS_PATH: Path = Path(os.environ["STATE_DIRECTORY"]) / "sessions.json"
 
 CLAUDE_CATALOG_URL: str = "https://downloads.claude.ai/model-catalog/v1/catalog.json"  # what claude orders its own picker by
 
@@ -42,6 +45,12 @@ REVIEWERS: dict[str, str] = {
     "antigravity": "antigravity/gemini-3.8-flash-high",
 }
 
+# what each provider runs auxiliary tasks (web fetch extraction, session naming) with
+HELPERS: dict[str, str] = {
+    "codex": "codex/gpt-5.6-luna",
+    "antigravity": "antigravity/gemini-3.8-flash-high",
+}
+
 QUOTA_MIN_AGE: float = 30  # the status line renders many times per turn
 QUOTA_MAX_AGE: float = 300  # the subscriptions are spent outside cliproxyapi too
 
@@ -56,7 +65,23 @@ snapshots: dict[str, dict[str, Any]] = {}
 
 claude_lineup: dict[str, Any] = {}
 
-session_providers: dict[str, str] = {}
+
+def read_session_providers() -> dict[str, str]:
+    if SESSIONS_PATH.is_file():
+        return json.loads(SESSIONS_PATH.read_text())
+
+    return {}
+
+
+def write_session_provider(session: str, provider: str) -> None:
+    if session_providers.get(session) == provider:
+        return
+
+    session_providers[session] = provider
+    SESSIONS_PATH.write_text(json.dumps(session_providers))
+
+
+session_providers: dict[str, str] = read_session_providers()
 
 
 def read_claude_quota(quota: dict[str, Any]) -> list[dict[str, Any]]:
@@ -364,26 +389,35 @@ def apply_tier(body: bytes) -> bytes:
     return json.dumps({**payload, "model": model, "service_tier": tier}).encode()
 
 
-def route_classifier(session: str, body: bytes) -> bytes:
+def resolve_helper(provider: str, model: str) -> str | None:
+    model_provider, model_name = split_model(model)
+    if model_provider == "claude" and "haiku" in model_name:
+        return HELPERS.get(provider)
+
+    return None
+
+
+def route_request(session: str, body: bytes) -> bytes:
     payload: dict[str, Any] = json.loads(body)
 
     # the action under check comes from the answer to the session's latest request with tools
     if payload.get("tools"):
-        session_providers[session] = split_model(payload["model"])[0]
+        write_session_provider(session, split_model(payload["model"])[0])
 
+        return body
+
+    provider: str | None = session_providers.get(session)
+    if provider is None:
         return body
 
     # the check brings a prompt of its own; the user's text in claude's prompt never leads a block
     classifier: bool = any(block["text"].startswith(CLASSIFIER_PROMPT) for block in payload["system"])
-    if not classifier:
+
+    model: str | None = REVIEWERS.get(provider) if classifier else resolve_helper(provider, payload["model"])
+    if model is None:
         return body
 
-    # claude checks with sonnet whatever proposed the action; a foreign model's own provider pays for it instead
-    reviewer: str | None = REVIEWERS.get(session_providers[session])
-    if reviewer is None:
-        return body
-
-    return json.dumps({**payload, "model": reviewer}).encode()
+    return json.dumps({**payload, "model": model}).encode()
 
 
 async def relay(request: web.Request) -> web.StreamResponse:
@@ -397,7 +431,11 @@ async def relay(request: web.Request) -> web.StreamResponse:
     if request.path in {"/v1/messages", "/v1/messages/count_tokens"}:
         body = apply_tier(body)
     if request.path == "/v1/messages":
-        body = route_classifier(request.headers["X-Claude-Code-Session-Id"], body)
+        # subagents share the session id but may use another provider
+        session: str = request.headers["X-Claude-Code-Session-Id"]
+        agent: str | None = request.headers.get("X-Claude-Code-Agent-Id")
+
+        body = route_request(f"{session}/{agent}" if agent else session, body)
 
     headers: list[tuple[str, str]] = [(name, value) for name, value in request.headers.items() if name.lower() not in FRAMING_HEADERS]
 

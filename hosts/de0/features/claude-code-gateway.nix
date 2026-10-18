@@ -40,6 +40,7 @@
       ExecStart = lib.getExe pkgs.claude-code-gateway;
 
       DynamicUser = true;
+      StateDirectory = "claude-code-gateway";
 
       LoadCredential = [
         # keep-sorted start
