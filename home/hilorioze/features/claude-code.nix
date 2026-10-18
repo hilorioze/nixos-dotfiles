@@ -143,7 +143,7 @@
       };
 
       settings = {
-        autoCompactWindow = 280000;
+        autoCompactWindow = 220000; # actually triggers at 187k (reserves 20k output + 13k buffer)
 
         autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
 
