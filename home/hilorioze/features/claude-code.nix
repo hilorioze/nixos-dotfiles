@@ -93,7 +93,7 @@
           name: sweep
           description: Sweeps many files, logs or command outputs and reports only the findings, such as repository-wide searches, journal and log trawls, or comparing configs across hosts. Use it when answering needs a lot of reading but you only need the conclusion; pass the question and where to look. Not for edits, code review or design decisions.
           tools: Read, Bash
-          model: antigravity/gemini-3.8-flash-high
+          model: antigravity/gemini-3.8-flash-high[1m]
           ---
 
           Search, read and run read-only commands to answer the question you are given. Never change files, services or remote state. Report the findings with exact file paths, line numbers, command lines and verbatim quotes of the lines that matter, so the caller can act on them without rereading. Say where you searched and found nothing instead of guessing. Stop as soon as the findings answer the question.
@@ -105,7 +105,7 @@
           name: vision
           description: Describes images (screenshots, photos, diagrams, scanned documents) and answers questions about them. Use it instead of reading an image file yourself; pass the file path and what you need to know. Read the image yourself only when the task depends on fine visual detail, such as layout, fonts or colours.
           tools: Read
-          model: antigravity/gemini-3.8-flash-high
+          model: antigravity/gemini-3.8-flash-high[1m]
           ---
 
           Read the image files you are given and answer the question about them. Transcribe all visible text that matters to the question verbatim, including error messages, code, log lines and UI labels. Describe layout and visual state only as far as the question needs. Say plainly when something is unreadable or cut off instead of guessing.
@@ -134,7 +134,7 @@
               # keep-sorted end
             ]
           }
-          model: antigravity/gemini-3.8-flash-high
+          model: antigravity/gemini-3.8-flash-high[1m]
           ---
 
           Fetch or browse the pages you are given and answer the question about them. Quote the facts that matter verbatim, such as versions, prices, dates, commands and error messages, and give the url each one came from. Don't submit forms, post, buy or change anything on a site. Say plainly when a page is unreachable, empty or behind a login instead of guessing. Stop as soon as the pages answer the question; read a page once instead of snapshotting it piece by piece.
@@ -144,6 +144,8 @@
 
       settings = {
         autoCompactWindow = 220000; # actually triggers at 187k (reserves 20k output + 13k buffer)
+
+        modelSettings."antigravity/gemini-3.8-flash-high".autoCompactWindow = 1000000;
 
         autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
 

@@ -428,7 +428,10 @@ async def serve_quotas(request: web.Request) -> web.Response:
 
     quotas: dict[str, list[dict[str, Any]]] = await read_quotas(STATUS_LINE_QUOTA_TIMEOUT)
 
-    provider, model = split_model(request.query["model"].partition(TIER_SEPARATOR)[0])
+    # picker options append tier and context window suffixes to the model id
+    model_id: str = request.query["model"].partition(TIER_SEPARATOR)[0].removesuffix("[1m]")
+
+    provider, model = split_model(model_id)
 
     accounts: list[dict[str, Any]] = quotas.get(provider, [])
 
@@ -470,6 +473,10 @@ async def serve_model_picker(request: web.Request) -> web.Response:
 
         # under its own id a foreign model gets its own effort in `modelSettings`, not the one of the disguise
         model_id: str = uncloak_model(model["id"])
+
+        # let claude use antigravity gemini's 1M context only where the catalog advertises it; claude strips `[1m]` before sending the api request
+        if provider == "antigravity" and name.startswith("gemini-") and model["max_input_tokens"] >= 1000000:
+            model_id = f"{model_id}[1m]"
 
         option: dict[str, str] = {
             "model": model_id if tier is None else f"{model_id}{TIER_SEPARATOR}{tier['id']}",
