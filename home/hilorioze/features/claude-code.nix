@@ -85,6 +85,18 @@
         # keep-sorted end
       };
 
+      # an image read by the session model stays in its context for the rest of the session; gemini behind the gateway reads it outside claude's quota and returns only text
+      agents.vision = ''
+        ---
+        name: vision
+        description: Describes images (screenshots, photos, diagrams, scanned documents) and answers questions about them. Use it instead of reading an image file yourself; pass the file path and what you need to know. Read the image yourself only when the task depends on fine visual detail, such as layout, fonts or colours.
+        tools: Read
+        model: antigravity/gemini-3.8-flash-high
+        ---
+
+        Read the image files you are given and answer the question about them. Transcribe all visible text that matters to the question verbatim, including error messages, code, log lines and UI labels. Describe layout and visual state only as far as the question needs. Say plainly when something is unreadable or cut off instead of guessing.
+      '';
+
       settings = {
         autoCompactWindow = 280000;
 
