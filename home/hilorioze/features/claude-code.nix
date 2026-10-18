@@ -164,6 +164,8 @@
 
         env.ENABLE_TOOL_SEARCH = "true"; # behind a base url other than anthropic's, claude stops deferring mcp tools and sends every tool definition with each request
 
+        feedbackDrafts = "off"; # disable the "✻ Bug report drafted" card and the `SendFeedback` tool
+
         statusLine = {
           type = "command";
 
