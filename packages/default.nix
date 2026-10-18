@@ -9,7 +9,6 @@
   cliproxyapi-accounts = pkgs.python3Packages.callPackage ./cliproxyapi-accounts {};
   cliproxyapi-warmup = pkgs.callPackage ./cliproxyapi-warmup {};
   codeburn-desktop = pkgs.callPackage ./codeburn-desktop {};
-  codex-with-node = pkgs.callPackage ./codex-with-node {};
   deadlocked = pkgs.callPackage ./deadlocked {};
   deadlocked-relay = pkgs.callPackage ./deadlocked-relay {};
   ghidra-mcp = pkgs.python3Packages.callPackage ./ghidra-mcp {};

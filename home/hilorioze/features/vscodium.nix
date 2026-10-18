@@ -36,7 +36,6 @@
           wakatime.vscode-wakatime
           # keep-sorted end
         ])
-        ++ [pkgs.nix-vscode-extensions.open-vsx-release.openai.chatgpt]
         ++ [pkgs.unstablePkgs.vscode-extensions.anthropic.claude-code]; # follows the claude-code version
 
       userSettings = {

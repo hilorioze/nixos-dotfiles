@@ -8,7 +8,6 @@
 
     # keep-sorted start
     ../../../features/adb.nix
-    ../../../features/antigravity-cli.nix
     ../../../features/atuin.nix
     ../../../features/bambu-studio.nix
     ../../../features/blender.nix
@@ -18,7 +17,6 @@
     ../../../features/cinny.nix
     ../../../features/claude-code.nix
     ../../../features/codeburn-desktop.nix
-    ../../../features/codex.nix
     ../../../features/deadlocked.nix
     ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix

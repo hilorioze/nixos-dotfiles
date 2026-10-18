@@ -58,12 +58,6 @@
       flake = false;
     };
 
-    codex-cli-wakatime = {
-      url = "github:wakatime/codex-cli-wakatime";
-
-      flake = false;
-    };
-
     cstrike-mod.url = "github:hilorioze/cstrike-mod"; # keep their inputs for binary cache
 
     direnv-instant = {

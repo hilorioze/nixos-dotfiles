@@ -48,7 +48,6 @@
 
     ../../../features/a2s.nix
     ../../../features/adb.nix
-    ../../../features/antigravity-cli.nix
     ../../../features/ark.nix
     ../../../features/attic.nix
     ../../../features/atuin.nix
@@ -62,7 +61,6 @@
     ../../../features/cinny.nix
     ../../../features/claude-code.nix
     ../../../features/codeburn-desktop.nix
-    ../../../features/codex.nix
     ../../../features/deadlocked.nix
     ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix
