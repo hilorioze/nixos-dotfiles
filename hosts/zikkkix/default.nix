@@ -37,7 +37,8 @@
       canTouchEfiVariables = true;
     };
 
-    kernelPackages = pkgs.linuxPackages_zen;
+    kernelPackages = pkgs.unstablePkgs.linuxPackages_zen; # 26.05's nvidia driver doesn't build against linux 7.2; unstable's does, and the cache has it built for unstable's kernel
+    bcachefs.package = pkgs.unstablePkgs.bcachefs-tools; # the module is built from these tools; unstable's give the one the cache has for that kernel
   };
 
   fileSystems = {

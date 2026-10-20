@@ -35,7 +35,6 @@
   (import ./nix-update-script-flake-mode)
   (import ./nix-update-skip-package-environment)
   (import ./nix-update-skip-update)
-  (import ./nvidia-linux-7-2-fix)
   (import ./plasma-pa-volume-step-snap)
   (import ./plasma-workspace-media-keys-no-repeat)
   (import ./podman-healthcheck-ignore-result)
