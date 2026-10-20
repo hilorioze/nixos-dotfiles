@@ -14,6 +14,8 @@
 
         runtimeInputs = [pkgs.systemd];
 
+        excludeShellChecks = (import ../../../shared.nix).ignoredShellcheckRules;
+
         text = ''
           domain=$1
           operation=$2

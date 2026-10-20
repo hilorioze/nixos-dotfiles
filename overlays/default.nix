@@ -45,7 +45,6 @@
   (import ./spectacle-region-select-all)
   (import ./trayscale-operator-no-warning)
   (import ./wivrn-26-9)
-  (import ./write-shell-application-shellcheck-exclusions)
   (import ./xdg-desktop-portal-sandbox-tests-fix)
   # keep-sorted end
 ]

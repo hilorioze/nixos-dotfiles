@@ -109,6 +109,8 @@
         # keep-sorted end
       ];
 
+      excludeShellChecks = (import ../../../shared.nix).ignoredShellcheckRules;
+
       text = ''
         provider=$1
 
