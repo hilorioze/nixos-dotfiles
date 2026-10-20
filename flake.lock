@@ -183,11 +183,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1792359545,
-        "narHash": "sha256-P7IjwR+uDvyMN9JEnioDPqohbyeMw27GWv6bzQAWZrM=",
+        "lastModified": 1792520316,
+        "narHash": "sha256-NQZwUcbXt3uvaEPW5BMAzSMJ5/3ysUM9Rvkx17LCFb4=",
         "owner": "hilorioze",
         "repo": "cstrike-mod",
-        "rev": "a1cbc57d88759c7ad6994f7a5c9feecaee03f50d",
+        "rev": "4bc82197117eed689b5f2c4dfe73af747b4af614",
         "type": "github"
       },
       "original": {
@@ -1227,11 +1227,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1791426274,
-        "narHash": "sha256-MWhktfFtFE8Jl7bf9Pkp7TR5MSdYCjCswSo0Gkb4ywc=",
+        "lastModified": 1791883866,
+        "narHash": "sha256-yvkDdToRZ4IgPc9tSBzzCYJvTLf8n5eE3rgUkpCuD5A=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7c8764b7c7b09b34f632464276218ef9090eaa11",
+        "rev": "a033e66ab94a6bedf2c3d58d93a36319d3cbbbaf",
         "type": "github"
       },
       "original": {
