@@ -238,12 +238,14 @@
       # these are only read from the global config, which claude itself keeps writing
       writeClaudeCodeGlobalConfig = let
         globalConfig = pkgs.writeText "claude-code-global-config.json" (builtins.toJSON {
-          # keep-sorted start
           autoConnectIde = true; # automatically connect to a running ide from an external terminal
-          hasSeenAutoModeOutsideReadPrompt = true; # skip the one-time auto mode prompt on reads outside the working directories
+
           lspRecommendationDisabled = true; # the lsp plugin recommendation ignores `lspServers`
+
+          hasSeenAutoModeOutsideReadPrompt = true; # skip the one-time auto mode prompt on reads outside the working directories
+          autoModeClassifierBillingNoticeAcknowledgedAt = 253402300799000; # the gateway fallback notice comes back every 24h and holds a session until a key is pressed; acknowledge it until 9999
+
           messageIdleNotifThresholdMs = 0; # notify as soon as a turn ends instead of after a minute of idling
-          # keep-sorted end
         });
       in
         lib.hm.dag.entryAfter ["linkGeneration"] ''
