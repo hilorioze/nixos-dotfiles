@@ -183,6 +183,7 @@
           artifact-capabilities = "off";
           artifact-design = "off";
           artifact-diagramming = "off";
+          auto-mode-setup = "off"; # disable the prompt to teach auto mode about the environment
           claude-in-chrome = "off"; # the browser is driven through playwright
           dataviz = "off";
           keybindings-help = "off";
