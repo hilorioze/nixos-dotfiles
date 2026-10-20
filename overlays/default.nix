@@ -24,7 +24,6 @@
   })
 
   # keep-sorted start
-  (import ./bambu-studio-cuda-fix)
   (import ./claude-code-alsa-rpath)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
