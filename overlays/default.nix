@@ -30,7 +30,6 @@
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)
   (import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default)
   (import ./looking-glass-client-idd)
-  (import ./nix-monitored-notification-utf8-fix)
   (import ./nix-update-read-write-mode)
   (import ./nix-update-script-flake-mode)
   (import ./nix-update-skip-package-environment)
