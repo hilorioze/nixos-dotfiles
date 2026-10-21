@@ -5,6 +5,7 @@
     ../../common/features/appimage.nix
     ../../common/features/avahi.nix
     ../../common/features/bluetooth.nix
+    ../../common/features/cloudflare-ddns.nix
     ../../common/features/gamemode.nix
     ../../common/features/gpu-screen-recorder.nix
     ../../common/features/home-manager.nix
