@@ -4,6 +4,7 @@
   fetchurl,
   lib,
   mcp,
+  pydantic,
   # keep-sorted end
 }:
 buildPythonPackage (finalAttrs: {
@@ -19,7 +20,12 @@ buildPythonPackage (finalAttrs: {
 
   format = "wheel";
 
-  dependencies = [mcp];
+  dependencies = [
+    # keep-sorted start
+    mcp
+    pydantic
+    # keep-sorted end
+  ];
 
   # nixpkgs ships mcp 1.26.0, but upstream requires >=1.28.1
   pythonRelaxDeps = ["mcp"];
