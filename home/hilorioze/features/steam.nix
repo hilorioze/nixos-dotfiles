@@ -29,6 +29,8 @@
             # keep-sorted start
             freetype # steam-runtime's freetype cannot load normal truetype fonts
             libX11 # use the same `libX11` as mangohud to avoid a crash in `XCreateGC`
+            openal # steam-runtime's openal-soft 1.16 hangs the exit once its stream loses the sink, e.g. after bluetooth headphones reconnect
+            pipewire # openal's runpath loses to steam-runtime's libpipewire 0.3.27 on `LD_LIBRARY_PATH`
             stdenv.cc.cc.lib # steam-runtime's `libgcc_s.so.1` lacks `GCC_7.0.0`, required by mangohud
             # keep-sorted end
           ])}:$LD_LIBRARY_PATH";
