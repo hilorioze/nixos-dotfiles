@@ -41,8 +41,18 @@
           PULSE_PROP = "resample.quality=14";
         };
 
-        # prepend game directory to `LD_LIBRARY_PATH` at runtime so `Sys_LoadModule` can resolve `libcef.so` (dep of `chromehtml.so`)
-        preHook = "export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH";
+        preHook = ''
+          # prepend game directory to `LD_LIBRARY_PATH` at runtime so `Sys_LoadModule` can resolve `libcef.so` (dep of `chromehtml.so`)
+          export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH
+
+          # csldr loads the original client from `client_orig.so` next to itself; a `client.so` without csldr's version string is valve's own, from a fresh install, an update or a file check
+          if ! grep --quiet --fixed-strings 'csldr version' cstrike/cl_dlls/client.so; then
+            mv --force cstrike/cl_dlls/client.so cstrike/cl_dlls/client_orig.so
+          fi
+
+          # not a symlink: the engine's filesystem doesn't find a symlinked `client.so` and fails with "could not link client.dll function Initialize"
+          cp --remove-destination ${pkgs.pkgsi686Linux.csldr}/lib/client.so cstrike/cl_dlls/client.so
+        '';
 
         inherit wrappers;
 
