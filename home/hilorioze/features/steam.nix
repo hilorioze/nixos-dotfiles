@@ -29,16 +29,14 @@
             # keep-sorted start
             freetype # steam-runtime's freetype cannot load normal truetype fonts
             libX11 # use the same `libX11` as mangohud to avoid a crash in `XCreateGC`
-            libpulseaudio # required by sdl3's pulseaudio backend
-            pipewire # required by sdl3's pipewire backend
             stdenv.cc.cc.lib # steam-runtime's `libgcc_s.so.1` lacks `GCC_7.0.0`, required by mangohud
             # keep-sorted end
           ])}:$LD_LIBRARY_PATH";
 
-          LD_PRELOAD = "${pkgs.pkgsi686Linux.sdl2-compat}/lib/libSDL2-2.0.so.0:${pkgs.pkgsi686Linux.cstrike-mod}/lib/libcstrike_mod.so:$LD_PRELOAD";
+          LD_PRELOAD = "${pkgs.pkgsi686Linux.cstrike-mod}/lib/libcstrike_mod.so:$LD_PRELOAD";
 
-          # nvidia as offload gpu can't create a wayland window
-          SDL_VIDEODRIVER = "x11";
+          # the engine plays 22050 hz, and the default resampler of pipewire-pulse cuts it from 9.6 khz instead of 11 khz, which sounds muffled
+          PULSE_PROP = "resample.quality=14";
         };
 
         # prepend game directory to `LD_LIBRARY_PATH` at runtime so `Sys_LoadModule` can resolve `libcef.so` (dep of `chromehtml.so`)
