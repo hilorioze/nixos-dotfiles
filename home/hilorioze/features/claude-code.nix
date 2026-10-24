@@ -85,63 +85,6 @@
         # keep-sorted end
       };
 
-      agents = {
-        # keep-sorted start block=yes newline_separated=yes group_prefixes='';
-        # a broad search reads far more than it finds; gemini behind the gateway does the reading outside claude's quota and returns only the findings
-        sweep = ''
-          ---
-          name: sweep
-          description: Sweeps many files, logs or command outputs and reports only the findings, such as repository-wide searches, journal and log trawls, or comparing configs across hosts. Use it when answering needs a lot of reading but you only need the conclusion; pass the question and where to look. Not for edits, code review or design decisions.
-          tools: Read, Bash
-          model: antigravity/gemini-3.8-flash-high[1m]
-          ---
-
-          Search, read and run read-only commands to answer the question you are given. Never change files, services or remote state. Report the findings with exact file paths, line numbers, command lines and verbatim quotes of the lines that matter, so the caller can act on them without rereading. Say where you searched and found nothing instead of guessing. Stop as soon as the findings answer the question.
-        '';
-
-        # an image read by the session model stays in its context for the rest of the session; gemini behind the gateway reads it outside claude's quota and returns only text
-        vision = ''
-          ---
-          name: vision
-          description: Describes images (screenshots, photos, diagrams, scanned documents) and answers questions about them. Use it instead of reading an image file yourself; pass the file path and what you need to know. Read the image yourself only when the task depends on fine visual detail, such as layout, fonts or colours.
-          tools: Read
-          model: antigravity/gemini-3.8-flash-high[1m]
-          ---
-
-          Read the image files you are given and answer the question about them. Transcribe all visible text that matters to the question verbatim, including error messages, code, log lines and UI labels. Describe layout and visual state only as far as the question needs. Say plainly when something is unreadable or cut off instead of guessing.
-        '';
-
-        # browser snapshots run to tens of thousands of tokens each and stay in the session model's context; gemini behind the gateway browses outside claude's quota and returns only what was asked
-        # no `WebSearch`: it runs as a server tool of the agent's own model, and gemini returns no results
-        web = ''
-          ---
-          name: web
-          description: Reads web pages and answers questions about them, browsing in the user's chromium through playwright when a page needs javascript, a login or several steps to reach. Use it instead of browsing yourself; pass the urls or the site and what you need to know. Search the web yourself and hand it the urls.
-          tools: WebFetch, ${
-            lib.concatMapStringsSep ", " (tool: "mcp__plugin_claude-code-home-manager_playwright__browser_${tool}") [
-              # keep-sorted start
-              "click"
-              "close"
-              "evaluate"
-              "navigate"
-              "navigate_back"
-              "press_key"
-              "snapshot"
-              "tabs"
-              "take_screenshot"
-              "type"
-              "wait_for"
-              # keep-sorted end
-            ]
-          }
-          model: antigravity/gemini-3.8-flash-high[1m]
-          ---
-
-          Fetch or browse the pages you are given and answer the question about them. Quote the facts that matter verbatim, such as versions, prices, dates, commands and error messages, and give the url each one came from. Don't submit forms, post, buy or change anything on a site. Say plainly when a page is unreachable, empty or behind a login instead of guessing. Stop as soon as the pages answer the question; read a page once instead of snapshotting it piece by piece.
-        '';
-        # keep-sorted end
-      };
-
       settings = {
         autoCompactWindow = 220000; # actually triggers at 187k (reserves 20k output + 13k buffer)
 
@@ -196,6 +139,14 @@
             }
           ];
         };
+
+        # subagents aren't worth the quota they consume
+        permissions.deny = [
+          # keep-sorted start
+          "Agent"
+          "Workflow"
+          # keep-sorted end
+        ];
 
         # keep unused skills out of the listing every session sends to the model
         skillOverrides = {
