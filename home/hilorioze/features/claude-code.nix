@@ -154,6 +154,7 @@
           "anthropic-skills:built-in-browser" = "off";
           "anthropic-skills:chrome-browser" = "off";
           "anthropic-skills:computer-use" = "off";
+          "anthropic-skills:deep-research" = "off";
           "anthropic-skills:docs" = "off";
           "anthropic-skills:google-workspace" = "off";
           artifact-capabilities = "off";
@@ -162,20 +163,19 @@
           auto-mode-setup = "off"; # disable the prompt to teach auto mode about the environment
           claude-in-chrome = "off"; # the browser is driven through playwright
           dataviz = "off";
+          fewer-permission-prompts = "off";
           keybindings-help = "off";
           plugin-authoring = "off";
           run = "off";
+          schedule = "off";
+          security-review = "off";
           update-config = "off"; # claude settings come from this file, `settings.json` is overwritten on activation
           # keep-sorted end
 
           # still typable as `/name`
-          # keep-sorted start by_regex=\w.*
-          "anthropic-skills:deep-research" = "user-invocable-only";
+          # keep-sorted start
           code-review = "user-invocable-only";
-          fewer-permission-prompts = "user-invocable-only";
           init = "user-invocable-only";
-          schedule = "user-invocable-only";
-          security-review = "user-invocable-only";
           simplify = "user-invocable-only";
           # keep-sorted end
         };
