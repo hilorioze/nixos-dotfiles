@@ -224,211 +224,242 @@
     };
   };
 
-  home.file.".local/share/user-places.xbel" = {
-    force = true;
-    text = ''
-      <?xml version="1.0" encoding="UTF-8"?>
+  home = let
+    placesPath = "${config.xdg.dataHome}/user-places.xbel";
+  in {
+    activation.writePlaces = let
+      mergePlaces = pkgs.writeText "merge-places.xsl" ''
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:param name="existing"/>
 
-      <!DOCTYPE xbel>
+          <xsl:template match="/xbel">
+            <xsl:copy>
+              <xsl:copy-of select="@* | node()"/>
 
-      <xbel version="1.0" xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks">
-        <info>
-          <metadata owner="http://www.kde.org">
-            <kde_places_version>4</kde_places_version>
+              <xsl:copy-of select="document($existing)/xbel/bookmark[starts-with(@href, 'kdeconnect://')]"/>
+            </xsl:copy>
+          </xsl:template>
+        </xsl:stylesheet>
+      '';
+    in
+      lib.hm.dag.entryAfter ["linkGeneration"] ''
+        config_file=${lib.escapeShellArg placesPath}
+        places_file=${lib.escapeShellArg config.home.file.${placesPath}.source}
 
-            <GroupState-RecentlySaved-IsHidden>true</GroupState-RecentlySaved-IsHidden>
+        if [[ -s $config_file ]]; then
+          run ${pkgs.runtimeShell} -c '${lib.getExe' pkgs.libxslt "xsltproc"} --stringparam existing $1 ${mergePlaces} $2 | ${lib.getExe' pkgs.moreutils "sponge"} $1' -- $config_file $places_file
+        else
+          run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $places_file $config_file
+        fi
+      '';
 
-            <!-- keep KDE from auto-adding `recentlyused:/` bookmarks by pretending they already exist -->
-            <withRecentlyUsed>true</withRecentlyUsed>
-          </metadata>
-        </info>
+    file.${placesPath} = {
+      enable = false; # keep the declarative bookmarks source without linking an immutable places file
 
-        <bookmark href="file://${config.home.homeDirectory}">
-          <title>Home</title>
+      text = ''
+        <?xml version="1.0" encoding="UTF-8"?>
 
+        <!DOCTYPE xbel>
+
+        <xbel version="1.0" xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks">
           <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="user-home"/>
-            </metadata>
-
             <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
+              <kde_places_version>4</kde_places_version>
+
+              <GroupState-RecentlySaved-IsHidden>true</GroupState-RecentlySaved-IsHidden>
+
+              <!-- keep KDE from auto-adding `recentlyused:/` bookmarks by pretending they already exist -->
+              <withRecentlyUsed>true</withRecentlyUsed>
             </metadata>
           </info>
-        </bookmark>
 
-        <bookmark href="file://${config.xdg.userDirs.desktop}">
-          <title>Desktop</title>
+          <bookmark href="file://${config.home.homeDirectory}">
+            <title>Home</title>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="user-desktop"/>
-            </metadata>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="user-home"/>
+              </metadata>
 
-            <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
-            </metadata>
-          </info>
-        </bookmark>
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
 
-        <bookmark href="file://${config.xdg.userDirs.documents}">
-          <title>Documents</title>
+          <bookmark href="file://${config.xdg.userDirs.desktop}">
+            <title>Desktop</title>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder-documents"/>
-            </metadata>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="user-desktop"/>
+              </metadata>
 
-            <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
-            </metadata>
-          </info>
-        </bookmark>
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
 
-        <bookmark href="file://${config.xdg.userDirs.download}">
-          <title>Downloads</title>
+          <bookmark href="file://${config.xdg.userDirs.documents}">
+            <title>Documents</title>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder-downloads"/>
-            </metadata>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder-documents"/>
+              </metadata>
 
-            <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
-            </metadata>
-          </info>
-        </bookmark>
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
 
-        <bookmark href="file://${config.xdg.userDirs.music}">
-          <title>Music</title>
+          <bookmark href="file://${config.xdg.userDirs.download}">
+            <title>Downloads</title>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder-music"/>
-            </metadata>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder-downloads"/>
+              </metadata>
 
-            <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
-            </metadata>
-          </info>
-        </bookmark>
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
 
-        <bookmark href="file://${config.xdg.userDirs.pictures}">
-          <title>Pictures</title>
+          <bookmark href="file://${config.xdg.userDirs.music}">
+            <title>Music</title>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder-pictures"/>
-            </metadata>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder-music"/>
+              </metadata>
 
-            <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
-            </metadata>
-          </info>
-        </bookmark>
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
 
-        <bookmark href="file://${config.xdg.userDirs.videos}">
-          <title>Videos</title>
+          <bookmark href="file://${config.xdg.userDirs.pictures}">
+            <title>Pictures</title>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder-videos"/>
-            </metadata>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder-pictures"/>
+              </metadata>
 
-            <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
-            </metadata>
-          </info>
-        </bookmark>
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
 
-        <bookmark href="trash:/">
-          <title>Trash</title>
+          <bookmark href="file://${config.xdg.userDirs.videos}">
+            <title>Videos</title>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="user-trash"/>
-            </metadata>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder-videos"/>
+              </metadata>
 
-            <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
-            </metadata>
-          </info>
-        </bookmark>
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
 
-        <bookmark href="file://${config.services.syncthing.settings.folders.sync.path}">
-          <title>Sync</title>
+          <bookmark href="trash:/">
+            <title>Trash</title>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder"/>
-            </metadata>
-          </info>
-        </bookmark>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="user-trash"/>
+              </metadata>
 
-        <bookmark href="file://${config.home.homeDirectory}/projects">
-          <title>projects</title>
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder"/>
-            </metadata>
-          </info>
-        </bookmark>
+          <bookmark href="file://${config.services.syncthing.settings.folders.sync.path}">
+            <title>Sync</title>
 
-        <bookmark href="file://${config.home.homeDirectory}/projects/k8s">
-          <title>k8s</title>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder"/>
+              </metadata>
+            </info>
+          </bookmark>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder"/>
-            </metadata>
-          </info>
-        </bookmark>
+          <bookmark href="file://${config.home.homeDirectory}/projects">
+            <title>projects</title>
 
-        <bookmark href="file://${config.home.homeDirectory}/projects/nixos-dotfiles">
-          <title>nixos-dotfiles</title>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder"/>
+              </metadata>
+            </info>
+          </bookmark>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder"/>
-            </metadata>
-          </info>
-        </bookmark>
+          <bookmark href="file://${config.home.homeDirectory}/projects/k8s">
+            <title>k8s</title>
 
-        <bookmark href="file://${config.home.homeDirectory}/projects/hilorioze.github.io">
-          <title>hilorioze.github.io</title>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder"/>
+              </metadata>
+            </info>
+          </bookmark>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder"/>
-            </metadata>
-          </info>
-        </bookmark>
+          <bookmark href="file://${config.home.homeDirectory}/projects/nixos-dotfiles">
+            <title>nixos-dotfiles</title>
 
-        <bookmark href="file://${config.home.homeDirectory}/projects/rayttage-infra">
-          <title>rayttage-infra</title>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder"/>
+              </metadata>
+            </info>
+          </bookmark>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder"/>
-            </metadata>
-          </info>
-        </bookmark>
+          <bookmark href="file://${config.home.homeDirectory}/projects/hilorioze.github.io">
+            <title>hilorioze.github.io</title>
 
-        <bookmark href="remote:/">
-          <title>Network</title>
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder"/>
+              </metadata>
+            </info>
+          </bookmark>
 
-          <info>
-            <metadata owner="http://freedesktop.org">
-              <bookmark:icon name="folder-network"/>
-            </metadata>
+          <bookmark href="file://${config.home.homeDirectory}/projects/rayttage-infra">
+            <title>rayttage-infra</title>
 
-            <metadata owner="http://www.kde.org">
-              <isSystemItem>true</isSystemItem>
-            </metadata>
-          </info>
-        </bookmark>
-      </xbel>
-    '';
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder"/>
+              </metadata>
+            </info>
+          </bookmark>
+
+          <bookmark href="remote:/">
+            <title>Network</title>
+
+            <info>
+              <metadata owner="http://freedesktop.org">
+                <bookmark:icon name="folder-network"/>
+              </metadata>
+
+              <metadata owner="http://www.kde.org">
+                <isSystemItem>true</isSystemItem>
+              </metadata>
+            </info>
+          </bookmark>
+        </xbel>
+      '';
+    };
   };
 }
