@@ -92,6 +92,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    mud.url = "github:hilorioze/mud"; # keep their inputs for binary cache
+
     niks3 = {
       url = "github:Mic92/niks3";
 

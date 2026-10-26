@@ -77,6 +77,7 @@
           # keep-sorted start
           "repo:hilorioze/cstrike-mod:ref:refs/heads/main"
           "repo:hilorioze/nixos-dotfiles:ref:refs/heads/main"
+          "repo:hilorioze@107206970/mud@1434581637:ref:refs/heads/main"
           "repo:hilorioze@107206970/steam-voicechat-fix@1334445192:ref:refs/heads/main"
           # keep-sorted end
         ];

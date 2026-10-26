@@ -33,6 +33,7 @@
     ./grafana.nix
     ./homepage-dashboard.nix
     ./loki.nix
+    ./mud.nix
     ./niks3.nix
     ./podman-exporter.nix
     ./podman.nix

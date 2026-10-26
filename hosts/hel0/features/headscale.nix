@@ -178,6 +178,15 @@ in {
               dst = ["*:4444"];
             }
 
+            # everyone can play mud on de0; split dns sends tailnet clients to its tailnet address
+            {
+              action = "accept";
+
+              src = ["*"];
+
+              dst = ["tag:de0:4000"];
+            }
+
             # de0 (prometheus, gatus) scrapes node-exporter on other hosts
             {
               action = "accept";

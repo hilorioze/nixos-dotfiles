@@ -312,6 +312,20 @@
           }
 
           {
+            name = "mud";
+            group = "services";
+
+            url = "tcp://mud.${config.networking.domain}:4000";
+            body = "\r\n"; # gatus reads a reply only after sending a body
+
+            conditions = [
+              "[CONNECTED] == true"
+
+              "[BODY] == pat(Welcome!*)"
+            ];
+          }
+
+          {
             name = "niks3";
             group = "platform";
 

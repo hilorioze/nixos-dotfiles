@@ -5,6 +5,7 @@
   inputs.cstrike-mod.overlays.default
   inputs.firefox-addons.overlays.default
   (_final: prev: inputs.freesmlauncher.packages.${prev.stdenv.hostPlatform.system} or {}) # overlay uses `prev.callPackage`, rebuilding with our `pkgs` and breaking binary cache
+  inputs.mud.overlays.default
   (_final: prev: inputs.niks3.packages.${prev.stdenv.hostPlatform.system} or {}) # no upstream overlay; keep cli and server on the same revision to avoid api mismatches
   inputs.nix-alien.overlays.default
   (_final: prev: inputs.nix-gaming.packages.${prev.stdenv.hostPlatform.system} or {}) # `easyOverlay`'s `mkForce` overrides `pkgs`, rebuilding with our `pkgs` and breaking binary cache
