@@ -86,6 +86,7 @@
     ../../../features/niks3.nix
     ../../../features/nix.nix
     ../../../features/opencode.nix
+    ../../../features/pear-desktop.nix
     ../../../features/plasma.nix
     ../../../features/quickshare.nix
     ../../../features/spectacle.nix
