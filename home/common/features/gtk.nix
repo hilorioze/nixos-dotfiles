@@ -17,4 +17,7 @@ in {
     gtk3.extraConfig.gtk-decoration-layout = gtk-decoration-layout;
     gtk4.extraConfig.gtk-decoration-layout = gtk-decoration-layout;
   };
+
+  # apps like telegram read the layout through the gtk portal; stylix disables kde's gtkconfig, which would sync it
+  dconf.settings."org/gnome/desktop/wm/preferences".button-layout = gtk-decoration-layout;
 }
