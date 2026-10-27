@@ -55,14 +55,9 @@
 
         attribution = false; # requires claude 2.1.281+, which `unstablePkgs` always provides
 
-        awaySummaryEnabled = false; # disable the "※ recap" block generated after being away
-        promptSuggestionEnabled = false; # disable the guess of the next message, a model request over the whole conversation after every reply
-
         preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
 
         switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
-
-        feedbackDrafts = "off"; # disable the "✻ Bug report drafted" card and the `SendFeedback` tool
 
         statusLine = {
           type = "command";
@@ -94,14 +89,6 @@
             }
           ];
         };
-
-        # subagents aren't worth the quota they consume
-        permissions.deny = [
-          # keep-sorted start
-          "Agent"
-          "Workflow"
-          # keep-sorted end
-        ];
 
         # keep unused skills out of the listing every session sends to the model
         skillOverrides = {
