@@ -3,56 +3,17 @@
   config,
   inputs,
   lib,
-  outputs,
   pkgs,
   # keep-sorted end
   ...
 }: {
-  sops.secrets."apps/cliproxyapi/inference-key" = {};
-
   programs = {
     git.ignores = [".claude/worktrees/"]; # worktrees are nested repositories, which `git add --all` would stage as gitlinks
 
     claude-code = {
       enable = true;
 
-      package = pkgs.symlinkJoin {
-        name = "claude-code";
-
-        inherit (pkgs.claude-code-with-node) version;
-
-        paths = [pkgs.claude-code-with-node]; # the wakatime plugin hooks need node
-
-        nativeBuildInputs = [pkgs.makeWrapper];
-
-        # `CLAUDE_CODE_DIRECT=1` skips the gateway, which adds the models of every cliproxyapi account to `/model`
-        postBuild = ''
-          wrapProgram $out/bin/${pkgs.claude-code-with-node.meta.mainProgram} \
-            --run ${lib.escapeShellArg ''
-            picker=()
-
-            if [[ -n ''${CLAUDE_CODE_DIRECT-} ]]; then
-              unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN # a claude started from a gateway session inherits them
-            else
-              # cliproxyapi runs only on de0: a second instance would rotate the accounts' refresh tokens out from under it
-              export ANTHROPIC_BASE_URL=https://claude-code-gateway.${outputs.nixosConfigurations.de0.config.networking.fqdn} ANTHROPIC_AUTH_TOKEN=$(<${config.sops.secrets."apps/cliproxyapi/inference-key".path})
-
-              # claude reads the picker once, at launch; its quotas are laid out for this terminal
-              if [[ -t 0 ]]; then
-                read -r _ columns < <(${lib.getExe' pkgs.coreutils "stty"} size)
-
-                # the key stays out of the process list
-                if settings=$(${lib.getExe pkgs.curl} --fail --silent --max-time 3 --header @- "$ANTHROPIC_BASE_URL/model-picker?width=$columns" <<<"Authorization: Bearer $ANTHROPIC_AUTH_TOKEN"); then
-                  picker=(--settings "$settings")
-                fi
-              fi
-            fi
-          ''} \
-            --add-flags '"''${picker[@]}"'
-        '';
-
-        inherit (pkgs.claude-code-with-node) meta;
-      };
+      package = pkgs.claude-code-with-node; # the wakatime plugin hooks need node
 
       enableMcpIntegration = true;
 
@@ -88,8 +49,6 @@
       settings = {
         autoCompactWindow = 220000; # actually triggers at 187k (reserves 20k output + 13k buffer)
 
-        modelSettings."antigravity/gemini-3.8-flash-high".autoCompactWindow = 1000000;
-
         autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
 
         worktree.bgIsolation = "none"; # let background sessions edit the main checkout
@@ -99,13 +58,9 @@
         awaySummaryEnabled = false; # disable the "※ recap" block generated after being away
         promptSuggestionEnabled = false; # disable the guess of the next message, a model request over the whole conversation after every reply
 
-        promptCacheTtl = "1h"; # claude sets 1h only for a claude.ai login; with the gateway's token it falls back to 5m, and every break over 5 min writes the whole context again
-
         preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
 
         switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
-
-        env.ENABLE_TOOL_SEARCH = "true"; # behind a base url other than anthropic's, claude stops deferring mcp tools and sends every tool definition with each request
 
         feedbackDrafts = "off"; # disable the "✻ Bug report drafted" card and the `SendFeedback` tool
 
@@ -219,7 +174,6 @@
           lspRecommendationDisabled = true; # the lsp plugin recommendation ignores `lspServers`
 
           hasSeenAutoModeOutsideReadPrompt = true; # skip the one-time auto mode prompt on reads outside the working directories
-          autoModeClassifierBillingNoticeAcknowledgedAt = 253402300799000; # the gateway fallback notice comes back every 24h and holds a session until a key is pressed; acknowledge it until 9999
 
           messageIdleNotifThresholdMs = 0; # notify as soon as a turn ends instead of after a minute of idling
         });
@@ -276,11 +230,7 @@
       "com.anthropic.claude-daemon" = {
         Install.WantedBy = ["default.target"]; # claude starts the unit itself only when a server-side flag is set; otherwise its first client spawns a daemon of its own
 
-        Unit = {
-          Description = "Claude daemon";
-
-          After = ["sops-nix.service"]; # the package reads the gateway key once, when the daemon starts
-        };
+        Unit.Description = "Claude daemon";
 
         Service = {
           # not `finalPackage`: its `--plugin-dir` flags come first and turn `daemon run` into a prompt

@@ -3,11 +3,8 @@
   a2s = pkgs.callPackage ./a2s {};
   blutter = pkgs.callPackage ./blutter {};
   bspguy = pkgs.callPackage ./bspguy {};
-  claude-code-gateway = pkgs.callPackage ./claude-code-gateway {};
   claude-code-status-line = pkgs.callPackage ./claude-code-status-line {};
   claude-code-with-node = pkgs.callPackage ./claude-code-with-node {};
-  cliproxyapi-accounts = pkgs.python3Packages.callPackage ./cliproxyapi-accounts {};
-  cliproxyapi-warmup = pkgs.callPackage ./cliproxyapi-warmup {};
   codeburn-desktop = pkgs.callPackage ./codeburn-desktop {};
   csldr = pkgs.callPackage ./csldr {};
   deadlocked = pkgs.callPackage ./deadlocked {};

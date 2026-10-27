@@ -20,15 +20,7 @@
     python = {
       enable = true;
 
-      package = pkgs.python3.withPackages (pythonPackages:
-        with pythonPackages; [
-          # keep-sorted start
-          aiohttp
-          plyvel
-          # keep-sorted end
-
-          (callPackage ./packages/cliproxyapi-accounts {}) # imported by the scripts that talk to cliproxyapi
-        ]);
+      package = pkgs.python3.withPackages (pythonPackages: [pythonPackages.plyvel]);
     };
     # keep-sorted end
   };

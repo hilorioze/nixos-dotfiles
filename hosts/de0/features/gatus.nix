@@ -137,32 +137,6 @@
           }
 
           {
-            name = "claude-code-gateway";
-            group = "services";
-
-            url = "https://claude-code-gateway.${de0Host}/healthz"; # relayed to cliproxyapi, so both have to answer
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].status == ok"
-            ];
-          }
-
-          {
-            name = "cliproxyapi";
-            group = "services";
-
-            url = "http://${de0Host}:${toString de0Config.services.cliproxyapi.settings.server.port}/healthz";
-
-            conditions = [
-              "[STATUS] == 200"
-
-              "[BODY].status == ok"
-            ];
-          }
-
-          {
             name = "deadlocked-relay-egress";
             group = "services";
 
