@@ -62,19 +62,35 @@
       };
 
       # always-on relay between devices; only holds the encrypted data
-      folders.sync = {
-        type = "receiveencrypted";
+      folders = {
+        sync = {
+          type = "receiveencrypted";
 
-        path = "${config.services.syncthing.dataDir}/sync";
+          path = "${config.services.syncthing.dataDir}/sync";
 
-        devices = [
-          # keep-sorted start
-          "hilonix"
-          "lelonix"
-          "philone"
-          "zikkkix"
-          # keep-sorted end
-        ];
+          devices = [
+            # keep-sorted start
+            "hilonix"
+            "lelonix"
+            "philone"
+            "zikkkix"
+            # keep-sorted end
+          ];
+        };
+
+        claude = {
+          type = "receiveencrypted";
+
+          path = "${config.services.syncthing.dataDir}/claude";
+
+          devices = [
+            # keep-sorted start
+            "hilonix"
+            "lelonix"
+            "zikkkix"
+            # keep-sorted end
+          ];
+        };
       };
     };
   };

@@ -7,6 +7,8 @@
   # keep-sorted end
   ...
 }: {
+  sops.secrets."apps/syncthing/folders/claude/encryption-password" = {};
+
   programs = {
     git.ignores = [".claude/worktrees/"]; # worktrees are nested repositories, which `git add --all` would stage as gitlinks
 
@@ -49,13 +51,16 @@
       settings = {
         autoCompactWindow = 220000; # actually triggers at 187k (reserves 20k output + 13k buffer)
 
-        autoMemoryDirectory = "${config.services.syncthing.settings.folders.sync.path}/claude/memory"; # global memory; shared between hosts
+        autoMemoryDirectory = "${config.services.syncthing.settings.folders.claude.path}/memory"; # global memory; shared between hosts
 
         worktree.bgIsolation = "none"; # let background sessions edit the main checkout
 
         attribution = false; # requires claude 2.1.281+, which `unstablePkgs` always provides
 
         preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
+
+        remoteControlAtStartup = true; # keep every session reachable from the phone
+        inputNeededNotifEnabled = true; # ping the phone on prompt (permission or question)
 
         switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
 
@@ -125,10 +130,37 @@
     };
   };
 
+  services.syncthing.settings.folders.claude = {
+    path = "${config.xdg.userDirs.documents}/claude";
+
+    devices = [
+      # keep-sorted start
+      "hilonix"
+      "lelonix"
+      "zikkkix"
+      # keep-sorted end
+
+      # always-on relay between devices; only holds the encrypted data
+      {
+        name = "de0";
+
+        encryptionPasswordFile = config.sops.secrets."apps/syncthing/folders/claude/encryption-password".path;
+      }
+    ];
+  };
+
   home = let
     settingsPath = "${config.programs.claude-code.configDir}/settings.json";
   in {
-    file.${settingsPath}.enable = false; # keep the generated settings source without linking an immutable user config
+    file = let
+      syncedPath = config.services.syncthing.settings.folders.claude.path;
+    in {
+      ${settingsPath}.enable = false; # keep the generated settings source without linking an immutable user config
+
+      "${config.programs.claude-code.configDir}/projects".source = config.lib.file.mkOutOfStoreSymlink "${syncedPath}/projects";
+
+      "${syncedPath}/.stignore".text = "/projects/-tmp*"; # sessions started in `/tmp` are throwaway
+    };
 
     activation = {
       writeClaudeCodeConfig = let
