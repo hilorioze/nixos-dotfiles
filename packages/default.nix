@@ -5,7 +5,6 @@
   bspguy = pkgs.callPackage ./bspguy {};
   claude-code-status-line = pkgs.callPackage ./claude-code-status-line {};
   claude-code-with-node = pkgs.callPackage ./claude-code-with-node {};
-  codeburn-desktop = pkgs.callPackage ./codeburn-desktop {};
   csldr = pkgs.callPackage ./csldr {};
   deadlocked = pkgs.callPackage ./deadlocked {};
   deadlocked-relay = pkgs.callPackage ./deadlocked-relay {};

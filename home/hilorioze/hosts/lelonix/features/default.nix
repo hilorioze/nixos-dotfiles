@@ -59,7 +59,6 @@
     ../../../features/chromium.nix
     ../../../features/cinny.nix
     ../../../features/claude-code.nix
-    ../../../features/codeburn-desktop.nix
     ../../../features/deadlocked.nix
     ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix
@@ -84,7 +83,6 @@
     ../../../features/mcp.nix
     ../../../features/niks3.nix
     ../../../features/nix.nix
-    ../../../features/opencode.nix
     ../../../features/pear-desktop.nix
     ../../../features/plasma.nix
     ../../../features/quickshare.nix
