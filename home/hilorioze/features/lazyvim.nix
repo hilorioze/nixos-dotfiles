@@ -23,6 +23,7 @@
     extraPackages = with pkgs; [
       # keep-sorted start
       markdownlint-cli2 # required by `extras.lang.markdown`
+      nil # required by `extras.lang.nix` outside devenv; neovim appends these packages to the inherited `PATH`, so a devenv's own nil comes first
       vscode-json-languageserver # required by `extras.lang.json`
       yaml-language-server # required by `extras.lang.yaml`
       # keep-sorted end
