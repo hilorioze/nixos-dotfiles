@@ -42,6 +42,7 @@
     ../../common/features/wireshark-usbmon.nix
     ../../common/features/wireshark.nix
     ../../common/features/wivrn.nix
+    ../../common/features/yubikey-touch-detector.nix
     ../../common/features/zswap.nix
     # keep-sorted end
 
