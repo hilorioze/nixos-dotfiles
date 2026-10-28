@@ -40,7 +40,7 @@ jobs:
                 select(
                   .state == "open" and
                   .base.ref == "main" and
-                  (.user.login | IN("dependabot[bot]", "hilorioze")) and
+                  (.user.login | IN("renovate[bot]", "hilorioze")) and
                   any(.labels[]; .name == "automated")
                 )
               ) |

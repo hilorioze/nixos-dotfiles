@@ -1,0 +1,105 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+
+  enabledManagers: [
+    'custom.regex',
+    'github-actions',
+    'nix',
+  ],
+
+  // nix manager is in beta and off by default
+  nix: {
+    enabled: true,
+  },
+
+  customManagers: [
+    {
+      // containers are pinned as `"<image>:<tag>@sha256:<digest>"` wherever the string is written; untagged pins are left alone
+      customType: 'regex',
+
+      managerFilePatterns: [
+        '/\\.nix$/',
+      ],
+
+      matchStrings: [
+        '"(?<depName>[^"\\s:@]+):(?<currentValue>[^"\\s@]+)@(?<currentDigest>sha256:[0-9a-f]{64})"',
+      ],
+
+      datasourceTemplate: 'docker',
+    },
+  ],
+
+  // private images on ghcr.io need `read:packages`, which only classic tokens have; the token lives in the mend app's credentials
+  hostRules: [
+    {
+      hostType: 'docker',
+      matchHost: 'ghcr.io',
+
+      username: 'hilorioze',
+      password: '{{ secrets.GHCR_PULL_TOKEN }}',
+    },
+  ],
+
+  // run weekly on mondays from 00:00 utc; the mend app runs jobs every 4 hours, so a shorter window can be skipped
+  schedule: [
+    '* 0-3 * * 1',
+  ],
+
+  assignees: [
+    'hilorioze',
+  ],
+
+  semanticCommits: 'enabled',
+  semanticCommitType: 'chore',
+
+  packageRules: [
+    {
+      matchManagers: [
+        'github-actions',
+      ],
+
+      groupName: 'github-actions',
+
+      semanticCommitScope: 'deps/github-actions',
+
+      labels: [
+        'dependencies',
+        'github_actions',
+        'automated',
+      ],
+    },
+
+    {
+      matchManagers: [
+        'nix',
+      ],
+
+      groupName: 'nix',
+
+      semanticCommitScope: 'deps/nix',
+
+      labels: [
+        'dependencies',
+        'nix',
+        'flake',
+        'automated',
+      ],
+    },
+
+    {
+      matchManagers: [
+        'custom.regex',
+      ],
+
+      groupName: 'images',
+
+      semanticCommitScope: 'deps/images',
+
+      labels: [
+        'dependencies',
+        'docker',
+        'automated',
+      ],
+    },
+  ],
+}
