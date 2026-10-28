@@ -79,13 +79,24 @@ in {
     ];
 
     volumes = let
+      # torrserver loads `BitTorr` without filling in defaults, so omitted fields end up zero; the non-zero ones follow lampac's template
       torrServerSettingsFile = pkgs.writeText "torrserver-settings.json" (builtins.toJSON {
-        EnableIPv6 = true;
+        BitTorr = {
+          # keep-sorted start
+          CacheSize = 96 * 1024 * 1024;
+          ConnectionsLimit = 25;
+          ReaderReadAHead = 83;
+          RetrackersMode = 1;
+          TorrentDisconnectTimeout = 180;
+          # keep-sorted end
 
-        DisableUpload = true; # not today, thanks
+          EnableIPv6 = true;
 
-        DisableUPNP = true; # peer ports are already published manually
-        PeersListenPort = peerListenPort;
+          DisableUpload = true; # not today, thanks
+
+          DisableUPNP = true; # peer ports are already published manually
+          PeersListenPort = peerListenPort;
+        };
       });
     in [
       "${config.sops.templates."services/lampac/init.conf".path}:/lampac/init.conf:ro"
