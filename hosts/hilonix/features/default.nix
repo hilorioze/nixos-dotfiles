@@ -61,6 +61,7 @@
     ./nix-ld.nix
     ./openrazer.nix
     ./plasma.nix
+    ./s4-poweroff.nix
     ./sddm.nix
     ./silent-sddm.nix
     ./sops.nix
