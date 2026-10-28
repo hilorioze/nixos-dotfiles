@@ -1,0 +1,26 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: traefik.yaml
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: twitch-drops-miner.yaml
+
+  outpost:
+    - model: authentik_outposts.outpost
+      identifiers:
+        managed: goauthentik.io/outposts/embedded
+      attrs:
+        type: proxy
+        providers:
+          - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-de0]]
+          - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-fakesynology-nixos]]
+          - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-hel0]]
+          - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-caligula]]
+          - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-hilorioze]]
+          - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-zikkk]]

@@ -6,6 +6,7 @@
   # keep-sorted end
   ...
 }: let
+  # each also needs its block in de0's `authentik/twitch-drops-miner.yaml`
   users = [
     # keep-sorted start
     "caligula"
@@ -13,18 +14,6 @@
     "zikkk"
     # keep-sorted end
   ];
-
-  userSecretsList =
-    map (name: {
-      "services/twitch-drops-miner/instances/${name}/users" = {
-        inherit (config.users.users.${config.systemd.services.traefik.serviceConfig.User}) group; # bind the secret to the traefik user's group, so changing `services.traefik.group` won't leak it; upstream sets the user's group to "traefik": https://github.com/NixOS/nixpkgs/blob/7241bcbb4f099a66aafca120d37c65e8dda32717/nixos/modules/services/web-servers/traefik.nix#L160
-
-        mode = "0440"; # give read access for the group we just set above
-
-        restartUnits = ["traefik.service"];
-      };
-    })
-    users;
 
   userContainersList =
     map (name: {
@@ -45,8 +34,7 @@
 
           "traefik.http.routers.twitch-drops-miner-${name}.entryPoints" = "https";
           "traefik.http.routers.twitch-drops-miner-${name}.rule" = "Host(`twitch-drops-miner-${name}.${config.networking.fqdn}`)";
-          "traefik.http.routers.twitch-drops-miner-${name}.middlewares" = "twitch-drops-miner-${name}-auth";
-          "traefik.http.middlewares.twitch-drops-miner-${name}-auth.basicAuth.usersFile" = config.sops.secrets."services/twitch-drops-miner/instances/${name}/users".path;
+          "traefik.http.routers.twitch-drops-miner-${name}.middlewares" = "oidc-login@file";
           "traefik.http.routers.twitch-drops-miner-${name}.service" = "twitch-drops-miner-${name}";
           "traefik.http.services.twitch-drops-miner-${name}.loadBalancer.server.port" = "5800";
         };
@@ -76,8 +64,6 @@
     })
     users;
 in {
-  sops.secrets = lib.attrsets.mergeAttrsList userSecretsList;
-
   virtualisation.oci-containers.containers = lib.attrsets.mergeAttrsList userContainersList;
 
   systemd.tmpfiles.rules = [

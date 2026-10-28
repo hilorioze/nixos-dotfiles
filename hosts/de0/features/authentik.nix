@@ -14,7 +14,14 @@
   authentikLdapAddress = lib.head config.services.authentik.settings.listen.ldap;
   ldapHost = config.networking.fqdn;
 
-  users = ["hilorioze"]; # each also needs its block in `authentik/users.yaml`
+  # each also needs its block in `authentik/users.yaml`
+  users = [
+    # keep-sorted start
+    "caligula"
+    "hilorioze"
+    "zikkk"
+    # keep-sorted end
+  ];
   mkInitialPasswordSecret = username: "services/authentik/users/${username}/initial-password";
 
   # bootstrap-only throwaway hash
@@ -45,6 +52,8 @@
     install --mode 0644 ${./authentik/ldap.yaml} $out/ldap.yaml
     install --mode 0644 ${ldapOutpostBlueprint} $out/ldap-outpost.yaml
     install --mode 0644 ${pkgs.replaceVars ./authentik/traefik.yaml {inherit domain;}} $out/traefik.yaml
+    install --mode 0644 ${pkgs.replaceVars ./authentik/twitch-drops-miner.yaml {inherit domain;}} $out/twitch-drops-miner.yaml
+    install --mode 0644 ${./authentik/embedded-outpost.yaml} $out/embedded-outpost.yaml
     install --mode 0644 ${pkgs.replaceVars ./authentik/users.yaml {inherit domain;}} $out/users.yaml
   '';
 in {

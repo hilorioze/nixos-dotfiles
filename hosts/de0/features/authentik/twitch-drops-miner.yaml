@@ -1,0 +1,94 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: users.yaml
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider authorization flow (implicit consent)
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider invalidation flow
+
+  caligula:
+    - model: authentik_providers_proxy.proxyprovider
+      id: twitch-drops-miner-caligula-provider
+      identifiers:
+        name: twitch-drops-miner-caligula
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://twitch-drops-miner-caligula.hel0.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: twitch-drops-miner-caligula
+      attrs:
+        name: Twitch Drops Miner (caligula)
+        provider: !KeyOf twitch-drops-miner-caligula-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, twitch-drops-miner-caligula]]
+        user: !Find [authentik_core.user, [username, caligula]]
+      attrs:
+        order: 0
+
+  hilorioze:
+    - model: authentik_providers_proxy.proxyprovider
+      id: twitch-drops-miner-hilorioze-provider
+      identifiers:
+        name: twitch-drops-miner-hilorioze
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://twitch-drops-miner-hilorioze.hel0.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: twitch-drops-miner-hilorioze
+      attrs:
+        name: Twitch Drops Miner (hilorioze)
+        provider: !KeyOf twitch-drops-miner-hilorioze-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, twitch-drops-miner-hilorioze]]
+        user: !Find [authentik_core.user, [username, hilorioze]]
+      attrs:
+        order: 0
+
+  zikkk:
+    - model: authentik_providers_proxy.proxyprovider
+      id: twitch-drops-miner-zikkk-provider
+      identifiers:
+        name: twitch-drops-miner-zikkk
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://twitch-drops-miner-zikkk.hel0.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: twitch-drops-miner-zikkk
+      attrs:
+        name: Twitch Drops Miner (zikkk)
+        provider: !KeyOf twitch-drops-miner-zikkk-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, twitch-drops-miner-zikkk]]
+        user: !Find [authentik_core.user, [username, zikkk]]
+      attrs:
+        order: 0

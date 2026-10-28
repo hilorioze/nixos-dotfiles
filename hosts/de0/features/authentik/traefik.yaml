@@ -92,14 +92,3 @@ entries:
         group: !Find [authentik_core.group, [name, authentik Admins]]
       attrs:
         order: 0
-
-  outpost:
-    - model: authentik_outposts.outpost
-      identifiers:
-        managed: goauthentik.io/outposts/embedded
-      attrs:
-        type: proxy
-        providers:
-          - !KeyOf traefik-de0-provider
-          - !KeyOf traefik-fakesynology-nixos-provider
-          - !KeyOf traefik-hel0-provider
