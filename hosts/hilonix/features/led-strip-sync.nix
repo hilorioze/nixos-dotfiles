@@ -8,7 +8,9 @@
       libraries = [pkgs.unstablePkgs.python3Packages.bleak]; # bleak before 3.0.0 closes the bus when the strip drops the connection, failing the disconnect with `EOFError`
 
       flakeIgnore = (import ../../../shared.nix).ignoredFlake8Rules;
-    } ''
+    }
+    # python
+    ''
       import argparse
       import asyncio
       import fcntl
