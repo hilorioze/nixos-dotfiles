@@ -88,8 +88,6 @@ in {
     # `personal` requires secret material in rnp; this profile keeps it in external gpg, so accept the exported public key as `verified`
     acceptOwnGpgPublicKeyInThunderbird = let
       thunderbirdOpenPgpDatabase = "${thunderbirdProfileDir}/openpgp.sqlite";
-
-      gpgPrimaryKeyEmail = "hilorioze@hilorioze.com";
     in
       lib.hm.dag.entryAfter ["writeBoundary"] ''
         run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${thunderbirdProfileDir}
@@ -102,7 +100,8 @@ in {
           "CREATE UNIQUE INDEX IF NOT EXISTS acceptance__decision_i1 ON acceptance_decision(fpr);" \
           "DELETE FROM acceptance_email WHERE fpr = '${gpgPrimaryKeyFingerprint}';" \
           "INSERT OR REPLACE INTO acceptance_decision (fpr, decision) VALUES ('${gpgPrimaryKeyFingerprint}', 'verified');" \
-          "INSERT OR IGNORE INTO acceptance_email (fpr, email) VALUES ('${gpgPrimaryKeyFingerprint}', '${gpgPrimaryKeyEmail}');" \
+          "INSERT OR IGNORE INTO acceptance_email (fpr, email) VALUES ('${gpgPrimaryKeyFingerprint}', 'hilorioze@hilorioze.com');" \
+          "INSERT OR IGNORE INTO acceptance_email (fpr, email) VALUES ('${gpgPrimaryKeyFingerprint}', 'hilorioze@gmail.com');" \
           "COMMIT;"
       '';
   };

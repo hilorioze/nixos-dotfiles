@@ -1,4 +1,4 @@
-{
+{config, ...}: {
   accounts.email.accounts = {
     "hilorioze@hilorioze.com" = rec {
       primary = true;
@@ -37,6 +37,8 @@
       realName = "hilorioze"; # display name shown alongside `address` in `From:` header
 
       flavor = "gmail.com";
+
+      gpg = config.accounts.email.accounts."hilorioze@hilorioze.com".gpg;
 
       thunderbird.enable = true;
     };
