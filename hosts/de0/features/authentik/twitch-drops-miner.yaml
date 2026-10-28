@@ -25,7 +25,7 @@ entries:
         invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
 
         mode: forward_single
-        external_host: https://twitch-drops-miner-caligula.hel0.@domain@
+        external_host: https://twitch-drops-miner-caligula.de0.@domain@
 
     - model: authentik_core.application
       identifiers:
@@ -51,7 +51,7 @@ entries:
         invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
 
         mode: forward_single
-        external_host: https://twitch-drops-miner-hilorioze.hel0.@domain@
+        external_host: https://twitch-drops-miner-hilorioze.de0.@domain@
 
     - model: authentik_core.application
       identifiers:
@@ -77,7 +77,7 @@ entries:
         invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
 
         mode: forward_single
-        external_host: https://twitch-drops-miner-zikkk.hel0.@domain@
+        external_host: https://twitch-drops-miner-zikkk.de0.@domain@
 
     - model: authentik_core.application
       identifiers:

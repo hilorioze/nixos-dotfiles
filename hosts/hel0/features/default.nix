@@ -20,7 +20,6 @@
     ./containers
 
     # keep-sorted start
-    ./archisteamfarm.nix
     ./cex-proxy.nix
     ./coredns.nix
     ./factorio.nix

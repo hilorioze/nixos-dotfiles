@@ -23,7 +23,7 @@
       allowedHosts = "dashboard.${config.networking.domain}";
 
       services = let
-        hel0Host = outputs.nixosConfigurations.hel0.config.networking.fqdn;
+        de0Host = outputs.nixosConfigurations.de0.config.networking.fqdn;
 
         mkService = name: icon: href: {
           ${name} = {
@@ -57,13 +57,13 @@
         {
           Services = [
             # keep-sorted start block=yes newline_separated=yes case=no by_regex=mkService\s+"([^"]+)
-            (mkService "ArchiSteamFarm" "archisteamfarm.png" "https://archisteamfarm.${hel0Host}")
+            (mkService "ArchiSteamFarm" "archisteamfarm.png" "https://archisteamfarm.${de0Host}")
 
-            (mkService "Twitch Drops Miner (caligula)" "twitch.svg" "https://twitch-drops-miner-caligula.${hel0Host}")
+            (mkService "Twitch Drops Miner (caligula)" "twitch.svg" "https://twitch-drops-miner-caligula.${de0Host}")
 
-            (mkService "Twitch Drops Miner (hilorioze)" "twitch.svg" "https://twitch-drops-miner-hilorioze.${hel0Host}")
+            (mkService "Twitch Drops Miner (hilorioze)" "twitch.svg" "https://twitch-drops-miner-hilorioze.${de0Host}")
 
-            (mkService "Twitch Drops Miner (zikkk)" "twitch.svg" "https://twitch-drops-miner-zikkk.${hel0Host}")
+            (mkService "Twitch Drops Miner (zikkk)" "twitch.svg" "https://twitch-drops-miner-zikkk.${de0Host}")
             # keep-sorted end
           ];
         }

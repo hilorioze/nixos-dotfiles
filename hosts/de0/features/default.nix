@@ -26,6 +26,7 @@
 
     # keep-sorted start
     ./alertmanager.nix
+    ./archisteamfarm.nix
     ./authentik.nix
     ./gatus.nix
     ./grafana.nix

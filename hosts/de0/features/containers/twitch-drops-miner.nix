@@ -6,7 +6,7 @@
   # keep-sorted end
   ...
 }: let
-  # each also needs its block in de0's `authentik/twitch-drops-miner.yaml`
+  # each also needs its block in `authentik/twitch-drops-miner.yaml`
   users = [
     # keep-sorted start
     "caligula"
@@ -23,6 +23,10 @@
         # workaround for `PermissionError: [Errno 13] Permission denied: '/TwitchDropsMiner/config/cookies.jar'`
         # see: https://github.com/fireph/docker-twitch-drops-miner#permissions-issues-on-mounted-volumes
         user = "1000:1000";
+
+        # twitch answers the login chromium with "your browser is not currently supported" unless its timezone matches the ip's location; the image has no `/etc/localtime`
+        # see: https://github.com/fireph/docker-twitch-drops-miner/issues/73
+        environment.TZ = "Europe/Berlin";
 
         labels = {
           "traefik.enable" = "true";
