@@ -10,6 +10,11 @@
   // nix manager is in beta and off by default
   nix: {
     enabled: true,
+
+    // inputs without a `rev` in `flake.nix` are only refreshed by lock file maintenance
+    lockFileMaintenance: {
+      enabled: true,
+    },
   },
 
   customManagers: [
@@ -73,8 +78,6 @@
       matchManagers: [
         'nix',
       ],
-
-      groupName: 'nix',
 
       semanticCommitScope: 'deps/nix',
 
