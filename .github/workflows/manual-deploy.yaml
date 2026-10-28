@@ -39,6 +39,8 @@ jobs:
 
             fsync-metadata = false # performance over durability in ci; store is transient
 
+            fallback = true # build from source when a substituter fails mid-download instead of failing the job
+
       - id: collect-targets
         env:
           TARGET_NODES: ${{ inputs['target-nodes'] }}
