@@ -14,21 +14,19 @@
     ../../common/features/tailscale-server.nix
     ../../common/features/tailscale.nix
     ../../common/features/traefik-podman.nix
+    ../../common/features/traefik.nix
     ../../common/features/whoami.nix
     # keep-sorted end
 
     ./containers
 
     # keep-sorted start
-    ./cex-proxy.nix
     ./coredns.nix
     ./factorio.nix
-    ./fakesynology-proxy.nix
     ./headscale.nix
     ./mailserver.nix
     ./sops.nix
     ./tailscale.nix
-    ./traefik.nix
     # keep-sorted end
   ];
 }
