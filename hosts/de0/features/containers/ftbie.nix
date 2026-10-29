@@ -23,7 +23,14 @@
 
     volumes = ["ftbie:/data"];
 
-    # startup takes about 3 minutes; delay health check failures until it finishes
-    extraOptions = ["--health-start-period=4m"];
+    extraOptions = [
+      # podman drops the image's `HEALTHCHECK` from oci-format images; repeat it here
+      "--health-cmd=mc-health"
+      "--health-interval=30s"
+      "--health-retries=2"
+
+      # startup takes about 3 minutes; delay health check failures until it finishes
+      "--health-start-period=4m"
+    ];
   };
 }
