@@ -28,33 +28,12 @@
   };
 
   programs.ssh.settings = let
-    mkSshHost = hostName: settings: {
-      "${hostName}" =
-        {
-          ForwardAgent = true; # for git
-        }
-        // settings;
-    };
-
-    mkNixosHost = name: mkSshHost outputs.nixosConfigurations.${name}.config.networking.fqdn {};
-
-    mkSynologyHost = name: mkSshHost "${name}.hilorioze.com" {User = name;};
+    mkSynologyHost = name: {"${name}.hilorioze.com".User = name;};
   in
     lib.mkMerge [
       # keep-sorted start
       (mkSynologyHost "cex")
       (mkSynologyHost "fakesynology")
       # keep-sorted end
-
-      # keep-sorted start
-      (mkNixosHost "de0")
-      (mkNixosHost "fakesynology-nixos")
-      (mkNixosHost "hel0")
-      (mkNixosHost "hilonix")
-      (mkNixosHost "lelonix")
-      (mkNixosHost "zikkkix")
-      # keep-sorted end
-
-      (mkSshHost "node0.rayttage.net" {})
     ];
 }

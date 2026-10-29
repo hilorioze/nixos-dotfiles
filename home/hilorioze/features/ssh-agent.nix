@@ -27,12 +27,10 @@ in {
   };
 
   programs.ssh = {
-    # log in as `agent` with its own key in any session, without the fido2 key or forwarding ssh-agent
+    # log in as `agent` with its own key in any session, without the fido2 key
     settings."Match user agent" = {
       IdentityFile = config.sops.secrets."credentials/ssh/agent/private-key".path;
       IdentityAgent = "none";
-
-      ForwardAgent = false;
     };
 
     # use direct fido2 signing in tty sessions so ssh can read the pin from the tty
