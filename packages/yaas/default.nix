@@ -17,14 +17,14 @@
 }: let
   pname = "yaas";
 
-  version = "0-unstable-2026-10-27";
+  version = "0-unstable-2026-10-29";
 
   src = fetchFromGitHub {
     owner = "skrimix";
     repo = "yaas";
 
-    rev = "46703bc8ea152e3b3f25809eaf1d9f0062dabe15";
-    hash = "sha256-2vwAndoOfa7MDkOT2MYzZa31XUsOJWBEauSaFCKuFbE=";
+    rev = "40e061d718b95aadd73caf1f8d81753e001c3885";
+    hash = "sha256-JTEmMyALJWKL5o/0J0C9DRkSIFd+EGeOKI5bx58D5Ks=";
   };
 
   rustDep = rustPlatform.buildRustPackage {
