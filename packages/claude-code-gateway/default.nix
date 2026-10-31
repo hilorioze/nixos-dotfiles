@@ -22,11 +22,6 @@
   meta =
     oldAttrs.meta
     // {
-      platforms = [
-        # keep-sorted start
-        "aarch64-linux"
-        "x86_64-linux"
-        # keep-sorted end
-      ];
+      platforms = ["aarch64-linux"];
     };
 })
