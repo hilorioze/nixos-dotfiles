@@ -8,6 +8,7 @@
   claude-code-status-line = pkgs.callPackage ./claude-code-status-line {};
   claude-code-with-node = pkgs.callPackage ./claude-code-with-node {};
   cliproxyapi-accounts = pkgs.python3Packages.callPackage ./cliproxyapi-accounts {};
+  cliproxyapi-cooldown-reset = pkgs.callPackage ./cliproxyapi-cooldown-reset {};
   cliproxyapi-warmup = pkgs.callPackage ./cliproxyapi-warmup {};
   csldr = pkgs.callPackage ./csldr {};
   deadlocked = pkgs.callPackage ./deadlocked {};

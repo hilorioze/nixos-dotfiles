@@ -17,6 +17,7 @@
 
     "services/cliproxyapi/management-key".restartUnits = [
       # keep-sorted start
+      "cliproxyapi-cooldown-reset.service"
       "cliproxyapi-warmup.service"
       "cliproxyapi.service"
       # keep-sorted end
@@ -57,42 +58,61 @@
     };
   };
 
-  # starts 5h windows when the learned demand gets the most out of them, longer ones once the 5h one runs; routes to the account whose 5h window resets soonest
-  systemd.services.cliproxyapi-warmup = {
-    wantedBy = ["multi-user.target"];
+  systemd.services = let
+    # shared by services that poll provider quotas through the management api
+    shared = {
+      wantedBy = ["multi-user.target"];
 
-    after = ["cliproxyapi.service"];
+      after = ["cliproxyapi.service"];
 
-    environment = {
-      CLIPROXYAPI_URL = "http://127.0.0.1:${toString config.services.cliproxyapi.settings.server.port}"; # management answers only local callers
+      environment = {
+        CLIPROXYAPI_URL = "http://127.0.0.1:${toString config.services.cliproxyapi.settings.server.port}"; # management answers only local callers
 
-      # let quota requests send the same `User-Agent` and `Originator` as cliproxyapi does with its own codex requests
-      CLIPROXYAPI_CODEX_HEADERS = pkgs.runCommand "cliproxyapi-codex-headers.json" {nativeBuildInputs = [pkgs.jq];} ''
-        read_constant() {
-          grep --only-matching --perl-regexp "^\s*$1\s*=\s*\"\K[^\"]+" ${config.services.cliproxyapi.package.src}/internal/runtime/executor/codex_executor_request.go
-        }
+        # let quota requests send the same `User-Agent` and `Originator` as cliproxyapi does with its own codex requests
+        CLIPROXYAPI_CODEX_HEADERS = pkgs.runCommand "cliproxyapi-codex-headers.json" {nativeBuildInputs = [pkgs.jq];} ''
+          read_constant() {
+            grep --only-matching --perl-regexp "^\s*$1\s*=\s*\"\K[^\"]+" ${config.services.cliproxyapi.package.src}/internal/runtime/executor/codex_executor_request.go
+          }
 
-        user_agent=$(read_constant codexUserAgent)
-        originator=$(read_constant codexOriginator)
+          user_agent=$(read_constant codexUserAgent)
+          originator=$(read_constant codexOriginator)
 
-        jq --null-input --arg user_agent "$user_agent" --arg originator "$originator" '{"User-Agent": $user_agent, Originator: $originator}' >$out
-      '';
+          jq --null-input --arg user_agent "$user_agent" --arg originator "$originator" '{"User-Agent": $user_agent, Originator: $originator}' >$out
+        '';
 
-      # let antigravity quota requests pass as agy: daily-cloudcode-pa lists the gemini group only for a recent `antigravity/cli/<version>`
-      CLIPROXYAPI_ANTIGRAVITY_USER_AGENT = "antigravity/cli/${pkgs.unstablePkgs.antigravity-cli.version}";
+        # let antigravity quota requests pass as agy: daily-cloudcode-pa lists the gemini group only for a recent `antigravity/cli/<version>`
+        CLIPROXYAPI_ANTIGRAVITY_USER_AGENT = "antigravity/cli/${pkgs.unstablePkgs.antigravity-cli.version}";
+      };
+
+      serviceConfig = {
+        DynamicUser = true;
+
+        LoadCredential = ["management-key:${config.sops.secrets."services/cliproxyapi/management-key".path}"];
+
+        Restart = "always";
+        RestartSec = 2;
+      };
     };
+  in {
+    # reopen accounts when their shared quota recovers before the cached reset
+    cliproxyapi-cooldown-reset = lib.mkMerge [
+      shared
 
-    serviceConfig = {
-      ExecStart = lib.getExe pkgs.cliproxyapi-warmup;
+      {serviceConfig.ExecStart = lib.getExe pkgs.cliproxyapi-cooldown-reset;}
+    ];
 
-      DynamicUser = true;
-      StateDirectory = "cliproxyapi-warmup";
+    # starts 5h windows when the learned demand gets the most out of them, longer ones once the 5h one runs; routes to the account whose 5h window resets soonest
+    cliproxyapi-warmup = lib.mkMerge [
+      shared
 
-      LoadCredential = ["management-key:${config.sops.secrets."services/cliproxyapi/management-key".path}"];
+      {
+        serviceConfig = {
+          ExecStart = lib.getExe pkgs.cliproxyapi-warmup;
 
-      Restart = "always";
-      RestartSec = 2;
-    };
+          StateDirectory = "cliproxyapi-warmup";
+        };
+      }
+    ];
   };
 
   # `sudo --user cliproxyapi cliproxyapi-login <provider>`: the token has to land in the service's own directory

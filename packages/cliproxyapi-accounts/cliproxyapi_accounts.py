@@ -80,8 +80,12 @@ def format_window_length(seconds: int) -> str:
     return f"{seconds // 3600}h"
 
 
+async def fetch_claude_usage(account: dict[str, Any]) -> dict[str, Any]:
+    return await call_provider(account, "GET", "https://api.anthropic.com/api/oauth/usage", {"anthropic-beta": "oauth-2025-04-20"})
+
+
 async def fetch_claude_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
-    usage: dict[str, Any] = await call_provider(account, "GET", "https://api.anthropic.com/api/oauth/usage", {"anthropic-beta": "oauth-2025-04-20"})
+    usage: dict[str, Any] = await fetch_claude_usage(account)
 
     windows: list[dict[str, Any]] = []
 
@@ -93,8 +97,12 @@ async def fetch_claude_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
     return [{"name": None, "windows": windows}]
 
 
+async def fetch_codex_usage(account: dict[str, Any]) -> dict[str, Any]:
+    return await call_provider(account, "GET", "https://chatgpt.com/backend-api/wham/usage", {**CODEX_HEADERS, "ChatGPT-Account-Id": account["id_token"]["chatgpt_account_id"]})
+
+
 async def fetch_codex_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
-    usage: dict[str, Any] = await call_provider(account, "GET", "https://chatgpt.com/backend-api/wham/usage", {**CODEX_HEADERS, "ChatGPT-Account-Id": account["id_token"]["chatgpt_account_id"]})
+    usage: dict[str, Any] = await fetch_codex_usage(account)
 
     windows: list[dict[str, Any]] = [
         {
