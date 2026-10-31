@@ -3,11 +3,19 @@
   config,
   inputs,
   lib,
+  outputs,
   pkgs,
   # keep-sorted end
   ...
-}: {
-  sops.secrets."apps/syncthing/folders/claude/encryption-password" = {};
+}: let
+  # claude runs a daemon per config dir, and a background session gets that daemon's env; give gateway sessions a config dir of their own
+  gatewayConfigDir = "${config.programs.claude-code.configDir}-gateway";
+in {
+  sops.secrets = {
+    "apps/cliproxyapi/inference-key" = {};
+
+    "apps/syncthing/folders/claude/encryption-password" = {};
+  };
 
   programs = {
     git.ignores = [".claude/worktrees/"]; # worktrees are nested repositories, which `git add --all` would stage as gitlinks
@@ -15,7 +23,49 @@
     claude-code = {
       enable = true;
 
-      package = pkgs.claude-code-with-node; # the wakatime plugin hooks need node
+      package = pkgs.symlinkJoin {
+        name = "claude-code";
+
+        inherit (pkgs.claude-code-with-node) version;
+
+        paths = [pkgs.claude-code-with-node]; # the wakatime plugin hooks need node
+
+        nativeBuildInputs = [pkgs.makeWrapper];
+
+        # `CLAUDE_CODE_GATEWAY=1` runs claude through the gateway, which adds the models of every cliproxyapi account to `/model`
+        postBuild = ''
+          wrapProgram $out/bin/${pkgs.claude-code-with-node.meta.mainProgram} \
+            --run ${lib.escapeShellArg ''
+            picker=()
+
+            if [[ -n ''${CLAUDE_CODE_GATEWAY-} ]]; then
+              export ANTHROPIC_BASE_URL=https://claude-code-gateway.${outputs.nixosConfigurations.de0.config.networking.fqdn} ANTHROPIC_AUTH_TOKEN=$(<${config.sops.secrets."apps/cliproxyapi/inference-key".path})
+
+              export CLAUDE_CONFIG_DIR=${gatewayConfigDir}
+
+              export CLAUDE_CODE_GATEWAY_HINT_HEADERS=1 # let the gateway distinguish the main conversation from background requests
+
+              export CLAUDE_CODE_PROMPT_CACHE_TTL=1h # without a claude.ai login, claude defaults to 5m
+              export ENABLE_TOOL_SEARCH=true # behind a base url other than anthropic's, claude assumes tool search is unsupported: it waits for every mcp server before the first turn and keeps tool search off in a conversation that has run without it
+
+              # claude reads the picker once, at launch; its quotas are laid out for this terminal
+              if [[ -t 0 ]]; then
+                read -r _ columns < <(${lib.getExe' pkgs.coreutils "stty"} size)
+
+                # the key stays out of the process list
+                if settings=$(${lib.getExe pkgs.curl} --fail --silent --max-time 3 --header @- "$ANTHROPIC_BASE_URL/model-picker?width=$columns" <<<"Authorization: Bearer $ANTHROPIC_AUTH_TOKEN"); then
+                  picker=(--settings "$settings")
+                fi
+              fi
+            else
+              unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN CLAUDE_CONFIG_DIR CLAUDE_CODE_GATEWAY_HINT_HEADERS CLAUDE_CODE_PROMPT_CACHE_TTL ENABLE_TOOL_SEARCH # a claude started from a gateway session with `CLAUDE_CODE_GATEWAY=` still inherits them
+            fi
+          ''} \
+            --add-flags '"''${picker[@]}"'
+        '';
+
+        inherit (pkgs.claude-code-with-node) meta;
+      };
 
       enableMcpIntegration = true;
 
@@ -49,13 +99,17 @@
       };
 
       settings = {
-        autoCompactWindow = 400000; # actually triggers at 367k (reserves 20k output + 13k buffer)
+        autoCompactWindow = 220000; # actually triggers at 187k (reserves 20k output + 13k buffer)
+        idleCompaction = false; # disable the extra summary request before an idle chat's prompt cache expires
 
         autoMemoryDirectory = "${config.services.syncthing.settings.folders.claude.path}/memory"; # global memory; shared between hosts
 
         worktree.bgIsolation = "none"; # let background sessions edit the main checkout
 
-        attribution = false; # requires claude 2.1.281+, which `unstablePkgs` always provides
+        attribution = false; # requires claude 2.1.281+; older versions skip the whole settings file
+
+        awaySummaryEnabled = false; # disable the "※ recap" block generated after being away
+        promptSuggestionEnabled = false; # disable the guess of the next message, a model request over the whole conversation after every reply
 
         preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
 
@@ -63,6 +117,8 @@
         inputNeededNotifEnabled = true; # ping the phone on prompt (permission or question)
 
         switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
+
+        feedbackDrafts = "off"; # disable the "✻ Bug report drafted" card and the `SendFeedback` tool
 
         statusLine = {
           type = "command";
@@ -94,6 +150,14 @@
             }
           ];
         };
+
+        # subagents aren't worth the quota they consume
+        permissions.deny = [
+          # keep-sorted start
+          "Agent"
+          "Workflow"
+          # keep-sorted end
+        ];
 
         # keep unused skills out of the listing every session sends to the model
         skillOverrides = {
@@ -154,13 +218,25 @@
   in {
     file = let
       syncedPath = config.services.syncthing.settings.folders.claude.path;
-    in {
-      ${settingsPath}.enable = false; # keep the generated settings source without linking an immutable user config
+    in
+      {
+        ${settingsPath}.enable = false; # keep the generated settings source without linking an immutable user config
 
-      "${config.programs.claude-code.configDir}/projects".source = config.lib.file.mkOutOfStoreSymlink "${syncedPath}/projects";
+        "${config.programs.claude-code.configDir}/projects".source = config.lib.file.mkOutOfStoreSymlink "${syncedPath}/projects";
 
-      "${syncedPath}/.stignore".text = "/projects/-tmp*"; # sessions started in `/tmp` are throwaway
-    };
+        "${syncedPath}/.stignore".text = "/projects/-tmp*"; # sessions started in `/tmp` are throwaway
+      }
+      # share user skills and session history, with the rewind checkpoints, plans, tasks and hook env a resumed session needs
+      // lib.genAttrs' [
+        # keep-sorted start
+        "file-history"
+        "plans"
+        "projects"
+        "session-env"
+        "skills"
+        "tasks"
+        # keep-sorted end
+      ] (name: lib.nameValuePair "${gatewayConfigDir}/${name}" {source = config.lib.file.mkOutOfStoreSymlink "${config.programs.claude-code.configDir}/${name}";});
 
     activation = {
       writeClaudeCodeConfig = let
@@ -175,24 +251,27 @@
         '';
       in
         lib.hm.dag.entryAfter ["linkGeneration"] ''
-          config_file=${lib.escapeShellArg settingsPath}
           settings_file=${lib.escapeShellArg config.home.file.${settingsPath}.source}
 
-          if [[ -s $config_file ]]; then
-            run ${pkgs.runtimeShell} -c '${lib.getExe pkgs.jq} --slurp "$1" $2 $3 | ${lib.getExe' pkgs.moreutils "sponge"} $2' -- ${mergeSettingsFilter} $config_file $settings_file
-          else
-            run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $settings_file $config_file
-          fi
+          # the gateway's config dir keeps a settings file of its own: `/model` saves the pick as the default for new sessions, and native sessions can't run a gateway model
+          for config_file in ${lib.escapeShellArgs [settingsPath "${gatewayConfigDir}/settings.json"]}; do
+            if [[ -s $config_file ]]; then
+              run ${pkgs.runtimeShell} -c '${lib.getExe pkgs.jq} --slurp "$1" $2 $3 | ${lib.getExe' pkgs.moreutils "sponge"} $2' -- ${mergeSettingsFilter} $config_file $settings_file
+            else
+              run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $settings_file $config_file
+            fi
+          done
         '';
 
       # these are only read from the global config, which claude itself keeps writing
       writeClaudeCodeGlobalConfig = let
         globalConfig = pkgs.writeText "claude-code-global-config.json" (builtins.toJSON {
-          autoConnectIde = true; # automatically connect to a running ide from an external terminal
+          autoConnectIde = true;
 
           lspRecommendationDisabled = true; # the lsp plugin recommendation ignores `lspServers`
 
           hasSeenAutoModeOutsideReadPrompt = true; # skip the one-time auto mode prompt on reads outside the working directories
+          autoModeClassifierBillingNoticeAcknowledgedAt = 253402300799000; # the gateway fallback notice comes back every 24h and holds a session until a key is pressed; acknowledge it until 9999
 
           messageIdleNotifThresholdMs = 0; # notify as soon as a turn ends instead of after a minute of idling
         });
@@ -207,6 +286,11 @@
             run ${lib.getExe' pkgs.coreutils "install"} -D --mode=600 $global_config_file $config_file
           fi
         '';
+
+      # gateway sessions share the native global config (trust, `/config`, onboarding); not `home.file`: claude follows one symlink hop when writing, and home-manager's link leads into the read-only store
+      linkClaudeCodeGatewayGlobalConfig = lib.hm.dag.entryAfter ["linkGeneration"] ''
+        run ${lib.getExe' pkgs.coreutils "ln"} --symbolic --force --no-target-directory ${lib.escapeShellArg "${config.home.homeDirectory}/.claude.json"} ${lib.escapeShellArg "${gatewayConfigDir}/.claude.json"}
+      '';
     };
   };
 
@@ -237,7 +321,14 @@
       StopWhenUnneeded = true; # otherwise it stays active after the lease runs out, until the next turn of that claude process or for good once it exits
     };
 
-    services = {
+    services = let
+      daemonService = {
+        # not `finalPackage`: its `--plugin-dir` flags come first and turn `daemon run` into a prompt
+        ExecStart = "${lib.getExe config.programs.claude-code.package} daemon run";
+
+        KillMode = "process"; # the default `control-group` kills the sessions along with the daemon; `process` leaves them for the new daemon to adopt
+      };
+    in {
       # held by the claude hooks for the claude process given as the instance; `waitpid` also releases it when that process dies mid-turn
       "claude-inhibit@" = {
         Unit.Description = "Claude sleep inhibitor";
@@ -251,12 +342,24 @@
 
         Unit.Description = "Claude daemon";
 
-        Service = {
-          # not `finalPackage`: its `--plugin-dir` flags come first and turn `daemon run` into a prompt
-          ExecStart = "${lib.getExe config.programs.claude-code.package} daemon run";
+        Service = daemonService;
+      };
 
-          KillMode = "process"; # the default `control-group` kills the sessions along with the daemon; `process` leaves them for the new daemon to adopt
+      # with `CLAUDE_CONFIG_DIR` claude looks for no unit and connects to whichever daemon serves that config dir; run one for the gateway's
+      claude-gateway-daemon = {
+        Install.WantedBy = ["default.target"]; # otherwise the first gateway client spawns a transient daemon in its terminal's cgroup
+
+        Unit = {
+          Description = "Claude gateway daemon";
+
+          After = ["sops-nix.service"];
         };
+
+        Service = lib.mkMerge [
+          daemonService
+
+          {Environment = "CLAUDE_CODE_GATEWAY=1";}
+        ];
       };
     };
   };

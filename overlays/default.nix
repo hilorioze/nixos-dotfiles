@@ -26,6 +26,8 @@
 
   # keep-sorted start
   (import ./claude-code-alsa-rpath)
+  (import ./cliproxyapi-antigravity-web-search)
+  (import ./cliproxyapi-response-model-prefix)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)

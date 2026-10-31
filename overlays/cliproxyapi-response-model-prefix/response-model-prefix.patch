@@ -1,0 +1,15 @@
+diff --git a/sdk/cliproxy/auth/conductor_models.go b/sdk/cliproxy/auth/conductor_models.go
+index 3ac8b28..151c805 100644
+--- a/sdk/cliproxy/auth/conductor_models.go
++++ b/sdk/cliproxy/auth/conductor_models.go
+@@ -332,6 +332,10 @@ func (m *Manager) executionModelCandidatesWithAlias(auth *Auth, routeModel strin
+ 	routing := m.loadAPIKeyModelRouting()
+ 	requestedModel := rewriteModelForAuth(routeModel, auth)
+ 	aliasResult := m.resolveExecutionAliasResultForRequestedWithRouting(routing, auth, requestedModel)
++	if requestedModel != routeModel {
++		aliasResult.ForceMapping = true
++		aliasResult.OriginalAlias = routeModel
++	}
+ 	if aliasResult.ForceMapping && auth != nil && auth.Attributes != nil && strings.EqualFold(strings.TrimSpace(auth.Attributes[homeForceMappingAttributeKey]), "true") {
+ 		aliasResult.OriginalAlias = strings.TrimSpace(routeModel)
+ 	}

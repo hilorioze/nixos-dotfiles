@@ -20,7 +20,19 @@
     python = {
       enable = true;
 
-      package = pkgs.python3.withPackages (pythonPackages: [pythonPackages.plyvel]);
+      package = pkgs.python3.withPackages (pythonPackages:
+        with pythonPackages; [
+          # keep-sorted start
+          aiohttp
+          plyvel
+          # keep-sorted end
+
+          # imported by the scripts in `packages`
+          # keep-sorted start
+          (callPackage ./packages/claude-code-quotas {})
+          (callPackage ./packages/cliproxyapi-accounts {})
+          # keep-sorted end
+        ]);
     };
     # keep-sorted end
   };
