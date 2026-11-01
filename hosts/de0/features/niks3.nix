@@ -2,10 +2,12 @@
   # keep-sorted start
   config,
   inputs,
+  pkgs,
   # keep-sorted end
   ...
 }: {
-  imports = [inputs.niks3.nixosModules.niks3];
+  # nixpkgs packages niks3 without its nixos module
+  imports = ["${inputs.nixpkgs-unstable.legacyPackages.aarch64-linux.niks3.src}/nix/nixosModules/niks3.nix"];
 
   sops = {
     secrets = let
@@ -54,6 +56,9 @@
 
     niks3 = {
       enable = true;
+
+      package = pkgs.unstablePkgs.niks3;
+      serverPackage = pkgs.unstablePkgs.niks3;
 
       serverUrl = "https://${apiHost}";
 

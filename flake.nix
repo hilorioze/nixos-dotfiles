@@ -94,12 +94,6 @@
 
     mud.url = "github:hilorioze/mud"; # keep their inputs for binary cache
 
-    niks3 = {
-      url = "github:Mic92/niks3";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nix-alien = {
       url = "github:thiagokokada/nix-alien";
 
@@ -220,6 +214,8 @@
 
           pkgs = pkgs';
         };
+
+        legacyPackages.niks3 = pkgs'.unstablePkgs.niks3; # expose nixpkgs' niks3 client to the workflows
       };
 
       flake = {config, ...}: let

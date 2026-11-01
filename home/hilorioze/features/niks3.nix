@@ -11,6 +11,6 @@
   home = {
     sessionVariables.NIKS3_SERVER_URL = "https://niks3.hilorioze.com";
 
-    packages = [pkgs.niks3];
+    packages = [pkgs.unstablePkgs.niks3];
   };
 }

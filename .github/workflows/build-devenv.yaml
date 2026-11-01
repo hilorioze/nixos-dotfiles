@@ -57,43 +57,21 @@ jobs:
       - if: github.event_name != 'pull_request'
         id: fetch-niks3-bin
         run: |
-          # `niks3-action` looks for `niks3-hook` next to `niks3`
-          # `--inputs-from github:${{ github.repository }}` keeps cli and server on the same version to avoid api mismatches
-          niks3_root=$(NIX_PATH=nixpkgs=flake:nixpkgs:niks3=flake:niks3 nix build --impure --no-link --print-out-paths --inputs-from github:${{ github.repository }} --print-build-logs --expr $'
-          let
-            pkgs = import <nixpkgs> {};
+          cat "$(nix build --impure --no-link --print-out-paths --print-build-logs --expr '
+            let
+              flake = builtins.getFlake (toString ./.);
+              system = builtins.currentSystem;
 
-            lib = pkgs.lib;
+              pkgs = flake.inputs.nixpkgs.legacyPackages.${system};
 
-            niks3ActionBinDir = pkgs.symlinkJoin {
-              name = "niks3-action-bin-dir";
+              niks3 = flake.legacyPackages.${system}.niks3;
+            in
+              pkgs.writeText "niks3-github-output" (pkgs.lib.generators.toKeyValue {} {
+                niks3_root = niks3;
 
-              paths = with import <niks3/nix/packages> {inherit pkgs;}; [
-                # keep-sorted start
-                niks3
-                niks3-hook
-                # keep-sorted end
-              ];
-            };
-          in
-            pkgs.linkFarm "niks3-action-bin" [
-              # keep-sorted start block=yes newline_separated=yes
-              {
-                name = "bin/niks3";
-
-                path = lib.getExe\' niks3ActionBinDir "niks3";
-              }
-
-              {
-                name = "bin/niks3-hook";
-
-                path = lib.getExe\' niks3ActionBinDir "niks3-hook";
-              }
-              # keep-sorted end
-            ]
-            ')
-
-          printf 'niks3_root=%s\nniks3_bin=%s\n' $niks3_root $niks3_root/bin/niks3 >> $GITHUB_OUTPUT
+                niks3_bin = pkgs.lib.getExe niks3;
+              })
+          ')" >>$GITHUB_OUTPUT
 
       - if: github.event_name != 'pull_request'
         uses: Mic92/niks3-action@6d24bc1d87acdfac8e5dc3266f7b28ae99051adf # v1.5.0
