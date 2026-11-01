@@ -133,6 +133,7 @@
         "EditorConfig.EditorConfig"
         "jnoortheen.nix-ide"
         "mkhl.direnv"
+        "ms-python.python"
         # keep-sorted end
       ];
     };
