@@ -2,6 +2,7 @@
   imports = [
     # keep-sorted start
     ./bloodzonebot.nix
+    ./carcass.nix
     ./ftbie.nix
     ./twitch-drops-miner.nix
     ./whyareyoulookinghere.nix

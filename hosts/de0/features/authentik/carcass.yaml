@@ -1,0 +1,55 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: users.yaml
+
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider authorization flow (implicit consent)
+
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider invalidation flow
+
+  carcass:
+    - model: authentik_providers_proxy.proxyprovider
+      id: carcass-provider
+      identifiers:
+        name: carcass
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://carcass.@domain@
+
+        skip_path_regex: ^/healthz$
+
+    - model: authentik_core.application
+      identifiers:
+        slug: carcass
+      attrs:
+        name: Carcass
+        provider: !KeyOf carcass-provider
+
+        policy_engine_mode: any
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, carcass]]
+        user: !Find [authentik_core.user, [username, hilorioze]]
+      attrs:
+        order: 0
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, carcass]]
+        user: !Find [authentik_core.user, [username, zikkk]]
+      attrs:
+        order: 1

@@ -59,6 +59,8 @@
             # keep-sorted start block=yes newline_separated=yes case=no by_regex=mkService\s+"([^"]+)
             (mkService "ArchiSteamFarm" "archisteamfarm.png" "https://archisteamfarm.${de0Host}")
 
+            (mkService "Carcass" "mdi-cube-outline" "https://carcass.${config.networking.domain}")
+
             (mkService "Twitch Drops Miner (caligula)" "twitch.svg" "https://twitch-drops-miner-caligula.${de0Host}")
 
             (mkService "Twitch Drops Miner (hilorioze)" "twitch.svg" "https://twitch-drops-miner-hilorioze.${de0Host}")

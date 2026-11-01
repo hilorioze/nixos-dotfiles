@@ -6,15 +6,18 @@ entries:
       attrs:
         identifiers:
           path: users.yaml
+
     - model: authentik_blueprints.metaapplyblueprint
       attrs:
         identifiers:
           name: Default - Provider authorization flow (implicit consent)
+
     - model: authentik_blueprints.metaapplyblueprint
       attrs:
         identifiers:
           name: Default - Provider invalidation flow
 
+  # keep-sorted start block=yes newline_separated=yes
   caligula:
     - model: authentik_providers_proxy.proxyprovider
       id: twitch-drops-miner-caligula-provider
@@ -92,3 +95,4 @@ entries:
         user: !Find [authentik_core.user, [username, zikkk]]
       attrs:
         order: 0
+  # keep-sorted end

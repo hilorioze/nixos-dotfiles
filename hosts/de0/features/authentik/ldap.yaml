@@ -6,6 +6,7 @@ entries:
       attrs:
         identifiers:
           name: Default - Authentication flow
+
     - model: authentik_blueprints.metaapplyblueprint
       attrs:
         identifiers:
@@ -21,6 +22,7 @@ entries:
         invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
 
         base_dn: DC=ldap,DC=goauthentik,DC=io
+
         mfa_support: false
 
     - model: authentik_core.application

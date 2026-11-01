@@ -6,6 +6,12 @@ entries:
       attrs:
         identifiers:
           path: traefik.yaml
+
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: carcass.yaml
+
     - model: authentik_blueprints.metaapplyblueprint
       attrs:
         identifiers:
@@ -17,10 +23,18 @@ entries:
         managed: goauthentik.io/outposts/embedded
       attrs:
         type: proxy
+
         providers:
+          # keep-sorted start
           - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-de0]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-fakesynology-nixos]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-hel0]]
+          # keep-sorted end
+
+          - !Find [authentik_providers_proxy.proxyprovider, [name, carcass]]
+
+          # keep-sorted start
           - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-caligula]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-hilorioze]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-zikkk]]
+          # keep-sorted end

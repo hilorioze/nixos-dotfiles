@@ -137,6 +137,19 @@
           }
 
           {
+            name = "carcass";
+            group = "services";
+
+            url = "https://carcass.${config.networking.domain}/healthz";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == ok"
+            ];
+          }
+
+          {
             name = "claude-code-gateway";
             group = "services";
 

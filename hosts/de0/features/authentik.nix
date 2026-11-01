@@ -10,9 +10,10 @@
   inherit (config.networking) domain;
 
   authentikHost = "idm.${domain}";
+  ldapHost = config.networking.fqdn;
+
   authentikHttpAddress = lib.head config.services.authentik.settings.listen.http;
   authentikLdapAddress = lib.head config.services.authentik.settings.listen.ldap;
-  ldapHost = config.networking.fqdn;
 
   # each also needs its block in `authentik/users.yaml`
   users = [
@@ -28,17 +29,17 @@
   bootstrapPasswordHash = "pbkdf2_sha256$1000000$VtonnTnTF8QFxmNWSgCcf2$gUd6YTti7U4tXhh9LUJ5QWCKroJe3anKm5B47dhqWLk=";
 
   # reapply `!File` values when the secret's sops source changes
-  mailBlueprint = pkgs.writeText "mail.yaml" ''
-    ${builtins.readFile ./authentik/mail.yaml}
-
-    # sops-trigger: ${config.sops.secrets."services/authentik/ldap/users/mail-directory/password".sopsFileHash}
-  '';
-
-  # reapply `!File` values when the secret's sops source changes
   ldapOutpostBlueprint = pkgs.writeText "ldap-outpost.yaml" ''
     ${builtins.readFile ./authentik/ldap-outpost.yaml}
 
     # sops-trigger: ${config.sops.secrets."services/authentik/ldap/outposts/mail-directory/token".sopsFileHash}
+  '';
+
+  # reapply `!File` values when the secret's sops source changes
+  mailBlueprint = pkgs.writeText "mail.yaml" ''
+    ${builtins.readFile ./authentik/mail.yaml}
+
+    # sops-trigger: ${config.sops.secrets."services/authentik/ldap/users/mail-directory/password".sopsFileHash}
   '';
 
   blueprints = pkgs.runCommand "authentik-blueprints" {} ''
@@ -48,13 +49,20 @@
       ${config.services.authentik.authentikComponents.staticWorkdirDeps}/blueprints/. \
       $out/
 
-    install --mode 0644 ${mailBlueprint} $out/mail.yaml
+    install --mode 0644 ${pkgs.replaceVars ./authentik/users.yaml {inherit domain;}} $out/users.yaml
+
     install --mode 0644 ${./authentik/ldap.yaml} $out/ldap.yaml
     install --mode 0644 ${ldapOutpostBlueprint} $out/ldap-outpost.yaml
+
+    install --mode 0644 ${mailBlueprint} $out/mail.yaml
+
     install --mode 0644 ${pkgs.replaceVars ./authentik/traefik.yaml {inherit domain;}} $out/traefik.yaml
+
+    install --mode 0644 ${pkgs.replaceVars ./authentik/carcass.yaml {inherit domain;}} $out/carcass.yaml
+
     install --mode 0644 ${pkgs.replaceVars ./authentik/twitch-drops-miner.yaml {inherit domain;}} $out/twitch-drops-miner.yaml
+
     install --mode 0644 ${./authentik/embedded-outpost.yaml} $out/embedded-outpost.yaml
-    install --mode 0644 ${pkgs.replaceVars ./authentik/users.yaml {inherit domain;}} $out/users.yaml
   '';
 in {
   imports = [inputs.authentik-nix.nixosModules.default];
@@ -62,12 +70,12 @@ in {
   sops = {
     secrets =
       {
+        "services/authentik/secret-key".restartUnits = ["authentik-worker.service"]; # authentik requires the worker and restarts with it
+
         # keep-sorted start block=yes newline_separated=yes
         "services/authentik/ldap/outposts/mail-directory/token".restartUnits = ["authentik-ldap.service"];
 
         "services/authentik/ldap/users/mail-directory/password" = {};
-
-        "services/authentik/secret-key".restartUnits = ["authentik-worker.service"]; # authentik requires the worker and restarts with it
         # keep-sorted end
       }
       // lib.genAttrs (map mkInitialPasswordSecret users) (_: {});
@@ -109,6 +117,7 @@ in {
           ldaps = []; # traefik terminates tls
 
           metrics = []; # disable unused default `[::]:9300`
+
           radius = []; # disable unused default `[::]:1812`
         };
       };
@@ -163,6 +172,7 @@ in {
             rule = "HostSNI(`${ldapHost}`)";
 
             tls.certResolver = "cloudflare";
+
             service = "authentik-ldap";
           };
 

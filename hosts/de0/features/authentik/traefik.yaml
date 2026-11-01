@@ -6,15 +6,18 @@ entries:
       attrs:
         identifiers:
           path: system/bootstrap.yaml
+
     - model: authentik_blueprints.metaapplyblueprint
       attrs:
         identifiers:
           name: Default - Provider authorization flow (implicit consent)
+
     - model: authentik_blueprints.metaapplyblueprint
       attrs:
         identifiers:
           name: Default - Provider invalidation flow
 
+  # keep-sorted start block=yes newline_separated=yes
   de0:
     - model: authentik_providers_proxy.proxyprovider
       id: traefik-de0-provider
@@ -92,3 +95,4 @@ entries:
         group: !Find [authentik_core.group, [name, authentik Admins]]
       attrs:
         order: 0
+  # keep-sorted end
