@@ -2,8 +2,6 @@
   imports = [
     # keep-sorted start
     ../../common/features/comma.nix
-    ../../common/features/devenv.nix
-    ../../common/features/direnv.nix
     ../../common/features/fastfetch.nix
     ../../common/features/gpg-agent.nix
     ../../common/features/nh.nix

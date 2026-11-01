@@ -44,7 +44,6 @@
     # keep-sorted end
 
     # keep-sorted start
-
     ../../../features/a2s.nix
     ../../../features/adb.nix
     ../../../features/ark.nix
@@ -60,6 +59,8 @@
     ../../../features/cinny.nix
     ../../../features/claude-code.nix
     ../../../features/deadlocked.nix
+    ../../../features/devenv.nix
+    ../../../features/direnv.nix
     ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix
     ../../../features/dolphin.nix

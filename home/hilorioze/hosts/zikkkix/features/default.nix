@@ -17,6 +17,8 @@
     ../../../features/cinny.nix
     ../../../features/claude-code.nix
     ../../../features/deadlocked.nix
+    ../../../features/devenv.nix
+    ../../../features/direnv.nix
     ../../../features/disable-krunner.nix
     ../../../features/distrobox.nix
     ../../../features/email.nix
