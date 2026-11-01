@@ -91,7 +91,7 @@
       # eclint does not support `.editorconfig`'s `unset` value
       excludes = ["\\.diff$" "\\.patch$"];
 
-      args = ["-exclude" "{*.{diff,patch},**/*.{diff,patch}}"];
+      args = ["-exclude" "**.{diff,patch}"];
 
       settings.fix = true;
     };
