@@ -108,6 +108,8 @@ in {
 
         attribution = false; # requires claude 2.1.281+; older versions skip the whole settings file
 
+        includeGitInstructions = false; # use the git workflow from memory
+
         awaySummaryEnabled = false; # disable the "※ recap" block generated after being away
         promptSuggestionEnabled = false; # disable the guess of the next message, a model request over the whole conversation after every reply
 
