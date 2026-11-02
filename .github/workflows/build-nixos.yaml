@@ -115,7 +115,7 @@ jobs:
         run: |
           cat "$(nix build --impure --no-link --print-out-paths --print-build-logs --expr '
             let
-              flake = builtins.getFlake (toString ./.);
+              flake = builtins.getFlake "github:hilorioze/nixos-dotfiles";
               system = builtins.currentSystem;
 
               pkgs = flake.inputs.nixpkgs.legacyPackages.${system};
