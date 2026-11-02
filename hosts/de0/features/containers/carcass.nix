@@ -2,7 +2,7 @@
   sops.secrets."credentials/ghcr/hilorioze/pull/token" = {};
 
   virtualisation.oci-containers.containers.carcass = {
-    image = "ghcr.io/hilorioze/carcass:main@sha256:2ee3d45172e9e1dffb37fd4f4054b518f92ac12700e891ff431c19e47bf3d497";
+    image = "ghcr.io/hilorioze/carcass:main@sha256:dd05c84f3f3ecc72676c44303736d1597ec6a0e1a53a9731d01cdf4614242ca3";
 
     login = {
       registry = "ghcr.io";

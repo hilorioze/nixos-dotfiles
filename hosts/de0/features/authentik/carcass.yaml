@@ -29,7 +29,10 @@ entries:
         mode: forward_single
         external_host: https://carcass.@domain@
 
-        skip_path_regex: ^/healthz$
+        skip_path_regex: |-
+          ^/healthz$
+          ^/share/[A-Za-z0-9_-]{32}(/(project\.json|model\.glb|download))?$
+          ^/share/assets/[A-Za-z0-9_-]+\.(js|css)$
 
     - model: authentik_core.application
       identifiers:
