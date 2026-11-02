@@ -155,6 +155,8 @@ in {
         # enable search and form history (disabled by librewolf by default)
         "browser.formfill.enable" = true;
 
+        "librewolf.webgl.prompt.hide" = false; # show the per-site webgl permission prompt
+
         # disable fingerprinting resistance so websites can follow the system theme (enabled by default in librewolf)
         "privacy.resistFingerprinting" = false;
 
