@@ -8,14 +8,12 @@
       "https://nix-cache.hilorioze.com?priority=41"
       "https://cache.nixos-cuda.org?priority=42"
       "https://nix-community.cachix.org?priority=43"
-      "https://cache.thalheim.io?priority=44"
     ];
 
     extra-trusted-public-keys = [
       "nix-cache.hilorioze.com-1:vKKWGjVDgXl/TXbUWuPWTnDhhDit6hqkTcuoGfter5Y="
       "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "cache.thalheim.io-1:R7msbosLEZKrxk/lKxf9BTjOOH7Ax3H0Qj0/6wiHOgc="
     ];
     # keep-sorted end
   };
@@ -70,7 +68,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    freesmlauncher.url = "github:FreesmTeam/FreesmLauncher"; # keep their inputs for binary cache
+    freesmlauncher = {
+      url = "github:FreesmTeam/FreesmLauncher";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     lazyvim-nix = {
       url = "github:pfassina/lazyvim-nix";
@@ -98,7 +100,11 @@
 
     nix-flatpak.url = "github:gmodena/nix-flatpak";
 
-    nix-gaming.url = "github:fufexan/nix-gaming"; # keep their inputs for binary cache
+    nix-gaming = {
+      url = "github:fufexan/nix-gaming";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -164,11 +170,7 @@
 
     steam-voicechat-fix.url = "github:hilorioze/steam-voicechat-fix"; # keep their inputs for binary cache
 
-    stylix = {
-      url = "github:nix-community/stylix/release-26.05";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    stylix.url = "github:nix-community/stylix/release-26.05"; # keep their inputs for binary cache
     # keep-sorted end
   };
 
