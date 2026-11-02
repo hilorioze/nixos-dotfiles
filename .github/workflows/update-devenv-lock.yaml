@@ -69,7 +69,7 @@ jobs:
               })
           ')" >>$GITHUB_OUTPUT
 
-      - uses: Mic92/niks3-action@6d24bc1d87acdfac8e5dc3266f7b28ae99051adf # v1.5.0
+      - uses: Mic92/niks3-action@fba0a36eda892f9b28b0ead8038f993920ecaff9 # v1.6.0
         with:
           niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
 
