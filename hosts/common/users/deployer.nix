@@ -29,26 +29,20 @@
 
   security.sudo.extraRules = [
     {
-      users = ["deployer"];
+      users = [config.users.users.deployer.name];
 
       commands = [
         # keep-sorted start block=yes newline_separated=yes
         {
-          # sudo doesn't resolve symlinks when matching commands (https://github.com/sudo-project/sudo/issues/333)
-          command = "/run/current-system/sw/bin/rm /tmp/deploy-rs-canary-*"; # magic rollback confirmation
+          command = "/nix/store/*/activate-rs"; # deploy-rs activation helper
 
           options = ["NOPASSWD"];
         }
 
         {
-          command = "/nix/store/*/activate-rs"; # deploy-rs activation helper
+          command = "/run/current-system/sw/bin/rm ^/tmp/deploy-rs-canary-[a-z0-9]{32}$"; # magic rollback confirmation
 
-          options = [
-            # keep-sorted start
-            "NOPASSWD"
-            "SETENV"
-            # keep-sorted end
-          ];
+          options = ["NOPASSWD"];
         }
         # keep-sorted end
       ];
