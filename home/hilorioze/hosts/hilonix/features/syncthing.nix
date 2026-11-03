@@ -14,11 +14,6 @@
       -----END CERTIFICATE-----
     ''}";
 
-    settings.folders.sync.devices = [
-      # keep-sorted start
-      "lelonix"
-      "zikkkix"
-      # keep-sorted end
-    ];
+    settings.folders.sync.devices = ["lelonix"];
   };
 }

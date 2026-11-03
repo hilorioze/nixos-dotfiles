@@ -80,12 +80,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    mt7927-nixos = {
-      url = "github:cmspam/mt7927-nixos";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     mud.url = "github:hilorioze/mud"; # keep their inputs for binary cache
 
     nix-alien = {
@@ -118,19 +112,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-software-center = {
-      url = "github:snowfallorg/nix-software-center";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions"; # keep upstream's tested nixpkgs pin for its own outputs and extension fixes
-
-    nixos-conf-editor = {
-      url = "github:snowfallorg/nixos-conf-editor";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
@@ -279,7 +261,6 @@
           hilonix = mkNixosSystem [./hosts/hilonix];
           hisonix = mkNixosSystem [./hosts/hisonix];
           lelonix = mkNixosSystem [./hosts/lelonix];
-          zikkkix = mkNixosSystem [./hosts/zikkkix];
           # keep-sorted end
         };
 
@@ -290,7 +271,6 @@
           hel0 = mkDeployNode config.nixosConfigurations.hel0;
           hilonix = mkDeployNode config.nixosConfigurations.hilonix;
           lelonix = mkDeployNode config.nixosConfigurations.lelonix;
-          zikkkix = mkDeployNode config.nixosConfigurations.zikkkix;
           # keep-sorted end
         };
       };

@@ -203,7 +203,6 @@ in {
       # keep-sorted start
       "hilonix"
       "lelonix"
-      "zikkkix"
       # keep-sorted end
 
       # always-on relay between devices; only holds the encrypted data

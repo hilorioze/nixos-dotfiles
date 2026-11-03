@@ -61,8 +61,6 @@ in {
     "services/headscale/preauth-keys/philone/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/puest/bcrypt-hash" = preauthKeySecret;
     "services/headscale/preauth-keys/puest/prefix" = preauthKeySecret;
-    "services/headscale/preauth-keys/zikkkix/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/zikkkix/prefix" = preauthKeySecret;
     # keep-sorted end
   };
 
@@ -83,7 +81,6 @@ in {
         "hel0"
         "hilonix"
         "lelonix"
-        "zikkkix"
         # keep-sorted end
       ];
     in
@@ -155,7 +152,6 @@ in {
             "tag:hel0" = [];
             "tag:hilonix" = [];
             "tag:lelonix" = [];
-            "tag:zikkkix" = [];
             # keep-sorted end
           };
 
@@ -294,7 +290,7 @@ in {
             {
               action = "accept";
 
-              src = ["group:home" "tag:hilonix" "tag:lelonix" "tag:zikkkix"];
+              src = ["group:home" "tag:hilonix" "tag:lelonix"];
 
               dst = [
                 # keep-sorted start
@@ -333,7 +329,6 @@ in {
                 "tag:hel0:22"
                 "tag:hilonix:22"
                 "tag:lelonix:22"
-                "tag:zikkkix:22"
                 # keep-sorted end
               ];
             }
@@ -552,11 +547,6 @@ in {
         puest_key_id=$(reconcile_preauth_key $home_id \
           ${config.sops.secrets."services/headscale/preauth-keys/puest/prefix".path} \
           ${config.sops.secrets."services/headscale/preauth-keys/puest/bcrypt-hash".path})
-
-        zikkkix_key_id=$(reconcile_preauth_key $home_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/zikkkix/prefix".path} \
-          ${config.sops.secrets."services/headscale/preauth-keys/zikkkix/bcrypt-hash".path} \
-          '["tag:zikkkix"]')
         # keep-sorted end
 
         ensure_preauth_key_used() {
@@ -581,7 +571,6 @@ in {
         ensure_preauth_key_used $lelonix_key_id
         ensure_preauth_key_used $philone_key_id
         ensure_preauth_key_used $puest_key_id
-        ensure_preauth_key_used $zikkkix_key_id
         # keep-sorted end
 
         get_node_id_by_key_id() {
@@ -599,7 +588,6 @@ in {
         hel0_node_id=$(get_node_id_by_key_id $hel0_key_id)
         hilonix_node_id=$(get_node_id_by_key_id $hilonix_key_id)
         lelonix_node_id=$(get_node_id_by_key_id $lelonix_key_id)
-        zikkkix_node_id=$(get_node_id_by_key_id $zikkkix_key_id)
         # keep-sorted end
 
         set_node_tags_by_node_id() {
@@ -620,7 +608,6 @@ in {
         set_node_tags_by_node_id $hel0_node_id tag:hel0
         set_node_tags_by_node_id $hilonix_node_id tag:hilonix
         set_node_tags_by_node_id $lelonix_node_id tag:lelonix
-        set_node_tags_by_node_id $zikkkix_node_id tag:zikkkix
         # keep-sorted end
 
         rename_node_by_node_id() {

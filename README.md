@@ -26,7 +26,6 @@ List of machines managed by this project:
 |---------------------------------------------------|---------|-------------------------------------------------------------------------------|
 | [`hilonix`](/hosts/hilonix)                       | Desktop | AMD Zen 4 / RDNA 2, NVIDIA Ampere, bcachefs, zen kernel                       |
 | [`lelonix`](/hosts/lelonix)                       | Laptop  | Lenovo Legion 5 Pro, Intel Alder Lake, NVIDIA Ampere, bcachefs, xanmod kernel |
-| [`zikkkix`](/hosts/zikkkix)                       | Desktop | AMD Zen 5, NVIDIA Ada Lovelace, bcachefs, zen kernel                          |
 | [`de0`](/hosts/de0)                               | Server  | [OCI](https://www.oracle.com/cloud/), `aarch64`                               |
 | [`hel0`](/hosts/hel0)                             | Server  | Hetzner                                                                       |
 | [`fakesynology-nixos`](/hosts/fakesynology-nixos) | Server  | Home VM                                                                       |
