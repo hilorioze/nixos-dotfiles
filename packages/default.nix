@@ -1,6 +1,7 @@
 {pkgs, ...}: {
   # keep-sorted start
   a2s = pkgs.callPackage ./a2s {};
+  blender-openskp = pkgs.callPackage ./blender-openskp {};
   blutter = pkgs.callPackage ./blutter {};
   bspguy = pkgs.callPackage ./bspguy {};
   claude-code-gateway = pkgs.callPackage ./claude-code-gateway {};
@@ -16,6 +17,8 @@
   ghidra-mcp = pkgs.python3Packages.callPackage ./ghidra-mcp {};
   ghidra-mcp-plugin = pkgs.callPackage ./ghidra-mcp-plugin {};
   half-life-asset-manager = pkgs.callPackage ./half-life-asset-manager {};
+  mcp-for-blender = pkgs.python3Packages.callPackage ./mcp-for-blender {};
+  openskp = pkgs.python3Packages.callPackage ./openskp {};
   plasmavantage = pkgs.callPackage ./plasmavantage {};
   playwright-mcp-with-extension-token = pkgs.callPackage ./playwright-mcp-with-extension-token {};
   prometheus-podman-exporter = pkgs.callPackage ./prometheus-podman-exporter {};
