@@ -245,7 +245,7 @@
         in {
           hostname = nixosConfiguration.config.networking.fqdn;
 
-          sshUser = "deployer";
+          sshUser = nixosConfiguration.config.users.users.deployer.name;
 
           # reuse one authenticated connection during deployment
           sshOpts = [

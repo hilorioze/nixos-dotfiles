@@ -1,4 +1,4 @@
-{
+{config, ...}: {
   users.users.agent = {
     isNormalUser = true;
 
@@ -7,7 +7,7 @@
 
   security.sudo.extraRules = [
     {
-      users = ["agent"];
+      users = [config.users.users.agent.name];
 
       commands = [
         {

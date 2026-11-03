@@ -1,4 +1,4 @@
-{
+{config, ...}: {
   nix.settings = let
     inherit ((import ../../../flake.nix)) nixConfig;
   in
@@ -18,10 +18,9 @@
       min-free = 10 * 1024 * 1024 * 1024; # 10G; collect garbage only when a build runs low on space
 
       trusted-users = [
-        # keep-sorted start
         "@wheel"
-        "deployer"
-        # keep-sorted end
+
+        config.users.users.deployer.name
       ];
       # keep-sorted end
     }
