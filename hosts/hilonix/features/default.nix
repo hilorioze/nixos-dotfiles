@@ -65,7 +65,6 @@
     ./sddm.nix
     ./silent-sddm.nix
     ./sops.nix
-    ./steam.nix
     ./stylix.nix
     ./time.nix
     ./wireplumber-ignore-nvidia-hda.nix

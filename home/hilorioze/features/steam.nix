@@ -2,20 +2,13 @@
   # keep-sorted start
   config,
   lib,
-  osConfig,
   pkgs,
   # keep-sorted end
   ...
 }: {
   imports = [../../common/features/steam.nix];
 
-  programs.steam.config = let
-    wrappers = [
-      osConfig.hardware.nvidia.prime.offload.offloadCmdMainProgram
-      (lib.getExe pkgs.gamemode)
-      (lib.getExe pkgs.mangohud)
-    ];
-  in {
+  programs.steam.config = {
     apps = {
       # keep-sorted start block=yes newline_separated=yes numeric=yes
       "10" = {
@@ -54,8 +47,6 @@
           cp --remove-destination ${pkgs.pkgsi686Linux.csldr}/lib/client.so cstrike/cl_dlls/client.so
         '';
 
-        inherit wrappers;
-
         args = [
           # keep-sorted start
           "-console"
@@ -64,50 +55,16 @@
         ];
       };
 
-      "570" = {
-        name = "Dota 2";
-
-        inherit wrappers;
-      };
-
-      "427520" = {
-        name = "Factorio";
-
-        inherit wrappers;
-      };
-
       "590830" = {
         name = "s&box";
 
         compatTool = config.programs.steam.config.defaultCompatTool; # https://github.com/Facepunch/sbox-issues/issues/9759
-
-        inherit wrappers;
       };
 
       "1422450" = {
         name = "Deadlock";
 
         compatTool = config.programs.steam.config.defaultCompatTool; # not available natively yet; forces `proton_experimental` for some reason, so set our own
-
-        inherit wrappers;
-      };
-
-      "1808500" = {
-        name = "ARC Raiders";
-
-        inherit wrappers;
-      };
-
-      "2406770" = {
-        name = "Bodycam";
-
-        inherit wrappers;
-      };
-
-      "4465480" = {
-        name = "Counter-Strike:Global Offensive";
-
-        inherit wrappers;
       };
       # keep-sorted end
     };
@@ -140,7 +97,7 @@
         WINEDLLOVERRIDES = "winhttp=n,b";
       };
 
-      wrappers = wrappers ++ [(lib.getExe pkgs.steam-run)];
+      wrappers = [(lib.getExe pkgs.steam-run)];
 
       args = [
         "run"
