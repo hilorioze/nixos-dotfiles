@@ -62,14 +62,17 @@ in {
           done
       }
 
+      # ksystemstats' `nvidia-smi dmon` and coolercontrold's nvml hold `/dev/nvidia*`, which blocks the gpu's unbind; once it's passed through they come back without it, and after the vm they pick it up again
       case $operation/$suboperation in
         prepare/begin)
           graphicalUsersSystemctl mask --runtime --now plasma-ksystemstats.service
+          systemctl stop coolercontrold.service
           ;;
 
         started/begin|release/end)
           graphicalUsersSystemctl unmask --runtime plasma-ksystemstats.service
           graphicalUsersSystemctl restart plasma-ksystemstats.service
+          systemctl restart coolercontrold.service
           ;;
       esac
     '';
