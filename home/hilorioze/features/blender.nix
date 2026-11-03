@@ -24,8 +24,8 @@
             --prefix BLENDER_SYSTEM_SCRIPTS : ${pkgs.mcp-for-blender}/share/blender \
             --set BLENDER_SYSTEM_EXTENSIONS ${pkgs.blender-openskp}/share/blender/extensions \
             --set BLENDERMCP_NO_UPDATE_CHECK 1 \
-            --add-flags '--addons blender_mcp,bl_ext.system.openskp_import_export'
-        '';
+            --add-flags '--addons blender_mcp,bl_ext.system.openskp_import_export --gpu-backend vulkan'
+        ''; # vulkan picks the gpu on each launch: the nvidia while it's on the host, the amd while it's passed through to the vm; opengl always stays on the amd
     }))
   ];
 
