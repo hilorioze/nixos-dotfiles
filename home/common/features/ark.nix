@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.kdePackages.ark
-  ];
+  home.packages = [pkgs.kdePackages.ark];
 }

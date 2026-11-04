@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.tor-browser
-  ];
+  home.packages = [pkgs.tor-browser];
 }

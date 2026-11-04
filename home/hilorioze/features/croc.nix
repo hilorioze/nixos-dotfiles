@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.croc
-  ];
+  home.packages = [pkgs.croc];
 }

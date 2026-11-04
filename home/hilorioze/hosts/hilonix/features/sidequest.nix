@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.sidequest
-  ];
+  home.packages = [pkgs.sidequest];
 }

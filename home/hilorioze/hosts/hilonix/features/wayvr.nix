@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.wayvr
-  ];
+  home.packages = [pkgs.wayvr];
 }

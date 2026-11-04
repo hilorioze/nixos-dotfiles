@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.qtscrcpy
-  ];
+  home.packages = [pkgs.qtscrcpy];
 }

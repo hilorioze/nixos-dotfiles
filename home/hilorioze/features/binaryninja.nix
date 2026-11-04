@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.binaryninja-free
-  ];
+  home.packages = [pkgs.binaryninja-free];
 }

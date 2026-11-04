@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.atlauncher
-  ];
+  home.packages = [pkgs.atlauncher];
 }

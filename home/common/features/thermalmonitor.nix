@@ -1,5 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [
-    pkgs.thermalmonitor
-  ];
+  home.packages = [pkgs.thermalmonitor];
 }
