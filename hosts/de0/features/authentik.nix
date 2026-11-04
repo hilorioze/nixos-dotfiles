@@ -51,6 +51,8 @@
 
     install --mode 0644 ${pkgs.replaceVars ./authentik/users.yaml {inherit domain;}} $out/users.yaml
 
+    install --mode 0644 ${./authentik/authentication.yaml} $out/authentication.yaml
+
     install --mode 0644 ${./authentik/ldap.yaml} $out/ldap.yaml
     install --mode 0644 ${ldapOutpostBlueprint} $out/ldap-outpost.yaml
 

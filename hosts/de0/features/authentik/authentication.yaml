@@ -1,0 +1,15 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Authentication flow
+
+  login:
+    - model: authentik_stages_user_login.userloginstage
+      identifiers:
+        name: default-authentication-login
+      attrs:
+        remember_me_offset: days=30
