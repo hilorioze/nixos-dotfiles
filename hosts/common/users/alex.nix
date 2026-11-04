@@ -4,6 +4,14 @@
   users.users.alex = {
     isNormalUser = true;
 
+    extraGroups = [
+      # keep-sorted start
+      "gamemode"
+      "networkmanager"
+      "wheel"
+      # keep-sorted end
+    ];
+
     hashedPasswordFile = config.sops.secrets."users/alex/hashed-password".path;
   };
 

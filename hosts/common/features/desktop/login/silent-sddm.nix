@@ -13,6 +13,8 @@
 
     package = pkgs.silent-sddm;
 
+    theme = "catppuccin-macchiato";
+
     backgrounds.wallpaper = config.stylix.image;
 
     settings = {
@@ -20,6 +22,8 @@
         background = builtins.baseNameOf config.stylix.image;
         use-background-color = false;
       };
+
+      "LoginScreen.VirtualKeyboard".start-hidden = false;
 
       LockScreen = {
         background = builtins.baseNameOf config.stylix.image;

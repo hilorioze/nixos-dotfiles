@@ -11,22 +11,22 @@
     ../../../../common/features/desktop/plasma/plasma.nix
     ../../../../common/features/files/ark.nix
     ../../../../common/features/files/dolphin.nix
+    ../../../../common/features/gaming/mangohud.nix
     ../../../../common/features/hardware/thermalmonitor.nix
     ../../../../common/features/media/haruna.nix
+    ../../../../common/features/media/spectacle.nix
     ../../../../common/features/network/kdeconnect.nix
     ../../../../common/features/network/trayscale.nix
     ../../../../common/features/productivity/kcalc.nix
     ../../../../common/features/productivity/onlyoffice.nix
     ../../../../common/features/security/keepassxc.nix
+    ../../../../common/features/terminal/konsole.nix
     # keep-sorted end
 
     # keep-sorted start
     ../../../features/browsers/google-chrome.nix
     ../../../features/communication/telegram-desktop.nix
     ../../../features/desktop/stylix.nix
-    ../../../features/gaming/mangohud.nix
-    ../../../features/media/spectacle.nix
-    ../../../features/terminal/konsole.nix
     # keep-sorted end
 
     (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself

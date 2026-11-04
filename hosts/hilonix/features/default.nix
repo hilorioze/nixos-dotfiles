@@ -6,6 +6,7 @@
     ../../common/features/audio/pipewire/pipewire.nix
     ../../common/features/desktop/appimage.nix
     ../../common/features/desktop/flatpak.nix
+    ../../common/features/desktop/login/silent-sddm.nix
     ../../common/features/desktop/wayland.nix
     ../../common/features/files/syncthing.nix
     ../../common/features/gaming/gamemode.nix
@@ -34,6 +35,8 @@
     ../../common/features/storage/ventoy.nix
     ../../common/features/system/boot/systemd-boot.nix
     ../../common/features/system/boot/systemd-initrd.nix # required for tpm access in initrd
+    ../../common/features/system/locale/i18n.nix
+    ../../common/features/system/locale/time.nix
     ../../common/features/system/reclaim-protection.nix
     ../../common/features/system/reisub.nix
     ../../common/features/system/steamos-sysctls.nix

@@ -8,7 +8,9 @@
     ../../../../common/features/desktop/plasma/baloo.nix
     ../../../../common/features/desktop/plasma/kactivitymanagerd.nix
     ../../../../common/features/desktop/plasma/kdialog.nix
+    ../../../../common/features/gaming/mangohud.nix
     ../../../../common/features/hardware/thermalmonitor.nix
+    ../../../../common/features/media/spectacle.nix
     ../../../../common/features/network/trayscale.nix
     ../../../../common/features/productivity/kcalc.nix
     ../../../../common/features/productivity/onlyoffice.nix
@@ -58,7 +60,6 @@
     ../../../features/gaming/goldsrc/half-life-asset-manager.nix
     ../../../features/gaming/goldsrc/steam-broker.nix
     ../../../features/gaming/heroic.nix
-    ../../../features/gaming/mangohud.nix
     ../../../features/gaming/minecraft/atlauncher.nix
     ../../../features/gaming/minecraft/freesmlauncher.nix
     ../../../features/gaming/minecraft/mcpelauncher-ui-qt.nix
@@ -67,8 +68,7 @@
     ../../../features/gaming/umu-launcher.nix
     ../../../features/gaming/vr/bs-manager.nix
     ../../../features/gaming/vr/yaas.nix
-    ../../../features/media/capture/gpu-screen-recorder.nix
-    ../../../features/media/capture/spectacle.nix
+    ../../../features/media/gpu-screen-recorder.nix
     ../../../features/media/handbrake.nix
     ../../../features/media/haruna.nix
     ../../../features/media/kdenlive.nix

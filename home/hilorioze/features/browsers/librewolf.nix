@@ -2,6 +2,7 @@
   # keep-sorted start
   config,
   lib,
+  osConfig,
   pkgs,
   # keep-sorted end
   ...
@@ -9,18 +10,34 @@
   librewolfProfileDir = "${config.home.homeDirectory}/${config.programs.librewolf.configPath}/${config.programs.librewolf.profiles.default.path}";
 in {
   sops = {
-    secrets."apps/dearrow/license-key" = {};
+    secrets = {
+      # keep-sorted start
+      "apps/dearrow/license-key" = {};
+      "apps/keepassxc/key" = {};
+      # keep-sorted end
+    };
 
     templates."apps/keepassxc/storage.js" = {
-      content = builtins.toJSON (lib.recursiveUpdate (builtins.fromJSON config.sops.templates."apps/keepassxc/storage-keyring.json".content) {
-        settings = {
-          autoFillAndSend = true;
+      content = let
+        databaseHash = "fb9a50b4543f9ff95e065ab937916c5e73980e49282a82fab075608bfb382e89";
+      in
+        builtins.toJSON {
+          keyRing."${databaseHash}" = {
+            id = "librewolf-${osConfig.networking.hostName}";
 
-          downloadFaviconAfterSave = true;
+            hash = databaseHash;
 
-          passkeys = true;
+            key = config.sops.placeholder."apps/keepassxc/key";
+          };
+
+          settings = {
+            autoFillAndSend = true;
+
+            downloadFaviconAfterSave = true;
+
+            passkeys = true;
+          };
         };
-      });
 
       path = "${librewolfProfileDir}/browser-extension-data/keepassxc-browser@keepassxc.org/storage.js";
     };
