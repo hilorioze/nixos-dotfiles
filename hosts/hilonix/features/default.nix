@@ -12,7 +12,6 @@
     ../../common/features/home-manager.nix
     ../../common/features/kdeconnect-firewall.nix
     ../../common/features/kdiskmark.nix
-    ../../common/features/libvirtd.nix
     ../../common/features/mangohud.nix
     ../../common/features/netcat-firewall.nix
     ../../common/features/networkmanager-wol.nix
@@ -24,7 +23,6 @@
     ../../common/features/pipewire.nix
     ../../common/features/platform-optimizations.nix
     ../../common/features/podman.nix
-    ../../common/features/polychromatic.nix
     ../../common/features/reclaim-protection.nix
     ../../common/features/reisub.nix
     ../../common/features/rtkit.nix
@@ -39,9 +37,6 @@
     ../../common/features/upnp-firewall.nix
     ../../common/features/ventoy.nix
     ../../common/features/wayland.nix
-    ../../common/features/wireshark-usbmon.nix
-    ../../common/features/wireshark.nix
-    ../../common/features/wivrn.nix
     ../../common/features/yubikey-touch-detector.nix
     ../../common/features/zswap.nix
     # keep-sorted end
@@ -56,11 +51,13 @@
     ./i18n.nix
     ./keyboard-backlight.nix
     ./led-strip-sync.nix
+    ./libvirtd.nix
     ./looking-glass.nix
     ./networkmanager.nix
     ./nix-ld.nix
     ./openrazer.nix
     ./plasma.nix
+    ./polychromatic.nix
     ./s4-poweroff.nix
     ./sddm.nix
     ./silent-sddm.nix
@@ -68,6 +65,9 @@
     ./stylix.nix
     ./time.nix
     ./wireplumber-ignore-nvidia-hda.nix
+    ./wireshark-usbmon.nix
+    ./wireshark.nix
+    ./wivrn.nix
     # keep-sorted end
   ];
 }

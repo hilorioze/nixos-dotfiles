@@ -1,19 +1,24 @@
-{
-  # keep-sorted start
-  config,
-  lib,
-  # keep-sorted end
-  ...
-}: {
-  imports = [../../common/features/nix.nix];
-
+{config, ...}: {
   sops = {
-    secrets."credentials/attic/servers/rayttage/token" = {};
+    secrets = {
+      # keep-sorted start
+      "credentials/attic/servers/rayttage/token" = {};
+      "credentials/github/token" = {};
+      # keep-sorted end
+    };
 
-    templates."apps/nix/netrc".content = "machine attic.rayttage.net password ${config.sops.placeholder."credentials/attic/servers/rayttage/token"}";
+    templates = {
+      "apps/nix/access-tokens".content = ''
+        access-tokens = github.com=${config.sops.placeholder."credentials/github/token"}
+      '';
+
+      "apps/nix/netrc".content = "machine attic.rayttage.net password ${config.sops.placeholder."credentials/attic/servers/rayttage/token"}";
+    };
   };
 
-  nix.extraOptions = lib.mkAfter ''
+  nix.extraOptions = ''
+    !include ${config.sops.templates."apps/nix/access-tokens".path}
+
     netrc-file = ${config.sops.templates."apps/nix/netrc".path}
   '';
 }

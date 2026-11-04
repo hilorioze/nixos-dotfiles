@@ -5,8 +5,6 @@
   # keep-sorted end
   ...
 }: {
-  imports = [../../common/features/ssh.nix];
-
   home.file.".ssh/known_hosts" = {
     force = true;
 
@@ -23,16 +21,32 @@
       ${mkKnownHostLine outputs.nixosConfigurations.hel0 ../../../hosts/hel0/ssh_host_ed25519_key.pub}
 
       node0.rayttage.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXciAYeEmJZU2PwXBXamfoa/BGDJhry9elTZWOaEsNl
+
+      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
     '';
   };
 
-  programs.ssh.settings = let
-    mkSynologyHost = name: {"${name}.hilorioze.com".User = name;};
-  in
-    lib.mkMerge [
-      # keep-sorted start
-      (mkSynologyHost "cex")
-      (mkSynologyHost "fakesynology")
-      # keep-sorted end
-    ];
+  programs.ssh = {
+    enable = true;
+
+    enableDefaultConfig = false; # its default is already deprecated and home-manager recommends setting it to `false`
+
+    settings = let
+      mkSynologyHost = name: {"${name}.hilorioze.com".User = name;};
+    in
+      lib.mkMerge [
+        {
+          "*" = {
+            HostKeyAlgorithms = "ssh-ed25519";
+
+            ServerAliveInterval = 25; # keep nat entries alive during inactivity
+          };
+        }
+
+        # keep-sorted start
+        (mkSynologyHost "cex")
+        (mkSynologyHost "fakesynology")
+        # keep-sorted end
+      ];
+  };
 }

@@ -10,7 +10,6 @@
     ../../common/features/node-exporter.nix
     ../../common/features/openssh.nix
     ../../common/features/systemd-boot.nix
-    ../../common/features/systemd-resolved.nix
     ../../common/features/tailscale-server.nix
     ../../common/features/tailscale.nix
     ../../common/features/traefik.nix
@@ -21,6 +20,7 @@
     ./deadlocked-relay.nix
     ./networkd-dispatcher.nix
     ./sops.nix
+    ./systemd-resolved.nix
     ./time.nix
     # keep-sorted end
   ];

@@ -5,7 +5,11 @@
   # keep-sorted end
   ...
 }: {
-  imports = [../../common/features/nh.nix];
+  programs.nh = {
+    enable = true;
+
+    flake = "${config.home.homeDirectory}/projects/nixos-dotfiles";
+  };
 
   home.shellAliases = {
     ns = "${lib.getExe config.programs.nh.package} os switch";

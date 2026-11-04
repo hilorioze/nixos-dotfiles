@@ -14,7 +14,6 @@
     ../../../../common/features/meslo-nerd-font.nix
     ../../../../common/features/onlyoffice.nix
     ../../../../common/features/plasma.nix
-    ../../../../common/features/telegram-desktop.nix
     ../../../../common/features/thermalmonitor.nix
     ../../../../common/features/trayscale.nix
     ../../../../common/features/vista-fonts.nix
@@ -27,6 +26,7 @@
     ../../../features/mangohud.nix
     ../../../features/spectacle.nix
     ../../../features/stylix.nix
+    ../../../features/telegram-desktop.nix
     # keep-sorted end
   ];
 }

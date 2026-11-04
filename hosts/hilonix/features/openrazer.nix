@@ -1,5 +1,7 @@
 {
-  imports = [../../common/features/openrazer.nix];
+  hardware.openrazer = {
+    enable = true;
 
-  hardware.openrazer.devicesOffOnScreensaver = false;
+    devicesOffOnScreensaver = false;
+  };
 }

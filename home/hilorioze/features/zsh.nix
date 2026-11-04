@@ -6,11 +6,15 @@
   # keep-sorted end
   ...
 }: {
-  imports = [../../common/features/zsh.nix];
-
   home.file."${config.programs.zsh.dotDir}/.p10k.zsh".source = ./.p10k.zsh;
 
   programs.zsh = {
+    enable = true;
+
+    # defaults to `~/.config/zsh` since 26.05 if `xdg.enable = true;`
+    # https://nix-community.github.io/home-manager/release-notes.xhtml#sec-release-26.05-state-version-changes
+    dotDir = "${config.xdg.configHome}/zsh";
+
     initContent = lib.mkMerge [
       (lib.mkBefore ''
         if [[ -r ${config.xdg.cacheHome}/p10k-instant-prompt-''${(%):-%n}.zsh ]]; then

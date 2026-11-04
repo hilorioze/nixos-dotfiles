@@ -10,9 +10,6 @@
     ../../common/features/nix.nix
     ../../common/features/node-exporter.nix
     ../../common/features/openssh.nix
-    ../../common/features/postgresql.nix
-    ../../common/features/rabbitmq.nix
-    ../../common/features/redis.nix
     ../../common/features/syncthing-firewall.nix
     ../../common/features/systemd-boot.nix
     ../../common/features/tailscale-server.nix
@@ -38,7 +35,10 @@
     ./niks3.nix
     ./podman-exporter.nix
     ./podman.nix
+    ./postgresql.nix
     ./prometheus.nix
+    ./rabbitmq.nix
+    ./redis.nix
     ./sops.nix
     ./syncthing.nix
     # keep-sorted end

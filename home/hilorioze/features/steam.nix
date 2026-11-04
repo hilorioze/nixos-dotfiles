@@ -1,14 +1,21 @@
 {
   # keep-sorted start
   config,
+  inputs,
   lib,
   pkgs,
   # keep-sorted end
   ...
 }: {
-  imports = [../../common/features/steam.nix];
+  imports = [inputs.steam-config-nix.homeModules.default];
 
   programs.steam.config = {
+    enable = true;
+
+    onSteamRunning = "close";
+
+    defaultCompatTool = "GE-Proton";
+
     apps = {
       # keep-sorted start block=yes newline_separated=yes numeric=yes
       "10" = {

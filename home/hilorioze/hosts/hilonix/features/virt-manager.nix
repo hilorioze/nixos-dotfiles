@@ -1,5 +1,7 @@
-{
-  imports = [../../common/features/virt-manager.nix];
+{pkgs, ...}: {
+  home.packages = [
+    pkgs.virt-manager
+  ];
 
   dconf.settings."org/virt-manager/virt-manager/connections" = {
     uris = [

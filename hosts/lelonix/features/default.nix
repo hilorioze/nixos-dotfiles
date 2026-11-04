@@ -13,7 +13,6 @@
     ../../common/features/home-manager.nix
     ../../common/features/kdeconnect-firewall.nix
     ../../common/features/kdiskmark.nix
-    ../../common/features/lenovo-legion-app.nix
     ../../common/features/mangohud.nix
     ../../common/features/netcat-firewall.nix
     ../../common/features/networkmanager-wol.nix
@@ -24,7 +23,6 @@
     ../../common/features/pcscd.nix
     ../../common/features/pipewire-lowlatency.nix
     ../../common/features/pipewire.nix
-    ../../common/features/plasmavantage.nix
     ../../common/features/platform-optimizations.nix
     ../../common/features/podman.nix
     ../../common/features/reclaim-protection.nix
@@ -48,8 +46,10 @@
     # keep-sorted start
     ./automatic-timezoned.nix
     ./i18n.nix
+    ./lenovo-legion-app.nix
     ./nix-ld.nix
     ./plasma.nix
+    ./plasmavantage.nix
     ./sddm.nix
     ./silent-sddm.nix
     ./sops.nix

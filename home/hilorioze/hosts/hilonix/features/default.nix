@@ -1,58 +1,29 @@
 {
   imports = [
     # keep-sorted start
-    ../../../../common/features/atlauncher.nix
-    ../../../../common/features/ayugram-desktop.nix
     ../../../../common/features/baloo.nix
-    ../../../../common/features/binaryninja.nix
     ../../../../common/features/corefonts.nix
-    ../../../../common/features/croc.nix
-    ../../../../common/features/filelight.nix
-    ../../../../common/features/flatpak.nix
-    ../../../../common/features/fontconfig.nix
-    ../../../../common/features/freesmlauncher.nix
-    ../../../../common/features/gpg-agent-pinentry-qt.nix
-    ../../../../common/features/gpg-agent.nix
-    ../../../../common/features/handbrake.nix
-    ../../../../common/features/heroic.nix
-    ../../../../common/features/hydra-check.nix
     ../../../../common/features/kactivitymanagerd.nix
     ../../../../common/features/kcalc.nix
-    ../../../../common/features/kdenlive.nix
     ../../../../common/features/kdialog.nix
-    ../../../../common/features/kleopatra.nix
-    ../../../../common/features/krdc.nix
-    ../../../../common/features/ktorrent.nix
-    ../../../../common/features/mcpelauncher-ui-qt.nix
     ../../../../common/features/meslo-nerd-font.nix
-    ../../../../common/features/mousai.nix
-    ../../../../common/features/nix-alien.nix
     ../../../../common/features/onlyoffice.nix
-    ../../../../common/features/podman-compose.nix
-    ../../../../common/features/qtscrcpy.nix
-    ../../../../common/features/sidequest.nix
-    ../../../../common/features/sober.nix
-    ../../../../common/features/super-productivity.nix
-    ../../../../common/features/syncthing-tray.nix
     ../../../../common/features/thermalmonitor.nix
-    ../../../../common/features/tor-browser.nix
     ../../../../common/features/trayscale.nix
-    ../../../../common/features/umu-launcher.nix
     ../../../../common/features/vista-fonts.nix
-    ../../../../common/features/wayvr.nix
     ../../../../common/features/wireplumber-oneplus-buds-pro-3.nix
-    ../../../../common/features/xdg-mime-apps.nix
-    ../../../../common/features/yaas.nix
-    ../../../../common/features/yt-dlp.nix
     # keep-sorted end
 
     # keep-sorted start
     ../../../features/a2s.nix
     ../../../features/adb.nix
     ../../../features/ark.nix
+    ../../../features/atlauncher.nix
     ../../../features/attic.nix
     ../../../features/atuin.nix
+    ../../../features/ayugram-desktop.nix
     ../../../features/bambu-studio.nix
+    ../../../features/binaryninja.nix
     ../../../features/blender.nix
     ../../../features/blutter.nix
     ../../../features/bruno.nix
@@ -61,6 +32,7 @@
     ../../../features/chromium.nix
     ../../../features/cinny.nix
     ../../../features/claude-code.nix
+    ../../../features/croc.nix
     ../../../features/deadlocked.nix
     ../../../features/devenv.nix
     ../../../features/direnv.nix
@@ -68,42 +40,66 @@
     ../../../features/distrobox.nix
     ../../../features/dolphin.nix
     ../../../features/email.nix
+    ../../../features/filelight.nix
+    ../../../features/flatpak.nix
+    ../../../features/fontconfig.nix
+    ../../../features/freesmlauncher.nix
     ../../../features/gh.nix
     ../../../features/ghidra.nix
     ../../../features/git-hardware-signing.nix
     ../../../features/git.nix
+    ../../../features/gpg-agent.nix
     ../../../features/gpg.nix
     ../../../features/gpu-screen-recorder.nix
     ../../../features/half-life-asset-manager.nix
+    ../../../features/handbrake.nix
     ../../../features/haruna.nix
+    ../../../features/heroic.nix
+    ../../../features/hydra-check.nix
     ../../../features/imhex.nix
     ../../../features/kdeconnect.nix
+    ../../../features/kdenlive.nix
     ../../../features/keepassxc.nix
+    ../../../features/kleopatra.nix
     ../../../features/konsole.nix
+    ../../../features/krdc.nix
+    ../../../features/ktorrent.nix
     ../../../features/kwallet-keepassxc.nix
     ../../../features/lazygit.nix
     ../../../features/lazyvim.nix
     ../../../features/librewolf.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
+    ../../../features/mcpelauncher-ui-qt.nix
+    ../../../features/mousai.nix
     ../../../features/nh.nix
     ../../../features/niks3.nix
+    ../../../features/nix-alien.nix
     ../../../features/nix.nix
     ../../../features/nixos-dotfiles-lazy-git-repo.nix
     ../../../features/pear-desktop.nix
     ../../../features/plasma.nix
+    ../../../features/podman-compose.nix
+    ../../../features/qtscrcpy.nix
     ../../../features/quickshare.nix
+    ../../../features/sober.nix
     ../../../features/spectacle.nix
     ../../../features/ssh-agent.nix
     ../../../features/steam-broker.nix
     ../../../features/steam.nix
+    ../../../features/super-productivity.nix
+    ../../../features/syncthing-tray.nix
     ../../../features/syncthing.nix
     ../../../features/thunderbird.nix
+    ../../../features/tor-browser.nix
+    ../../../features/umu-launcher.nix
     ../../../features/ventoy.nix
-    ../../../features/virt-manager.nix
     ../../../features/vscodium.nix
     ../../../features/wakatime.nix
     ../../../features/wl-clipboard.nix
+    ../../../features/xdg-mime-apps.nix
+    ../../../features/yaas.nix
+    ../../../features/yt-dlp.nix
     # keep-sorted end
 
     # keep-sorted start
@@ -115,11 +111,14 @@
     ./openrazer.nix
     ./pear-desktop.nix
     ./plasma.nix
+    ./sidequest.nix
     ./sops.nix
     ./stylix.nix
     ./syncthing.nix
     ./thermalmonitor.nix
+    ./virt-manager.nix
     ./vscodium.nix
+    ./wayvr.nix
     # keep-sorted end
   ];
 }
