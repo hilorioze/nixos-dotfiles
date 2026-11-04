@@ -44,6 +44,13 @@ entries:
       attrs:
         order: 0
 
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, twitch-drops-miner-caligula]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 1
+
   hilorioze:
     - model: authentik_providers_proxy.proxyprovider
       id: twitch-drops-miner-hilorioze-provider
@@ -70,6 +77,13 @@ entries:
       attrs:
         order: 0
 
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, twitch-drops-miner-hilorioze]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 1
+
   zikkk:
     - model: authentik_providers_proxy.proxyprovider
       id: twitch-drops-miner-zikkk-provider
@@ -95,4 +109,11 @@ entries:
         user: !Find [authentik_core.user, [username, zikkk]]
       attrs:
         order: 0
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, twitch-drops-miner-zikkk]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 1
   # keep-sorted end
