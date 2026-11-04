@@ -7,6 +7,13 @@ entries:
         identifiers:
           name: Default - Authentication flow
 
+  flow:
+    - model: authentik_flows.flow
+      identifiers:
+        slug: default-authentication-flow
+      attrs:
+        compatibility_mode: true
+
   login:
     - model: authentik_stages_user_login.userloginstage
       identifiers:
