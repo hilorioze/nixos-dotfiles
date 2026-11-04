@@ -13,3 +13,54 @@ entries:
         name: default-authentication-login
       attrs:
         remember_me_offset: days=30
+
+  mfa:
+    - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
+      identifiers:
+        name: default-authentication-mfa-validation
+      attrs:
+        device_classes: [totp]
+
+  passwordless:
+    - model: authentik_flows.flow
+      id: passkey-authentication-flow
+      identifiers:
+        slug: passkey-authentication
+      attrs:
+        name: Passkey authentication
+        title: Sign in with a passkey
+        designation: authentication
+
+    - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
+      id: passkey-authentication-validation
+      identifiers:
+        name: passkey-authentication-validation
+      attrs:
+        device_classes: [webauthn]
+        not_configured_action: deny
+        webauthn_user_verification: required
+
+    - model: authentik_flows.flowstagebinding
+      identifiers:
+        target: !KeyOf passkey-authentication-flow
+        stage: !KeyOf passkey-authentication-validation
+        order: 0
+
+    - model: authentik_flows.flowstagebinding
+      identifiers:
+        target: !KeyOf passkey-authentication-flow
+        stage: !Find [authentik_stages_user_login.userloginstage, [name, default-authentication-login]]
+        order: 100
+
+  identification:
+    - model: authentik_stages_identification.identificationstage
+      identifiers:
+        name: default-authentication-identification
+      attrs:
+        user_fields:
+          # keep-sorted start
+          - email
+          - username
+          # keep-sorted end
+
+        passwordless_flow: !KeyOf passkey-authentication-flow
