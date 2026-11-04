@@ -1,4 +1,4 @@
-{
+{inputs, ...}: {
   imports = [
     # keep-sorted start
     ../../common/features/dconf.nix # fixes `ca.desrt.dconf` error (https://github.com/nix-community/home-manager/blob/f384af1bec6423a0d4ba1855917ab948f64e5808/docs/manual/faq/ca-desrt-dconf.md)
@@ -19,28 +19,6 @@
     ../../common/features/whoami.nix
     # keep-sorted end
 
-    ./containers
-
-    # keep-sorted start
-    ./alertmanager.nix
-    ./archisteamfarm.nix
-    ./authentik.nix
-    ./claude-code-gateway.nix
-    ./cliproxyapi.nix
-    ./gatus.nix
-    ./grafana.nix
-    ./homepage-dashboard.nix
-    ./loki.nix
-    ./mud.nix
-    ./niks3.nix
-    ./podman-exporter.nix
-    ./podman.nix
-    ./postgresql.nix
-    ./prometheus.nix
-    ./rabbitmq.nix
-    ./redis.nix
-    ./sops.nix
-    ./syncthing.nix
-    # keep-sorted end
+    (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself
   ];
 }

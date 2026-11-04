@@ -1,4 +1,4 @@
-{
+{inputs, ...}: {
   imports = [
     # keep-sorted start
     ../../common/features/avahi.nix
@@ -6,11 +6,6 @@
     ../../common/features/plasma.nix
     # keep-sorted end
 
-    # keep-sorted start
-    ./auto-login.nix
-    ./disable-kde-pim.nix # avoid bundling an entire mariadb installation on the iso
-    ./plasma-keyboard.nix
-    ./plasma-login-manager.nix
-    # keep-sorted end
+    (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself
   ];
 }

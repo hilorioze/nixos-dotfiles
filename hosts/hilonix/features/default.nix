@@ -1,4 +1,4 @@
-{
+{inputs, ...}: {
   imports = [
     # keep-sorted start
     ../../common/features/adb.nix
@@ -41,33 +41,6 @@
     ../../common/features/zswap.nix
     # keep-sorted end
 
-    ./vms
-
-    # keep-sorted start
-    ./amnezia-vpn.nix
-    ./coolercontrol.nix
-    ./display-watch.nix
-    ./gpu-screen-recorder.nix
-    ./i18n.nix
-    ./keyboard-backlight.nix
-    ./led-strip-sync.nix
-    ./libvirtd.nix
-    ./looking-glass.nix
-    ./networkmanager.nix
-    ./nix-ld.nix
-    ./openrazer.nix
-    ./plasma.nix
-    ./polychromatic.nix
-    ./s4-poweroff.nix
-    ./sddm.nix
-    ./silent-sddm.nix
-    ./sops.nix
-    ./stylix.nix
-    ./time.nix
-    ./wireplumber-ignore-nvidia-hda.nix
-    ./wireshark-usbmon.nix
-    ./wireshark.nix
-    ./wivrn.nix
-    # keep-sorted end
+    (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself
   ];
 }

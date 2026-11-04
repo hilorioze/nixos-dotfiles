@@ -1,4 +1,4 @@
-{
+{inputs, ...}: {
   imports = [
     # keep-sorted start
     ../../../../common/features/baloo.nix
@@ -102,15 +102,6 @@
     ../../../features/yt-dlp.nix
     # keep-sorted end
 
-    # keep-sorted start
-    ./adb.nix
-    ./kdeconnect.nix
-    ./librewolf.nix
-    ./plasma.nix
-    ./sops.nix
-    ./stylix.nix
-    ./syncthing.nix
-    ./thermalmonitor.nix
-    # keep-sorted end
+    (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself
   ];
 }

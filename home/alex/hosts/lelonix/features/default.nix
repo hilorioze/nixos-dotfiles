@@ -1,4 +1,4 @@
-{
+{inputs, ...}: {
   imports = [
     # keep-sorted start
     ../../../../common/features/ark.nix
@@ -28,5 +28,7 @@
     ../../../features/stylix.nix
     ../../../features/telegram-desktop.nix
     # keep-sorted end
+
+    (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself
   ];
 }

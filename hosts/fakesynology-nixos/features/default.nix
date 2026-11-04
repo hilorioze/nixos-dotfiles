@@ -1,4 +1,4 @@
-{
+{inputs, ...}: {
   imports = [
     # keep-sorted start
     ../../common/features/cloudflare-ddns.nix
@@ -15,13 +15,6 @@
     ../../common/features/traefik.nix
     # keep-sorted end
 
-    # keep-sorted start
-    ./coredns.nix
-    ./deadlocked-relay.nix
-    ./networkd-dispatcher.nix
-    ./sops.nix
-    ./systemd-resolved.nix
-    ./time.nix
-    # keep-sorted end
+    (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself
   ];
 }

@@ -19,7 +19,11 @@
   };
 
   inputs = {
+    # keep-sorted start block=yes newline_separated=yes
     flake-parts.url = "github:hercules-ci/flake-parts";
+
+    import-tree.url = "github:vic/import-tree";
+    # keep-sorted end
 
     # keep-sorted start block=yes newline_separated=yes
     deploy-rs = {
