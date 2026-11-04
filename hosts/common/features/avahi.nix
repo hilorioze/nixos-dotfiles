@@ -14,4 +14,7 @@
       domain = true;
     };
   };
+
+  # resolved answers mdns by default too: its address ptr records point at the plain hostname, avahi sees them as a conflict and renames the host every ~20s, flooding the lan with probes
+  services.resolved.settings.Resolve.MulticastDNS = "resolve";
 }
