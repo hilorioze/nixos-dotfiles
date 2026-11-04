@@ -1,10 +1,10 @@
 {
   imports = [
     # keep-sorted start
-    ../../common/features/comma.nix
-    ../../common/features/nix-index.nix
+    ../../common/features/nix/comma.nix
+    ../../common/features/nix/nix-index.nix
     # keep-sorted end
 
-    ./bash.nix
+    ./shell/bash.nix
   ];
 }

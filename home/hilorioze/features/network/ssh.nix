@@ -1,0 +1,52 @@
+{
+  # keep-sorted start
+  lib,
+  outputs,
+  # keep-sorted end
+  ...
+}: {
+  home.file.".ssh/known_hosts" = {
+    force = true;
+
+    text = let
+      mkKnownHostLine = nixosConfiguration: path: "${nixosConfiguration.config.networking.fqdn} ${builtins.readFile path}";
+    in ''
+      ${mkKnownHostLine outputs.nixosConfigurations.lelonix ../../../../hosts/lelonix/ssh_host_ed25519_key.pub}
+      ${mkKnownHostLine outputs.nixosConfigurations.hilonix ../../../../hosts/hilonix/ssh_host_ed25519_key.pub}
+
+      cex.hilorioze.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJFgvannOBsGfTS9JC3hTXRDOmZ47kp6WLfTm6puN/IB
+      fakesynology.hilorioze.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL48Td3OYp1cNPORvthU7HCERDli4Zfhsuh2NvnvSB8H
+      ${mkKnownHostLine outputs.nixosConfigurations.fakesynology-nixos ../../../../hosts/fakesynology-nixos/ssh_host_ed25519_key.pub}
+      ${mkKnownHostLine outputs.nixosConfigurations.de0 ../../../../hosts/de0/ssh_host_ed25519_key.pub}
+      ${mkKnownHostLine outputs.nixosConfigurations.hel0 ../../../../hosts/hel0/ssh_host_ed25519_key.pub}
+
+      node0.rayttage.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXciAYeEmJZU2PwXBXamfoa/BGDJhry9elTZWOaEsNl
+
+      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+    '';
+  };
+
+  programs.ssh = {
+    enable = true;
+
+    enableDefaultConfig = false; # its default is already deprecated and home-manager recommends setting it to `false`
+
+    settings = let
+      mkSynologyHost = name: {"${name}.hilorioze.com".User = name;};
+    in
+      lib.mkMerge [
+        {
+          "*" = {
+            HostKeyAlgorithms = "ssh-ed25519";
+
+            ServerAliveInterval = 25; # keep nat entries alive during inactivity
+          };
+        }
+
+        # keep-sorted start
+        (mkSynologyHost "cex")
+        (mkSynologyHost "fakesynology")
+        # keep-sorted end
+      ];
+  };
+}

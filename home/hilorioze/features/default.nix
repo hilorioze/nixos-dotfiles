@@ -1,18 +1,18 @@
 {
   imports = [
     # keep-sorted start
-    ../../common/features/comma.nix
-    ../../common/features/nix-index.nix
+    ../../common/features/nix/comma.nix
+    ../../common/features/nix/nix-index.nix
     # keep-sorted end
 
     # keep-sorted start
-    ./fastfetch.nix
-    ./jq.nix
-    ./ripgrep.nix
-    ./shell.nix
-    ./ssh.nix
-    ./stylix.nix
-    ./zsh.nix
+    ./desktop/stylix.nix
+    ./network/ssh.nix
+    ./shell/aliases.nix
+    ./shell/fastfetch.nix
+    ./shell/jq.nix
+    ./shell/ripgrep.nix
+    ./shell/zsh.nix
     # keep-sorted end
   ];
 }

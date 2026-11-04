@@ -1,13 +1,13 @@
 {
   imports = [
     # keep-sorted start
-    ./coredump.nix
-    ./journald.nix
-    ./nh.nix
-    ./nix-monitored.nix
-    ./sudo.nix
-    ./tmp.nix
-    ./zsh.nix
+    ./nix/nh.nix
+    ./nix/nix-monitored.nix
+    ./security/sudo.nix
+    ./shell/zsh.nix
+    ./system/boot/tmp.nix
+    ./system/coredump.nix
+    ./system/journald.nix
     # keep-sorted end
   ];
 }

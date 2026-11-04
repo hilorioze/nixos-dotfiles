@@ -1,32 +1,32 @@
 {inputs, ...}: {
   imports = [
     # keep-sorted start
-    ../../../../common/features/ark.nix
-    ../../../../common/features/baloo.nix
-    ../../../../common/features/corefonts.nix
-    ../../../../common/features/dolphin.nix
-    ../../../../common/features/haruna.nix
-    ../../../../common/features/kactivitymanagerd.nix
-    ../../../../common/features/kcalc.nix
-    ../../../../common/features/kdeconnect.nix
-    ../../../../common/features/kdialog.nix
-    ../../../../common/features/keepassxc.nix
-    ../../../../common/features/meslo-nerd-font.nix
-    ../../../../common/features/onlyoffice.nix
-    ../../../../common/features/plasma.nix
-    ../../../../common/features/thermalmonitor.nix
-    ../../../../common/features/trayscale.nix
-    ../../../../common/features/vista-fonts.nix
-    ../../../../common/features/wireplumber-oneplus-buds-pro-3.nix
+    ../../../../common/features/audio/wireplumber-oneplus-buds-pro-3.nix
+    ../../../../common/features/desktop/fonts/corefonts.nix
+    ../../../../common/features/desktop/fonts/meslo-nerd-font.nix
+    ../../../../common/features/desktop/fonts/vista-fonts.nix
+    ../../../../common/features/desktop/plasma/baloo.nix
+    ../../../../common/features/desktop/plasma/kactivitymanagerd.nix
+    ../../../../common/features/desktop/plasma/kdialog.nix
+    ../../../../common/features/desktop/plasma/plasma.nix
+    ../../../../common/features/files/ark.nix
+    ../../../../common/features/files/dolphin.nix
+    ../../../../common/features/hardware/thermalmonitor.nix
+    ../../../../common/features/media/haruna.nix
+    ../../../../common/features/network/kdeconnect.nix
+    ../../../../common/features/network/trayscale.nix
+    ../../../../common/features/productivity/kcalc.nix
+    ../../../../common/features/productivity/onlyoffice.nix
+    ../../../../common/features/security/keepassxc.nix
     # keep-sorted end
 
     # keep-sorted start
-    ../../../features/google-chrome.nix
-    ../../../features/konsole.nix
-    ../../../features/mangohud.nix
-    ../../../features/spectacle.nix
-    ../../../features/stylix.nix
-    ../../../features/telegram-desktop.nix
+    ../../../features/browsers/google-chrome.nix
+    ../../../features/communication/telegram-desktop.nix
+    ../../../features/desktop/stylix.nix
+    ../../../features/gaming/mangohud.nix
+    ../../../features/media/spectacle.nix
+    ../../../features/terminal/konsole.nix
     # keep-sorted end
 
     (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself
