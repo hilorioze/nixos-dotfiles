@@ -12,6 +12,7 @@
     ../../../../common/features/fontconfig.nix
     ../../../../common/features/freesmlauncher.nix
     ../../../../common/features/gpg-agent-pinentry-qt.nix
+    ../../../../common/features/gpg-agent.nix
     ../../../../common/features/handbrake.nix
     ../../../../common/features/heroic.nix
     ../../../../common/features/hydra-check.nix
@@ -68,6 +69,7 @@
     ../../../features/gh.nix
     ../../../features/ghidra.nix
     ../../../features/git-hardware-signing.nix
+    ../../../features/git.nix
     ../../../features/gpg.nix
     ../../../features/gpu-screen-recorder.nix
     ../../../features/half-life-asset-manager.nix
@@ -82,8 +84,10 @@
     ../../../features/librewolf.nix
     ../../../features/mangohud.nix
     ../../../features/mcp.nix
+    ../../../features/nh.nix
     ../../../features/niks3.nix
     ../../../features/nix.nix
+    ../../../features/nixos-dotfiles-lazy-git-repo.nix
     ../../../features/pear-desktop.nix
     ../../../features/plasma.nix
     ../../../features/quickshare.nix

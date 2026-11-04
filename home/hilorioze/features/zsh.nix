@@ -39,12 +39,7 @@
     oh-my-zsh = {
       enable = true;
 
-      plugins = [
-        # keep-sorted start
-        "git"
-        "sudo"
-        # keep-sorted end
-      ];
+      plugins = ["sudo"];
     };
   };
 }
