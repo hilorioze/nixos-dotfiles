@@ -63,8 +63,44 @@ in {
 
     profiles.default = {
       search = let
-        defaultEngine = "ddg";
+        defaultEngine = "duckduckgo";
       in {
+        # use a separate id so librewolf doesn't restore its built-in no-ai engine
+        engines.${defaultEngine} = {
+          name = "DuckDuckGo";
+
+          icon = pkgs.fetchurl {
+            url = "https://raw.githubusercontent.com/mozilla-firefox/firefox/9a2dc53c369c7ae5172018b35988e1d2ffeff402/services/settings/dumps/main/search-config-icons/a06dc3fd-4bdb-41f3-2ebc-4cbed06a9bd3";
+            name = "duckduckgo.svg";
+
+            hash = "sha256-bflpGt6gooKZ5Dkq4u65gWGC87yy4YIHAKuRijuYvAw=";
+          };
+
+          urls = [
+            {
+              template = "https://duckduckgo.com/?q={searchTerms}";
+            }
+
+            # search suggestions
+            {
+              template = "https://ac.duckduckgo.com/ac/";
+
+              type = "application/x-suggestions+json";
+
+              params = [
+                {
+                  name = "q";
+                  value = "{searchTerms}";
+                }
+                {
+                  name = "type";
+                  value = "list";
+                }
+              ];
+            }
+          ];
+        };
+
         default = defaultEngine;
         privateDefault = defaultEngine;
 
