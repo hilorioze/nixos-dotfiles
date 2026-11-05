@@ -72,6 +72,7 @@
     ../../../features/media/handbrake.nix
     ../../../features/media/haruna.nix
     ../../../features/media/kdenlive.nix
+    ../../../features/media/losslesscut.nix
     ../../../features/media/mousai.nix
     ../../../features/media/pear-desktop.nix
     ../../../features/media/yt-dlp.nix
