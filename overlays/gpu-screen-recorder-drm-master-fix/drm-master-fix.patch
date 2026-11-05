@@ -1,0 +1,89 @@
+diff --git a/include/utils.h b/include/utils.h
+index 69c39a2..1263b07 100644
+--- a/include/utils.h
++++ b/include/utils.h
+@@ -50,6 +50,8 @@ void for_each_active_monitor_output_x11_not_cached(Display *display, active_moni
+ /* |card_path| is only used when |connection_type| is |GSR_CONNECTION_DRM|. Every gpu is used when |card_path| is NULL or empty */
+ void for_each_active_monitor_output(const gsr_window *window, const char *card_path, gsr_connection_type connection_type, active_monitor_callback callback, void *userdata);
+ bool get_monitor_by_name(const gsr_window *window, const char *card_path, gsr_connection_type connection_type, const char *name, gsr_monitor *monitor);
++/* Same as |get_monitor_by_name| with |GSR_CONNECTION_DRM|, but uses the already opened |drm_fd| */
++bool get_monitor_by_name_drm_fd(int drm_fd, const char *name, gsr_monitor *monitor);
+ bool drm_monitor_get_display_server_data(const gsr_window *window, const gsr_monitor *monitor, gsr_monitor_rotation *monitor_rotation, vec2i *monitor_position);
+ 
+ /* The display server coordinates are scaled when the monitor is scaled (xrandr --output DP-1 --scale 1.5) while the drm framebuffer the monitor scans out is not */
+diff --git a/src/capture/kms.c b/src/capture/kms.c
+index 0731d84..ed510ce 100644
+--- a/src/capture/kms.c
++++ b/src/capture/kms.c
+@@ -810,7 +810,6 @@ static void gsr_capture_kms_update_connector_ids(gsr_capture_kms *self) {
+     self->crtc_connector_id = 0;
+ 
+     self->monitor_id.num_connector_ids = 0;
+-    const gsr_connection_type connection_type = self->is_x11 ? GSR_CONNECTION_X11 : GSR_CONNECTION_DRM;
+     // MonitorCallbackUserdata monitor_callback_userdata = {
+     //     &self->monitor_id,
+     //     self->params.display_to_capture, strlen(self->params.display_to_capture),
+@@ -818,8 +817,9 @@ static void gsr_capture_kms_update_connector_ids(gsr_capture_kms *self) {
+     // };
+     // for_each_active_monitor_output(self->params.egl->window, self->params.egl->card_path, connection_type, monitor_callback, &monitor_callback_userdata);
+ 
++    /* Opening the card again makes us the drm master when there is none, for example right after resuming from suspend, and then the compositor fails to become the drm master */
+     gsr_monitor monitor;
+-    if(!get_monitor_by_name(self->params.egl->window, self->params.egl->card_path, connection_type, self->params.display_to_capture, &monitor)) {
++    if(!get_monitor_by_name_drm_fd(self->drm_card_fd, self->params.display_to_capture, &monitor)) {
+         gsr_log(GSR_LOG_LEVEL_ERROR, "gsr_capture_kms_update_connector_ids: failed to find monitor by name \"%s\"", self->params.display_to_capture);
+         return;
+     }
+diff --git a/src/utils.c b/src/utils.c
+index 5b86865..b504573 100644
+--- a/src/utils.c
++++ b/src/utils.c
+@@ -194,13 +194,7 @@ static bool connector_get_property_by_name(int drmfd, drmModeConnectorPtr props,
+     return false;
+ }
+ 
+-static void for_each_active_monitor_output_drm(const char *card_path, active_monitor_callback callback, void *userdata) {
+-    int fd = open(card_path, O_RDONLY);
+-    if(fd == -1) {
+-        gsr_log(GSR_LOG_LEVEL_ERROR, "for_each_active_monitor_output_drm failed, failed to open \"%s\", error: %s", card_path, strerror(errno));
+-        return;
+-    }
+-
++static void for_each_active_monitor_output_drm_fd(int fd, active_monitor_callback callback, void *userdata) {
+     drmSetClientCap(fd, DRM_CLIENT_CAP_ATOMIC, 1);
+ 
+     char display_name[256];
+@@ -247,7 +241,16 @@ static void for_each_active_monitor_output_drm(const char *card_path, active_mon
+         }
+         drmModeFreeResources(resources);
+     }
++}
+ 
++static void for_each_active_monitor_output_drm(const char *card_path, active_monitor_callback callback, void *userdata) {
++    int fd = open(card_path, O_RDONLY);
++    if(fd == -1) {
++        gsr_log(GSR_LOG_LEVEL_ERROR, "for_each_active_monitor_output_drm failed, failed to open \"%s\", error: %s", card_path, strerror(errno));
++        return;
++    }
++
++    for_each_active_monitor_output_drm_fd(fd, callback, userdata);
+     close(fd);
+ }
+ 
+@@ -330,6 +333,16 @@ bool get_monitor_by_name(const gsr_window *window, const char *card_path, gsr_co
+     return userdata.found_monitor;
+ }
+ 
++bool get_monitor_by_name_drm_fd(int drm_fd, const char *name, gsr_monitor *monitor) {
++    get_monitor_by_name_userdata userdata;
++    userdata.name = name;
++    userdata.name_len = strlen(name);
++    userdata.monitor = monitor;
++    userdata.found_monitor = false;
++    for_each_active_monitor_output_drm_fd(drm_fd, get_monitor_by_name_callback, &userdata);
++    return userdata.found_monitor;
++}
++
+ bool gsr_get_monitor_card_path(const gsr_window *window, const char *monitor_name, char *card_path) {
+     gsr_dri_cards cards;
+     gsr_dri_cards_get(&cards);

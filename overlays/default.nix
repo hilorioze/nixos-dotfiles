@@ -26,6 +26,7 @@
   (import ./cliproxyapi-response-model-prefix)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
+  (import ./gpu-screen-recorder-drm-master-fix)
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)
   (import ./konsole-wayland-tab-dnd-fix)
   (import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default)
