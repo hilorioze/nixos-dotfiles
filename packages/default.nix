@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{pkgs, ...}:
+{
   # keep-sorted start
   a2s = pkgs.callPackage ./a2s {};
   blender-openskp = pkgs.callPackage ./blender-openskp {};
@@ -29,3 +30,4 @@
   yaas = pkgs.callPackage ./yaas {inherit (pkgs.unstablePkgs) flutter347;};
   # keep-sorted end
 }
+// builtins.mapAttrs (name: _: pkgs.callPackage ./chromium-extensions {inherit name;}) (builtins.fromJSON (builtins.readFile ./chromium-extensions/sources.json))

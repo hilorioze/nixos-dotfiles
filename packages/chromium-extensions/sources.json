@@ -1,0 +1,20 @@
+{
+  "chromium-extension-playwright": {
+    "id": "mmlmfjhmonkocbjadbfplnigmagldckm",
+    "version": "0.5.0",
+    "url": "https://clients2.googleusercontent.com/crx/blobs/ARGaeZIuYdHUb_HJVBZB_VVCuw5XJe3t-P_bbw9xOfm56r7GXUTwBqW3L-1SyLzSPT3a9W8fA8LnC52tcUeEs44eyJjNb5Y7cRakmTUDlv3UpBJOgLmNUi7yS8ZZZI8rKwUAxlKa5bBvgcjPOP-3tsAFqSY-EMXyrRRX/MMLMFJHMONKOCBJADBFPLNIGMAGLDCKM_0_5_0_0.crx",
+    "hash": "sha256-WYUXuofZ8vOzZCSDy2ZivA6gYUAcXTwesYihmEfJKws="
+  },
+  "chromium-extension-synclify": {
+    "id": "okdfcljlaacbdacenfeaiekllplonlfm",
+    "version": "0.6.2",
+    "url": "https://clients2.googleusercontent.com/crx/blobs/ARGaeZIHkE0wA_0RwkgV9J30Gi5hXxKuYmcnPS3COs19PPtlFWrSJyPLgoX4WUiYto_xyIwgvGmQeUneRNYcuTcenWystFYaFCJYlBvTHfwe5Ob5S556cKweeh6u-3kPSJcAxlKa5UOS97MJ0bIRWeYErkCPoQjB0Bvg/OKDFCLJLAACBDACENFEAIEKLLPLONLFM_0_6_2_0.crx",
+    "hash": "sha256-fdSY9AhrTdd4tfj+Trgp0g7nSckJGy1+wcBgJr31aKw="
+  },
+  "chromium-extension-ublock-origin-lite": {
+    "id": "ddkjiahejlhfcafbddmgiahcphecmpfh",
+    "version": "2026.1103.1743",
+    "url": "https://clients2.googleusercontent.com/crx/blobs/ARGaeZJQkITxzrVcTdVAijadlhafrQbvDuyuajde9HxAapvNBOGwVPrZ31mtd2KytDg-6tZAHHhcpjxOB3CepxnJbhcEqRZfcUmnHoMCIzNnYVpWOfAllUq6E5GdBNPYIkjGAMZSmuVu6YW24Rnd3CmLq6N0xoS2nAkI4A/DDKJIAHEJLHFCAFBDDMGIAHCPHECMPFH_2026_1103_1743_0.crx",
+    "hash": "sha256-spD3fN6TARbPbRXIlCcJcgStSolYKBoJBhnfSc92Dko="
+  }
+}
