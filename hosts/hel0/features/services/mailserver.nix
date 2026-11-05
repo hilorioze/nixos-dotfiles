@@ -86,8 +86,6 @@ in {
       domains.${domain}.selectors.mail.keyFile = config.sops.secrets."services/rspamd/dkim/${domain}/private-key".path;
     };
 
-    dmarcReporting.enable = true;
-
     fullTextSearch = {
       enable = true;
 
@@ -160,5 +158,14 @@ in {
     credentialFiles.CF_DNS_API_TOKEN_FILE = config.sops.secrets."credentials/cloudflare/zones/${domain}/api-token".path;
   };
 
-  systemd.services.dovecot.serviceConfig.LoadCredential = ["ldap-bind-password:${config.sops.secrets.${ldapBindSecret}.path}"];
+  systemd = {
+    # nixos-mailserver leaves empty reporter units when reporting is disabled
+    timers.rspamd-dmarc-reporter.enable = false;
+
+    services = {
+      dovecot.serviceConfig.LoadCredential = ["ldap-bind-password:${config.sops.secrets.${ldapBindSecret}.path}"];
+
+      rspamd-dmarc-reporter.enable = false;
+    };
+  };
 }
