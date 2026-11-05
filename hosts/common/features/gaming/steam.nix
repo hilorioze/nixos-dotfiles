@@ -10,24 +10,35 @@
     enable = true;
 
     package = pkgs.steam.override {
-      extraEnv =
+      extraEnv = let
+        # offload to the nvidia gpu while it's bound to its driver, not passed through to a vm
+        gpuSelect = pkgs.writeShellScript "steam-gpu-select" ''
+          unset VK_DRIVER_FILES # lift the client's restriction below
+
+          shopt -s nullglob
+          gpus=(/proc/driver/nvidia/gpus/*)
+
+          offload=()
+          if ((''${#gpus[@]})); then
+            offload=(${config.hardware.nvidia.prime.offload.offloadCmdMainProgram})
+          fi
+
+          exec "''${offload[@]}" "$@"
+        '';
+      in
         {
           LD_PRELOAD = "${pkgs.pkgsi686Linux.steam-voicechat-fix}/lib/libsteam_voicechat_fix.so";
 
-          # every game launches through this, so they need no launch options for these wrappers
+          # every game launches through this, so they need no launch options for these wrappers; opengl games don't pick the gpu themselves
           STEAM_GAME_LAUNCH_SHELL = pkgs.writeShellScript "steam-game-launch-shell" ''
-            unset VK_DRIVER_FILES # lift the client's restriction below for games
+            exec ${gpuSelect} ${lib.getExe pkgs.gamemode} ${lib.getExe pkgs.mangohud} /bin/sh -c "$1"
+          '';
 
-            # opengl games don't pick the gpu themselves; offload them while the nvidia gpu is bound to its driver, not passed through to a vm
-            shopt -s nullglob
-            gpus=(/proc/driver/nvidia/gpus/*)
+          # precompile steam's shader cache for the gpu the games run on
+          FOSSILIZE_REPLAY_WRAPPER = pkgs.writeShellScript "steam-fossilize-replay-wrapper" ''
+            unset FOSSILIZE_REPLAY_WRAPPER # `fossilize_replay` hands over to the wrapper again while it's set
 
-            offload=()
-            if ((''${#gpus[@]})); then
-              offload=(${config.hardware.nvidia.prime.offload.offloadCmdMainProgram})
-            fi
-
-            exec "''${offload[@]}" ${lib.getExe pkgs.gamemode} ${lib.getExe pkgs.mangohud} /bin/sh -c "$1"
+            exec ${gpuSelect} "$FOSSILIZE_REPLAY_WRAPPER_ORIGINAL_APP" "$@"
           '';
         }
         // lib.optionalAttrs config.hardware.nvidia.powerManagement.finegrained {

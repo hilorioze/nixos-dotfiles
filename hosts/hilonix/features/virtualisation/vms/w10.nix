@@ -35,7 +35,12 @@ in {
   virtualisation.libvirtd.hooks.qemu."20-w10-passthrough-lifecycle" = lib.getExe (pkgs.writeShellApplication {
     name = "w10-passthrough-lifecycle";
 
-    runtimeInputs = [pkgs.systemd];
+    runtimeInputs = with pkgs; [
+      # keep-sorted start
+      procps
+      systemd
+      # keep-sorted end
+    ];
 
     excludeShellChecks = (import ../../../../../shared.nix).ignoredShellcheckRules;
 
@@ -62,11 +67,14 @@ in {
           done
       }
 
-      # ksystemstats' `nvidia-smi dmon` and coolercontrold's nvml hold `/dev/nvidia*`, which blocks the gpu's unbind; once it's passed through they come back without it, and after the vm they pick it up again
+      # ksystemstats' `nvidia-smi dmon`, coolercontrold's nvml and steam's shader precompilation hold `/dev/nvidia*`, which blocks the gpu's unbind; once it's passed through they come back without it, and after the vm they pick it up again
       case $operation/$suboperation in
         prepare/begin)
           graphicalUsersSystemctl mask --runtime --now plasma-ksystemstats.service
           systemctl stop coolercontrold.service
+
+          # steam queues the killed precompilation again; its workers die with the master, and the name is cut to the kernel's 15 characters
+          pkill --exact fossilize_repla && pidwait --exact fossilize_repla
           ;;
 
         started/begin|release/end)
