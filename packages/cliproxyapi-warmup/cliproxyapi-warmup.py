@@ -20,6 +20,8 @@ from cliproxyapi_accounts import (
     send_provider_request,
 )
 
+LOW_PRIORITY_ACCOUNTS: dict[str, list[str]] = json.loads(os.environ["CLIPROXYAPI_LOW_PRIORITY_ACCOUNTS"])
+
 POLL_INTERVAL: float = 300  # banked and early resets come unannounced
 
 RESET_TOLERANCE: float = 60  # antigravity replicas disagree slightly on a window's reset
@@ -510,27 +512,33 @@ def rank_spending(entries: list[dict[str, Any]]) -> tuple[int, float]:
     return 2, 0
 
 
-async def route_spending(entries: list[dict[str, Any]], priorities: dict[str, int]) -> None:
+async def route_spending(*, entries: list[dict[str, Any]], priorities: dict[str, int]) -> None:
     accounts: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
 
     for entry in entries:
         accounts[entry["account"]["name"]].append(entry)
 
     providers: defaultdict[str, list[str]] = defaultdict(list)
+    next_priorities: dict[str, int] = {}
 
     for name, account_entries in accounts.items():
-        providers[account_entries[0]["account"]["provider"]].append(name)
+        account: dict[str, Any] = account_entries[0]["account"]
+
+        if account["email"] in LOW_PRIORITY_ACCOUNTS.get(account["provider"], []):
+            next_priorities[name] = 0
+        else:
+            providers[account["provider"]].append(name)
 
     for names in providers.values():
         names.sort(key=lambda name: (rank_spending(accounts[name]), accounts[name][0]["account"]["auth_index"]))
 
         # cliproxyapi spends the highest priority first; a session stays on its account until it is spent
-        for position, name in enumerate(names):
-            priority: int = len(names) - position
+        next_priorities.update({name: len(names) - position for position, name in enumerate(names)})
 
-            if priorities.get(name) != priority:
-                await call_management("PATCH", "/auth-files/fields", {"name": name, "priority": priority})
-                priorities[name] = priority
+    for name, priority in next_priorities.items():
+        if priorities.get(name) != priority:
+            await call_management(method="PATCH", path="/auth-files/fields", payload={"name": name, "priority": priority})
+            priorities[name] = priority
 
 
 async def fetch_entries(accounts: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], set[str]]:
@@ -623,7 +631,7 @@ async def warm_quotas() -> None:
             if has_idle_longer_window(entry) and is_warmable(entry):
                 await warm_pool(entry)
 
-        await route_spending(entries, priorities)
+        await route_spending(entries=entries, priorities=priorities)
         previous = {key: members for key, members in groups.items() if members[0]["account"]["provider"] not in failed}
 
         resets: list[float] = [window["resets_at"] for entry in entries for window in entry["pool"]["windows"] if window["resets_at"] is not None]
