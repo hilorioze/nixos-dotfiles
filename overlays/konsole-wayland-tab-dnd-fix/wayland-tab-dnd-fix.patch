@@ -1,0 +1,187 @@
+diff --git a/src/widgets/DetachableTabBar.cpp b/src/widgets/DetachableTabBar.cpp
+index 40671e4..b34db30 100644
+--- a/src/widgets/DetachableTabBar.cpp
++++ b/src/widgets/DetachableTabBar.cpp
+@@ -9,10 +9,14 @@
+ #include "widgets/ViewContainer.h"
+ 
+ #include <QApplication>
++#include <QDataStream>
++#include <QDrag>
++#include <QIODevice>
+ #include <QMimeData>
+ #include <QMouseEvent>
+ 
+ #include <KAcceleratorManager>
++#include <KWindowSystem>
+ 
+ #include <QColor>
+ #include <QPainter>
+@@ -89,10 +93,21 @@ void DetachableTabBar::mousePressEvent(QMouseEvent *event)
+ {
+     QTabBar::mousePressEvent(event);
+     _containers = window()->findChildren<Konsole::TabbedViewContainer *>();
++    tabId = tabAt(event->pos());
+ }
+ 
+ void DetachableTabBar::mouseMoveEvent(QMouseEvent *event)
+ {
++    // Wayland doesn't expose global window positions, so topLevelAt() can't find the window under the cursor.
++    if (KWindowSystem::isPlatformWayland()) {
++        if (event->buttons() == Qt::LeftButton && tabId != -1 && !contentsRect().adjusted(-30, -30, 30, 30).contains(event->pos())) {
++            dragTabAsWindow(event);
++        } else {
++            QTabBar::mouseMoveEvent(event);
++        }
++        return;
++    }
++
+     QTabBar::mouseMoveEvent(event);
+     auto widgetAtPos = qApp->topLevelAt(event->globalPosition().toPoint());
+     if (widgetAtPos != nullptr) {
+@@ -119,6 +134,56 @@ void DetachableTabBar::mouseMoveEvent(QMouseEvent *event)
+     }
+ }
+ 
++void DetachableTabBar::dragTabAsWindow(QMouseEvent *event)
++{
++    auto container = qobject_cast<TabbedViewContainer *>(parentWidget());
++    const int originalIndex = currentIndex();
++    _draggedTab = container->widget(originalIndex);
++
++    // Finish QTabBar's in-place move before starting the native drag.
++    QMouseEvent release(QEvent::MouseButtonRelease, event->position(), event->globalPosition(), Qt::LeftButton, Qt::NoButton, event->modifiers());
++    QTabBar::mouseReleaseEvent(&release);
++    tabId = -1;
++
++    if (count() > 1) {
++        Q_EMIT detachTab(originalIndex);
++    }
++    QPointer<QWidget> floatingWindow = _draggedTab->window();
++    auto floatingBar = floatingWindow->findChild<DetachableTabBar *>();
++    const QPoint offset = floatingBar->mapTo(floatingWindow, floatingBar->tabRect(floatingBar->currentIndex()).center());
++
++    // Qt's toplevel drag distinguishes an outside drop from compositor-side cancellation.
++    auto mimeData = new QMimeData();
++    mimeData->setData(QStringLiteral("konsole/tab"), QByteArray());
++    QByteArray windowData;
++    QDataStream windowStream(&windowData, QIODevice::WriteOnly);
++    windowStream << reinterpret_cast<qintptr>(floatingWindow->windowHandle());
++    mimeData->setData(QStringLiteral("application/x-qt-mainwindowdrag-window"), windowData);
++    QByteArray positionData;
++    QDataStream positionStream(&positionData, QIODevice::WriteOnly);
++    positionStream << offset;
++    mimeData->setData(QStringLiteral("application/x-qt-mainwindowdrag-position"), positionData);
++
++    auto drag = new QDrag(this);
++    drag->setMimeData(mimeData);
++    QPointer<DetachableTabBar> guard(this);
++    const auto action = drag->exec(Qt::MoveAction);
++    if (!guard || !_draggedTab) {
++        return;
++    }
++
++    if (action == Qt::IgnoreAction && floatingWindow && floatingWindow != window()) {
++        Q_EMIT floatingBar->moveTabToWindow(floatingBar->currentIndex(), window());
++    }
++
++    const int index = container->indexOf(_draggedTab);
++    _draggedTab.clear();
++    if (index != -1) {
++        moveTab(index, originalIndex);
++        setCurrentIndex(originalIndex);
++    }
++}
++
+ void DetachableTabBar::mouseReleaseEvent(QMouseEvent *event)
+ {
+     // Block signals on middle mouse release, to prevent QTabBar's own handling
+@@ -147,7 +212,7 @@ void DetachableTabBar::mouseReleaseEvent(QMouseEvent *event)
+ 
+     setCursor(_originalCursor);
+ 
+-    if (contentsRect().adjusted(-30, -30, 30, 30).contains(event->pos())) {
++    if (KWindowSystem::isPlatformWayland() || contentsRect().adjusted(-30, -30, 30, 30).contains(event->pos())) {
+         return;
+     }
+ 
+@@ -172,6 +237,11 @@ void DetachableTabBar::mouseDoubleClickEvent(QMouseEvent *event)
+ 
+ void DetachableTabBar::dragEnterEvent(QDragEnterEvent *event)
+ {
++    if (event->mimeData()->hasFormat(QStringLiteral("konsole/tab")) && qobject_cast<DetachableTabBar *>(event->source())) {
++        event->acceptProposedAction();
++        return;
++    }
++
+     const auto dragId = QStringLiteral("konsole/terminal_display");
+     if (!event->mimeData()->hasFormat(dragId)) {
+         return;
+@@ -186,12 +256,37 @@ void DetachableTabBar::dragEnterEvent(QDragEnterEvent *event)
+ 
+ void DetachableTabBar::dragMoveEvent(QDragMoveEvent *event)
+ {
++    if (event->mimeData()->hasFormat(QStringLiteral("konsole/tab"))) {
++        event->acceptProposedAction();
++        return;
++    }
++
+     int tabIdx = tabAt(event->position().toPoint());
+     if (tabIdx != -1) {
+         setCurrentIndex(tabIdx);
+     }
+ }
+ 
++void DetachableTabBar::dropEvent(QDropEvent *event)
++{
++    auto source = qobject_cast<DetachableTabBar *>(event->source());
++    if (!event->mimeData()->hasFormat(QStringLiteral("konsole/tab")) || source == nullptr || !source->_draggedTab) {
++        return;
++    }
++
++    auto container = source->_draggedTab->window()->findChild<TabbedViewContainer *>();
++    const int index = container->indexOf(source->_draggedTab);
++    if (index == -1) {
++        return;
++    }
++
++    event->acceptProposedAction();
++    if (container->window() != window()) {
++        auto bar = qobject_cast<DetachableTabBar *>(container->tabBar());
++        Q_EMIT bar->moveTabToWindow(index, window());
++    }
++}
++
+ void DetachableTabBar::paintEvent(QPaintEvent *event)
+ {
+     QTabBar::paintEvent(event);
+diff --git a/src/widgets/DetachableTabBar.h b/src/widgets/DetachableTabBar.h
+index ec71de5..d16364c 100644
+--- a/src/widgets/DetachableTabBar.h
++++ b/src/widgets/DetachableTabBar.h
+@@ -8,6 +8,7 @@
+ #define DETACHABLETABBAR_H
+ 
+ #include <QCursor>
++#include <QPointer>
+ #include <QTabBar>
+ 
+ #include <optional>
+@@ -56,14 +57,17 @@ protected:
+     void mouseDoubleClickEvent(QMouseEvent *event) override;
+     void dragEnterEvent(QDragEnterEvent *event) override;
+     void dragMoveEvent(QDragMoveEvent *event) override;
++    void dropEvent(QDropEvent *event) override;
+     void paintEvent(QPaintEvent *event) override;
+ 
+ private:
+     void setDetachableTabData(int idx, const DetachableTabData &data);
++    void dragTabAsWindow(QMouseEvent *event);
+ 
+     DragType dragType;
+     QCursor _originalCursor;
+     QList<TabbedViewContainer *> _containers;
++    QPointer<QWidget> _draggedTab;
+     int tabId;
+     QColor _activityColor;
+ };

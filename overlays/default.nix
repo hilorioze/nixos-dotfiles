@@ -27,6 +27,7 @@
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)
+  (import ./konsole-wayland-tab-dnd-fix)
   (import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default)
   (import ./looking-glass-client-idd)
   (import ./nix-update-read-write-mode)
