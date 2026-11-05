@@ -36,6 +36,7 @@
   (import ./nix-update-skip-update)
   (import ./plasma-pa-volume-step-snap)
   (import ./plasma-workspace-media-keys-no-repeat)
+  (import ./playwright-mcp-patchright)
   (import ./podman-healthcheck-ignore-result)
   (import ./silent-sddm-double-scale-fix inputs.silent-sddm)
   (import ./spectacle-copy-save)
