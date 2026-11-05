@@ -20,6 +20,9 @@
           "--extension"
           "--executable-path=${lib.getExe config.programs.chromium.package}"
 
+          # nixpkgs' wrapper defaults to `chromium`, which playwright treats as chrome for testing and starts with `--no-sandbox` when the browser isn't running yet; with `--executable-path` set, the channel only decides that flag
+          "--browser=chrome"
+
           # keep snapshots and console logs out of the workspace (defaults to `./.playwright-mcp`)
           "--output-dir=${config.xdg.cacheHome}/playwright-mcp"
         ];
