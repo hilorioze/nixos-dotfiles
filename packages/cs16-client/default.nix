@@ -17,7 +17,7 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "cs16-client";
 
-  version = "0-unstable-2026-11-05";
+  version = "continuous";
 
   src = fetchFromGitHub {
     owner = "FWGS";
