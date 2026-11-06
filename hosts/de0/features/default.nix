@@ -8,7 +8,6 @@
     ../../common/features/network/tailscale/server.nix
     ../../common/features/network/tailscale/tailscale.nix
     ../../common/features/nix/home-manager.nix
-    ../../common/features/nix/nix-ld.nix
     ../../common/features/nix/nix.nix
     ../../common/features/security/fail2ban.nix
     ../../common/features/services/monitoring/fluent-bit.nix

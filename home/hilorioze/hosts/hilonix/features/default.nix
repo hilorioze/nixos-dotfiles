@@ -80,7 +80,6 @@
     ../../../features/nix/attic.nix
     ../../../features/nix/nh.nix
     ../../../features/nix/niks3.nix
-    ../../../features/nix/nix-alien.nix
     ../../../features/nix/nix.nix
     ../../../features/productivity/super-productivity.nix
     ../../../features/reversing/binaryninja.nix

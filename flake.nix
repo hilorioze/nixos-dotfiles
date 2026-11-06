@@ -86,16 +86,6 @@
 
     mud.url = "github:hilorioze/mud"; # keep their inputs for binary cache
 
-    nix-alien = {
-      url = "github:thiagokokada/nix-alien";
-
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-
-        nix-index-database.follows = "nix-index-database";
-      };
-    };
-
     nix-flatpak.url = "github:gmodena/nix-flatpak";
 
     nix-gaming = {
