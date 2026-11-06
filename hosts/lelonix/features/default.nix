@@ -7,7 +7,8 @@
     ../../common/features/desktop/appimage.nix
     ../../common/features/desktop/flatpak.nix
     ../../common/features/desktop/login/silent-sddm.nix
-    ../../common/features/desktop/plasma.nix
+    ../../common/features/desktop/plasma/plasma-keyboard.nix
+    ../../common/features/desktop/plasma/plasma.nix
     ../../common/features/desktop/wayland.nix
     ../../common/features/files/syncthing.nix
     ../../common/features/gaming/gamemode.nix
