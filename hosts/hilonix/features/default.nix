@@ -26,6 +26,7 @@
     ../../common/features/network/upnp.nix
     ../../common/features/network/wol.nix
     ../../common/features/nix/home-manager.nix
+    ../../common/features/nix/nix-monitored.nix
     ../../common/features/nix/nix.nix
     ../../common/features/security/pcscd.nix
     ../../common/features/security/rtkit.nix
