@@ -22,7 +22,6 @@
     ../../../features/ai/claude-code.nix
     ../../../features/ai/mcp.nix
     ../../../features/android/adb.nix
-    ../../../features/android/qtscrcpy.nix
     ../../../features/android/quickshare.nix
     ../../../features/browsers/chromium.nix
     ../../../features/browsers/librewolf.nix
@@ -50,7 +49,6 @@
     ../../../features/development/git/nixos-dotfiles-lazy-git-repo.nix
     ../../../features/development/wakatime.nix
     ../../../features/files/ark.nix
-    ../../../features/files/croc.nix
     ../../../features/files/dolphin.nix
     ../../../features/files/ktorrent.nix
     ../../../features/files/syncthing/syncthing.nix
@@ -80,7 +78,6 @@
     ../../../features/network/kdeconnect.nix
     ../../../features/network/krdc.nix
     ../../../features/nix/attic.nix
-    ../../../features/nix/hydra-check.nix
     ../../../features/nix/nh.nix
     ../../../features/nix/niks3.nix
     ../../../features/nix/nix-alien.nix
@@ -89,7 +86,6 @@
     ../../../features/reversing/binaryninja.nix
     ../../../features/reversing/blutter.nix
     ../../../features/reversing/ghidra.nix
-    ../../../features/reversing/imhex.nix
     ../../../features/security/gpg/agent.nix
     ../../../features/security/gpg/gpg.nix
     ../../../features/security/gpg/kleopatra.nix
@@ -97,11 +93,8 @@
     ../../../features/security/kwallet.nix
     ../../../features/security/ssh-agent.nix
     ../../../features/shell/atuin.nix
-    ../../../features/storage/filelight.nix
     ../../../features/storage/ventoy.nix
     ../../../features/terminal/konsole.nix
-    ../../../features/virtualisation/distrobox.nix
-    ../../../features/virtualisation/podman-compose.nix
     # keep-sorted end
 
     (inputs.import-tree.filterNot (path: path == "/default.nix") ./.) # this file is left out so it doesn't import itself
