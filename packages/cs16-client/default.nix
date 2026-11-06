@@ -9,6 +9,7 @@
   makeDesktopItem,
   makeWrapper,
   ninja,
+  nix-update-script,
   python3,
   stdenv,
   xash3d-fwgs,
@@ -89,6 +90,11 @@ stdenv.mkDerivation (finalAttrs: {
       --add-flags "-menulib $out/share/xash3d/cstrike/cl_dlls/menu_amd64.so" \
       --add-flags "-dll $out/share/xash3d/cstrike/dlls/cs_amd64.so"
   '';
+
+  # upstream only moves a `continuous` prerelease tag; follow `main` and keep that tag out of the version
+  passthru.updateScript.command = nix-update-script {
+    extraArgs = ["--version=branch" "--version-regex=^(0-unstable-.+)$"];
+  };
 
   meta = {
     description = "Reverse-engineered Counter-Strike 1.6 client";
