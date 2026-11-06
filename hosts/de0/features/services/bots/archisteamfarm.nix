@@ -5,14 +5,6 @@
   # keep-sorted end
   ...
 }: let
-  commonBotSettings = {
-    OnlineStatus = 0; # `Offline`
-
-    FarmingPreferences = 16; # `SkipRefundableGames`
-
-    RemoteCommunication = 0; # no third-party communication allowed
-  };
-
   botSettings = {
     # keep-sorted start
     dgarmo_ens = {};
@@ -20,67 +12,67 @@
     # keep-sorted end
   };
 
-  botSecretsList = map (name: {
-    "services/archisteamfarm/bots/${name}/password" = {
-      group = config.systemd.services.archisteamfarm.serviceConfig.Group;
+  commonBotSettings = {
+    OnlineStatus = 0; # `Offline`
 
-      mode = "0440"; # give read access for the group we just set above
+    FarmingPreferences = 16; # `SkipRefundableGames`
+
+    RemoteCommunication = 0; # no third-party communication allowed
+  };
+in {
+  sops.secrets = let
+    archisteamfarmSecret = {
+      group = config.systemd.services.archisteamfarm.serviceConfig.Group;
+      mode = "0440";
 
       restartUnits = ["archisteamfarm.service"];
     };
-  }) (builtins.attrNames botSettings);
-in {
-  sops.secrets = lib.attrsets.mergeAttrsList (
-    [
-      {
-        "services/archisteamfarm/ipc-password" = {
-          group = config.systemd.services.archisteamfarm.serviceConfig.Group;
+  in
+    lib.mkMerge [
+      {"services/archisteamfarm/ipc-password" = archisteamfarmSecret;}
 
-          mode = "0440"; # give read access for the group we just set above
+      (lib.mapAttrs' (name: _: lib.nameValuePair "services/archisteamfarm/bots/${name}/password" archisteamfarmSecret) botSettings)
+    ];
 
-          restartUnits = ["archisteamfarm.service"];
+  services = {
+    traefik.dynamicConfigOptions.http = {
+      routers = {
+        archisteamfarm-http = {
+          entryPoints = ["http"];
+          rule = "Host(`archisteamfarm.${config.networking.fqdn}`)";
+
+          middlewares = ["redirect-to-https"];
+
+          service = "noop@internal";
         };
-      }
-    ]
-    ++ botSecretsList
-  );
 
-  services.traefik.dynamicConfigOptions.http = {
-    routers = {
-      archisteamfarm-http = {
-        entryPoints = ["http"];
-        rule = "Host(`archisteamfarm.${config.networking.fqdn}`)";
-        middlewares = ["redirect-to-https"];
-        service = "noop@internal";
+        archisteamfarm = {
+          entryPoints = ["https"];
+          rule = "Host(`archisteamfarm.${config.networking.fqdn}`)";
+
+          service = "archisteamfarm";
+        };
       };
 
-      archisteamfarm = {
-        entryPoints = ["https"];
-        rule = "Host(`archisteamfarm.${config.networking.fqdn}`)";
-        service = "archisteamfarm";
-      };
+      services.archisteamfarm.loadBalancer.servers = [{url = "http://127.0.0.1:1242";}];
     };
 
-    services.archisteamfarm.loadBalancer.servers = [{url = "http://127.0.0.1:1242";}];
-  };
+    archisteamfarm = {
+      enable = true;
 
-  services.archisteamfarm = {
-    enable = true;
+      web-ui.enable = true;
 
-    web-ui.enable = true;
+      ipcPasswordFile = config.sops.secrets."services/archisteamfarm/ipc-password".path;
 
-    ipcPasswordFile = config.sops.secrets."services/archisteamfarm/ipc-password".path;
-
-    bots =
-      lib.attrsets.mapAttrs
-      (
-        name: specificBotSettings: {
+      bots =
+        lib.mapAttrs (name: specificBotSettings: {
           passwordFile = config.sops.secrets."services/archisteamfarm/bots/${name}/password".path;
-          settings = lib.attrsets.recursiveUpdate commonBotSettings specificBotSettings;
-        }
-      )
-      botSettings;
 
-    settings.SteamTokenDumperPluginEnabled = true;
+          settings = lib.recursiveUpdate commonBotSettings specificBotSettings;
+        })
+        botSettings;
+
+      settings.SteamTokenDumperPluginEnabled = true;
+    };
   };
 }

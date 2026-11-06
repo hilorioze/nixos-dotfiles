@@ -23,15 +23,19 @@
 
   disko.devices.disk.main = {
     device = "/dev/sda";
+
     content = {
       type = "gpt";
+
       partitions = {
         boot = {
           type = "EF00";
           size = "1G";
+
           content = {
             type = "filesystem";
             format = "vfat";
+
             mountpoint = "/efi";
             mountOptions = ["noatime"];
           };
@@ -39,9 +43,11 @@
 
         root = {
           size = "100%";
+
           content = {
             type = "filesystem";
             format = "ext4";
+
             mountpoint = "/";
             mountOptions = ["noatime"];
           };
@@ -56,6 +62,8 @@
   };
 
   hardware.facter.reportPath = ./facter.json;
+
   system.stateVersion = "25.05";
+
   nixpkgs.hostPlatform.system = "aarch64-linux";
 }

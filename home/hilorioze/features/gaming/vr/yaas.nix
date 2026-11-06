@@ -1,1 +1,3 @@
-{pkgs, ...}: {home.packages = [pkgs.yaas];}
+{pkgs, ...}: {
+  home.packages = [pkgs.yaas];
+}

@@ -1,28 +1,35 @@
-{pkgs, ...}: {
-  home.packages = [
-    (pkgs.kdePackages.spectacle.override {
-      tesseractLanguages = [
-        # keep-sorted start
-        "eng"
-        "rus"
-        "ukr"
-        # keep-sorted end
-      ];
-    })
+{
+  # keep-sorted start
+  lib,
+  pkgs,
+  # keep-sorted end
+  ...
+}: let
+  ocrLanguages = [
+    # keep-sorted start
+    "eng"
+    "rus"
+    "ukr"
+    # keep-sorted end
   ];
+in {
+  home.packages = [(pkgs.kdePackages.spectacle.override {tesseractLanguages = ocrLanguages;})];
 
   programs.plasma.configFile.spectaclerc = {
     General = {
+      printKeyRunningAction = "FocusWindow";
+
       autoSaveImage = true;
       clipboardGroup = "PostScreenshotCopyImage";
+
+      ocrLanguages = lib.concatStringsSep "," ocrLanguages;
       closeAfterOcr = true;
-      ocrLanguages = "eng,rus,ukr";
-      printKeyRunningAction = "FocusWindow";
     };
 
     GuiConfig = {
       captureMode = "RectangularRegion";
       includePointer = true;
+
       quitAfterSaveCopyExport = true;
     };
   };

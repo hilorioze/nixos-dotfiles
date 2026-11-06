@@ -3,11 +3,14 @@
     enable = true;
 
     rules."cloudflare-ddns" = {
-      onState = ["routable" "configured"];
+      onState = [
+        # keep-sorted start
+        "configured"
+        "routable"
+        # keep-sorted end
+      ];
 
-      script = ''
-        systemctl start cloudflare-ddns.service
-      '';
+      script = "systemctl start cloudflare-ddns.service";
     };
   };
 }

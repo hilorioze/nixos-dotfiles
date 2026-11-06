@@ -38,6 +38,7 @@
     "/efi" = {
       device = "/dev/disk/by-partlabel/EFI";
       fsType = "vfat";
+
       options = [
         # keep-sorted start
         "noatime"
@@ -49,12 +50,14 @@
     "/" = {
       device = "/dev/disk/by-partlabel/nixos";
       fsType = "bcachefs";
+
       options = ["noatime"];
     };
 
     "/mnt/vol" = {
       device = "/dev/disk/by-partlabel/vol";
       fsType = "ntfs-3g"; # never use `ntfs3` here; it honors wsl `$LX*` extended attributes and breaks shared access
+
       options = [
         # ntfs-3g mounts world-accessible by default; no additional access-control options needed
         # keep-sorted start
@@ -69,6 +72,7 @@
     "/mnt/Ventoy" = {
       device = "/dev/disk/by-partlabel/Ventoy";
       fsType = "exfat";
+
       options = [
         # keep-sorted start
         "noatime"
@@ -83,6 +87,7 @@
   swapDevices = [
     {
       device = "/dev/disk/by-partlabel/swap";
+
       discardPolicy = "both";
     }
   ];

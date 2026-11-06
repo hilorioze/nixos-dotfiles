@@ -40,6 +40,7 @@
           "traefik.http.routers.twitch-drops-miner-${name}.rule" = "Host(`twitch-drops-miner-${name}.${config.networking.fqdn}`)";
           "traefik.http.routers.twitch-drops-miner-${name}.middlewares" = "oidc-login@file";
           "traefik.http.routers.twitch-drops-miner-${name}.service" = "twitch-drops-miner-${name}";
+
           "traefik.http.services.twitch-drops-miner-${name}.loadBalancer.server.port" = "5800";
         };
 

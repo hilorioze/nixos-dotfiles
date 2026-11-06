@@ -12,27 +12,33 @@
 
   disko.devices.disk.main = {
     device = "/dev/sda";
+
     content = {
       type = "gpt";
+
       partitions = {
         boot = {
-          size = "1M";
           type = "EF02"; # for grub MBR
+          size = "1M";
         };
 
         swap = {
           size = "4G";
+
           content = {
             type = "swap";
+
             discardPolicy = "both";
           };
         };
 
         root = {
           size = "100%";
+
           content = {
             type = "filesystem";
             format = "ext4";
+
             mountpoint = "/";
             mountOptions = ["noatime"];
           };
@@ -64,6 +70,8 @@
   };
 
   hardware.facter.reportPath = ./facter.json;
+
   system.stateVersion = "25.05";
+
   nixpkgs.hostPlatform.system = "x86_64-linux";
 }

@@ -1,12 +1,16 @@
 {config, ...}: {
-  services.traefik.dynamicConfigOptions.http = {
-    routers.whoami = {
-      entryPoints = ["http" "https"];
-      rule = "Host(`whoami.${config.networking.fqdn}`)";
-      service = "whoami";
-    };
-    services.whoami.loadBalancer.servers = [{url = "http://127.0.0.1:${toString config.services.whoami.port}";}];
-  };
+  services = {
+    traefik.dynamicConfigOptions.http = {
+      routers.whoami = {
+        entryPoints = ["http" "https"];
+        rule = "Host(`whoami.${config.networking.fqdn}`)";
 
-  services.whoami.enable = true;
+        service = "whoami";
+      };
+
+      services.whoami.loadBalancer.servers = [{url = "http://127.0.0.1:${toString config.services.whoami.port}";}];
+    };
+
+    whoami.enable = true;
+  };
 }

@@ -11,6 +11,8 @@
     text = let
       mkKnownHostLine = nixosConfiguration: path: "${nixosConfiguration.config.networking.fqdn} ${builtins.readFile path}";
     in ''
+      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+
       ${mkKnownHostLine outputs.nixosConfigurations.lelonix ../../../../hosts/lelonix/ssh_host_ed25519_key.pub}
       ${mkKnownHostLine outputs.nixosConfigurations.hilonix ../../../../hosts/hilonix/ssh_host_ed25519_key.pub}
 
@@ -21,8 +23,6 @@
       ${mkKnownHostLine outputs.nixosConfigurations.hel0 ../../../../hosts/hel0/ssh_host_ed25519_key.pub}
 
       node0.rayttage.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXciAYeEmJZU2PwXBXamfoa/BGDJhry9elTZWOaEsNl
-
-      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
     '';
   };
 

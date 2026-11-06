@@ -8,21 +8,25 @@
 
         sensorId = "cpu/all/averageTemperature";
       }
+
       {
         name = "DIMM";
 
         sensorId = "lmsensors/spd5118-i2c-0-50/temp1";
       }
+
       {
         name = "GPU";
 
         sensorId = "gpu/gpu1/temperature";
       }
+
       {
         name = "NVMe-0A";
 
         sensorId = "lmsensors/nvme-pci-0300/temp1";
       }
+
       {
         name = "WiFi";
 
