@@ -512,6 +512,10 @@ def rank_spending(entries: list[dict[str, Any]]) -> tuple[int, float]:
     return 2, 0
 
 
+def is_free(account: dict[str, Any]) -> bool:
+    return account["provider"] == "codex" and account["id_token"]["plan_type"] == "free"
+
+
 async def route_spending(*, entries: list[dict[str, Any]], priorities: dict[str, int]) -> None:
     accounts: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
 
@@ -530,7 +534,8 @@ async def route_spending(*, entries: list[dict[str, Any]], priorities: dict[str,
             providers[account["provider"]].append(name)
 
     for names in providers.values():
-        names.sort(key=lambda name: (rank_spending(accounts[name]), accounts[name][0]["account"]["auth_index"]))
+        # free accounts are disposable; spend them before paid subscriptions
+        names.sort(key=lambda name: (not is_free(accounts[name][0]["account"]), rank_spending(accounts[name]), accounts[name][0]["account"]["auth_index"]))
 
         # cliproxyapi spends the highest priority first; a session stays on its account until it is spent
         next_priorities.update({name: len(names) - position for position, name in enumerate(names)})
