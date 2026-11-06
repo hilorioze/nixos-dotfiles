@@ -39,6 +39,8 @@
         {
           Infrastructure = [
             # keep-sorted start block=yes newline_separated=yes case=no by_regex=(?:mkService\s+"|\(mk)([^"\s]+)
+            (mkService "Authentik" "authentik.svg" "https://idm.${config.networking.domain}")
+
             (mkService "Gatus" "gatus.svg" "https://status.${config.networking.domain}")
 
             (mkService "Grafana" "grafana.svg" outputs.nixosConfigurations.de0.config.services.grafana.settings.server.root_url)
