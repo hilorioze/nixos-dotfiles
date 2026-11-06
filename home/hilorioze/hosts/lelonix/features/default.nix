@@ -57,6 +57,7 @@
     ../../../features/files/syncthing/tray.nix
     ../../../features/gaming/deadlocked.nix
     ../../../features/gaming/goldsrc/bspguy.nix
+    ../../../features/gaming/goldsrc/cs16-client.nix
     ../../../features/gaming/goldsrc/half-life-asset-manager.nix
     ../../../features/gaming/goldsrc/steam-broker.nix
     ../../../features/gaming/heroic.nix

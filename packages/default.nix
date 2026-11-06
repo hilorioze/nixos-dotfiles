@@ -12,6 +12,7 @@
   cliproxyapi-accounts = pkgs.python3Packages.callPackage ./cliproxyapi-accounts {};
   cliproxyapi-cooldown-reset = pkgs.callPackage ./cliproxyapi-cooldown-reset {};
   cliproxyapi-warmup = pkgs.callPackage ./cliproxyapi-warmup {};
+  cs16-client = pkgs.callPackage ./cs16-client {};
   csldr = pkgs.callPackage ./csldr {};
   deadlocked = pkgs.callPackage ./deadlocked {};
   deadlocked-relay = pkgs.callPackage ./deadlocked-relay {};
