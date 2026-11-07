@@ -30,7 +30,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   '';
 
   meta = {
-    description = "Plasmoid for KDE Plasma 6 for controlling certain features of Lenovo laptops";
+    description = "KDE Plasma 6 widget for controlling Lenovo laptop features";
 
     homepage = "https://gitlab.com/Scias/plasmavantage";
 

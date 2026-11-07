@@ -66,7 +66,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   };
 
   meta = {
-    description = "Flutter mobile application reverse engineering tool";
+    description = "Tool for reverse engineering Flutter mobile applications";
     homepage = "https://github.com/worawit/blutter";
 
     license = lib.licenses.mit;

@@ -27,7 +27,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   '';
 
   meta = {
-    description = "Program that communicates with Steam on behalf of others";
+    description = "Service talking to Steam on behalf of other programs";
     homepage = "https://github.com/FWGS/steam-broker";
 
     license = lib.licenses.unfree;

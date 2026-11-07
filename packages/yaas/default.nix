@@ -182,7 +182,7 @@ in
     };
 
     meta = {
-      description = "Cross-platform desktop app for sideloading and managing Meta Quest headsets";
+      description = "Desktop application for sideloading apps and managing Meta Quest headsets";
       homepage = "https://github.com/skrimix/yaas";
 
       license = lib.licenses.mit;

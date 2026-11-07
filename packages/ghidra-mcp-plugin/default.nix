@@ -33,7 +33,7 @@ ghidra.buildGhidraExtension (finalAttrs: {
   '';
 
   meta = {
-    description = "Ghidra plugin exposing program data via the Model Context Protocol";
+    description = "Ghidra plugin exposing program data over an embedded HTTP server";
     homepage = "https://github.com/bethington/ghidra-mcp";
 
     license = lib.licenses.asl20;

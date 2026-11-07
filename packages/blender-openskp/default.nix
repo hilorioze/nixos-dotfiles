@@ -40,7 +40,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   '';
 
   meta = {
-    description = "Native SketchUp (.skp) import and export for Blender";
+    description = "Blender add-on for importing and exporting SketchUp (.skp) files";
     homepage = "https://github.com/iamahsanmehmood/blender-openskp";
 
     license = lib.licenses.gpl3Plus;

@@ -52,7 +52,7 @@ in
     };
 
     meta = {
-      description = "SketchUp (.skp) reader, writer, and converter";
+      description = "Library and command-line tool for reading, writing and converting SketchUp (.skp) files";
       homepage = "https://github.com/iamahsanmehmood/openskp";
 
       license = lib.licenses.mit;

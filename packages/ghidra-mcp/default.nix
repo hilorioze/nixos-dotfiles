@@ -31,7 +31,7 @@ buildPythonPackage (finalAttrs: {
   pythonRelaxDeps = ["mcp"];
 
   meta = {
-    description = "Model Context Protocol server for Ghidra reverse engineering";
+    description = "MCP bridge exposing Ghidra reverse engineering tools to AI clients";
     homepage = "https://github.com/bethington/ghidra-mcp";
 
     license = lib.licenses.asl20;

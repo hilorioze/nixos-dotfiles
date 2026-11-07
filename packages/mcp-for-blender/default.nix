@@ -51,7 +51,7 @@ in
     };
 
     meta = {
-      description = "MCP server and Blender plugin for LLM control";
+      description = "MCP server and Blender add-on for controlling Blender with LLMs";
       homepage = "https://github.com/ahujasid/mcp-for-blender";
 
       license = lib.licenses.mit;

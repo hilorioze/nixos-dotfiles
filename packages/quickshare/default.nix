@@ -44,7 +44,7 @@ in
     '';
 
     meta = {
-      description = "Share files with nearby devices";
+      description = "Implementation of Google's Nearby Connections, Nearby Presence, Fast Pair and QuickShare";
       homepage = "https://github.com/kidfromjupiter/nearby";
 
       license = lib.licenses.asl20;

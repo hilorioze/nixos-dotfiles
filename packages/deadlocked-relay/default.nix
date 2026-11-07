@@ -24,7 +24,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   buildAndTestSubdir = "server";
 
   meta = {
-    description = "Deadlocked web radar relay server";
+    description = "Relay server for the Counter-Strike 2 web radar";
     homepage = "https://github.com/avitran0/deadlocked";
 
     license = lib.licenses.gpl3Only;

@@ -27,7 +27,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   '';
 
   meta = {
-    description = "Command-line utility for querying Steam A2S server information";
+    description = "Command-line utility for querying Steam A2S game servers";
     homepage = "https://github.com/WoozyMasta/a2s";
 
     license = lib.licenses.agpl3Only;
