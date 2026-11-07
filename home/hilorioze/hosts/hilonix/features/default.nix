@@ -47,22 +47,22 @@
     ../../../features/development/git/hardware-signing.nix
     ../../../features/development/git/lazygit.nix
     ../../../features/development/git/nixos-dotfiles-lazy-git-repo.nix
+    ../../../features/development/goldsrc/bspguy.nix
+    ../../../features/development/goldsrc/half-life-asset-manager.nix
     ../../../features/development/wakatime.nix
     ../../../features/files/ark.nix
     ../../../features/files/dolphin.nix
     ../../../features/files/ktorrent.nix
     ../../../features/files/syncthing/syncthing.nix
     ../../../features/files/syncthing/tray.nix
+    ../../../features/gaming/cs16-client.nix
     ../../../features/gaming/deadlocked.nix
-    ../../../features/gaming/goldsrc/bspguy.nix
-    ../../../features/gaming/goldsrc/cs16-client.nix
-    ../../../features/gaming/goldsrc/half-life-asset-manager.nix
-    ../../../features/gaming/goldsrc/steam-broker.nix
     ../../../features/gaming/heroic.nix
     ../../../features/gaming/minecraft/atlauncher.nix
     ../../../features/gaming/minecraft/freesmlauncher.nix
     ../../../features/gaming/minecraft/mcpelauncher-ui-qt.nix
     ../../../features/gaming/sober.nix
+    ../../../features/gaming/steam-broker.nix
     ../../../features/gaming/steam.nix
     ../../../features/gaming/umu-launcher.nix
     ../../../features/gaming/vr/bs-manager.nix
