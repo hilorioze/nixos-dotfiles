@@ -2,8 +2,9 @@
   # keep-sorted start
   cmake,
   copyDesktopItems,
+  ensureNewerSourcesForZipFilesHook,
   fetchFromGitHub,
-  fontconfig,
+  freetype,
   git,
   lib,
   makeDesktopItem,
@@ -36,10 +37,6 @@ stdenv.mkDerivation (finalAttrs: {
     # regamedll looks for the engine's filesystem in the working directory, which is `~/.xash3d` here
     substituteInPlace 3rdparty/ReGameDLL_CS/regamedll/public/FileSystem.h \
       --replace-fail '"filesystem_stdio.so"' '"${xash3d-fwgs}/lib/filesystem_stdio.so"'
-
-    # sources in the store are dated 1970, which `zipfile` refuses without this
-    substituteInPlace scripts/pack_extras.py \
-      --replace-fail "compression=zipfile.ZIP_STORED" "compression=zipfile.ZIP_STORED, strict_timestamps=False"
   '';
 
   strictDeps = true;
@@ -48,6 +45,7 @@ stdenv.mkDerivation (finalAttrs: {
     # keep-sorted start
     cmake
     copyDesktopItems
+    ensureNewerSourcesForZipFilesHook
     git
     makeWrapper
     ninja
@@ -55,11 +53,12 @@ stdenv.mkDerivation (finalAttrs: {
     # keep-sorted end
   ];
 
-  buildInputs = [fontconfig];
+  buildInputs = [freetype];
 
   # regamedll ignores `GAME_DIR` and always installs into `cstrike/dlls`
   cmakeFlags = [(lib.cmakeFeature "CMAKE_INSTALL_PREFIX" "${placeholder "out"}/share/xash3d")];
 
+  # regamedll builds with `-Wno-format`, which turns the hardening `-Werror=format-security` into an error
   hardeningDisable = ["format"];
 
   desktopItems = [
