@@ -28,6 +28,7 @@
   quickshare = pkgs.callPackage ./quickshare {};
   steam-broker = pkgs.callPackage ./steam-broker {};
   thermalmonitor = pkgs.callPackage ./thermalmonitor {};
+  xash3d-fwgs = pkgs.callPackage ./xash3d-fwgs {};
   yaas = pkgs.callPackage ./yaas {inherit (pkgs.unstablePkgs) flutter347;};
   # keep-sorted end
 }
