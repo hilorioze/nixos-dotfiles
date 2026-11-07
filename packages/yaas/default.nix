@@ -176,7 +176,7 @@ in
       updateScript.command = nix-update-script {
         extraArgs = [
           "--version=branch"
-          "--version-regex=^(0-unstable-[0-9-]+)$"
+          "--version-regex=^(0-unstable-.+)$"
         ];
       };
     };
