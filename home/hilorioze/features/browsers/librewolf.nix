@@ -161,7 +161,12 @@ in {
               # keep-sorted end
             ];
 
-            netWhitelist = ["duckduckgo.com"];
+            netWhitelist = [
+              # keep-sorted start
+              "duckduckgo.com"
+              "freebuff.com"
+              # keep-sorted end
+            ];
           };
           # keep-sorted end
         };
