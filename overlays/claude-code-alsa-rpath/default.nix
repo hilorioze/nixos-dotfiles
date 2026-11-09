@@ -8,8 +8,22 @@ _final: prev: {
       claude-code = prev.unstablePkgs.claude-code.overrideAttrs (oldAttrs: {
         installPhase = builtins.replaceStrings ["--prefix LD_LIBRARY_PATH : ${prev.lib.makeLibraryPath [prev.unstablePkgs.alsa-lib]} \\\n"] [""] oldAttrs.installPhase;
 
-        postFixup = ''
-          patchelf --force-rpath --add-rpath ${prev.lib.makeLibraryPath [prev.unstablePkgs.alsa-lib]} $out/bin/.claude-wrapped
+        postFixup = let
+          patchelf = prev.unstablePkgs.patchelf.overrideAttrs (patchelfAttrs: {
+            # fix `DT_VERDEF` relocation so adding rpath doesn't crash claude before startup
+            patches =
+              (patchelfAttrs.patches or [])
+              ++ [
+                (prev.unstablePkgs.fetchpatch {
+                  url = "https://github.com/NixOS/patchelf/commit/efc11141bdc373a219db53a1c699bc4fde3a23b8.patch";
+                  hash = "sha256-H3oPqD1UucM5/+nVEZ1FJNUwbvDSVckIFty0Fid+3oA=";
+
+                  includes = ["src/patchelf.cc"];
+                })
+              ];
+          });
+        in ''
+          ${prev.lib.getExe patchelf} --force-rpath --add-rpath ${prev.lib.makeLibraryPath [prev.unstablePkgs.alsa-lib]} $out/bin/.claude-wrapped
         '';
       });
     };
