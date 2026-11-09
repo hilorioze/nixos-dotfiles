@@ -14,6 +14,12 @@
     // inputs without a `rev` in `flake.nix` are only refreshed by lock file maintenance
     lockFileMaintenance: {
       enabled: true,
+
+      // lock file maintenance has its own schedule; match the update window below
+      schedule: [
+        '* 22-23 * * 0',
+        '* 0-2 * * 1',
+      ],
     },
   },
 
@@ -45,10 +51,13 @@
     },
   ],
 
-  // run weekly on mondays from 00:00 utc; the mend app runs jobs every 4 hours, so a shorter window can be skipped
+  // leave three hours for builds before 7 am in ireland, including summer time; the mend app runs jobs about every 4 hours
   schedule: [
-    '* 0-3 * * 1',
+    '* 22-23 * * 0',
+    '* 0-2 * * 1',
   ],
+
+  prHourlyLimit: 0, // the default limit of 2 prs per hour can leave updates waiting past the schedule
 
   assignees: [
     'hilorioze',
