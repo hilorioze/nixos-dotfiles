@@ -18,6 +18,12 @@
 
       inherit (prev) config;
     };
+
+    unstableSmallPkgs = import inputs.nixpkgs-unstable-small {
+      localSystem = prev.stdenv.hostPlatform.system;
+
+      inherit (prev) config;
+    };
   })
 
   # keep-sorted start

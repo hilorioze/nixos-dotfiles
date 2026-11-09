@@ -38,6 +38,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixpkgs-unstable-small.url = "github:nixos/nixpkgs/nixos-unstable-small";
+
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
