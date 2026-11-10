@@ -19,14 +19,14 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "cs16-client";
 
-  version = "0-unstable-2026-11-08";
+  version = "0-unstable-2026-11-09";
 
   src = fetchFromGitHub {
     owner = "FWGS";
     repo = "cs16-client";
 
-    rev = "9ca704be480f6af481c8ffc075113ff51e17e4b0";
-    hash = "sha256-Qd+ZFE1PxsieAP4ZbeWYF6phw9TfDhWCF4s/GSMDvJE=";
+    rev = "f8ecf4962c1878d7d9ad0d329aa7e53fe0addcab";
+    hash = "sha256-7HUtrKIBBYoyl0RlnxfGceOirc91mS4nEfzuDYBy3Ks=";
 
     fetchSubmodules = true;
   };
