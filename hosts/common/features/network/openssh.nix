@@ -25,6 +25,7 @@
       DisableForwarding = true; # disable tcp, unix-socket, agent and x11 forwarding by default
     };
 
+    # keep ssh tunnels available for users with root access through sudo
     extraConfig = ''
       Match User ${config.users.users.hilorioze.name},${config.users.users.agent.name}
         DisableForwarding no
