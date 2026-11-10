@@ -11,10 +11,9 @@
 
   documentation.nixos.enable = false; # the module's manual chapter has redirect ids that 26.05 doesn't know
 
-  sops.secrets = {
-    # keep-sorted start block=yes newline_separated=yes
-    "services/cliproxyapi/inference-key".restartUnits = ["cliproxyapi.service"];
-
+  sops.secrets = let
+    inferenceKey.restartUnits = ["cliproxyapi.service"];
+  in {
     "services/cliproxyapi/management-key".restartUnits = [
       # keep-sorted start
       "cliproxyapi-cooldown-reset.service"
@@ -22,39 +21,61 @@
       "cliproxyapi.service"
       # keep-sorted end
     ];
+
+    # keep-sorted start
+    "services/cliproxyapi/users/claude-code-gateway/inference-key" = inferenceKey;
+    "services/cliproxyapi/users/danil/inference-key" = inferenceKey;
     # keep-sorted end
   };
 
-  services.cliproxyapi = {
-    enable = true;
+  services = {
+    traefik.dynamicConfigOptions.http = {
+      routers.cliproxyapi = {
+        entryPoints = ["https"];
+        rule = "Host(`cliproxyapi.${config.networking.fqdn}`) && (PathPrefix(`/v1/`) || Path(`/healthz`))"; # keep management and oauth callbacks private
 
-    package = pkgs.unstablePkgs.cliproxyapi;
-
-    settings = {
-      server = {
-        host = "0.0.0.0"; # the firewall keeps the port off the internet; tailscale accepts tailnet traffic before it gets there
-
-        commercial-mode = true; # with `request-log` off, failed requests still get written to disk with their prompts
+        service = "cliproxyapi";
       };
 
-      access.api-keys = [{_secret = config.sops.secrets."services/cliproxyapi/inference-key".path;}];
+      services.cliproxyapi.loadBalancer.servers = [{url = "http://127.0.0.1:${toString config.services.cliproxyapi.settings.server.port}";}];
+    };
 
-      management = {
-        secret-key._secret = config.sops.secrets."services/cliproxyapi/management-key".path;
+    cliproxyapi = {
+      enable = true;
 
-        disable-control-panel = true; # the panel is downloaded from github
+      package = pkgs.unstablePkgs.cliproxyapi;
+
+      settings = {
+        server = {
+          host = "0.0.0.0"; # the firewall keeps the port off the internet; tailscale accepts tailnet traffic before it gets there
+
+          commercial-mode = true; # with `request-log` off, failed requests still get written to disk with their prompts
+        };
+
+        access.api-keys = [
+          # keep-sorted start
+          {_secret = config.sops.secrets."services/cliproxyapi/users/claude-code-gateway/inference-key".path;}
+          {_secret = config.sops.secrets."services/cliproxyapi/users/danil/inference-key".path;}
+          # keep-sorted end
+        ];
+
+        management = {
+          secret-key._secret = config.sops.secrets."services/cliproxyapi/management-key".path;
+
+          disable-control-panel = true; # the panel is downloaded from github
+        };
+
+        routing = {
+          force-model-prefix = true; # a prefixed account serves only models asked with its prefix
+
+          session-affinity = true; # prompt cache is per account; round-robin loses it on every switch
+        };
+
+        multimedia.disable-image-generation = "chat"; # cliproxyapi adds an image tool to codex requests; claude drops the images, the quota is spent anyway
+
+        # break up with zero-width characters the identity line claude sends in non-interactive sessions: google answers it with `RESOURCE_EXHAUSTED`, and the cooldown that follows fails interactive sessions on the account too
+        oauth.providers.antigravity.sensitive-words = ["Claude Agent SDK"];
       };
-
-      routing = {
-        force-model-prefix = true; # a prefixed account serves only models asked with its prefix
-
-        session-affinity = true; # prompt cache is per account; round-robin loses it on every switch
-      };
-
-      multimedia.disable-image-generation = "chat"; # cliproxyapi adds an image tool to codex requests; claude drops the images, the quota is spent anyway
-
-      # break up with zero-width characters the identity line claude sends in non-interactive sessions: google answers it with `RESOURCE_EXHAUSTED`, and the cooldown that follows fails interactive sessions on the account too
-      oauth.providers.antigravity.sensitive-words = ["Claude Agent SDK"];
     };
   };
 

@@ -7,10 +7,9 @@
   ...
 }: {
   sops.secrets = {
-    # keep-sorted start
-    "services/cliproxyapi/inference-key".restartUnits = ["claude-code-gateway.service"];
     "services/cliproxyapi/management-key".restartUnits = ["claude-code-gateway.service"];
-    # keep-sorted end
+
+    "services/cliproxyapi/users/claude-code-gateway/inference-key".restartUnits = ["claude-code-gateway.service"];
   };
 
   services.traefik.dynamicConfigOptions.http = {
@@ -43,10 +42,9 @@
       StateDirectory = "claude-code-gateway";
 
       LoadCredential = [
-        # keep-sorted start
-        "inference-key:${config.sops.secrets."services/cliproxyapi/inference-key".path}"
         "management-key:${config.sops.secrets."services/cliproxyapi/management-key".path}"
-        # keep-sorted end
+
+        "inference-key:${config.sops.secrets."services/cliproxyapi/users/claude-code-gateway/inference-key".path}"
       ];
 
       Restart = "always";

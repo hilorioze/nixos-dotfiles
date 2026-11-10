@@ -166,7 +166,7 @@
             name = "cliproxyapi";
             group = "services";
 
-            url = "http://${de0Host}:${toString de0Config.services.cliproxyapi.settings.server.port}/healthz";
+            url = "https://cliproxyapi.${de0Host}/healthz";
 
             conditions = [
               "[STATUS] == 200"
