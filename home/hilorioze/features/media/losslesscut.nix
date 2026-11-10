@@ -1,3 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [pkgs.losslesscut];
+  home.packages = [pkgs.unstablePkgs.losslesscut];
 }

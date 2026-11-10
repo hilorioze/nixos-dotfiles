@@ -1,11 +1,9 @@
 _final: prev: {
-  kdePackages =
-    prev.kdePackages
-    // {
-      plasma-workspace = prev.kdePackages.plasma-workspace.overrideAttrs (oldAttrs: {
-        patches =
-          (oldAttrs.patches or [])
-          ++ [./media-keys-no-repeat.patch];
-      });
-    };
+  kdePackages = prev.kdePackages.overrideScope (_kdeFinal: kdePrev: {
+    plasma-workspace = kdePrev.plasma-workspace.overrideAttrs (oldAttrs: {
+      patches =
+        (oldAttrs.patches or [])
+        ++ [./media-keys-no-repeat.patch];
+    });
+  });
 }

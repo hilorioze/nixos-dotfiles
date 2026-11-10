@@ -1,11 +1,9 @@
 _final: prev: {
-  kdePackages =
-    prev.kdePackages
-    // {
-      spectacle = prev.kdePackages.spectacle.overrideAttrs (oldAttrs: {
-        patches =
-          (oldAttrs.patches or [])
-          ++ [./region-select-all.patch];
-      });
-    };
+  kdePackages = prev.kdePackages.overrideScope (_kdeFinal: kdePrev: {
+    spectacle = kdePrev.spectacle.overrideAttrs (oldAttrs: {
+      patches =
+        (oldAttrs.patches or [])
+        ++ [./region-select-all.patch];
+    });
+  });
 }

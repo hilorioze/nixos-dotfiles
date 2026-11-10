@@ -5,6 +5,7 @@
   inputs.cstrike-mod.overlays.default
   inputs.firefox-addons.overlays.default
   inputs.freesmlauncher.overlays.default
+  inputs.lazyvim-nix.overlays.default
   inputs.mud.overlays.default
   inputs.nix-vscode-extensions.overlays.default
   inputs.steam-voicechat-fix.overlays.default
@@ -13,6 +14,12 @@
   # must precede the local overlays that extend it
   (_final: prev: {
     unstablePkgs = import inputs.nixpkgs-unstable {
+      localSystem = prev.stdenv.hostPlatform.system;
+
+      inherit (prev) config;
+    };
+
+    unstableSmallPkgs = import inputs.nixpkgs-unstable-small {
       localSystem = prev.stdenv.hostPlatform.system;
 
       inherit (prev) config;
@@ -28,7 +35,7 @@
   (import ./gpu-screen-recorder-drm-master-fix)
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)
   (import ./konsole-wayland-tab-dnd-fix)
-  (import ./lazyvim-wakatime inputs.lazyvim-nix.overlays.default)
+  (import ./lazyvim-wakatime)
   (import ./looking-glass-client-idd)
   (import ./nix-update-read-write-mode)
   (import ./nix-update-script-flake-mode)
