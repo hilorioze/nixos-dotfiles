@@ -64,6 +64,8 @@
 
       cacheUrl = "https://nix-cache.${config.networking.domain}";
 
+      gc.olderThan = "336h"; # 14d
+
       signKeyFiles = [config.sops.secrets."services/niks3/cache/signing-keypair".path];
 
       # to generate api-token:
