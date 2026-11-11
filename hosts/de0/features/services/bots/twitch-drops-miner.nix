@@ -65,11 +65,35 @@
 
           "/tmp/twitch-drops-miner-cache:/TwitchDropsMiner/cache"
         ];
+
+        extraOptions = [
+          # podman drops the image's `HEALTHCHECK` from oci-format images; repeat it here
+          "--health-cmd=curl --fail --silent --show-error --max-time 10 http://127.0.0.1:5800/health"
+          "--health-start-period=60s"
+
+          "--health-on-failure=kill" # let systemd restart the container when the backend fails
+        ];
       };
     })
     users;
 in {
   virtualisation.oci-containers.containers = lib.attrsets.mergeAttrsList userContainersList;
+
+  services.gatus.settings.endpoints =
+    map (name: {
+      name = "twitch-drops-miner-${name}";
+      group = "services";
+
+      url = "http://127.0.0.1:${toString config.services.prometheus.port}/api/v1/query?query=${lib.escapeURL ''scalar(max(podman_container_health{name="twitch-drops-miner-${name}"} and on(id) podman_container_state == 2))''}";
+
+      conditions = [
+        "[STATUS] == 200"
+
+        "[BODY].status == success"
+        "[BODY].data.result[1] == 0" # `healthy`
+      ];
+    })
+    users;
 
   systemd.tmpfiles.rules = [
     "d /tmp/twitch-drops-miner-cache 2777 nobody nogroup -" # workaround for `Error: statfs /tmp/twitch-drops-miner-cache: no such file or directory`
