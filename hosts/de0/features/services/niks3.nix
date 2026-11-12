@@ -81,13 +81,37 @@
 
         audience = "https://niks3.${config.networking.domain}";
 
-        boundSubject = [
-          # keep-sorted start
-          "repo:hilorioze/cstrike-mod:ref:refs/heads/main"
-          "repo:hilorioze/nixos-dotfiles:ref:refs/heads/main"
-          "repo:hilorioze@107206970/mud@1434581637:ref:refs/heads/main"
-          "repo:hilorioze@107206970/steam-voicechat-fix@1334445192:ref:refs/heads/main"
-          # keep-sorted end
+        rules = [
+          {
+            boundSubject = [
+              # keep-sorted start
+              "repo:hilorioze/cstrike-mod:ref:refs/heads/main"
+              "repo:hilorioze@107206970/mud@1434581637:ref:refs/heads/main"
+              "repo:hilorioze@107206970/nixos-dotfiles@1247733377:ref:refs/heads/main"
+              "repo:hilorioze@107206970/steam-voicechat-fix@1334445192:ref:refs/heads/main"
+              # keep-sorted end
+            ];
+
+            scopes = ["write"];
+          }
+
+          # let main substitute the builds of pull requests it merges; forks get no oidc token
+          {
+            boundSubject = ["repo:hilorioze@107206970/nixos-dotfiles@1247733377:pull_request"];
+
+            boundClaims = {
+              base_ref = ["main"];
+
+              actor = [
+                # keep-sorted start
+                "hilorioze"
+                "renovate[bot]"
+                # keep-sorted end
+              ];
+            };
+
+            scopes = ["write"];
+          }
         ];
       };
 

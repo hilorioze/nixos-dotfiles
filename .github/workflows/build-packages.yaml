@@ -115,7 +115,10 @@ jobs:
             printf 'EOF\n'
           } >> $GITHUB_ENV
 
-      - if: github.event_name != 'pull_request'
+      # pull requests into main from the trusted accounts push too, so main substitutes their builds after the merge
+      - if: &push-to-cache >-
+          github.event_name != 'pull_request' ||
+          contains(fromJSON('["hilorioze", "renovate[bot]"]'), github.actor)
         id: fetch-niks3-bin
         run: |
           cat "$(nix build --impure --no-link --print-out-paths --print-build-logs --expr '
@@ -134,7 +137,7 @@ jobs:
               })
           ')" >>$GITHUB_OUTPUT
 
-      - if: github.event_name != 'pull_request'
+      - if: *push-to-cache
         uses: Mic92/niks3-action@6c79855e3e7d8e62ca74234519438a858003abe1 # v1.7.0
         with:
           niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
@@ -142,7 +145,7 @@ jobs:
           server-url: ${{ vars.NIKS3_SERVER }}
 
       # cache the built `fetch-niks3-bin` output so later runs can reuse it
-      - if: github.event_name != 'pull_request'
+      - if: *push-to-cache
         run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
 
       - env:
