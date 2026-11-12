@@ -40,8 +40,7 @@
     ../../../features/development/bruno.nix
     ../../../features/development/devenv.nix
     ../../../features/development/direnv.nix
-    ../../../features/development/editors/lazyvim.nix
-    ../../../features/development/editors/vscodium.nix
+    ../../../features/development/editors/vscode.nix
     ../../../features/development/git/gh.nix
     ../../../features/development/git/git.nix
     ../../../features/development/git/hardware-signing.nix

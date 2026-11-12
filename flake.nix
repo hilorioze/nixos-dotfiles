@@ -80,12 +80,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    lazyvim-nix = {
-      url = "github:pfassina/lazyvim-nix";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     mud.url = "github:hilorioze/mud"; # keep their inputs for binary cache
 
     nix-flatpak.url = "github:gmodena/nix-flatpak";
