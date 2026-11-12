@@ -1,0 +1,201 @@
+diff --git a/api/types.go b/api/types.go
+index e799552..c8b106a 100644
+--- a/api/types.go
++++ b/api/types.go
+@@ -97,6 +97,11 @@ type CacheConfig struct {
+ 	// accepts. Clients skip closures containing larger paths. 0 means unlimited.
+ 	MaxNarSize uint64 `json:"max_nar_size,omitempty"`
+ 
++	// UpstreamCacheKeyNames lists the signing key names of upstream caches.
++	// Clients skip store paths signed by one of them, together with the
++	// closures of those paths, since Nix substitutes them from upstream.
++	UpstreamCacheKeyNames []string `json:"upstream_cache_key_names,omitempty"`
++
+ 	// Pushes is true if the server has POST /api/pushes. Older servers omit it.
+ 	Pushes bool `json:"pushes,omitempty"`
+ }
+diff --git a/client/upload.go b/client/upload.go
+index c3dbf0e..abca5c3 100644
+--- a/client/upload.go
++++ b/client/upload.go
+@@ -10,6 +10,7 @@ import (
+ 	"net/http"
+ 	"os"
+ 	"path/filepath"
++	"slices"
+ 	"strings"
+ 	"time"
+ 
+@@ -138,6 +139,11 @@ func PrepareClosures(ctx context.Context, topLevelPaths []string, pathInfos map[
+ 		var references []string
+ 
+ 		for _, ref := range pathInfo.References {
++			// References filterUpstreamPaths dropped are served by an upstream cache
++			if _, ok := pathInfos[ref]; !ok {
++				continue
++			}
++
+ 			refHash, err := GetStorePathHash(ref)
+ 			if err != nil {
+ 				return nil, fmt.Errorf("getting reference hash: %w", err)
+@@ -375,6 +381,56 @@ nextClosure:
+ 	return kept, prunedInfos, skipped
+ }
+ 
++// filterUpstreamPaths drops paths signed by one of the upstream cache key
++// names. Nix substitutes them together with their closures from the
++// upstream cache, so pathInfos is pruned to the paths still reachable from
++// the kept top-level paths without passing through an upstream path. The
++// narinfos keep their full References.
++func filterUpstreamPaths(topLevelPaths []string, pathInfos map[string]*PathInfo, keyNames []string) ([]string, map[string]*PathInfo) {
++	if len(keyNames) == 0 {
++		return topLevelPaths, pathInfos
++	}
++
++	localInfos := make(map[string]*PathInfo, len(pathInfos))
++
++nextPath:
++	for path, info := range pathInfos {
++		for _, sig := range info.Signatures {
++			if name, _, _ := strings.Cut(sig, ":"); slices.Contains(keyNames, name) {
++				continue nextPath
++			}
++		}
++
++		localInfos[path] = info
++	}
++
++	if len(localInfos) == len(pathInfos) {
++		return topLevelPaths, pathInfos
++	}
++
++	kept := make([]string, 0, len(topLevelPaths))
++
++	for _, topLevelPath := range topLevelPaths {
++		if _, ok := localInfos[topLevelPath]; ok {
++			kept = append(kept, topLevelPath)
++		}
++	}
++
++	prunedInfos := make(map[string]*PathInfo)
++
++	for _, reachable := range computeClosureMembership(kept, localInfos) {
++		for path := range reachable {
++			if info, ok := localInfos[path]; ok {
++				prunedInfos[path] = info
++			}
++		}
++	}
++
++	slog.Info(fmt.Sprintf("Skipping %d paths available from upstream caches", len(pathInfos)-len(prunedInfos)))
++
++	return kept, prunedInfos
++}
++
+ // createPending registers the closures with the server and returns the route
+ // to sign and complete them on, plus the pending objects keyed by pending ID.
+ // The server only signs narinfos that are pending for that specific ID, so
+@@ -606,13 +662,24 @@ func (c *Client) PushPaths(ctx context.Context, paths []string) ([]string, error
+ 		closurePaths = append(closurePaths, storePath)
+ 	}
+ 
+-	// Skip closures containing paths larger than the server's max NAR size.
+-	var maxNarSize uint64
++	// Skip paths served by upstream caches, then closures containing paths
++	// larger than the server's max NAR size.
++	var (
++		maxNarSize            uint64
++		upstreamCacheKeyNames []string
++	)
+ 
+ 	if cfg, err := c.GetCacheConfig(ctx); err != nil {
+-		slog.Warn("Failed to fetch cache config, uploading without size limit", "error", err)
++		slog.Warn("Failed to fetch cache config, uploading without size limit or upstream filter", "error", err)
+ 	} else {
+-		maxNarSize = cfg.MaxNarSize
++		maxNarSize, upstreamCacheKeyNames = cfg.MaxNarSize, cfg.UpstreamCacheKeyNames
++	}
++
++	resolvedPaths, pathInfos = filterUpstreamPaths(resolvedPaths, pathInfos, upstreamCacheKeyNames)
++	if len(resolvedPaths) == 0 {
++		slog.Info("All paths are available from upstream caches, nothing to upload")
++
++		return closurePaths, nil
+ 	}
+ 
+ 	var skipped skippedUploads
+diff --git a/server/cache_config.go b/server/cache_config.go
+index 4c4d4c0..1b17b4e 100644
+--- a/server/cache_config.go
++++ b/server/cache_config.go
+@@ -4,6 +4,8 @@ import (
+ 	"encoding/json"
+ 	"log/slog"
+ 	"net/http"
++	"slices"
++	"strings"
+ 
+ 	"github.com/Mic92/niks3/api"
+ )
+@@ -37,6 +39,11 @@ func (s *Service) CacheConfigHandler(w http.ResponseWriter, r *http.Request) {
+ 		cfg.PublicKeys = append(cfg.PublicKeys, pub)
+ 	}
+ 
++	// The cache's own keys sign what it serves, so they are never upstream.
++	cfg.UpstreamCacheKeyNames = slices.DeleteFunc(slices.Clone(s.UpstreamCacheKeyNames), func(name string) bool {
++		return slices.ContainsFunc(cfg.PublicKeys, func(pub string) bool { return strings.HasPrefix(pub, name+":") })
++	})
++
+ 	if issuer := r.URL.Query().Get("issuer"); issuer != "" && s.OIDCValidator != nil {
+ 		if aud, ok := s.OIDCValidator.AudienceForIssuer(issuer); ok {
+ 			cfg.OIDCAudience = aud
+diff --git a/server/main.go b/server/main.go
+index fce2495..28b95a9 100644
+--- a/server/main.go
++++ b/server/main.go
+@@ -258,6 +258,12 @@ func parseArgs() (*options, error) {
+ 		"CA bundle for native mTLS client cert verification. Subjects are checked against --mtls-bound-subject")
+ 	flag.StringVar(&maxNarSize, "max-nar-size", getEnvOrDefault("NIKS3_MAX_NAR_SIZE", ""),
+ 		"Maximum uncompressed NAR size accepted for upload (e.g. 2G, 512M). Empty or 0 means unlimited")
++
++	// Space-separated in the environment, like NIKS3_SIGN_KEY_PATHS
++	opts.UpstreamCacheKeyNames = strings.Fields(getEnvOrDefault("NIKS3_UPSTREAM_CACHE_KEY_NAMES", ""))
++	flag.Var((*stringSliceFlag)(&opts.UpstreamCacheKeyNames), "upstream-cache-key-name",
++		"Signing key name of an upstream cache (e.g. cache.nixos.org-1). Clients don't upload store paths it signed. The cache's own keys are ignored. "+
++			"Repeat for multiple caches")
+ 	registerBucketFlags(&opts)
+ 	flag.BoolVar(&opts.Debug, "debug", getEnvOrDefaultBool("NIKS3_DEBUG", false),
+ 		"Enable debug logging (may leak sensitive information)")
+diff --git a/server/server.go b/server/server.go
+index 640b39d..a714572 100644
+--- a/server/server.go
++++ b/server/server.go
+@@ -61,6 +61,10 @@ type options struct {
+ 	// upload. 0 means unlimited.
+ 	MaxNarSize uint64
+ 
++	// UpstreamCacheKeyNames lists the signing key names of upstream caches
++	// whose store paths clients don't upload.
++	UpstreamCacheKeyNames []string
++
+ 	// CachePriority is advertised in nix-cache-info. Lower wins.
+ 	CachePriority int
+ 
+@@ -131,6 +135,9 @@ type Service struct {
+ 	// pending-closure creation. 0 means unlimited.
+ 	MaxNarSize uint64
+ 
++	// See options.UpstreamCacheKeyNames. Advertised via /api/cache-config.
++	UpstreamCacheKeyNames []string
++
+ 	// CachePriority is written to nix-cache-info. 0 means defaultCachePriority.
+ 	CachePriority int
+ 
+@@ -262,6 +269,7 @@ func runServer(opts *options) error {
+ 		CacheURL:                   opts.CacheURL,
+ 		ServerURL:                  opts.ServerURL,
+ 		MaxNarSize:                 opts.MaxNarSize,
++		UpstreamCacheKeyNames:      opts.UpstreamCacheKeyNames,
+ 		CachePriority:              opts.CachePriority,
+ 		AbortIncompleteUploadsDays: opts.AbortIncompleteUploadsDays,
+ 		GCTasks:                    NewGCTaskStore(),

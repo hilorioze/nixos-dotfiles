@@ -35,6 +35,7 @@
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)
   (import ./konsole-wayland-tab-dnd-fix)
   (import ./looking-glass-client-idd)
+  (import ./niks3-upstream-cache-filter)
   (import ./nix-update-read-write-mode)
   (import ./nix-update-script-flake-mode)
   (import ./nix-update-skip-package-environment)

@@ -2,6 +2,7 @@
   # keep-sorted start
   config,
   inputs,
+  lib,
   pkgs,
   # keep-sorted end
   ...
@@ -118,5 +119,11 @@
 
     wants = ["sops-nix.service"];
     requires = ["postgresql.target"];
+
+    # keep paths signed by the other substituters out of the cache, nix substitutes them from there; niks3 skips its own key
+    environment.NIKS3_UPSTREAM_CACHE_KEY_NAMES = toString (map (key: builtins.head (lib.splitString ":" key)) (
+      config.nix.settings.trusted-public-keys
+      ++ config.nix.settings.extra-trusted-public-keys
+    ));
   };
 }
