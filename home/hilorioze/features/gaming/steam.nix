@@ -62,12 +62,6 @@
         ];
       };
 
-      "590830" = {
-        name = "s&box";
-
-        compatTool = config.programs.steam.config.defaultCompatTool; # https://github.com/Facepunch/sbox-issues/issues/9759
-      };
-
       "1422450" = {
         name = "Deadlock";
 
