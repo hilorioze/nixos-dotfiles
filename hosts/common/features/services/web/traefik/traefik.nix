@@ -89,7 +89,7 @@
 
           forwardedHeaders.trustedIPs = let
             readLinesFromURL = url: sha256:
-            # use `builtins.fetchurl` because `pkgs.fetchurl` breaks cross-system eval
+              # use `builtins.fetchurl` because `pkgs.fetchurl` breaks cross-system eval
               lib.splitString "\n" (builtins.readFile (builtins.fetchurl {
                 inherit url;
 

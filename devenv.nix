@@ -1,4 +1,10 @@
-{pkgs, ...}: {
+{
+  # keep-sorted start
+  inputs,
+  pkgs,
+  # keep-sorted end
+  ...
+}: {
   packages = with pkgs; [
     # keep-sorted start
     age # ships age-plugin-tag; required to encrypt to `age1tag1` recipients
@@ -44,6 +50,8 @@
       # keep-sorted start block=yes newline_separated=yes
       alejandra = {
         enable = true;
+
+        package = inputs.alejandra.packages.${pkgs.stdenv.hostPlatform.system}.default; # keep until devenv's nixpkgs provides a version with the fix keeping a `/* <language> */` injection marker on the string's line for line-based highlighters like `nix-injection`
 
         priority = 100;
       };

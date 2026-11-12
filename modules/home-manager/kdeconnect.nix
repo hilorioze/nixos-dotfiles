@@ -8,27 +8,28 @@
 }: let
   iniFormat = pkgs.formats.ini {};
 
-  trustedDeviceType = with lib;
-  with types;
-    submodule (_: {
-      options = {
-        name = mkOption {
-          type = str;
-        };
+  trustedDeviceType =
+    with lib;
+    with types;
+      submodule (_: {
+        options = {
+          name = mkOption {
+            type = str;
+          };
 
-        type = mkOption {
-          type = str;
-        };
+          type = mkOption {
+            type = str;
+          };
 
-        protocolVersion = mkOption {
-          type = int;
-        };
+          protocolVersion = mkOption {
+            type = int;
+          };
 
-        certificate = mkOption {
-          type = str;
+          certificate = mkOption {
+            type = str;
+          };
         };
-      };
-    });
+      });
 
   trustedDevicesType = with lib.types; attrsOf trustedDeviceType;
 in

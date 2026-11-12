@@ -1,6 +1,13 @@
 # yaml-language-server: $schema=https://devenv.sh/devenv.schema.json
 inputs:
   # keep-sorted start block=yes newline_separated=yes
+  alejandra:
+    url: github:kamadorueda/alejandra
+
+    inputs:
+      nixpkgs:
+        follows: nixpkgs
+
   git-hooks:
     url: github:cachix/git-hooks.nix
 
