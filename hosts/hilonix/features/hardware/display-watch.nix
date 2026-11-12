@@ -6,9 +6,7 @@
   displayWatch =
     pkgs.writers.writePython3 "display-watch" {
       flakeIgnore = (import ../../../../shared.nix).ignoredFlake8Rules;
-    }
-    # python
-    ''
+    } /* python */ ''
       import argparse
       import pathlib
       import shlex

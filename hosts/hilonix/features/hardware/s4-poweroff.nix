@@ -6,9 +6,7 @@
   systemd.shutdown.s4-poweroff =
     pkgs.writers.writePython3 "s4-poweroff" {
       flakeIgnore = (import ../../../../shared.nix).ignoredFlake8Rules;
-    }
-    # python
-    ''
+    } /* python */ ''
       import fcntl
       import sys
 

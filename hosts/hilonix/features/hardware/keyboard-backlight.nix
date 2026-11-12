@@ -2,9 +2,7 @@
   keyboardBacklightControl =
     pkgs.writers.writePython3 "keyboard-backlight-control" {
       flakeIgnore = (import ../../../../shared.nix).ignoredFlake8Rules;
-    }
-    # python
-    ''
+    } /* python */ ''
       import argparse
 
       REPORT_ID: int = 0x06

@@ -58,6 +58,9 @@
           anthropic.claude-code # follows the claude-code version
           ms-python.vscode-python-envs # stable bundles the windows arm64 `pet.exe` instead of the linux `pet`
           # keep-sorted end
+        ])
+        ++ (with pkgs.vscode-marketplace; [
+          barsikus007.nix-injection # highlights strings after `/* <language> */` and nvim-treesitter's automatic injections
         ]);
 
       userSettings = {
