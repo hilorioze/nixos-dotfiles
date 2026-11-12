@@ -114,10 +114,11 @@ in {
         promptSuggestionEnabled = false; # disable the guess of the next message, a model request over the whole conversation after every reply
         autoDreamEnabled = false; # disable the background memory consolidation, a main model agent over the memory directory and recent sessions
 
-        preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
-
         remoteControlAtStartup = true; # keep every session reachable from the phone
+
+        preferredNotifChannel = "terminal_bell"; # `auto` ignores konsole; bell triggers a notification
         inputNeededNotifEnabled = true; # ping the phone on prompt (permission or question)
+        agentPushNotifEnabled = true; # let claude ping me when it has something worth interrupting for
 
         switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
 
