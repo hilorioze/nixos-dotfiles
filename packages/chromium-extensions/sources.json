@@ -1,4 +1,10 @@
 {
+  "chromium-extension-keepassxc-browser": {
+    "id": "oboonakemofpalcgghocfoadofidjkkk",
+    "version": "1.10.4.1",
+    "url": "https://clients2.googleusercontent.com/crx/blobs/ARGaeZKXuFmeGA0B1w5WTcuq0_raxJ6zMOg8yb4q37ELjZ3NJOafDm9gpv7Zzi7gnDxmFBKBHdmUORaZ2ntipkfJhp0n4-W_mDat61-qUMMwTyf5zprQvOVVNySXZG3omNMAxlKa5SF0dDRHC00RfTw-91xINvc34M5T/OBOONAKEMOFPALCGGHOCFOADOFIDJKKK_1_10_4_1.crx",
+    "hash": "sha256-rabNmvObnhSuu20w6sNltm6HBO8/3ORucbFf7CZGME4="
+  },
   "chromium-extension-playwright": {
     "id": "mmlmfjhmonkocbjadbfplnigmagldckm",
     "version": "0.5.0",

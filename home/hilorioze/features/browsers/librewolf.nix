@@ -11,23 +11,22 @@
 in {
   sops = {
     secrets = {
-      # keep-sorted start
       "apps/dearrow/license-key" = {};
-      "apps/keepassxc/key" = {};
-      # keep-sorted end
+
+      "apps/keepassxc-browser/librewolf/key" = {};
     };
 
-    templates."apps/keepassxc/storage.js" = {
+    templates."apps/keepassxc-browser/librewolf/storage.js" = {
       content = let
         databaseHash = "fb9a50b4543f9ff95e065ab937916c5e73980e49282a82fab075608bfb382e89";
       in
         builtins.toJSON {
-          keyRing."${databaseHash}" = {
-            id = "librewolf-${osConfig.networking.hostName}";
+          keyRing.${databaseHash} = {
+            id = "librewolf@${osConfig.networking.hostName}";
 
             hash = databaseHash;
 
-            key = config.sops.placeholder."apps/keepassxc/key";
+            key = config.sops.placeholder."apps/keepassxc-browser/librewolf/key";
           };
 
           settings = {
