@@ -15,7 +15,7 @@ in
   buildPythonPackage (finalAttrs: {
     pname = "mcp-for-blender";
 
-    version = "2.2.7";
+    version = "2.2.8";
 
     src = fetchPypi {
       pname = pypiName;
@@ -28,7 +28,7 @@ in
       python = "py3";
       dist = "py3";
 
-      hash = "sha256-L9Ktb5ME+CFxZ8CNxhwYZCvAip9D+yw5iO7khRZARyw=";
+      hash = "sha256-Q9cwU3z5/iwk7f4yBOOZ9Vq4j5fOR2jAd4ViTlGNPog=";
     };
 
     format = "wheel";
