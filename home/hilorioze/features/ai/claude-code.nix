@@ -123,6 +123,8 @@ in {
 
         feedbackDrafts = "off"; # disable the "✻ Bug report drafted" card and the `SendFeedback` tool
 
+        verbose = true; # show full tool output
+
         statusLine = {
           type = "command";
 
