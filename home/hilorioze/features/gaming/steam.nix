@@ -42,8 +42,8 @@
         };
 
         preHook = ''
-          # prepend game directory to `LD_LIBRARY_PATH` at runtime so `Sys_LoadModule` can resolve `libcef.so` (dep of `chromehtml.so`)
-          export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH
+          # load scout's libraries explicitly: `Steam-Play-None` bypasses the runtime, and the 64-bit steam client doesn't provide them; steam's `search-cwd` flag also appends the game directory, where `Sys_LoadModule` resolves `libcef.so` (dep of `chromehtml.so`)
+          export LD_LIBRARY_PATH=$("$STEAM_COMPAT_CLIENT_INSTALL_PATH/steamapps/common/SteamLinuxRuntime/steam-runtime/run.sh" --print-steam-runtime-library-paths)
 
           # csldr loads the original client from `client_orig.so` next to itself; a `client.so` without csldr's version string is valve's own, from a fresh install, an update or a file check
           if ! grep --quiet --fixed-strings 'csldr version' cstrike/cl_dlls/client.so; then
