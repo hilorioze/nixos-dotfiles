@@ -3,6 +3,7 @@
   # keep-sorted start
   a2s = pkgs.callPackage ./a2s {};
   blender-openskp = pkgs.callPackage ./blender-openskp {};
+  bluetooth-volume-snap = pkgs.callPackage ./bluetooth-volume-snap {};
   blutter = pkgs.callPackage ./blutter {};
   bspguy = pkgs.callPackage ./bspguy {};
   claude-code-gateway = pkgs.callPackage ./claude-code-gateway {};

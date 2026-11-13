@@ -1,7 +1,6 @@
 {inputs, ...}: {
   imports = [
     # keep-sorted start
-    ../../../../common/features/audio/wireplumber-oneplus-buds-pro-3.nix
     ../../../../common/features/desktop/fonts/corefonts.nix
     ../../../../common/features/desktop/fonts/meslo-nerd-font.nix
     ../../../../common/features/desktop/fonts/vista-fonts.nix
