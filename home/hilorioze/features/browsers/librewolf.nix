@@ -281,6 +281,7 @@ in {
       # keep-sorted start
       "keepassxc-browser@keepassxc.org".private_browsing = true;
       "uBlock0@raymondhill.net".private_browsing = true;
+      "{60f82f00-9ad5-4de5-b31c-b16a47c51558}".private_browsing = true;
       # keep-sorted end
     };
   };
