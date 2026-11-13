@@ -684,11 +684,11 @@
         "uv2nix": "uv2nix_2"
       },
       "locked": {
-        "lastModified": 1794595671,
-        "narHash": "sha256-YCOFfOui41Ijce5Jt0/DwabrhH0r2GEuujwJpVq1OcY=",
+        "lastModified": 1794604446,
+        "narHash": "sha256-JicmDziX0wcN98Dp9VpM+4NQX+d8MV6ni3BOmV+ZD9U=",
         "owner": "hilorioze",
         "repo": "hilot",
-        "rev": "74bb26fce4c5c3c5cdd02c25d1c585fa0d052a03",
+        "rev": "ab9968595fbf363f9f406e14c2e4d220c80778d7",
         "type": "github"
       },
       "original": {

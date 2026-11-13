@@ -273,6 +273,22 @@ in {
 
                     max_message_age = "0:30:00";
 
+                    # only the accounts that have started the bot check in
+                    check_ins = [
+                      {
+                        bot = "sheeridvn_bot";
+                        command = "/start";
+                        buttons = [
+                          "start_me"
+                          "start_checkin"
+                        ];
+
+                        # the bot's day starts at an unknown midnight; the window misses both utc's and vietnam's
+                        start = "09:00:00";
+                        end = "16:00:00";
+                      }
+                    ];
+
                     http = mkHttp port;
                   };
                 });
