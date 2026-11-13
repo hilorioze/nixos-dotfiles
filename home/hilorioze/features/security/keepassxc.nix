@@ -13,6 +13,8 @@
     Browser = {
       Enabled = true;
 
+      UpdateBinaryPath = false; # home-manager manages the native messaging manifests
+
       AlwaysAllowAccess = true;
       AlwaysAllowUpdate = true;
       HttpAuthPermission = true;
