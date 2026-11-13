@@ -44,7 +44,6 @@
     ../../../features/development/git/gh.nix
     ../../../features/development/git/git.nix
     ../../../features/development/git/hardware-signing.nix
-    ../../../features/development/git/lazygit.nix
     ../../../features/development/git/nixos-dotfiles-lazy-git-repo.nix
     ../../../features/development/goldsrc/bspguy.nix
     ../../../features/development/goldsrc/half-life-asset-manager.nix
