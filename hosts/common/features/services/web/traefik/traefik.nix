@@ -118,4 +118,7 @@
       };
     };
   };
+
+  # lego follows the wildcard cnames from every subdomain's `_acme-challenge` to the host's own name, where the challenges of all subdomains share one name and a leftover record fails the next one; keep each record on its own `_acme-challenge`
+  systemd.services.traefik.environment.LEGO_DISABLE_CNAME_SUPPORT = "true";
 }
