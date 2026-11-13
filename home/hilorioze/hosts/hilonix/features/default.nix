@@ -90,6 +90,7 @@
     ../../../features/security/gpg/kleopatra.nix
     ../../../features/security/keepassxc.nix
     ../../../features/security/kwallet.nix
+    ../../../features/security/secretspec.nix
     ../../../features/security/ssh-agent.nix
     ../../../features/shell/atuin.nix
     ../../../features/storage/ventoy.nix
