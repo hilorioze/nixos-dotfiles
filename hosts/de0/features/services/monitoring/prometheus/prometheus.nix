@@ -8,6 +8,8 @@
   services.prometheus = {
     enable = true;
 
+    extraFlags = ["--enable-feature=created-timestamp-zero-ingestion"]; # a labelled counter's series appears with its first increment; a zero sample at its start timestamp lets `increase` see that increment
+
     ruleFiles = [./rules.yaml];
 
     scrapeConfigs = [
@@ -18,6 +20,25 @@
         static_configs = [
           {
             targets = ["localhost:${toString config.services.gatus.settings.web.port}"];
+          }
+        ];
+      }
+
+      {
+        job_name = "hilot";
+
+        static_configs = let
+          hel0Host = outputs.nixosConfigurations.hel0.config.networking.fqdn;
+        in [
+          {
+            targets = [
+              # keep-sorted start
+              "${hel0Host}:9101"
+              "${hel0Host}:9102"
+              "${hel0Host}:9103"
+              "${hel0Host}:9104"
+              # keep-sorted end
+            ];
           }
         ];
       }

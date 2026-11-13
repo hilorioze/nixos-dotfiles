@@ -12,6 +12,28 @@ groups:
         annotations:
           summary: "Service {{ $labels.name }} is down"
 
+  - name: hilot
+    rules:
+      # keep-sorted start block=yes newline_separated=yes
+      - alert: hilot_login_required
+
+        expr: increase(hilot_login_required_total[10m]) > 0
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "hilot needs a login for {{ $labels.extractor }}"
+
+      - alert: hilot_task_failed
+
+        expr: increase(hilot_task_failures_total[10m]) > 0
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "hilot task {{ $labels.task }} failed"
+      # keep-sorted end
+
   - name: node
     rules:
       # keep-sorted start block=yes newline_separated=yes

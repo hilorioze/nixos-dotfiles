@@ -75,6 +75,19 @@
 
           mailserverHost = hel0Config.mailserver.fqdn;
 
+          mkHilotEndpoint = service: {
+            name = service;
+            group = "services";
+
+            url = "https://${service}.${hel0Host}/healthz";
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY].status == ok"
+            ];
+          };
+
           mkNodeExporterEndpoint = nixosConfig: {
             name = "node-exporter-${nixosConfig.networking.hostName}";
             group = "telemetry";
@@ -254,6 +267,14 @@
               "[BODY].status == pass"
             ];
           }
+
+          (mkHilotEndpoint "hilot-bot-hilorioze")
+
+          (mkHilotEndpoint "hilot-bot-qpw")
+
+          (mkHilotEndpoint "hilot-downloader")
+
+          (mkHilotEndpoint "hilot-transcoder")
 
           {
             name = "lampac";
