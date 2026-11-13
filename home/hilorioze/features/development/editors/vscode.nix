@@ -48,7 +48,6 @@
           redhat.vscode-yaml
           ritwickdey.liveserver
           rust-lang.rust-analyzer
-          tamasfe.even-better-toml
           vadimcn.vscode-lldb
           wakatime.vscode-wakatime
           # keep-sorted end
@@ -60,7 +59,10 @@
           # keep-sorted end
         ])
         ++ (with pkgs.vscode-marketplace; [
+          # keep-sorted start
           barsikus007.nix-injection # highlights strings after `/* <language> */` and nvim-treesitter's automatic injections
+          tombi-toml.tombi # formats toml by the project's `tombi.toml`
+          # keep-sorted end
         ]);
 
       userSettings = {
