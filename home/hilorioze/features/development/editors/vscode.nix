@@ -114,7 +114,24 @@
     };
   };
 
-  home.sessionVariables.EDITOR = "${lib.getExe config.programs.vscode.package} --wait";
+  home = {
+    sessionVariables.EDITOR = "${lib.getExe config.programs.vscode.package} --wait";
+
+    activation.disableVscodeAutofetchPrompt = let
+      globalStorageDir = "${config.xdg.configHome}/Code/User/globalStorage";
+    in
+      lib.hm.dag.entryAfter ["writeBoundary"] ''
+        run ${lib.getExe' pkgs.coreutils "mkdir"} --parents ${globalStorageDir}
+
+        # mark the autofetch prompt as already answered
+        run ${lib.getExe pkgs.sqlite} -cmd '.timeout 5000' ${globalStorageDir}/state.vscdb \
+          "BEGIN;" \
+          "CREATE TABLE IF NOT EXISTS ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB);" \
+          "INSERT OR IGNORE INTO ItemTable (key, value) VALUES ('vscode.git', '{}');" \
+          "UPDATE ItemTable SET value = json_set(value, '$.\"autofetch.didInformUser\"', json('true')) WHERE key = 'vscode.git';" \
+          "COMMIT;"
+      '';
+  };
 
   xdg.mimeApps.defaultApplications = {
     # keep-sorted start
