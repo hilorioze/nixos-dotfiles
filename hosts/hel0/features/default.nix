@@ -9,6 +9,7 @@
     ../../common/features/nix/home-manager.nix
     ../../common/features/nix/nix.nix
     ../../common/features/security/fail2ban.nix
+    ../../common/features/services/databases/postgresql.nix
     ../../common/features/services/monitoring/fluent-bit.nix
     ../../common/features/services/monitoring/node-exporter.nix
     ../../common/features/services/web/traefik/podman.nix

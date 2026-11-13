@@ -258,6 +258,24 @@ in {
               ];
             }
 
+            # de0 (prometheus) scrapes hilot on hel0
+            {
+              action = "accept";
+
+              src = ["tag:de0"];
+
+              dst = ["tag:hel0:9101-9104"];
+            }
+
+            # hilot on hel0 downloads through the proxy on fakesynology-nixos
+            {
+              action = "accept";
+
+              src = ["tag:hel0"];
+
+              dst = ["tag:fakesynology-nixos:3128"];
+            }
+
             # fluent-bit on all monitored hosts pushes logs to loki on de0
             {
               action = "accept";

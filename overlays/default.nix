@@ -5,6 +5,7 @@
   inputs.cstrike-mod.overlays.default
   inputs.firefox-addons.overlays.default
   inputs.freesmlauncher.overlays.default
+  inputs.hilot.overlays.default
   inputs.mud.overlays.default
   inputs.nix-vscode-extensions.overlays.default
   inputs.steam-voicechat-fix.overlays.default

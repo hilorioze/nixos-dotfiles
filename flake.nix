@@ -80,6 +80,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    hilot.url = "github:hilorioze/hilot"; # keep their inputs for binary cache
+
     mud.url = "github:hilorioze/mud"; # keep their inputs for binary cache
 
     nix-flatpak.url = "github:gmodena/nix-flatpak";
