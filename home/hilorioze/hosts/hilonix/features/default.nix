@@ -54,6 +54,7 @@
     ../../../features/files/ktorrent.nix
     ../../../features/files/syncthing/syncthing.nix
     ../../../features/files/syncthing/tray.nix
+    ../../../features/gaming/chiaki-ng.nix
     ../../../features/gaming/cs16-client.nix
     ../../../features/gaming/deadlocked.nix
     ../../../features/gaming/heroic.nix
