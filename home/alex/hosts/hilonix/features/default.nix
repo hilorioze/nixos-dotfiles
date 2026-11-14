@@ -8,6 +8,7 @@
     ../../../../common/features/desktop/plasma/kactivitymanagerd.nix
     ../../../../common/features/desktop/plasma/kdialog.nix
     ../../../../common/features/desktop/plasma/plasma.nix
+    ../../../../common/features/files/7z.nix
     ../../../../common/features/files/ark.nix
     ../../../../common/features/files/dolphin.nix
     ../../../../common/features/files/rar.nix
