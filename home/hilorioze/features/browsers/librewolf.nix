@@ -196,6 +196,8 @@ in {
         # fixes extensions being disabled right after a fresh install
         "extensions.autoDisableScopes" = 0;
 
+        "xpinstall.signatures.required" = false; # allow loading return-youtube-dislikes with its patched manifest
+
         # use native file picker instead of gtk file picker
         "widget.use-xdg-desktop-portal.file-picker" = 1;
 
