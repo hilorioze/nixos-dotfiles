@@ -186,6 +186,12 @@ in {
         #firefox-view-button {
           display: none !important;
         }
+
+        /* make tab audio icon non-clickable */
+        .tab-audio-button,
+        .tab-icon-overlay {
+          pointer-events: none !important;
+        }
       '';
 
       settings = {
