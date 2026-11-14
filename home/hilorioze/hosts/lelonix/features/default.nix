@@ -7,6 +7,7 @@
     ../../../../common/features/desktop/plasma/baloo.nix
     ../../../../common/features/desktop/plasma/kactivitymanagerd.nix
     ../../../../common/features/desktop/plasma/kdialog.nix
+    ../../../../common/features/files/rar.nix
     ../../../../common/features/gaming/mangohud.nix
     ../../../../common/features/hardware/thermalmonitor.nix
     ../../../../common/features/media/spectacle.nix

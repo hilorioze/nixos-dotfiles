@@ -10,6 +10,7 @@
     ../../../../common/features/desktop/plasma/plasma.nix
     ../../../../common/features/files/ark.nix
     ../../../../common/features/files/dolphin.nix
+    ../../../../common/features/files/rar.nix
     ../../../../common/features/gaming/mangohud.nix
     ../../../../common/features/hardware/thermalmonitor.nix
     ../../../../common/features/media/haruna.nix
