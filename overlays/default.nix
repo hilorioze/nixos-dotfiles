@@ -12,17 +12,17 @@
   # keep-sorted end
 
   # must precede the local overlays that extend it
-  (_final: prev: {
+  (final: _prev: {
     unstablePkgs = import inputs.nixpkgs-unstable {
-      localSystem = prev.stdenv.hostPlatform.system;
+      localSystem = final.stdenv.hostPlatform.system;
 
-      inherit (prev) config;
+      inherit (final) config;
     };
 
     unstableSmallPkgs = import inputs.nixpkgs-unstable-small {
-      localSystem = prev.stdenv.hostPlatform.system;
+      localSystem = final.stdenv.hostPlatform.system;
 
-      inherit (prev) config;
+      inherit (final) config;
     };
   })
 

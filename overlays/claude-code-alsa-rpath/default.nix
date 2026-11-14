@@ -4,7 +4,7 @@ _final: prev: {
     # a program built against an older glibc that links alsa (ffmpeg) then fails to start
     # `DT_RPATH` on claude itself covers libraries of modules it loads, `DT_RUNPATH` doesn't
     claude-code = unstablePrev.claude-code.overrideAttrs (oldAttrs: {
-      installPhase = builtins.replaceStrings ["--prefix LD_LIBRARY_PATH : ${unstablePrev.lib.makeLibraryPath [unstableFinal.alsa-lib]} \\\n"] [""] oldAttrs.installPhase;
+      installPhase = builtins.replaceStrings ["--prefix LD_LIBRARY_PATH : ${unstableFinal.lib.makeLibraryPath [unstableFinal.alsa-lib]} \\\n"] [""] oldAttrs.installPhase;
 
       postFixup = let
         patchelf = unstableFinal.patchelf.overrideAttrs (patchelfAttrs: {
@@ -12,7 +12,7 @@ _final: prev: {
           patches =
             (patchelfAttrs.patches or [])
             ++ [
-              (unstablePrev.fetchpatch {
+              (unstableFinal.fetchpatch {
                 url = "https://github.com/NixOS/patchelf/commit/efc11141bdc373a219db53a1c699bc4fde3a23b8.patch";
                 hash = "sha256-H3oPqD1UucM5/+nVEZ1FJNUwbvDSVckIFty0Fid+3oA=";
 
@@ -23,7 +23,7 @@ _final: prev: {
       in
         (oldAttrs.postFixup or "")
         + ''
-          ${unstablePrev.lib.getExe patchelf} --force-rpath --add-rpath ${unstablePrev.lib.makeLibraryPath [unstableFinal.alsa-lib]} $out/bin/.claude-wrapped
+          ${unstableFinal.lib.getExe patchelf} --force-rpath --add-rpath ${unstableFinal.lib.makeLibraryPath [unstableFinal.alsa-lib]} $out/bin/.claude-wrapped
         '';
     });
   });
