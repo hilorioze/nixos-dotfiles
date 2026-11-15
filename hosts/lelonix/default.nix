@@ -37,6 +37,7 @@
   fileSystems = {
     "/efi" = {
       device = "/dev/disk/by-partlabel/EFI";
+
       fsType = "vfat";
 
       options = [
@@ -49,6 +50,7 @@
 
     "/" = {
       device = "/dev/disk/by-partlabel/nixos";
+
       fsType = "bcachefs";
 
       options = ["noatime"];
@@ -56,6 +58,7 @@
 
     "/mnt/vol" = {
       device = "/dev/disk/by-partlabel/vol";
+
       fsType = "ntfs-3g"; # never use `ntfs3` here; it honors wsl `$LX*` extended attributes and breaks shared access
 
       options = [
@@ -71,6 +74,7 @@
 
     "/mnt/Ventoy" = {
       device = "/dev/disk/by-partlabel/Ventoy";
+
       fsType = "exfat";
 
       options = [

@@ -19,6 +19,7 @@
       partitions = {
         boot = {
           type = "EF02"; # for grub MBR
+
           size = "1M";
         };
 
@@ -37,6 +38,7 @@
 
           content = {
             type = "filesystem";
+
             format = "ext4";
 
             mountpoint = "/";

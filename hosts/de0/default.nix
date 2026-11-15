@@ -30,10 +30,12 @@
       partitions = {
         boot = {
           type = "EF00";
+
           size = "1G";
 
           content = {
             type = "filesystem";
+
             format = "vfat";
 
             mountpoint = "/efi";
@@ -46,6 +48,7 @@
 
           content = {
             type = "filesystem";
+
             format = "ext4";
 
             mountpoint = "/";
