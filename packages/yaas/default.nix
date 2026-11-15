@@ -23,8 +23,8 @@
     owner = "skrimix";
     repo = "yaas";
 
-    rev = "aa002651d85d35953aa03c6b59639a93dcbd55e5";
-    hash = "sha256-HvV6rxsQdGhAjVS/T8JsllFH/bByAJnlGxn61nWl0IY=";
+    rev = "55905bcca731c435df0f8d2cceaf7c2b51011fa1";
+    hash = "sha256-ipNPj3+rn/KIYCppACwydId1ct2CjVygtQWfaGJn4mg=";
   };
 
   rustDep = rustPlatform.buildRustPackage {
