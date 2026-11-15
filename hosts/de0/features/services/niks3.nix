@@ -89,7 +89,6 @@
               "repo:hilorioze@107206970/hilot@1388112599:ref:refs/heads/main"
               "repo:hilorioze@107206970/mud@1434581637:ref:refs/heads/main"
               "repo:hilorioze@107206970/nixos-dotfiles@1247733377:ref:refs/heads/main"
-              "repo:hilorioze@107206970/steam-voicechat-fix@1334445192:ref:refs/heads/main"
               # keep-sorted end
             ];
 
