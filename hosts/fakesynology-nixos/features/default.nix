@@ -5,10 +5,12 @@
     ../../common/features/network/cloudflare-ddns.nix
     ../../common/features/network/netcat.nix
     ../../common/features/network/openssh.nix
+    ../../common/features/network/systemd-resolved.nix
     ../../common/features/network/tailscale/server.nix
     ../../common/features/network/tailscale/tailscale.nix
     ../../common/features/nix/home-manager.nix
     ../../common/features/nix/nix.nix
+    ../../common/features/services/coredns/lan.nix
     ../../common/features/services/monitoring/fluent-bit.nix
     ../../common/features/services/monitoring/node-exporter.nix
     ../../common/features/services/web/traefik/traefik.nix

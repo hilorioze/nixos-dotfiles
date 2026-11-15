@@ -5,7 +5,7 @@
   # keep-sorted end
   ...
 }: {
-  imports = [../../../common/features/services/coredns.nix];
+  imports = [./coredns.nix];
 
   networking.firewall = {
     allowedTCPPorts = [53];
