@@ -619,13 +619,13 @@ in {
 
         # ensure tags for already-registered nodes (preauth key tags only apply at registration time)
         # keep-sorted start
-        set_node_tags_by_node_id $cex_node_id tag:cex
-        set_node_tags_by_node_id $de0_node_id tag:de0
-        set_node_tags_by_node_id $fakesynology_nixos_node_id tag:fakesynology-nixos
-        set_node_tags_by_node_id $fakesynology_node_id tag:fakesynology
-        set_node_tags_by_node_id $hel0_node_id tag:hel0
-        set_node_tags_by_node_id $hilonix_node_id tag:hilonix
-        set_node_tags_by_node_id $lelonix_node_id tag:lelonix
+        set_node_tags_by_node_id "$cex_node_id" tag:cex
+        set_node_tags_by_node_id "$de0_node_id" tag:de0
+        set_node_tags_by_node_id "$fakesynology_nixos_node_id" tag:fakesynology-nixos
+        set_node_tags_by_node_id "$fakesynology_node_id" tag:fakesynology
+        set_node_tags_by_node_id "$hel0_node_id" tag:hel0
+        set_node_tags_by_node_id "$hilonix_node_id" tag:hilonix
+        set_node_tags_by_node_id "$lelonix_node_id" tag:lelonix
         # keep-sorted end
 
         rename_node_by_node_id() {
@@ -637,7 +637,7 @@ in {
           fi
         }
 
-        rename_node_by_node_id $alex_node_id alex # ios sends `localhost` as hostname; rename to the desired name
+        rename_node_by_node_id "$alex_node_id" alex # ios sends `localhost` as hostname; rename to the desired name
       '';
     };
   };
