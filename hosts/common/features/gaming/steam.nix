@@ -27,8 +27,6 @@
         '';
       in
         {
-          LD_PRELOAD = "${pkgs.pkgsi686Linux.steam-voicechat-fix}/lib/libsteam_voicechat_fix.so";
-
           # every game launches through this, so they need no launch options for these wrappers; opengl games don't pick the gpu themselves
           STEAM_GAME_LAUNCH_SHELL = pkgs.writeShellScript "steam-game-launch-shell" ''
             exec ${gpuSelect} ${lib.getExe pkgs.gamemode} ${lib.getExe pkgs.mangohud} /bin/sh -c "$1"

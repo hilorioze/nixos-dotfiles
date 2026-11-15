@@ -8,7 +8,6 @@
   inputs.hilot.overlays.default
   inputs.mud.overlays.default
   inputs.nix-vscode-extensions.overlays.default
-  inputs.steam-voicechat-fix.overlays.default
   # keep-sorted end
 
   # must precede the local overlays that extend it
