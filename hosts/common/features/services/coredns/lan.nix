@@ -24,6 +24,7 @@
       lanHostNames = [
         # keep-sorted start
         "cex"
+        "cex-nixos"
         "fakesynology"
         "fakesynology-nixos"
         # keep-sorted end

@@ -247,6 +247,7 @@
 
         nixosConfigurations = {
           # keep-sorted start
+          cex-nixos = mkNixosSystem [./hosts/cex-nixos];
           de0 = mkNixosSystem [./hosts/de0];
           fakesynology-nixos = mkNixosSystem [./hosts/fakesynology-nixos];
           hel0 = mkNixosSystem [./hosts/hel0];
@@ -258,6 +259,7 @@
 
         deploy.nodes = {
           # keep-sorted start
+          cex-nixos = mkDeployNode config.nixosConfigurations.cex-nixos;
           de0 = mkDeployNode config.nixosConfigurations.de0;
           fakesynology-nixos = mkDeployNode config.nixosConfigurations.fakesynology-nixos;
           hel0 = mkDeployNode config.nixosConfigurations.hel0;

@@ -5,6 +5,7 @@ stores:
 keys:
   - &age_host_keys
     # keep-sorted start
+    - &age_host_cex-nixos age105gn5psw4kqq4gz0pzua74a2akr98m2uvu040lhhc3mfrup6uy3srarpga
     - &age_host_de0 age12q27qexpp96vxn7uxe33hzprt4xffx7hmqa5sf9aalhrvmruddpq6z6lch
     - &age_host_fakesynology-nixos age1tejdct70lcadgj0xdtgpz0as00y2cz60jj9h0vat5pt2ayf0vqcqcqxqwu
     - &age_host_hel0 age1p3frcuge4x5dwz7acaymzkq2jl039uedgw7598j09hnz2zaw94mqd5pzrz
@@ -28,6 +29,12 @@ creation_rules:
         pgp: *pgp_admin_keys
 
   # keep-sorted start block=yes newline_separated=yes
+  - path_regex: ^hosts/cex-nixos/secrets\.yaml$
+    key_groups:
+      - age:
+          - *age_host_cex-nixos
+        pgp: *pgp_admin_keys
+
   - path_regex: ^hosts/de0/secrets\.yaml$
     key_groups:
       - age:

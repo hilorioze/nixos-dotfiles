@@ -52,6 +52,7 @@
           {
             targets = with outputs.nixosConfigurations; [
               # keep-sorted start
+              (mkNodeTarget cex-nixos)
               (mkNodeTarget de0)
               (mkNodeTarget fakesynology-nixos)
               (mkNodeTarget hel0)

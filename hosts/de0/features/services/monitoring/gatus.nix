@@ -57,6 +57,7 @@
 
         endpoints = let
           # keep-sorted start
+          cexNixosConfig = outputs.nixosConfigurations.cex-nixos.config;
           de0Config = outputs.nixosConfigurations.de0.config;
           fakesynologyNixosConfig = outputs.nixosConfigurations.fakesynology-nixos.config;
           hel0Config = outputs.nixosConfigurations.hel0.config;
@@ -85,6 +86,25 @@
               "[STATUS] == 200"
 
               "[BODY].status == ok"
+            ];
+          };
+
+          mkLanDnsEndpoint = nixosConfig: {
+            name = "coredns-${nixosConfig.networking.hostName}";
+            group = "platform";
+
+            url = nixosConfig.networking.fqdn;
+
+            # the host resolves its own name without asking the other lan hosts
+            dns = {
+              query-name = nixosConfig.networking.fqdn;
+              query-type = "A";
+            };
+
+            conditions = [
+              "[DNS_RCODE] == NOERROR"
+
+              "[BODY] != \"\""
             ];
           };
 
@@ -294,6 +314,10 @@
             conditions = ["[STATUS] == 200"];
           }
 
+          (mkLanDnsEndpoint cexNixosConfig)
+
+          (mkLanDnsEndpoint fakesynologyNixosConfig)
+
           {
             name = "loki";
             group = "observability";
@@ -376,6 +400,8 @@
 
             conditions = ["[STATUS] == 200"];
           }
+
+          (mkNodeExporterEndpoint cexNixosConfig)
 
           (mkNodeExporterEndpoint de0Config)
 

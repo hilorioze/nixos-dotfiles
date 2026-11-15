@@ -29,6 +29,7 @@ List of machines managed by this project:
 | [`de0`](/hosts/de0)                               | Server  | [OCI](https://www.oracle.com/cloud/), `aarch64`                               |
 | [`hel0`](/hosts/hel0)                             | Server  | Hetzner                                                                       |
 | [`fakesynology-nixos`](/hosts/fakesynology-nixos) | Server  | Home VM                                                                       |
+| [`cex-nixos`](/hosts/cex-nixos)                   | Server  | Home VM                                                                       |
 | [`hisonix`](/hosts/hisonix)                       | ISO     | Rescue ISO                                                                    |
 
 

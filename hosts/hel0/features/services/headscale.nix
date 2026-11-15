@@ -38,6 +38,7 @@ in {
     "services/headscale/control-plane/private-key" = headscaleSecret;
     "services/headscale/derp/private-key" = headscaleSecret;
     "services/headscale/preauth-keys/alex/bcrypt-hash" = preauthKeySecret;
+    "services/headscale/preauth-keys/cex-nixos/bcrypt-hash" = preauthKeySecret;
     "services/headscale/preauth-keys/cex/bcrypt-hash" = preauthKeySecret;
     "services/headscale/preauth-keys/de0/bcrypt-hash" = preauthKeySecret;
     "services/headscale/preauth-keys/deployer/bcrypt-hash" = preauthKeySecret;
@@ -63,6 +64,7 @@ in {
       tailnetServerNodeNames = [
         # keep-sorted start
         "cex"
+        "cex-nixos"
         "de0"
         "fakesynology"
         "fakesynology-nixos"
@@ -133,6 +135,7 @@ in {
           tagOwners = {
             # keep-sorted start
             "tag:cex" = [];
+            "tag:cex-nixos" = [];
             "tag:de0" = [];
             "tag:deployer" = [];
             "tag:fakesynology" = [];
@@ -179,8 +182,23 @@ in {
 
               dst = [
                 # keep-sorted start
+                "tag:cex-nixos:9100"
                 "tag:fakesynology-nixos:9100"
                 "tag:hel0:9100"
+                # keep-sorted end
+              ];
+            }
+
+            # de0 (gatus) checks the lan dns servers
+            {
+              action = "accept";
+
+              src = ["tag:de0"];
+
+              dst = [
+                # keep-sorted start
+                "tag:cex-nixos:53"
+                "tag:fakesynology-nixos:53"
                 # keep-sorted end
               ];
             }
@@ -270,6 +288,7 @@ in {
 
               src = [
                 # keep-sorted start
+                "tag:cex-nixos"
                 "tag:fakesynology-nixos"
                 "tag:hel0"
                 # keep-sorted end
@@ -330,6 +349,7 @@ in {
               dst = [
                 # keep-sorted start
                 "group:servers:22"
+                "tag:cex-nixos:22"
                 "tag:de0:22"
                 "tag:fakesynology-nixos:22"
                 "tag:hel0:22"
@@ -360,6 +380,7 @@ in {
 
           autoApprovers.exitNode = [
             # keep-sorted start
+            "tag:cex-nixos"
             "tag:de0"
             "tag:fakesynology-nixos"
             "tag:hel0"
@@ -501,6 +522,11 @@ in {
           ${config.sops.secrets."services/headscale/preauth-keys/cex/bcrypt-hash".path} \
           '["tag:cex"]')
 
+        cex_nixos_key_id=$(reconcile_preauth_key $servers_id \
+          GZ1kAaJno1fk \
+          ${config.sops.secrets."services/headscale/preauth-keys/cex-nixos/bcrypt-hash".path} \
+          '["tag:cex-nixos"]')
+
         de0_key_id=$(reconcile_preauth_key $servers_id \
           _4UUyKD2QcfA \
           ${config.sops.secrets."services/headscale/preauth-keys/de0/bcrypt-hash".path} \
@@ -568,6 +594,7 @@ in {
         # keep-sorted start
         ensure_preauth_key_used $alex_key_id
         ensure_preauth_key_used $cex_key_id
+        ensure_preauth_key_used $cex_nixos_key_id
         ensure_preauth_key_used $de0_key_id
         ensure_preauth_key_used $fakesynology_key_id
         ensure_preauth_key_used $fakesynology_nixos_key_id
@@ -586,6 +613,7 @@ in {
 
         # keep-sorted start
         alex_node_id=$(get_node_id_by_key_id $alex_key_id)
+        cex_nixos_node_id=$(get_node_id_by_key_id $cex_nixos_key_id)
         cex_node_id=$(get_node_id_by_key_id $cex_key_id)
         de0_node_id=$(get_node_id_by_key_id $de0_key_id)
         fakesynology_nixos_node_id=$(get_node_id_by_key_id $fakesynology_nixos_key_id)
@@ -606,6 +634,7 @@ in {
 
         # ensure tags for already-registered nodes (preauth key tags only apply at registration time)
         # keep-sorted start
+        set_node_tags_by_node_id "$cex_nixos_node_id" tag:cex-nixos
         set_node_tags_by_node_id "$cex_node_id" tag:cex
         set_node_tags_by_node_id "$de0_node_id" tag:de0
         set_node_tags_by_node_id "$fakesynology_nixos_node_id" tag:fakesynology-nixos
