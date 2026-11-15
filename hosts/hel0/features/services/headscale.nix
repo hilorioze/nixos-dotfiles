@@ -32,35 +32,23 @@ in {
     # hash=$(, htpasswd -bnBC 10 "" "$secret" | cut -d: -f2)
     #
     # printf 'hskey-auth-%s-%s\n' "$prefix" "$secret"
-    # printf 'prefix: %s\nbcrypt-hash: %s\n' "$prefix" "$hash"
+    # printf 'prefix (`headscale-setup`): %s\nbcrypt-hash (sops): %s\n' "$prefix" "$hash"
 
     # keep-sorted start
     "services/headscale/control-plane/private-key" = headscaleSecret;
     "services/headscale/derp/private-key" = headscaleSecret;
     "services/headscale/preauth-keys/alex/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/alex/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/cex/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/cex/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/de0/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/de0/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/deployer/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/deployer/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/fakesynology-nixos/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/fakesynology-nixos/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/fakesynology/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/fakesynology/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/guests/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/guests/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/hel0/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/hel0/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/hilonix/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/hilonix/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/lelonix/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/lelonix/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/philone/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/philone/prefix" = preauthKeySecret;
     "services/headscale/preauth-keys/puest/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/puest/prefix" = preauthKeySecret;
     # keep-sorted end
   };
 
@@ -484,13 +472,12 @@ in {
 
         reconcile_preauth_key() {
           local user_id=$1
-          local preauth_key_prefix_path=$2
+          local preauth_key_prefix=$2
           local preauth_key_hash_path=$3
           local node_tags=''${4:-[]}
           local is_preauth_key_reusable=''${5:-0}
           local is_node_ephemeral=''${6:-0} # if set then nodes registered through this key become ephemeral (auto-deleted after 2 min offline)
 
-          local preauth_key_prefix=$(<$preauth_key_prefix_path)
           local preauth_key_hash=$(<$preauth_key_hash_path)
 
           local preauth_key_exists=$(sqlite_cmd "SELECT EXISTS(SELECT 1 FROM pre_auth_keys WHERE prefix = '$preauth_key_prefix' LIMIT 1)")
@@ -506,64 +493,64 @@ in {
 
         # keep-sorted start block=yes newline_separated=true by_regex=services/headscale/([^/]+)/
         alex_key_id=$(reconcile_preauth_key $home_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/alex/prefix".path} \
+          Kcwr0qyWtfKk \
           ${config.sops.secrets."services/headscale/preauth-keys/alex/bcrypt-hash".path})
 
         cex_key_id=$(reconcile_preauth_key $servers_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/cex/prefix".path} \
+          TdFEFr_3LCCw \
           ${config.sops.secrets."services/headscale/preauth-keys/cex/bcrypt-hash".path} \
           '["tag:cex"]')
 
         de0_key_id=$(reconcile_preauth_key $servers_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/de0/prefix".path} \
+          _4UUyKD2QcfA \
           ${config.sops.secrets."services/headscale/preauth-keys/de0/bcrypt-hash".path} \
           '["tag:de0"]')
 
         deployer_key_id=$(reconcile_preauth_key $deployer_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/deployer/prefix".path} \
+          5c1CUxfdrFZt \
           ${config.sops.secrets."services/headscale/preauth-keys/deployer/bcrypt-hash".path} \
           '["tag:deployer"]' \
           1 \
           1) # reusable and ephemeral (for ephemeral ci runners)
 
         fakesynology_key_id=$(reconcile_preauth_key $servers_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/fakesynology/prefix".path} \
+          Q76i7ehmgJ3v \
           ${config.sops.secrets."services/headscale/preauth-keys/fakesynology/bcrypt-hash".path} \
           '["tag:fakesynology"]')
 
         fakesynology_nixos_key_id=$(reconcile_preauth_key $servers_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/fakesynology-nixos/prefix".path} \
+          l9TH_8LJuAQy \
           ${config.sops.secrets."services/headscale/preauth-keys/fakesynology-nixos/bcrypt-hash".path} \
           '["tag:fakesynology-nixos"]')
 
         guests_key_id=$(reconcile_preauth_key $guests_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/guests/prefix".path} \
+          EGVD7hSFa9ZJ \
           ${config.sops.secrets."services/headscale/preauth-keys/guests/bcrypt-hash".path} \
           '[]' \
           1 \
           1) # reusable and ephemeral (no stale device accumulation)
 
         hel0_key_id=$(reconcile_preauth_key $servers_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/hel0/prefix".path} \
+          YrADscVk6m_b \
           ${config.sops.secrets."services/headscale/preauth-keys/hel0/bcrypt-hash".path} \
           '["tag:hel0"]')
 
         hilonix_key_id=$(reconcile_preauth_key $home_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/hilonix/prefix".path} \
+          zJHhX5mIU1gX \
           ${config.sops.secrets."services/headscale/preauth-keys/hilonix/bcrypt-hash".path} \
           '["tag:hilonix"]')
 
         lelonix_key_id=$(reconcile_preauth_key $home_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/lelonix/prefix".path} \
+          B5unBUrzScHS \
           ${config.sops.secrets."services/headscale/preauth-keys/lelonix/bcrypt-hash".path} \
           '["tag:lelonix"]')
 
         philone_key_id=$(reconcile_preauth_key $home_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/philone/prefix".path} \
+          OnH0J-BnUJOp \
           ${config.sops.secrets."services/headscale/preauth-keys/philone/bcrypt-hash".path})
 
         puest_key_id=$(reconcile_preauth_key $home_id \
-          ${config.sops.secrets."services/headscale/preauth-keys/puest/prefix".path} \
+          DK-DKLNZ_8aj \
           ${config.sops.secrets."services/headscale/preauth-keys/puest/bcrypt-hash".path})
         # keep-sorted end
 
