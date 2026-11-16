@@ -24,9 +24,15 @@
         # see: https://github.com/fireph/docker-twitch-drops-miner#permissions-issues-on-mounted-volumes
         user = "1000:1000";
 
-        # twitch answers the login chromium with "your browser is not currently supported" unless its timezone matches the ip's location; the image has no `/etc/localtime`
-        # see: https://github.com/fireph/docker-twitch-drops-miner/issues/73
-        environment.TZ = "Europe/Berlin";
+        environment = {
+          # twitch answers the login chromium with "your browser is not currently supported" unless its timezone matches the ip's location; the image has no `/etc/localtime`
+          # see: https://github.com/fireph/docker-twitch-drops-miner/issues/73
+          TZ = "Europe/Berlin";
+
+          # truststore reapplies default verify paths per tls connection and the bundled openssl 3.0 appends a `/usr/lib/ssl/certs` store lookup each time, so every handshake rescans that directory once per past connection; a missing directory keeps the store lookup from being added while `cert.pem` still supplies the roots
+          # see: https://github.com/sethmlarson/truststore/issues/212
+          SSL_CERT_DIR = "/nonexistent";
+        };
 
         labels = {
           "traefik.enable" = "true";
