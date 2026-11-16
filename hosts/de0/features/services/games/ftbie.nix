@@ -1,6 +1,6 @@
 {
   virtualisation.oci-containers.containers.ftbie = {
-    image = "ghcr.io/itzg/minecraft-server:2026.10.1-java8@sha256:e96f581be09a8760487c48302f6f953cee3eeb06b00efe637f2a582ea38067ec";
+    image = "ghcr.io/itzg/minecraft-server:2026.11.0-java8@sha256:91c8edad666c51ce0148022931dac327c973e6d8084cddb0e9090e2c60622f9c";
 
     environment = {
       EULA = "TRUE";
