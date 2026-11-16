@@ -44,6 +44,15 @@
           };
         }
 
+        {
+          # let vscode's sync push over its pull's connection, so the fido2 key asks for one touch; a minute also outlasts pull's rebase re-signing commits with a pin and touch each
+          "github.com" = {
+            ControlMaster = "auto";
+            ControlPersist = "1m";
+            ControlPath = "\${XDG_RUNTIME_DIR}/ssh-github-%C";
+          };
+        }
+
         # keep-sorted start
         (mkSynologyHost "cex")
         (mkSynologyHost "fakesynology")
