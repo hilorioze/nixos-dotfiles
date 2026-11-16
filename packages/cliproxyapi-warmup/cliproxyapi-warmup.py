@@ -586,7 +586,8 @@ async def fetch_entries(accounts: list[dict[str, Any]]) -> tuple[list[dict[str, 
 
 
 async def warm_pool(entry: dict[str, Any]) -> None:
-    idle: list[dict[str, Any]] = [window for window in entry["pool"]["windows"] if is_idle(window, entry["fetched_at"])]
+    # a window may reset between the fetch and the warmup
+    idle: list[dict[str, Any]] = [window for window in entry["pool"]["windows"] if is_idle(window, time.time())]
     labels: str = ", ".join(window["label"] for window in idle)
 
     try:
