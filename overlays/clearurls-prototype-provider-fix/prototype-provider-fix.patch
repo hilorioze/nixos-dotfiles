@@ -1,0 +1,19 @@
+diff --git a/core_js/tools.js b/core_js/tools.js
+index 8e20481..bf426e0 100644
+--- a/core_js/tools.js
++++ b/core_js/tools.js
+@@ -269,9 +269,11 @@ function isEncodedURI(uri) {
+  * @param {string} key the key of the object
+  * @param {object} defaultValue the default value
+  */
+-Object.prototype.getOrDefault = function (key, defaultValue) {
+-    return this[key] === undefined ? defaultValue : this[key];
+-};
++Object.defineProperty(Object.prototype, "getOrDefault", {
++    value: function (key, defaultValue) {
++        return this[key] === undefined ? defaultValue : this[key];
++    }
++});
+ 
+ function handleError(error) {
+     console.error("[ClearURLs ERROR]:" + error);

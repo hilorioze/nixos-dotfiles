@@ -28,6 +28,7 @@
   # keep-sorted start
   (import ./chiaki-ng-aia-default-trust-store)
   (import ./claude-code-alsa-rpath)
+  (import ./clearurls-prototype-provider-fix)
   (import ./cliproxyapi-antigravity-web-search)
   (import ./cliproxyapi-response-model-prefix)
   (import ./devenv-unstable)
