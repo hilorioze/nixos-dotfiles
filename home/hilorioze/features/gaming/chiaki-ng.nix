@@ -1,3 +1,3 @@
 {pkgs, ...}: {
-  home.packages = [pkgs.chiaki-ng];
+  home.packages = [pkgs.unstablePkgs.chiaki-ng];
 }

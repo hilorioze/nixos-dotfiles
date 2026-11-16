@@ -1,0 +1,58 @@
+diff --git a/lib/src/aia.h b/lib/src/aia.h
+index 046c218..6be3abc 100644
+--- a/lib/src/aia.h
++++ b/lib/src/aia.h
+@@ -55,6 +55,8 @@ typedef struct {
+ 
+ void *chiaki_aia_trust_store(CURL *connection);
+ void chiaki_aia_trust_store_free(void *store);
++// OpenSSL's default CA file, which curl's CA fallback loads when no CA file or path is configured.
++const char *chiaki_aia_default_ca_file(void);
+ bool chiaki_aia_verify_with_store(
+ 	const uint8_t *leaf_der, size_t leaf_len,
+ 	const uint8_t *const *candidates, const size_t *candidate_lens, size_t candidate_count,
+diff --git a/lib/src/aia_openssl.c b/lib/src/aia_openssl.c
+index d3b36f2..6a87722 100644
+--- a/lib/src/aia_openssl.c
++++ b/lib/src/aia_openssl.c
+@@ -98,7 +98,11 @@ void *chiaki_aia_trust_store(CURL *connection)
+ 		return store;
+ 	}
+ #endif
+-	if((!file && !path) || X509_STORE_load_locations(store, file, path) != 1)
++	if(!file && !path) {
++		if(X509_STORE_set_default_paths(store) != 1)
++			goto error;
++	}
++	else if(X509_STORE_load_locations(store, file, path) != 1)
+ 		goto error;
+ 	return store;
+ error:
+@@ -111,6 +115,12 @@ void chiaki_aia_trust_store_free(void *store)
+ 	X509_STORE_free(store);
+ }
+ 
++const char *chiaki_aia_default_ca_file(void)
++{
++	const char *file = getenv(X509_get_default_cert_file_env());
++	return file ? file : X509_get_default_cert_file();
++}
++
+ bool chiaki_aia_verify_with_store(
+ 	const uint8_t *leaf_der, size_t leaf_len,
+ 	const uint8_t *const *candidates, const size_t *candidate_lens, size_t candidate_count,
+diff --git a/lib/src/remote/holepunch.c b/lib/src/remote/holepunch.c
+index d5104d1..58471e9 100644
+--- a/lib/src/remote/holepunch.c
++++ b/lib/src/remote/holepunch.c
+@@ -2249,6 +2249,10 @@ ws_connect_attempt:
+             else {
+                 const char *ca_path = NULL;
+                 CURLcode ca_info_res = curl_easy_getinfo(curl, CURLINFO_CAINFO, &ca_path);
++#ifndef CHIAKI_LIB_ENABLE_MBEDTLS
++                if(ca_info_res == CURLE_OK && !ca_path)
++                    ca_path = chiaki_aia_default_ca_file();
++#endif
+                 FILE *ca_file = ca_path ? fopen(ca_path, "rb") : NULL;
+                 if(ca_info_res == CURLE_OK && (!ca_path || ca_file))
+                     aia_blob = chiaki_aia_blob_with_ca(ca_file, &aia_blob_len);

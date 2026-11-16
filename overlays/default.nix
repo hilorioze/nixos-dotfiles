@@ -26,6 +26,7 @@
   })
 
   # keep-sorted start
+  (import ./chiaki-ng-aia-default-trust-store)
   (import ./claude-code-alsa-rpath)
   (import ./cliproxyapi-antigravity-web-search)
   (import ./cliproxyapi-response-model-prefix)
