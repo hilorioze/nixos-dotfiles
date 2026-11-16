@@ -15,6 +15,7 @@
     ../../common/features/services/web/traefik/podman.nix
     ../../common/features/services/web/traefik/traefik.nix
     ../../common/features/services/web/whoami.nix
+    ../../common/features/virtualisation/podman-auto-prune.nix
     ../../common/features/virtualisation/podman.nix
     # keep-sorted end
 
