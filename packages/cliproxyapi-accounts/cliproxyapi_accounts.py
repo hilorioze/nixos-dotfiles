@@ -55,7 +55,7 @@ async def send_provider_request(account: dict[str, Any], method: str, url: str, 
     })
 
     if response["status_code"] != 200:
-        raise RuntimeError(f"{url} answered {response['status_code']}")
+        raise RuntimeError(f"{url} answered {response['status_code']}: {' '.join(response['body'].split())}")  # the provider's error message, on one journal line
 
     return response
 
