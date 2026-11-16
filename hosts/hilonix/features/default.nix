@@ -19,12 +19,12 @@
     ../../common/features/media/gpu-screen-recorder.nix
     ../../common/features/network/avahi.nix
     ../../common/features/network/cloudflare-ddns.nix
+    ../../common/features/network/discovery-replies.nix
     ../../common/features/network/kdeconnect.nix
     ../../common/features/network/netcat.nix
     ../../common/features/network/openssh.nix
     ../../common/features/network/tailscale/client.nix
     ../../common/features/network/tailscale/tailscale.nix
-    ../../common/features/network/upnp.nix
     ../../common/features/network/wol.nix
     ../../common/features/nix/home-manager.nix
     ../../common/features/nix/nix-monitored.nix
