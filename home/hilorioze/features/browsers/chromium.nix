@@ -56,7 +56,7 @@
   };
 
   # chromium keeps `chrome.storage.local` in leveldb instead of a file like librewolf's `storage.js`, so put the template's values there
-  home.activation.setKeePassXCBrowserStorage = let
+  systemd.user.services.chromium-keepassxc-browser-storage = let
     storagePath = "${config.home.homeDirectory}/.config/chromium/Default/Local Extension Settings/${pkgs.chromium-extension-keepassxc-browser.id}";
 
     writeStorage =
@@ -78,7 +78,7 @@
             with open(values_path) as file:
                 values: dict[str, object] = json.load(file)
 
-            # a running chromium holds the storage lock; the values are written on the next activation with chromium closed
+            # a running chromium holds the storage lock; the values are written on the next sops-nix run with chromium closed
             try:
                 database: plyvel.DB = plyvel.DB(storage_path, create_if_missing=True)
             except plyvel.IOError:
@@ -95,10 +95,16 @@
         if __name__ == "__main__":
             main()
       '';
-  in
-    lib.hm.dag.entryAfter ["sops-nix"] ''
-      mkdir --parents ${lib.escapeShellArg (builtins.dirOf storagePath)}
+  in {
+    Install.WantedBy = ["sops-nix.service"]; # sops-nix renders the template only in a running user session, so rewrite the storage each time it does
 
-      ${writeStorage} ${lib.escapeShellArg storagePath} ${config.sops.templates."apps/keepassxc-browser/chromium/storage.json".path}
-    '';
+    Unit.After = ["sops-nix.service"];
+
+    Service = {
+      Type = "oneshot";
+
+      ExecStartPre = "${lib.getExe' pkgs.coreutils "mkdir"} --parents ${lib.escapeShellArg (builtins.dirOf storagePath)}";
+      ExecStart = "${writeStorage} ${lib.escapeShellArg storagePath} ${config.sops.templates."apps/keepassxc-browser/chromium/storage.json".path}";
+    };
+  };
 }
