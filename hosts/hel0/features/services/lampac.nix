@@ -59,7 +59,7 @@ in {
   };
 
   virtualisation.oci-containers.containers.lampac = {
-    image = "ghcr.io/lampac-nextgen/lampac:v1.87.8@sha256:9d1c6ea91b73272a3c899d100f96099260b663fe9a34a7f80f20d40549c045f9";
+    image = "ghcr.io/lampac-nextgen/lampac:v1.90.1@sha256:073993755c5281ca54dde3dbfe56f7714f1d06f2ce47bae2260f4bab0e8a7a21";
 
     labels = {
       "traefik.enable" = "true";
