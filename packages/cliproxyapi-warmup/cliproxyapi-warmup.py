@@ -7,9 +7,11 @@ import sys
 import time
 from collections import defaultdict
 from collections.abc import Callable, Coroutine, Iterable
+from dataclasses import dataclass
+from enum import IntEnum
 from functools import cache
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple, Self
 
 from cliproxyapi_accounts import (
     ACCOUNT_ERRORS,
@@ -42,7 +44,7 @@ ANTIGRAVITY_WARMUP_MODELS: dict[str | None, str] = {
 }
 
 
-def write_state(path: Path, state: dict[str, Any]) -> None:
+def write_state(path: Path, *, state: dict[str, Any]) -> None:
     # a partial json file cannot be loaded on restart; write a copy and replace the old file atomically
     staged: Path = path.with_suffix(".tmp")
     staged.write_text(json.dumps(state))
@@ -53,33 +55,33 @@ def report(event: dict[str, Any]) -> None:
     print(json.dumps(event), file=sys.stderr)
 
 
-async def warm_claude(account: dict[str, Any], pool: str | None) -> None:
+async def warm_claude(account: dict[str, Any], *, pool: str | None) -> None:
     await send_provider_request(
         account,
-        "POST",
-        "https://api.anthropic.com/v1/messages",
-        {"Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-beta": "oauth-2025-04-20"},
-        json.dumps({"model": "claude-haiku-4-5", "max_tokens": 1, "messages": [{"role": "user", "content": "hi"}]}),
+        method="POST",
+        url="https://api.anthropic.com/v1/messages",
+        headers={"Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-beta": "oauth-2025-04-20"},
+        data=json.dumps({"model": "claude-haiku-4-5", "max_tokens": 1, "messages": [{"role": "user", "content": "hi"}]}),
     )
 
 
-async def warm_codex(account: dict[str, Any], pool: str | None) -> None:
+async def warm_codex(account: dict[str, Any], *, pool: str | None) -> None:
     await send_provider_request(
         account,
-        "POST",
-        "https://chatgpt.com/backend-api/codex/responses",
-        {"Content-Type": "application/json"},
-        json.dumps({"model": "gpt-6-luna", "input": [{"role": "user", "content": "hi"}], "store": False, "stream": True}),  # codex answers 400 unless streamed and unstored
+        method="POST",
+        url="https://chatgpt.com/backend-api/codex/responses",
+        headers={"Content-Type": "application/json"},
+        data=json.dumps({"model": "gpt-6-luna", "input": [{"role": "user", "content": "hi"}], "store": False, "stream": True}),  # codex answers 400 unless streamed and unstored
     )
 
 
-async def warm_antigravity(account: dict[str, Any], pool: str | None) -> None:
+async def warm_antigravity(account: dict[str, Any], *, pool: str | None) -> None:
     await send_provider_request(
         account,
-        "POST",
-        "https://daily-cloudcode-pa.googleapis.com/v1internal:generateContent",
-        {"Content-Type": "application/json", "User-Agent": "antigravity"},
-        json.dumps({
+        method="POST",
+        url="https://daily-cloudcode-pa.googleapis.com/v1internal:generateContent",
+        headers={"Content-Type": "application/json", "User-Agent": "antigravity"},
+        data=json.dumps({
             "project": account["project_id"],
             "model": ANTIGRAVITY_WARMUP_MODELS[pool],
             "request": {"contents": [{"role": "user", "parts": [{"text": "hi"}]}], "generationConfig": {"maxOutputTokens": 1}},
@@ -88,7 +90,7 @@ async def warm_antigravity(account: dict[str, Any], pool: str | None) -> None:
 
 
 # one minimal request starts every window of the pool it is spent from
-WARMERS: dict[str, Callable[[dict[str, Any], str | None], Coroutine[Any, Any, None]]] = {
+WARMERS: dict[str, Callable[..., Coroutine[Any, Any, None]]] = {
     "claude": warm_claude,
     "codex": warm_codex,
     "antigravity": warm_antigravity,
@@ -99,7 +101,7 @@ def join_names(*names: str | None) -> str:
     return " ".join(name for name in names if name)
 
 
-def is_idle(window: dict[str, Any], fetched_at: float) -> bool:
+def is_idle(window: dict[str, Any], *, fetched_at: float) -> bool:
     return window["resets_at"] is None or window["resets_at"] <= fetched_at
 
 
@@ -110,10 +112,10 @@ def is_warmable(entry: dict[str, Any]) -> bool:
 
 def has_idle_longer_window(entry: dict[str, Any]) -> bool:
     # an idle 5h window waits for its group's plan
-    if entry["window"] is not None and is_idle(entry["window"], entry["fetched_at"]):
+    if entry["window"] is not None and is_idle(entry["window"], fetched_at=entry["fetched_at"]):
         return False
 
-    return any(is_idle(window, entry["fetched_at"]) for window in entry["pool"]["windows"])
+    return any(is_idle(window, fetched_at=entry["fetched_at"]) for window in entry["pool"]["windows"])
 
 
 def find_entry_id(entry: dict[str, Any]) -> tuple[str, str | None]:
@@ -130,25 +132,25 @@ def find_slot(at: float) -> int:
     return (moment.tm_wday * 86400 + moment.tm_hour * 3600 + moment.tm_min * 60) // SLOT_LENGTH
 
 
-def decay(weight: float, since: float, now: float) -> float:
+def decay(weight: float, *, since: float, now: float) -> float:
     return weight * 0.5 ** ((now - since) / DEMAND_HALF_LIFE)
 
 
-def record_demand(profile: list[list[float]], at: float, spent: float, duration: float) -> None:
+def record_demand(profile: list[list[float]], *, at: float, spent: float, duration: float) -> None:
     slot: int = find_slot(at)
     slot_spent, slot_duration, updated_at = profile[slot]
 
-    profile[slot] = [decay(slot_spent, updated_at, at) + spent, decay(slot_duration, updated_at, at) + duration, at]
+    profile[slot] = [decay(slot_spent, since=updated_at, now=at) + spent, decay(slot_duration, since=updated_at, now=at) + duration, at]
 
 
-def forecast_demand(profile: list[list[float]], at: float, now: float) -> float:
+def forecast_demand(profile: list[list[float]], *, at: float, now: float) -> float:
     slot: int = find_slot(at)
     spent: float = 0
     duration: float = 0
 
     for day in range(7):
         day_spent, day_duration, updated_at = profile[(slot + day * WEEK_SLOTS // 7) % WEEK_SLOTS]
-        weight: float = decay(SAME_WEEKDAY_WEIGHT if day == 0 else 1, updated_at, now)
+        weight: float = decay(SAME_WEEKDAY_WEIGHT if day == 0 else 1, since=updated_at, now=now)
 
         spent += weight * day_spent
         duration += weight * day_duration
@@ -156,11 +158,11 @@ def forecast_demand(profile: list[list[float]], at: float, now: float) -> float:
     return spent / duration * SLOT_LENGTH if duration else 0  # nothing learned yet plans plain chaining
 
 
-def crossed_reset(before: dict[str, Any], entry: dict[str, Any]) -> bool:
+def crossed_reset(*, before: dict[str, Any], entry: dict[str, Any]) -> bool:
     windows: dict[int, dict[str, Any]] = {window["length"]: window for window in entry["pool"]["windows"]}
 
     for old in before["pool"]["windows"]:
-        if is_idle(old, before["fetched_at"]):
+        if is_idle(old, fetched_at=before["fetched_at"]):
             continue
 
         reset: float | None = windows[old["length"]]["resets_at"]
@@ -170,20 +172,20 @@ def crossed_reset(before: dict[str, Any], entry: dict[str, Any]) -> bool:
     return False
 
 
-def measure_spending(before: dict[str, Any], window: dict[str, Any]) -> float:
+def measure_spending(*, before: dict[str, Any], window: dict[str, Any]) -> float:
     return max(before["remaining"] - window["remaining"], 0)
 
 
-def learn_budget(before: dict[str, Any], entry: dict[str, Any], budgets: dict[str, dict[str, list[float]]]) -> None:
+def learn_budget(*, before: dict[str, Any], entry: dict[str, Any], budgets: dict[str, dict[str, list[float]]]) -> None:
     windows: dict[int, dict[str, Any]] = {window["length"]: window for window in before["pool"]["windows"]}
-    short_spent: float = measure_spending(before["window"], entry["window"])
+    short_spent: float = measure_spending(before=before["window"], window=entry["window"])
     at: float = entry["fetched_at"]
 
     for window in entry["pool"]["windows"]:
         if window["length"] == WINDOW_LENGTHS["5h"]:
             continue
 
-        spent: float = measure_spending(windows[window["length"]], window)
+        spent: float = measure_spending(before=windows[window["length"]], window=window)
         if not short_spent and not spent:
             continue
 
@@ -192,30 +194,30 @@ def learn_budget(before: dict[str, Any], entry: dict[str, Any], budgets: dict[st
         short_total, total, updated_at = profile.get(key, [0, 0, at])
 
         # sum the measured changes before dividing; individual rounded deltas often have a zero denominator
-        profile[key] = [decay(short_total, updated_at, at) + short_spent, decay(total, updated_at, at) + spent, at]
+        profile[key] = [decay(short_total, since=updated_at, now=at) + short_spent, decay(total, since=updated_at, now=at) + spent, at]
 
 
-def learn_demand(profile: list[list[float]], members: list[dict[str, Any]], previous: list[dict[str, Any]], budgets: dict[str, dict[str, list[float]]]) -> dict[str, Any]:
+def learn_demand(*, profile: list[list[float]], members: list[dict[str, Any]], previous: list[dict[str, Any]], budgets: dict[str, dict[str, list[float]]]) -> dict[str, Any]:
     before: dict[tuple[str, str | None], dict[str, Any]] = {find_entry_id(entry): entry for entry in previous}
     if before.keys() != {find_entry_id(entry) for entry in members}:
         return {"observation": "baseline"}
 
-    stable: list[dict[str, Any]] = [entry for entry in members if not crossed_reset(before[find_entry_id(entry)], entry)]
+    stable: list[dict[str, Any]] = [entry for entry in members if not crossed_reset(before=before[find_entry_id(entry)], entry=entry)]
 
     for entry in stable:
-        learn_budget(before[find_entry_id(entry)], entry, budgets)
+        learn_budget(before=before[find_entry_id(entry)], entry=entry, budgets=budgets)
 
     if len(stable) != len(members):
         return {"observation": "reset"}
 
     duration: float = sum(entry["fetched_at"] - before[find_entry_id(entry)]["fetched_at"] for entry in members) / len(members)
-    spent: float = sum(measure_spending(before[find_entry_id(entry)]["window"], entry["window"]) for entry in members)
+    spent: float = sum(measure_spending(before=before[find_entry_id(entry)]["window"], window=entry["window"]) for entry in members)
 
     # exhausted limits hide unmet demand; exclude intervals without an available account
     if not any(is_warmable(entry) for entry in previous) or not any(is_warmable(entry) for entry in members):
         return {"observation": "unavailable", "duration": duration, "spent": spent}
 
-    record_demand(profile, members[0]["fetched_at"] - duration / 2, spent, duration)
+    record_demand(profile, at=members[0]["fetched_at"] - duration / 2, spent=spent, duration=duration)
 
     return {"observation": "measured", "duration": duration, "spent": spent}
 
@@ -224,189 +226,215 @@ def rank_resets(resets: Iterable[float | None]) -> float:
     return min((reset for reset in resets if reset is not None), default=math.inf)
 
 
-def prepare_simulation(members: list[dict[str, Any]], budgets: dict[str, dict[str, list[float]]], now: float) -> dict[str, Any]:
-    lengths: list[list[int]] = []
-    remaining: list[list[float]] = []
-    resets: list[list[float | None]] = []
-    costs: list[list[float | None]] = []
+@dataclass(frozen=True, slots=True, kw_only=True)
+class Pool:
+    lengths: tuple[int, ...]
+    costs: tuple[float | None, ...]
+
+
+@dataclass(slots=True, kw_only=True)
+class PoolState:
+    remaining: list[float]
+    resets: list[float | None]
+
+    def copy(self) -> Self:
+        return type(self)(remaining=list(self.remaining), resets=list(self.resets))
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class Simulation:
+    pools: list[Pool]
+    initial: list[PoolState]
+    accounts: list[list[int]]
+    groups: dict[str, list[int]]
+
+
+def prepare_simulation(*, members: list[dict[str, Any]], budgets: dict[str, dict[str, list[float]]], now: float) -> Simulation:
+    pools: list[Pool] = []
+    initial: list[PoolState] = []
     accounts: defaultdict[str, list[int]] = defaultdict(list)
     groups: defaultdict[str, list[int]] = defaultdict(list)
 
     for index, member in enumerate(members):
         windows: list[dict[str, Any]] = [member["window"], *(window for window in member["pool"]["windows"] if window["length"] != WINDOW_LENGTHS["5h"])]
         profile: dict[str, list[float]] = budgets.get(join_names(*find_entry_id(member)), {})
-        pool_costs: list[float | None] = [1]
+        costs: list[float | None] = [1]
 
         for window in windows[1:]:
             short_total, total, _ = profile.get(str(window["length"]), [0, 0, 0])
-            pool_costs.append(total / short_total if short_total > 0 and total > 0 else None)
+            costs.append(total / short_total if short_total > 0 and total > 0 else None)
 
-        lengths.append([window["length"] for window in windows])
-        remaining.append([100 if is_idle(window, now) else window["remaining"] for window in windows])
-        resets.append([None if is_idle(window, now) else window["resets_at"] for window in windows])
-        costs.append(pool_costs)
+        pools.append(Pool(lengths=tuple(window["length"] for window in windows), costs=tuple(costs)))
+        initial.append(PoolState(remaining=[100 if is_idle(window, fetched_at=now) else window["remaining"] for window in windows], resets=[None if is_idle(window, fetched_at=now) else window["resets_at"] for window in windows]))
         accounts[member["account"]["auth_index"]].append(index)
         groups[find_group(member)].append(index)
 
-    return {"lengths": lengths, "remaining": remaining, "resets": resets, "costs": costs, "accounts": list(accounts.values()), "groups": dict(groups)}
+    return Simulation(pools=pools, initial=initial, accounts=list(accounts.values()), groups=dict(groups))
 
 
-def advance_pool(lengths: list[int], remaining: list[float], resets: list[float | None], at: float, *, warm: bool = False) -> None:
-    for position, reset in enumerate(resets):
+def advance_pool(*, pool: Pool, state: PoolState, at: float, warm: bool = False) -> None:
+    for position, reset in enumerate(state.resets):
         if reset is not None and reset <= at:
-            resets[position] = None
-            remaining[position] = 100
+            state.resets[position] = None
+            state.remaining[position] = 100
 
-    if not all(value > 0 for value in remaining):
+    if not all(value > 0 for value in state.remaining):
         return
 
-    if resets[0] is None and warm:
-        resets[0] = at + lengths[0]
+    if state.resets[0] is None and warm:
+        state.resets[0] = at + pool.lengths[0]
 
-    if resets[0] is not None:
-        for position, reset in enumerate(resets):
+    if state.resets[0] is not None:
+        for position, reset in enumerate(state.resets):
             if reset is None:
-                resets[position] = at + lengths[position]
+                state.resets[position] = at + pool.lengths[position]
 
 
-def spend_pool(lengths: list[int], remaining: list[float], resets: list[float | None], costs: list[float | None], demand: float, at: float) -> float:
-    if not all(value > 0 for value in remaining):
+def spend_pool(*, pool: Pool, state: PoolState, demand: float, at: float) -> float:
+    if not all(value > 0 for value in state.remaining):
         return 0
 
-    available: float = min(value / cost for value, cost in zip(remaining, costs) if cost is not None)
+    available: float = min(value / cost for value, cost in zip(state.remaining, pool.costs) if cost is not None)
     spent: float = min(demand, available)
     if spent <= 0:
         return 0
 
-    advance_pool(lengths, remaining, resets, at, warm=True)
+    advance_pool(pool=pool, state=state, at=at, warm=True)
 
-    for position, cost in enumerate(costs):
+    for position, cost in enumerate(pool.costs):
         if cost is not None:
-            remaining[position] = max(remaining[position] - spent * cost, 0)
+            state.remaining[position] = max(state.remaining[position] - spent * cost, 0)
 
     return spent
 
 
-def plan_pool(simulation: dict[str, Any], index: int, demand: list[float], now: float) -> dict[float | None, tuple[float, ...]]:
-    lengths: list[int] = simulation["lengths"][index]
-    initial_remaining: list[float] = simulation["remaining"][index]
-    initial_resets: list[float | None] = simulation["resets"][index]
-    costs: list[float | None] = simulation["costs"][index]
+def plan_pool(*, pool: Pool, initial: PoolState, demand: list[float], now: float) -> dict[float | None, tuple[float, ...]]:
     horizon: int = len(demand)
-    window_steps: int = math.ceil(lengths[0] / SLOT_LENGTH)
+    window_steps: int = math.ceil(pool.lengths[0] / SLOT_LENGTH)
     suffix: list[float] = [0] * (horizon + 1)
 
     for step in range(horizon - 1, -1, -1):
         suffix[step] = suffix[step + 1] + demand[step]
 
-    def continue_plan(step: int, remaining: list[float], resets: list[float | None]) -> tuple[float, tuple[float, ...]]:
+    def continue_plan(*, step: int, state: PoolState) -> tuple[float, tuple[float, ...]]:
         capacity: float = min(suffix[step], 100 * (math.ceil((horizon - step) / window_steps) + 1))
 
         # merge nonbinding budgets to avoid searching equivalent window schedules
-        for position, cost in enumerate(costs[1:], 1):
-            if remaining[position] > 0 and (cost is None or remaining[position] / cost >= capacity):
-                remaining[position] = 100
-                resets[position] = now + PLAN_HORIZON + lengths[position]
+        for position, cost in enumerate(pool.costs[1:], 1):
+            if state.remaining[position] > 0 and (cost is None or state.remaining[position] / cost >= capacity):
+                state.remaining[position] = 100
+                state.resets[position] = now + PLAN_HORIZON + pool.lengths[position]
 
-        return solve(step, tuple(remaining), tuple(resets))
+        return solve(step=step, balances=tuple(state.remaining), deadlines=tuple(state.resets))
 
-    def finish_window(step: int, end: int, remaining: list[float], resets: list[float | None]) -> tuple[float, tuple[float, ...]]:
+    def finish_window(*, step: int, end: int, state: PoolState) -> tuple[float, tuple[float, ...]]:
         served: float = 0
 
         for tick in range(step, end):
             at: float = now + tick * SLOT_LENGTH
-            advance_pool(lengths, remaining, resets, at)
-            served += spend_pool(lengths, remaining, resets, costs, demand[tick], at)
+            advance_pool(pool=pool, state=state, at=at)
+            served += spend_pool(pool=pool, state=state, demand=demand[tick], at=at)
 
         future: float
         plan: tuple[float, ...]
-        future, plan = continue_plan(end, remaining, resets)
+        future, plan = continue_plan(step=end, state=state)
 
         return served + future, plan
 
     # choose later starts at each reset so the forecast includes shifts across quiet gaps
     @cache
-    def solve(step: int, balances: tuple[float, ...], deadlines: tuple[float | None, ...]) -> tuple[float, tuple[float, ...]]:
+    def solve(*, step: int, balances: tuple[float, ...], deadlines: tuple[float | None, ...]) -> tuple[float, tuple[float, ...]]:
         if step >= horizon:
             return 0, ()
 
         at: float = now + step * SLOT_LENGTH
-        remaining: list[float] = list(balances)
-        resets: list[float | None] = list(deadlines)
-        advance_pool(lengths, remaining, resets, at)
-        reset: float | None = resets[0]
+        state: PoolState = PoolState(remaining=list(balances), resets=list(deadlines))
+        advance_pool(pool=pool, state=state, at=at)
+        reset: float | None = state.resets[0]
         if reset is not None:
-            return finish_window(step, min(math.ceil((reset - now) / SLOT_LENGTH), horizon), remaining, resets)
+            return finish_window(step=step, end=min(math.ceil((reset - now) / SLOT_LENGTH), horizon), state=state)
 
-        if not all(value > 0 for value in remaining):
-            return continue_plan(step + 1, remaining, resets)
+        if not all(value > 0 for value in state.remaining):
+            return continue_plan(step=step + 1, state=state)
 
-        warmed_remaining: list[float] = list(remaining)
-        warmed_resets: list[float | None] = list(resets)
-        advance_pool(lengths, warmed_remaining, warmed_resets, at, warm=True)
+        warmed_state: PoolState = state.copy()
+        advance_pool(pool=pool, state=warmed_state, at=at, warm=True)
         served: float
         future: tuple[float, ...]
-        served, future = finish_window(step, min(step + window_steps, horizon), warmed_remaining, warmed_resets)
+        served, future = finish_window(step=step, end=min(step + window_steps, horizon), state=warmed_state)
         warmed: tuple[float, tuple[float, ...]] = served, (at, *future)
         limit: float = suffix[step]
 
-        for position, cost in enumerate(costs[1:], 1):
-            reset = resets[position]
-            if cost is not None and ((reset is not None and reset >= now + horizon * SLOT_LENGTH) or (reset is None and lengths[position] >= (horizon - step) * SLOT_LENGTH)):
-                limit = min(limit, remaining[position] / cost)
+        for position, cost in enumerate(pool.costs[1:], 1):
+            reset = state.resets[position]
+            if cost is not None and ((reset is not None and reset >= now + horizon * SLOT_LENGTH) or (reset is None and pool.lengths[position] >= (horizon - step) * SLOT_LENGTH)):
+                limit = min(limit, state.remaining[position] / cost)
 
         if demand[step] > 0 or round(served, 6) >= round(limit, 6):
             return warmed
 
-        waiting: tuple[float, tuple[float, ...]] = continue_plan(step + 1, remaining, resets)
+        waiting: tuple[float, tuple[float, ...]] = continue_plan(step=step + 1, state=state)
 
         return warmed if round(warmed[0], 6) >= round(waiting[0], 6) else waiting
 
-    options: list[float | None] = [now + step * SLOT_LENGTH for step in range(window_steps + 1)] + [None] if initial_resets[0] is None else [None]
+    options: list[float | None] = [now + step * SLOT_LENGTH for step in range(window_steps + 1)] + [None] if initial.resets[0] is None else [None]
     plans: dict[float | None, tuple[float, ...]] = {}
     future: tuple[float, ...]
 
     for start in options:
-        remaining: list[float] = list(initial_remaining)
-        resets: list[float | None] = list(initial_resets)
-        running: bool = resets[0] is not None
+        state: PoolState = initial.copy()
+        running: bool = state.resets[0] is not None
         first: tuple[float, ...] = ()
 
         for step in range(horizon):
             at: float = now + step * SLOT_LENGTH
-            advance_pool(lengths, remaining, resets, at)
-            if running and resets[0] is None:
-                _, future = continue_plan(step, remaining, resets)
+            advance_pool(pool=pool, state=state, at=at)
+            if running and state.resets[0] is None:
+                _, future = continue_plan(step=step, state=state)
                 plans[start] = first + future
 
                 break
 
             if not running and start is not None and start <= at:
-                advance_pool(lengths, remaining, resets, at, warm=True)
-                if resets[0] is not None:
+                advance_pool(pool=pool, state=state, at=at, warm=True)
+                if state.resets[0] is not None:
                     first = (at,)
 
-            spend_pool(lengths, remaining, resets, costs, demand[step], at)
-            running = resets[0] is not None
+            spend_pool(pool=pool, state=state, demand=demand[step], at=at)
+            running = state.resets[0] is not None
         else:
             plans[start] = first
 
     return plans
 
 
+class ShortWindow(IntEnum):
+    RUNNING = 0
+    ABSENT = 1
+    IDLE = 2
+
+
+class SpendingRank(NamedTuple):
+    spent: bool
+    weekly_reset: float
+    short_window: ShortWindow
+    short_reset: float
+
+
 # the order `rank_spending` gives the accounts, in the simulated state
-def rank_simulated_spending(account: list[int], remaining: list[list[float]], resets: list[list[float | None]]) -> tuple[bool, float, float]:
-    spent: bool = not any(all(value > 0 for value in remaining[index]) for index in account)
-    weekly: float = rank_resets(reset for index in account for reset in resets[index][1:])
+def rank_simulated_spending(account: list[int], *, states: list[PoolState]) -> SpendingRank:
+    spent: bool = not any(all(value > 0 for value in states[index].remaining) for index in account)
+    weekly: float = rank_resets(reset for index in account for reset in states[index].resets[1:])
 
-    return spent, weekly, rank_resets(resets[index][0] for index in account)
+    reset: float = rank_resets(states[index].resets[0] for index in account)
+    if reset < math.inf:
+        return SpendingRank(spent=spent, weekly_reset=weekly, short_window=ShortWindow.RUNNING, short_reset=reset)
+
+    return SpendingRank(spent=spent, weekly_reset=weekly, short_window=ShortWindow.IDLE, short_reset=0)
 
 
-def simulate_serving(simulation: dict[str, Any], plans: tuple[tuple[float, ...], ...], demands: dict[str, list[float]], now: float, *, offered: list[list[float]] | None = None) -> float:
-    lengths: list[list[int]] = simulation["lengths"]
-    costs: list[list[float | None]] = simulation["costs"]
-    resets: list[list[float | None]] = [list(pool) for pool in simulation["resets"]]
-    remaining: list[list[float]] = [list(pool) for pool in simulation["remaining"]]
+def simulate_serving(*, simulation: Simulation, plans: tuple[tuple[float, ...], ...], demands: dict[str, list[float]], now: float, offered: list[list[float]] | None = None) -> float:
+    states: list[PoolState] = [state.copy() for state in simulation.initial]
     cursors: list[int] = [0] * len(plans)
     served: float = 0
 
@@ -418,13 +446,13 @@ def simulate_serving(simulation: dict[str, Any], plans: tuple[tuple[float, ...],
             while cursors[index] < len(plan) and plan[cursors[index]] <= at:
                 cursors[index] += 1
 
-            advance_pool(lengths[index], remaining[index], resets[index], at, warm=cursors[index] > cursor)
+            advance_pool(pool=simulation.pools[index], state=states[index], at=at, warm=cursors[index] > cursor)
 
         # priorities belong to accounts, so both antigravity pools must see the same cold-binding order
-        accounts: list[list[int]] = sorted(simulation["accounts"], key=lambda account: rank_simulated_spending(account, remaining, resets))
+        accounts: list[list[int]] = sorted(simulation.accounts, key=lambda account: rank_simulated_spending(account, states=states))
         order: dict[int, int] = {index: position for position, account in enumerate(accounts) for index in account}
 
-        for group, indexes in simulation["groups"].items():
+        for group, indexes in simulation.groups.items():
             demand: float = demands[group][step]
             if demand <= 0:
                 continue
@@ -433,7 +461,7 @@ def simulate_serving(simulation: dict[str, Any], plans: tuple[tuple[float, ...],
                 if offered is not None:
                     offered[index][step] = demand
 
-                spent: float = spend_pool(lengths[index], remaining[index], resets[index], costs[index], demand, at)
+                spent: float = spend_pool(pool=simulation.pools[index], state=states[index], demand=demand, at=at)
                 demand -= spent
                 served += spent
                 if demand <= 0:
@@ -442,16 +470,16 @@ def simulate_serving(simulation: dict[str, Any], plans: tuple[tuple[float, ...],
     return served
 
 
-def plan_warmups(members: list[dict[str, Any]], demands: dict[str, list[float]], budgets: dict[str, dict[str, list[float]]], now: float) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def plan_warmups(*, members: list[dict[str, Any]], demands: dict[str, list[float]], budgets: dict[str, dict[str, list[float]]], now: float) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     members = sorted(members, key=lambda entry: (entry["account"]["auth_index"], entry["pool"]["name"] or ""))
-    simulation: dict[str, Any] = prepare_simulation(members, budgets, now)
-    idle: list[int] = [index for index, pool in enumerate(simulation["resets"]) if pool[0] is None]
-    candidates: list[dict[float | None, tuple[float, ...]]] = [plan_pool(simulation, index, demands[find_group(member)], now) if idle else {None: ()} for index, member in enumerate(members)]
+    simulation: Simulation = prepare_simulation(members=members, budgets=budgets, now=now)
+    idle: list[int] = [index for index, state in enumerate(simulation.initial) if state.resets[0] is None]
+    candidates: list[dict[float | None, tuple[float, ...]]] = [plan_pool(pool=simulation.pools[index], initial=simulation.initial[index], demand=demands[find_group(member)], now=now) if idle else {None: ()} for index, member in enumerate(members)]
     scores: dict[tuple[tuple[float, ...], ...], float] = {}
 
     def rank(plans: tuple[tuple[float, ...], ...]) -> tuple[float, tuple[tuple[float, ...], ...]]:
         if plans not in scores:
-            scores[plans] = round(simulate_serving(simulation, plans, demands, now), 6)
+            scores[plans] = round(simulate_serving(simulation=simulation, plans=plans, demands=demands, now=now), 6)
 
         return -scores[plans], tuple(plan or (math.inf,) for plan in plans)
 
@@ -467,8 +495,8 @@ def plan_warmups(members: list[dict[str, Any]], demands: dict[str, list[float]],
             # plan against the demand left by earlier accounts; accept changes only by their joint score
             for index in range(len(members)):
                 offered: list[list[float]] = [[0] * (PLAN_HORIZON // SLOT_LENGTH) for _ in members]
-                simulate_serving(simulation, best, demands, now, offered=offered)
-                alternatives: dict[float | None, tuple[float, ...]] = plan_pool(simulation, index, offered[index], now)
+                simulate_serving(simulation=simulation, plans=best, demands=demands, now=now, offered=offered)
+                alternatives: dict[float | None, tuple[float, ...]] = plan_pool(pool=simulation.pools[index], initial=simulation.initial[index], demand=offered[index], now=now)
 
                 for start, plan in alternatives.items():
                     proposal: tuple[tuple[float, ...], ...] = best[:index] + (plan,) + best[index + 1:]
@@ -502,27 +530,27 @@ def plan_warmups(members: list[dict[str, Any]], demands: dict[str, list[float]],
         "waiting": scores[waiting],
         "natural": scores[natural],
         "evaluations": len(scores),
-        "uncalibrated": sum(cost is None for pool in simulation["costs"] for cost in pool[1:]),
+        "uncalibrated": sum(cost is None for pool in simulation.pools for cost in pool.costs[1:]),
     }
 
     return warmed, decision
 
 
-def rank_spending(entries: list[dict[str, Any]]) -> tuple[bool, float, int, float]:
+def rank_spending(entries: list[dict[str, Any]]) -> SpendingRank:
     spent: bool = not any(is_warmable(entry) for entry in entries)
 
     # quota left at a reset is lost; the account whose weekly window resets first is spent first
-    weekly: float = rank_resets(window["resets_at"] for entry in entries for window in entry["pool"]["windows"] if window["length"] != WINDOW_LENGTHS["5h"] and not is_idle(window, entry["fetched_at"]))
+    weekly: float = rank_resets(window["resets_at"] for entry in entries for window in entry["pool"]["windows"] if window["length"] != WINDOW_LENGTHS["5h"] and not is_idle(window, fetched_at=entry["fetched_at"]))
 
-    reset: float = rank_resets(entry["window"]["resets_at"] for entry in entries if entry["window"] is not None and not is_idle(entry["window"], entry["fetched_at"]))
+    reset: float = rank_resets(entry["window"]["resets_at"] for entry in entries if entry["window"] is not None and not is_idle(entry["window"], fetched_at=entry["fetched_at"]))
     if reset < math.inf:
-        return spent, weekly, 0, reset
+        return SpendingRank(spent=spent, weekly_reset=weekly, short_window=ShortWindow.RUNNING, short_reset=reset)
 
     # an idle 5h window waits for its planned start behind accounts that have none
     if all(entry["window"] is None for entry in entries):
-        return spent, weekly, 1, 0
+        return SpendingRank(spent=spent, weekly_reset=weekly, short_window=ShortWindow.ABSENT, short_reset=0)
 
-    return spent, weekly, 2, 0
+    return SpendingRank(spent=spent, weekly_reset=weekly, short_window=ShortWindow.IDLE, short_reset=0)
 
 
 def is_free(account: dict[str, Any]) -> bool:
@@ -570,7 +598,7 @@ async def fetch_entries(accounts: list[dict[str, Any]]) -> tuple[list[dict[str, 
         try:
             pools: list[dict[str, Any]] = await FETCHERS[account["provider"]](account)
         except ACCOUNT_ERRORS as error:
-            print_account_error(account, error)
+            print_account_error(account, error=error)
             failed.add(account["provider"])
 
             continue
@@ -587,13 +615,13 @@ async def fetch_entries(accounts: list[dict[str, Any]]) -> tuple[list[dict[str, 
 
 async def warm_pool(entry: dict[str, Any]) -> None:
     # a window may reset between the fetch and the warmup
-    idle: list[dict[str, Any]] = [window for window in entry["pool"]["windows"] if is_idle(window, time.time())]
+    idle: list[dict[str, Any]] = [window for window in entry["pool"]["windows"] if is_idle(window, fetched_at=time.time())]
     labels: str = ", ".join(window["label"] for window in idle)
 
     try:
-        await WARMERS[entry["account"]["provider"]](entry["account"], entry["pool"]["name"])
+        await WARMERS[entry["account"]["provider"]](entry["account"], pool=entry["pool"]["name"])
     except ACCOUNT_ERRORS as error:
-        print_account_error(entry["account"], error)
+        print_account_error(entry["account"], error=error)
 
         return
 
@@ -618,7 +646,7 @@ async def warm_quotas() -> None:
     decision: dict[str, Any]
 
     while True:
-        entries, failed = await fetch_entries((await call_management("GET", "/auth-files"))["files"])
+        entries, failed = await fetch_entries((await call_management(method="GET", path="/auth-files"))["files"])
         now: float = time.time()
         groups: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
         providers: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -631,19 +659,19 @@ async def warm_quotas() -> None:
         demands: dict[str, list[float]] = {}
 
         for key, members in groups.items():
-            observation: dict[str, Any] = {"observation": "incomplete"} if members[0]["account"]["provider"] in failed else learn_demand(profiles[key], members, previous.get(key, []), budgets)
+            observation: dict[str, Any] = {"observation": "incomplete"} if members[0]["account"]["provider"] in failed else learn_demand(profile=profiles[key], members=members, previous=previous.get(key, []), budgets=budgets)
             report({"group": key, **observation})
-            demands[key] = [forecast_demand(profiles[key], now + step * SLOT_LENGTH, now) for step in range(PLAN_HORIZON // SLOT_LENGTH)]
+            demands[key] = [forecast_demand(profiles[key], at=now + step * SLOT_LENGTH, now=now) for step in range(PLAN_HORIZON // SLOT_LENGTH)]
 
         for members in providers.values():
-            warm, decision = plan_warmups(members, demands, budgets, now)
+            warm, decision = plan_warmups(members=members, demands=demands, budgets=budgets, now=now)
             report(decision)
 
             for member in warm:
                 await warm_pool(member)
 
-        write_state(DEMAND_PATH, dict(profiles))
-        write_state(BUDGET_PATH, budgets)
+        write_state(DEMAND_PATH, state=dict(profiles))
+        write_state(BUDGET_PATH, state=budgets)
 
         # the windows longer than 5h start as soon as they can: an hour of them idle is an hour lost
         for entry in entries:

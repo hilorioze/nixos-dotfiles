@@ -29,12 +29,12 @@ def read_key(name: str) -> str:
         return file.read()
 
 
-def print_account_error(account: dict[str, Any], error: Exception) -> None:
+def print_account_error(account: dict[str, Any], *, error: Exception) -> None:
     # the repr of a response error carries the management key
     print(f"{account['provider']} {account['label']}: {type(error).__name__}: {error}", file=sys.stderr)
 
 
-async def call_management(method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
+async def call_management(*, method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
     headers: dict[str, str] = {"Authorization": f"Bearer {read_key('management-key')}"}
 
     async with (
@@ -44,9 +44,9 @@ async def call_management(method: str, path: str, payload: dict[str, Any] | None
         return await answer.json()
 
 
-async def send_provider_request(account: dict[str, Any], method: str, url: str, headers: dict[str, str], data: str = "") -> dict[str, Any]:
+async def send_provider_request(account: dict[str, Any], *, method: str, url: str, headers: dict[str, str], data: str = "") -> dict[str, Any]:
     # cliproxyapi sends the request itself and puts the account's oauth token in place of `$TOKEN$`
-    response: dict[str, Any] = await call_management("POST", "/api-call", {
+    response: dict[str, Any] = await call_management(method="POST", path="/api-call", payload={
         "auth_index": account["auth_index"],
         "method": method,
         "url": url,
@@ -60,8 +60,8 @@ async def send_provider_request(account: dict[str, Any], method: str, url: str, 
     return response
 
 
-async def call_provider(account: dict[str, Any], method: str, url: str, headers: dict[str, str], data: str = "") -> Any:
-    response: dict[str, Any] = await send_provider_request(account, method, url, headers, data)
+async def call_provider(account: dict[str, Any], *, method: str, url: str, headers: dict[str, str], data: str = "") -> Any:
+    response: dict[str, Any] = await send_provider_request(account, method=method, url=url, headers=headers, data=data)
 
     return json.loads(response["body"])
 
@@ -81,7 +81,7 @@ def format_window_length(seconds: int) -> str:
 
 
 async def fetch_claude_usage(account: dict[str, Any]) -> dict[str, Any]:
-    return await call_provider(account, "GET", "https://api.anthropic.com/api/oauth/usage", {"anthropic-beta": "oauth-2025-04-20"})
+    return await call_provider(account, method="GET", url="https://api.anthropic.com/api/oauth/usage", headers={"anthropic-beta": "oauth-2025-04-20"})
 
 
 async def fetch_claude_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
@@ -98,7 +98,7 @@ async def fetch_claude_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 async def fetch_codex_usage(account: dict[str, Any]) -> dict[str, Any]:
-    return await call_provider(account, "GET", "https://chatgpt.com/backend-api/wham/usage", {**CODEX_HEADERS, "ChatGPT-Account-Id": account["id_token"]["chatgpt_account_id"]})
+    return await call_provider(account, method="GET", url="https://chatgpt.com/backend-api/wham/usage", headers={**CODEX_HEADERS, "ChatGPT-Account-Id": account["id_token"]["chatgpt_account_id"]})
 
 
 async def fetch_codex_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
@@ -118,7 +118,7 @@ async def fetch_codex_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
     return [{"name": None, "windows": windows}]
 
 
-def read_antigravity_bucket(bucket: dict[str, Any], answered_at: float) -> dict[str, Any]:
+def read_antigravity_bucket(bucket: dict[str, Any], *, answered_at: float) -> dict[str, Any]:
     label: str = bucket["bucketId"].rsplit("-", 1)[-1].replace("weekly", "7d")  # `gemini-5h`, `3p-weekly`
     resets_at: float | None = parse_time(bucket.get("resetTime"))
 
@@ -132,10 +132,10 @@ def read_antigravity_bucket(bucket: dict[str, Any], answered_at: float) -> dict[
 async def fetch_antigravity_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
     response: dict[str, Any] = await send_provider_request(
         account,
-        "POST",
-        "https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary",
-        {"Content-Type": "application/json", "User-Agent": ANTIGRAVITY_USER_AGENT},
-        json.dumps({"project": account["project_id"]}),
+        method="POST",
+        url="https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary",
+        headers={"Content-Type": "application/json", "User-Agent": ANTIGRAVITY_USER_AGENT},
+        data=json.dumps({"project": account["project_id"]}),
     )
 
     summary: dict[str, Any] = json.loads(response["body"])
@@ -146,7 +146,7 @@ async def fetch_antigravity_quota(account: dict[str, Any]) -> list[dict[str, Any
         {
             "name": group["displayName"],
             "windows": [
-                read_antigravity_bucket(bucket, answered_at)
+                read_antigravity_bucket(bucket, answered_at=answered_at)
                 for bucket in reversed(group["buckets"])  # listed longest first
                 if "remainingFraction" in bucket
             ],

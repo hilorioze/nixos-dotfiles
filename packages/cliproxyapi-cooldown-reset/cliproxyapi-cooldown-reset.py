@@ -59,7 +59,7 @@ CHECKERS: dict[str, Callable[[dict[str, Any]], Coroutine[Any, Any, bool]]] = {
 
 
 async def clear_stale_cooldowns() -> None:
-    listing: dict[str, Any] = await call_management("GET", "/auth-files")
+    listing: dict[str, Any] = await call_management(method="GET", path="/auth-files")
 
     for account in listing["files"]:
         if account["disabled"] or not has_quota_cooldown(account):
@@ -74,11 +74,11 @@ async def clear_stale_cooldowns() -> None:
                 continue
 
             # the management reset clears every model cooldown of the selected account
-            result: dict[str, Any] = await call_management("POST", "/reset-quota", {"auth_index": account["auth_index"]})
+            result: dict[str, Any] = await call_management(method="POST", path="/reset-quota", payload={"auth_index": account["auth_index"]})
             models: str = ", ".join(result["models"])
             print(f"{account['provider']} {account['label']}: reset cooldowns ({models})", file=sys.stderr)
         except ACCOUNT_ERRORS as error:
-            print_account_error(account, error)
+            print_account_error(account, error=error)
 
 
 async def run() -> None:

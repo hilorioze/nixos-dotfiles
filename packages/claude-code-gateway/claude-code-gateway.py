@@ -169,7 +169,7 @@ async def refresh_quota(account: dict[str, Any], started_at: float) -> None:
     try:
         pools: list[dict[str, Any]] = await FETCHERS[account["provider"]](account)
     except ACCOUNT_ERRORS as error:
-        print_account_error(account, error)  # the last known quota stays and gets marked stale
+        print_account_error(account, error=error)  # the last known quota stays and gets marked stale
 
         return
 
@@ -177,7 +177,7 @@ async def refresh_quota(account: dict[str, Any], started_at: float) -> None:
 
 
 async def read_quotas(timeout: float) -> dict[str, list[dict[str, Any]]]:
-    files: list[dict[str, Any]] = (await call_management("GET", "/auth-files"))["files"]
+    files: list[dict[str, Any]] = (await call_management(method="GET", path="/auth-files"))["files"]
     accounts: list[dict[str, Any]] = [account for account in files if not account["disabled"]]
 
     now: float = time.time()
@@ -244,7 +244,7 @@ async def read_catalog() -> list[dict[str, Any]]:
     providers: list[str] = sorted({split_model(model["id"])[0] for model in catalog["data"]})
 
     # cliproxyapi's claude model list omits thinking support; read its full definitions
-    definitions: list[dict[str, Any]] = await asyncio.gather(*(call_management("GET", f"/model-definitions/{provider}") for provider in providers))
+    definitions: list[dict[str, Any]] = await asyncio.gather(*(call_management(method="GET", path=f"/model-definitions/{provider}") for provider in providers))
 
     limits: dict[tuple[str, str], str] = {}
     for provider, definition in zip(providers, definitions, strict=True):
