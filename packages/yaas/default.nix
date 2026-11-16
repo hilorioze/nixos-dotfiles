@@ -23,8 +23,8 @@
     owner = "skrimix";
     repo = "yaas";
 
-    rev = "55905bcca731c435df0f8d2cceaf7c2b51011fa1";
-    hash = "sha256-ipNPj3+rn/KIYCppACwydId1ct2CjVygtQWfaGJn4mg=";
+    rev = "bd5af43edd413534a1495fe23df5ac559d9a0f32";
+    hash = "sha256-YCD4h+hcv/6Xs79JgHFDht1pmInsF8tT/vQNVAtdbCk=";
   };
 
   rustDep = rustPlatform.buildRustPackage {
@@ -36,7 +36,7 @@
 
     buildAndTestSubdir = "native/hub";
 
-    cargoHash = "sha256-Wrz8XR3vTuDOAt2OAYqkk3hwg+lCxC8FqSrb8Cy75OA=";
+    cargoHash = "sha256-tL6nxE0pJOu0lLhhOhWVmdbTK2pTyJy7gTC7lsCY8l0=";
 
     doCheck = false;
 
