@@ -253,6 +253,8 @@ in {
 
         "browser.toolbars.bookmarks.visibility" = "never";
 
+        "browser.fireButton.enabled" = false; # hide the toolbar button that deletes all browsing data
+
         "media.videocontrols.picture-in-picture.video-toggle.has-used" = true; # mark pip intro popup as already shown
 
         "intl.locale.requested" = "en-GB"; # ui locale
