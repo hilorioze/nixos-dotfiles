@@ -394,6 +394,14 @@ def plan_pool(simulation: dict[str, Any], index: int, demand: list[float], now: 
     return plans
 
 
+# the order `rank_spending` gives the accounts, in the simulated state
+def rank_simulated_spending(account: list[int], remaining: list[list[float]], resets: list[list[float | None]]) -> tuple[bool, float, float]:
+    spent: bool = not any(all(value > 0 for value in remaining[index]) for index in account)
+    weekly: float = rank_resets(reset for index in account for reset in resets[index][1:])
+
+    return spent, weekly, rank_resets(resets[index][0] for index in account)
+
+
 def simulate_serving(simulation: dict[str, Any], plans: tuple[tuple[float, ...], ...], demands: dict[str, list[float]], now: float, *, offered: list[list[float]] | None = None) -> float:
     lengths: list[list[int]] = simulation["lengths"]
     costs: list[list[float | None]] = simulation["costs"]
@@ -413,7 +421,7 @@ def simulate_serving(simulation: dict[str, Any], plans: tuple[tuple[float, ...],
             advance_pool(lengths[index], remaining[index], resets[index], at, warm=cursors[index] > cursor)
 
         # priorities belong to accounts, so both antigravity pools must see the same cold-binding order
-        accounts: list[list[int]] = sorted(simulation["accounts"], key=lambda account: rank_resets(resets[index][0] for index in account))
+        accounts: list[list[int]] = sorted(simulation["accounts"], key=lambda account: rank_simulated_spending(account, remaining, resets))
         order: dict[int, int] = {index: position for position, account in enumerate(accounts) for index in account}
 
         for group, indexes in simulation["groups"].items():
@@ -500,16 +508,21 @@ def plan_warmups(members: list[dict[str, Any]], demands: dict[str, list[float]],
     return warmed, decision
 
 
-def rank_spending(entries: list[dict[str, Any]]) -> tuple[int, float]:
+def rank_spending(entries: list[dict[str, Any]]) -> tuple[bool, float, int, float]:
+    spent: bool = not any(is_warmable(entry) for entry in entries)
+
+    # quota left at a reset is lost; the account whose weekly window resets first is spent first
+    weekly: float = rank_resets(window["resets_at"] for entry in entries for window in entry["pool"]["windows"] if window["length"] != WINDOW_LENGTHS["5h"] and not is_idle(window, entry["fetched_at"]))
+
     reset: float = rank_resets(entry["window"]["resets_at"] for entry in entries if entry["window"] is not None and not is_idle(entry["window"], entry["fetched_at"]))
     if reset < math.inf:
-        return 0, reset
+        return spent, weekly, 0, reset
 
     # an idle 5h window waits for its planned start behind accounts that have none
     if all(entry["window"] is None for entry in entries):
-        return 1, 0
+        return spent, weekly, 1, 0
 
-    return 2, 0
+    return spent, weekly, 2, 0
 
 
 def is_free(account: dict[str, Any]) -> bool:
