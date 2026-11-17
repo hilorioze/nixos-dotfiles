@@ -25,7 +25,7 @@
     ../../../features/android/adb.nix
     ../../../features/android/quickshare.nix
     ../../../features/audio/oneplus-buds-pro-3.nix
-    ../../../features/browsers/chromium.nix
+    ../../../features/browsers/chromium/chromium.nix
     ../../../features/browsers/librewolf.nix
     ../../../features/browsers/tor-browser.nix
     ../../../features/communication/ayugram-desktop.nix

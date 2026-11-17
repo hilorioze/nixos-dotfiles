@@ -59,42 +59,11 @@
   systemd.user.services.chromium-keepassxc-browser-storage = let
     storagePath = "${config.home.homeDirectory}/.config/chromium/Default/Local Extension Settings/${pkgs.chromium-extension-keepassxc-browser.id}";
 
-    writeStorage =
-      pkgs.writers.writePython3 "write-chromium-extension-storage" {
-        libraries = [pkgs.python3Packages.plyvel];
+    writeStorage = pkgs.writers.writePython3 "write-chromium-extension-storage" {
+      libraries = [pkgs.python3Packages.plyvel];
 
-        flakeIgnore = (import ../../../../shared.nix).ignoredFlake8Rules;
-      } /* python */ ''
-        import json
-        import sys
-
-        import plyvel
-
-
-        def main() -> None:
-            storage_path: str = sys.argv[1]
-            values_path: str = sys.argv[2]
-
-            with open(values_path) as file:
-                values: dict[str, object] = json.load(file)
-
-            # a running chromium holds the storage lock; the values are written on the next sops-nix run with chromium closed
-            try:
-                database: plyvel.DB = plyvel.DB(storage_path, create_if_missing=True)
-            except plyvel.IOError:
-                print("chromium is running, skipping the keepassxc-browser storage", file=sys.stderr)
-                return
-
-            with database.write_batch() as batch:
-                for key, value in values.items():
-                    batch.put(key.encode(), json.dumps(value, separators=(",", ":")).encode())
-
-            database.close()
-
-
-        if __name__ == "__main__":
-            main()
-      '';
+      flakeIgnore = (import ../../../../../shared.nix).ignoredFlake8Rules;
+    } (builtins.readFile ./write-chromium-extension-storage.py);
   in {
     Install.WantedBy = ["sops-nix.service"]; # sops-nix renders the template only in a running user session, so rewrite the storage each time it does
 

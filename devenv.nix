@@ -30,6 +30,7 @@
         with pythonPackages; [
           # keep-sorted start
           aiohttp
+          bleak
           dbus-fast
           plyvel
           # keep-sorted end
