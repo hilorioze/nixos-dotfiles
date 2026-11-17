@@ -8,7 +8,6 @@
     "kvm"
     "libvirtd"
     "networkmanager"
-    "openrazer"
     "podman"
     "uinput" # required by deadlocked
     "wireshark"
