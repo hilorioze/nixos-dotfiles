@@ -1,0 +1,3 @@
+{inputs, ...}: {
+  imports = [(inputs.import-tree.filterNot (path: path == "/default.nix") ./.)]; # this file is left out so it doesn't import itself
+}

@@ -30,6 +30,7 @@ List of machines managed by this project:
 | [`hel0`](/hosts/hel0)                             | Server  | Hetzner                                                                       |
 | [`fakesynology-nixos`](/hosts/fakesynology-nixos) | Server  | Home VM                                                                       |
 | [`cex-nixos`](/hosts/cex-nixos)                   | Server  | Home VM                                                                       |
+| [`honeypot`](/hosts/honeypot)                     | Server  | Honeypots                                                                     |
 | [`hisonix`](/hosts/hisonix)                       | ISO     | Rescue ISO                                                                    |
 
 

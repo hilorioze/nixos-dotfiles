@@ -1,0 +1,3 @@
+{
+  security.acme.acceptTerms = true;
+}

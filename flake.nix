@@ -251,6 +251,7 @@
           hel0 = mkNixosSystem [./hosts/hel0];
           hilonix = mkNixosSystem [./hosts/hilonix];
           hisonix = mkNixosSystem [./hosts/hisonix];
+          honeypot = mkNixosSystem [./hosts/honeypot];
           lelonix = mkNixosSystem [./hosts/lelonix];
           # keep-sorted end
         };
@@ -264,6 +265,20 @@
           hilonix = mkDeployNode config.nixosConfigurations.hilonix;
           lelonix = mkDeployNode config.nixosConfigurations.lelonix;
           # keep-sorted end
+
+          honeypot = let
+            inherit (config.nixosConfigurations) honeypot;
+
+            deployNode = mkDeployNode honeypot;
+          in
+            deployNode
+            // {
+              hostname = "185.68.185.206"; # the host has no fqdn
+
+              sshUser = honeypot.config.users.users.root.name; # the host has no `deployer` user
+
+              sshOpts = deployNode.sshOpts ++ ["-p" (toString (builtins.head honeypot.config.services.openssh.ports))];
+            };
         };
       };
     };
