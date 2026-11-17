@@ -4,7 +4,7 @@
   ...
 }: let
   displayWatch = pkgs.writers.writePython3 "display-watch" {
-    flakeIgnore = (import ../../../../../shared.nix).ignoredFlake8Rules;
+    doCheck = false; # treefmt lints the script with ruff
   } (builtins.readFile ./display-watch.py);
 
   systemctl = lib.getExe' pkgs.systemd "systemctl";

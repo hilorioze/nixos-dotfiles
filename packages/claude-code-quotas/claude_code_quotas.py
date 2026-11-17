@@ -11,10 +11,7 @@ def is_reset(snapshot: dict[str, Any], now: float) -> bool:
 
 
 def match_pools(model: str, pools: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    matching: list[dict[str, Any]] = [
-        pool for pool in pools
-        if pool["name"] and any(word in model for word in re.findall(r"[a-z]{3,}", pool["name"].lower()))
-    ]
+    matching: list[dict[str, Any]] = [pool for pool in pools if pool["name"] and any(word in model for word in re.findall(r"[a-z]{3,}", pool["name"].lower()))]
 
     return matching or pools
 

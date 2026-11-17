@@ -12,7 +12,7 @@
   readExtensionToken = writers.writePython3 "read-extension-token" {
     libraries = [python3Packages.plyvel];
 
-    flakeIgnore = (import ../../shared.nix).ignoredFlake8Rules;
+    doCheck = false; # treefmt lints the script with ruff
   } (builtins.readFile ./read-extension-token.py);
 in
   symlinkJoin {

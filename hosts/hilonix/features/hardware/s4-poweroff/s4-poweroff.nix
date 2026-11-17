@@ -4,6 +4,6 @@
 
   # power off into acpi S4 through the kernel's hibernation path to power on by a key press: the dsdt allows usb wake only from S4
   systemd.shutdown.s4-poweroff = pkgs.writers.writePython3 "s4-poweroff" {
-    flakeIgnore = (import ../../../../../shared.nix).ignoredFlake8Rules;
+    doCheck = false; # treefmt lints the script with ruff
   } (builtins.readFile ./s4-poweroff.py);
 }

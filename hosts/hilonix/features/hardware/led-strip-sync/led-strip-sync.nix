@@ -6,7 +6,7 @@
   ledStripControl = pkgs.unstablePkgs.writers.writePython3 "led-strip-control" {
     libraries = [pkgs.unstablePkgs.python3Packages.bleak]; # bleak before 3.0.0 closes the bus when the strip drops the connection, failing the disconnect with `EOFError`
 
-    flakeIgnore = (import ../../../../../shared.nix).ignoredFlake8Rules;
+    doCheck = false; # treefmt lints the script with ruff
   } (builtins.readFile ./led-strip-control.py);
 
   ledStripAddress = "24:10:31:04:24:F1";

@@ -62,7 +62,7 @@
     writeStorage = pkgs.writers.writePython3 "write-chromium-extension-storage" {
       libraries = [pkgs.python3Packages.plyvel];
 
-      flakeIgnore = (import ../../../../../shared.nix).ignoredFlake8Rules;
+      doCheck = false; # treefmt lints the script with ruff
     } (builtins.readFile ./write-chromium-extension-storage.py);
   in {
     Install.WantedBy = ["sops-nix.service"]; # sops-nix renders the template only in a running user session, so rewrite the storage each time it does

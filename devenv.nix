@@ -64,6 +64,8 @@
 
       ruff-check.enable = true;
 
+      ruff-format.enable = true;
+
       statix.enable = true;
       # keep-sorted end
     };

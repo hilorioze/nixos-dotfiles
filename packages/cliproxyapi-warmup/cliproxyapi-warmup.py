@@ -499,15 +499,15 @@ def plan_warmups(*, members: list[dict[str, Any]], demands: dict[str, list[float
                 alternatives: dict[float | None, tuple[float, ...]] = plan_pool(pool=simulation.pools[index], initial=simulation.initial[index], demand=offered[index], now=now)
 
                 for start, plan in alternatives.items():
-                    proposal: tuple[tuple[float, ...], ...] = best[:index] + (plan,) + best[index + 1:]
-                    retained: tuple[tuple[float, ...], ...] = best[:index] + (candidates[index][start],) + best[index + 1:]
+                    proposal: tuple[tuple[float, ...], ...] = best[:index] + (plan,) + best[index + 1 :]
+                    retained: tuple[tuple[float, ...], ...] = best[:index] + (candidates[index][start],) + best[index + 1 :]
                     if rank(proposal) < rank(retained):
                         candidates[index][start] = plan
 
-                best = min((best, *(best[:index] + (plan,) + best[index + 1:] for plan in candidates[index].values())), key=rank)
+                best = min((best, *(best[:index] + (plan,) + best[index + 1 :] for plan in candidates[index].values())), key=rank)
 
             for left, right in itertools.combinations(idle, 2):
-                best = min((best, *(best[:left] + (first,) + best[left + 1:right] + (second,) + best[right + 1:] for first, second in itertools.product(candidates[left].values(), candidates[right].values()))), key=rank)
+                best = min((best, *(best[:left] + (first,) + best[left + 1 : right] + (second,) + best[right + 1 :] for first, second in itertools.product(candidates[left].values(), candidates[right].values()))), key=rank)
 
             if best == previous:
                 break

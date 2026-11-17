@@ -1,0 +1,7 @@
+line-length = 320 # long lines are intentional; ruff allows no more
+
+[lint]
+extend-select = ["I"]
+
+[format]
+preview = true # keep a lone bracketed argument hugging its call, like `append({`

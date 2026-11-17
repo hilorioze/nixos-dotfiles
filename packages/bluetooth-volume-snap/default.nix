@@ -7,7 +7,7 @@
 (writers.writePython3Bin "bluetooth-volume-snap" {
   libraries = [python3Packages.dbus-fast];
 
-  flakeIgnore = (import ../../shared.nix).ignoredFlake8Rules;
+  doCheck = false; # treefmt lints the script with ruff
 } (builtins.readFile ./bluetooth-volume-snap.py)).overrideAttrs (oldAttrs: {
   passthru.skipUpdate = true; # the script lives in this repository
 

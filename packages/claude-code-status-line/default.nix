@@ -7,7 +7,7 @@
 (writers.writePython3Bin "claude-code-status-line" {
   libraries = [claude-code-quotas];
 
-  flakeIgnore = (import ../../shared.nix).ignoredFlake8Rules;
+  doCheck = false; # treefmt lints the script with ruff
 } (builtins.readFile ./claude-code-status-line.py)).overrideAttrs (oldAttrs: {
   passthru.skipUpdate = true; # the script lives in this repository
 

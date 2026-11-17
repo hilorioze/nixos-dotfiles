@@ -10,7 +10,7 @@
   extension = (lib.importJSON ./sources.json).${name};
 
   updateExtension = writers.writePython3 "update-chromium-extension" {
-    flakeIgnore = (import ../../shared.nix).ignoredFlake8Rules;
+    doCheck = false; # treefmt lints the script with ruff
   } (builtins.readFile ./update-chromium-extension.py);
 in
   # the download url carries an opaque store token, so the update script records it next to the version and hash

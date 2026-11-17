@@ -46,13 +46,17 @@ async def call_management(*, method: str, path: str, payload: dict[str, Any] | N
 
 async def send_provider_request(account: dict[str, Any], *, method: str, url: str, headers: dict[str, str], data: str = "") -> dict[str, Any]:
     # cliproxyapi sends the request itself and puts the account's oauth token in place of `$TOKEN$`
-    response: dict[str, Any] = await call_management(method="POST", path="/api-call", payload={
-        "auth_index": account["auth_index"],
-        "method": method,
-        "url": url,
-        "header": {"Authorization": "Bearer $TOKEN$", **headers},
-        "data": data,
-    })
+    response: dict[str, Any] = await call_management(
+        method="POST",
+        path="/api-call",
+        payload={
+            "auth_index": account["auth_index"],
+            "method": method,
+            "url": url,
+            "header": {"Authorization": "Bearer $TOKEN$", **headers},
+            "data": data,
+        },
+    )
 
     if response["status_code"] != 200:
         raise RuntimeError(f"{url} answered {response['status_code']}: {' '.join(response['body'].split())}")  # the provider's error message, on one journal line

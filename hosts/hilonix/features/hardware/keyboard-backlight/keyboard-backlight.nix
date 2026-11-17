@@ -1,6 +1,6 @@
 {pkgs, ...}: let
   keyboardBacklightControl = pkgs.writers.writePython3 "keyboard-backlight-control" {
-    flakeIgnore = (import ../../../../../shared.nix).ignoredFlake8Rules;
+    doCheck = false; # treefmt lints the script with ruff
   } (builtins.readFile ./keyboard-backlight-control.py);
 
   keyboardVendorId = "1532";

@@ -13,7 +13,7 @@
     # keep-sorted end
   ];
 
-  flakeIgnore = (import ../../shared.nix).ignoredFlake8Rules;
+  doCheck = false; # treefmt lints the script with ruff
 } (builtins.readFile ./cliproxyapi-warmup.py)).overrideAttrs (oldAttrs: {
   passthru.skipUpdate = true; # the script lives in this repository
 

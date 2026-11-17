@@ -30,7 +30,7 @@ def format_directory(directory: str) -> str:
     home: str = os.path.expanduser("~")
 
     if directory == home or directory.startswith(home + os.sep):
-        return "~" + directory[len(home):]
+        return "~" + directory[len(home) :]
 
     return directory
 
