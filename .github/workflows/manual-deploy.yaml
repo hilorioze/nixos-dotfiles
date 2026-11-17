@@ -45,8 +45,10 @@ jobs:
         env:
           TARGET_NODES: ${{ inputs['target-nodes'] }}
         run: |
-          include=$(nix eval --json .#deploy.nodes --apply '
-            nodes: let
+          include=$(nix eval --json --impure --expr '
+            let
+              flake = builtins.getFlake (toString ./.);
+
               # no `ubuntu-latest-arm` alias; pinned to `ubuntu-24.04-arm`
               # update when a newer image or the alias becomes available
               runners = {
@@ -59,11 +61,13 @@ jobs:
               map (node: {
                 inherit node;
 
-                runner = runners.${nodes.${node}.profiles.system.path.system};
+                runner = runners.${flake.deploy.nodes.${node}.profiles.system.path.system};
 
-                fqdn = nodes.${node}.hostname;
+                inherit (flake.deploy.nodes.${node}) hostname;
+
+                in-tailnet = flake.nixosConfigurations.${node}.config.services.tailscale.enable; # hosts outside the tailnet are deployed over their public sshd
               })
-              (builtins.attrNames nodes)
+              (builtins.attrNames flake.deploy.nodes)
           ')
 
           if [[ $TARGET_NODES != all ]]; then
@@ -103,19 +107,20 @@ jobs:
         with:
           extra_nix_config: *extra_nix_config
 
-      - uses: tailscale/github-action@064b10558093f38325e838ddea35486bdc6b1d5c # v4.4.0
+      - if: matrix['in-tailnet']
+        uses: tailscale/github-action@064b10558093f38325e838ddea35486bdc6b1d5c # v4.4.0
         with:
           authkey: ${{ secrets.DEPLOYER_TAILSCALE_AUTH_KEY }}
 
           hostname: deploy-${{ matrix.node }}-${{ github.run_number }}
           args: --login-server ${{ vars.TAILSCALE_LOGIN_SERVER_URL }}
 
-          ping: ${{ inputs['ping-nodes'] && matrix.fqdn || '' }}
+          ping: ${{ inputs['ping-nodes'] && matrix.hostname || '' }}
 
       - run: |
           install -D --mode=600 /dev/stdin ~/.ssh/id_ed25519 <<<"${{ secrets.DEPLOYER_SSH_PRIVATE_KEY }}"
 
-          install --mode=600 /dev/stdin ~/.ssh/known_hosts <<<"${{ matrix.fqdn }} $(<hosts/${{ matrix.node }}/ssh_host_ed25519_key.pub)"
+          install --mode=600 /dev/stdin ~/.ssh/known_hosts <<<"${{ matrix.hostname }},[${{ matrix.hostname }}]:* $(<hosts/${{ matrix.node }}/ssh_host_ed25519_key.pub)"
 
       - id: fetch-niks3-bin
         run: |
