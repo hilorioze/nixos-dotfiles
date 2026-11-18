@@ -248,6 +248,8 @@ in {
 
         "browser.tabs.closeWindowWithLastTab" = false;
 
+        "browser.tabs.groups.enabled" = false;
+
         "browser.newtabpage.activity-stream.feeds.topsites" = false; # hide new tab shortcuts row
         "browser.newtabpage.activity-stream.feeds.section.topstories" = false; # hide new tab recommended stories block
 
