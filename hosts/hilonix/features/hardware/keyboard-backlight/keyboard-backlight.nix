@@ -15,28 +15,45 @@ in {
     SUBSYSTEM=="hidraw", ENV{ID_VENDOR_ID}=="${keyboardVendorId}", ENV{ID_MODEL_ID}=="${keyboardProductId}", ENV{ID_USB_INTERFACE_NUM}=="02", TAG+="systemd", ENV{SYSTEMD_WANTS}+="keyboard-backlight.service"
   '';
 
-  systemd.services = {
-    keyboard-backlight = {
-      description = "Keyboard backlight";
+  systemd = {
+    # after a resume the keyboard keeps a new effect dark until it has been up for a while, and nothing tells when; set it once more a bit later
+    timers.keyboard-backlight = {
+      description = "Keyboard backlight repeat";
 
       wantedBy = ["displays-on.target"];
 
-      serviceConfig = {
-        Type = "oneshot";
+      partOf = ["displays-on.target"]; # displays turned off in the meantime cancel the repeat
 
-        ExecStart = "${keyboardBacklightControlCommand} --brightness ${toString keyboardBacklightBrightness}";
+      timerConfig = {
+        OnActiveSec = "3s";
+
+        RemainAfterElapse = false; # the next turn-on starts it again
       };
     };
 
-    keyboard-backlight-off = {
-      description = "Keyboard backlight off";
+    services = {
+      keyboard-backlight = {
+        description = "Keyboard backlight";
 
-      wantedBy = ["displays-off.target"];
+        wantedBy = ["displays-on.target"];
 
-      serviceConfig = {
-        Type = "oneshot";
+        serviceConfig = {
+          Type = "oneshot";
 
-        ExecStart = "${keyboardBacklightControlCommand} --brightness 0";
+          ExecStart = "${keyboardBacklightControlCommand} --brightness ${toString keyboardBacklightBrightness}";
+        };
+      };
+
+      keyboard-backlight-off = {
+        description = "Keyboard backlight off";
+
+        wantedBy = ["displays-off.target"];
+
+        serviceConfig = {
+          Type = "oneshot";
+
+          ExecStart = "${keyboardBacklightControlCommand} --brightness 0";
+        };
       };
     };
   };
