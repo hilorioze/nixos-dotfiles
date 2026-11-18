@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import subprocess
 import time
 import urllib.error
@@ -21,6 +22,9 @@ TOP_SIZE: int = 10
 KEY_LIMIT: int = 100
 
 COMMANDS_LIMIT: int = 3000  # telegram caps a message at 4096 characters
+
+# bots salt every run with random tokens and numbers, which would make each script look new
+SCRIPT_NOISE: re.Pattern[str] = re.compile(r"[0-9a-f]{8,}|\d+")
 
 # https://github.com/thinkst/opencanary/blob/fb12e4fefbdb1b9acd1e5561a2614f827ab639ff/opencanary/logger.py#L64-L100
 OPENCANARY_SERVICES: dict[int, str] = {
@@ -118,7 +122,7 @@ def format_session(session: Session, *, script: str) -> str:
     if session.commands:
         commands: str = "\n".join(session.commands)[:COMMANDS_LIMIT]
 
-        lines.append(f"<pre>{escape(commands)}</pre>")
+        lines.append(f"<blockquote expandable><code>{escape(commands)}</code></blockquote>")
 
     lines.extend(f'file <a href="https://www.virustotal.com/gui/file/{shasum}">{escape(source[:KEY_LIMIT])}</a>' for source, shasum in session.files)
 
@@ -134,7 +138,7 @@ def report_session(session: Session, *, known_scripts: set[str], digest: dict[st
     if not (session.commands or session.files or session.tunnels):
         return
 
-    script: str = sha256("\n".join(session.commands).encode()).hexdigest()[:8]
+    script: str = sha256(SCRIPT_NOISE.sub("", "\n".join(session.commands)).encode()).hexdigest()[:8]
 
     # bots repeat the same script from thousands of hosts
     if script in known_scripts:
