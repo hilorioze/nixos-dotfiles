@@ -666,11 +666,11 @@
         "uv2nix": "uv2nix_2"
       },
       "locked": {
-        "lastModified": 1794604446,
-        "narHash": "sha256-JicmDziX0wcN98Dp9VpM+4NQX+d8MV6ni3BOmV+ZD9U=",
+        "lastModified": 1795012329,
+        "narHash": "sha256-MqCifFlVhI34P4/oCkXAnvA3kNB/pBSIOrjjzb1GmGM=",
         "owner": "hilorioze",
         "repo": "hilot",
-        "rev": "ab9968595fbf363f9f406e14c2e4d220c80778d7",
+        "rev": "3047fc36a5e9bb7f6cf3a05f620eba6c4d5898e6",
         "type": "github"
       },
       "original": {
