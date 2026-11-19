@@ -59,7 +59,7 @@ REGISTRATION_SECONDS: int = 10  # how long a phone can keep the pushes after tak
 
 IDLE_SECONDS: int = 120  # keep waiting for the recording of the latest detection
 RESUME_MS: int = 3600 * 1000  # on start, resume saving the recordings of the cameras with a detection this recent
-POLL_SECONDS: int = 20
+POLL_SECONDS: int = 5
 
 # surveillance station's own sizes: a 160x90 thumbnail of the recording and a 320x180 preview every 20s for the timeline
 THUMBNAIL_SCALE: str = "160:90"
