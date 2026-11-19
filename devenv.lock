@@ -9,11 +9,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794417255,
-        "narHash": "sha256-Zclsi5WQdYxPPsFbAuPjuLQoKdUnQ+idCKPAhOKBNq8=",
+        "lastModified": 1795054342,
+        "narHash": "sha256-3CEvYXQgpPxM3G9MbuTMwOM7r7AxByi3eu3f9gxycHM=",
         "owner": "kamadorueda",
         "repo": "alejandra",
-        "rev": "418116d25ea258ab2c4914ad25ba100bc3d78e52",
+        "rev": "05dce2f4f025966d5000ee0eeffd11def13a7a3b",
         "type": "github"
       },
       "original": {
@@ -183,11 +183,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791885023,
-        "narHash": "sha256-C3alQ2MEt0zVrUSho5NUDo3jmhbff72++bfwoqT9Omo=",
+        "lastModified": 1795017206,
+        "narHash": "sha256-WSBJcYjPRxGetDNxVzKnRPs1TQasQQlAC25W/S4W6YE=",
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "rev": "0d6d739a833ba9a9c93034862e4a7b061a062a1c",
+        "rev": "0ba5d67225c3f5c88eb134e1a665a379bfd3bea9",
         "type": "github"
       },
       "original": {
