@@ -9,5 +9,7 @@
       "systemd"
       # keep-sorted end
     ];
+
+    extraFlags = ["--collector.systemd.enable-restarts-metrics"]; # a crash loop under `Restart=` never leaves the unit failed
   };
 }

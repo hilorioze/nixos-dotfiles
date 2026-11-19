@@ -76,6 +76,25 @@ groups:
           severity: critical
         annotations:
           summary: "Node {{ $labels.instance }} is down"
+
+      - alert: systemd_unit_failed
+
+        expr: node_systemd_unit_state{state="failed"} == 1
+        for: 10m
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unit {{ $labels.name }} failed on {{ $labels.instance }}"
+
+      - alert: systemd_unit_restarting
+
+        expr: increase(node_systemd_service_restart_total[30m]) >= 3
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unit {{ $labels.name }} keeps restarting on {{ $labels.instance }}"
       # keep-sorted end
 
   - name: router
