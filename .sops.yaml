@@ -25,6 +25,10 @@ keys:
     - &pgp_admin_hilorioze F0C7E37B24106ED3EFFB1CED12C04ED901029563!
 
 creation_rules:
+  - path_regex: ^tofu/dns/secrets\.yaml$
+    key_groups:
+      - pgp: *pgp_admin_keys
+
   - path_regex: ^hosts/common/secrets\.yaml$
     key_groups:
       - age: *age_host_keys

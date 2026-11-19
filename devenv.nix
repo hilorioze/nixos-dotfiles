@@ -23,6 +23,12 @@
       lsp.package = pkgs.nil;
     };
 
+    opentofu = {
+      enable = true;
+
+      package = pkgs.opentofu.withPlugins (plugins: [plugins.cloudflare_cloudflare]);
+    };
+
     python = {
       enable = true;
 
@@ -69,6 +75,12 @@
       ruff-format.enable = true;
 
       statix.enable = true;
+
+      terraform = {
+        enable = true;
+
+        includes = ["*.tofu"]; # missing from the default includes
+      };
       # keep-sorted end
     };
   };

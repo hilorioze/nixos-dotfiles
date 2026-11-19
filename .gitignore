@@ -8,3 +8,10 @@
 /.pre-commit-config.yaml
 
 __pycache__/
+
+# opentofu working directories and the previous state kept by `tofu apply`
+.terraform/
+terraform.tfstate.backup
+
+# devenv pins the opentofu providers through `languages.opentofu.package`
+.terraform.lock.hcl

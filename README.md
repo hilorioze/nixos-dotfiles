@@ -13,6 +13,7 @@ A public repository for a project containing my personal NixOS and Home Manager 
 - Fully **declarative** self-hosted infrastructure with **Headscale**, **Authentik**, **[mailserver](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver)**, **Traefik**, and a lot of other services
 - **Monitoring** driven by a stack of **Grafana**, **Prometheus**, **Loki**, **[Gatus](https://github.com/TwiN/gatus)** and **Alertmanager**
 - **[CI-driven deployments](/.github/workflows/manual-deploy.yaml)** via **[deploy-rs](https://github.com/serokell/deploy-rs)**, powered by the **tailnet** and a self-hosted **[niks3](https://github.com/Mic92/niks3)** binary cache
+- **DNS** records declared by **OpenTofu** in [`tofu/dns`](/tofu/dns) and auto-deployed by **[CI](/.github/workflows/deploy-dns.yaml)**
 - **Secrets** via **[sops-nix](https://github.com/Mic92/sops-nix)**, encrypted with **age**
 - **[Custom rescue ISO](/hosts/hisonix)**
 - **[devenv](https://devenv.sh/)** development shell with **treefmt**, **pre-commit hooks**, and **helper scripts**
@@ -98,10 +99,15 @@ Conceptual layout of the project:
 │   ├── default.nix
 │   └── <overlay>/
 │       └── default.nix
-└── packages/                              # Custom package definitions
-    ├── default.nix
-    └── <package>/
-        └── default.nix
+├── packages/                              # Custom package definitions
+│   ├── default.nix
+│   └── <package>/
+│       └── default.nix
+└── tofu/                                  # OpenTofu configurations of external resources
+    └── <configuration>/
+        ├── <topic>.tofu
+        ├── secrets.yaml                   # sops-encrypted credentials for local runs
+        └── terraform.tfstate              # State, committed by CI after each apply
 ```
 
 
