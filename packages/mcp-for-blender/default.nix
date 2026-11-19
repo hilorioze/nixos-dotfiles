@@ -21,14 +21,13 @@ in
       pname = pypiName;
 
       inherit (finalAttrs) version;
+      hash = "sha256-1CD+U4KnIgFi2ajtPwdA+hnOg62H8wyJIki7fFJUthg=";
 
       format = "wheel";
 
       # this wheel uses `py3` in its filename and download path; override `fetchPypi`'s `py2.py3` defaults to avoid 404s
       python = "py3";
       dist = "py3";
-
-      hash = "sha256-1CD+U4KnIgFi2ajtPwdA+hnOg62H8wyJIki7fFJUthg=";
     };
 
     format = "wheel";
