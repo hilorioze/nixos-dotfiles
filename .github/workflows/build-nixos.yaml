@@ -110,10 +110,21 @@ jobs:
             printf 'EOF\n'
           } >> $GITHUB_ENV
 
+      # skip a configuration the cache already has; building it would only download its whole closure
+      - id: query-cache
+        run: |
+          result=$(nix eval --raw .#nixosConfigurations.${{ matrix.configuration }}.config.system.build.toplevel)
+
+          if nix path-info --store https://nix-cache.hilorioze.com $result; then
+            printf 'cached=true\n' >> $GITHUB_OUTPUT
+          fi
+
       # pull requests into main from the trusted accounts push too, so main substitutes their builds after the merge
       - if: &push-to-cache >-
-          github.event_name != 'pull_request' ||
-          contains(fromJSON('["hilorioze", "renovate[bot]"]'), github.actor)
+          steps.query-cache.outputs.cached != 'true' && (
+            github.event_name != 'pull_request' ||
+            contains(fromJSON('["hilorioze", "renovate[bot]"]'), github.actor)
+          )
         id: fetch-niks3-bin
         run: |
           cat "$(nix build --impure --no-link --print-out-paths --print-build-logs --expr '
@@ -143,4 +154,5 @@ jobs:
       - if: *push-to-cache
         run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
 
-      - run: nix build --no-link --print-build-logs .#nixosConfigurations.${{ matrix.configuration }}.config.system.build.toplevel
+      - if: steps.query-cache.outputs.cached != 'true'
+        run: nix build --no-link --print-build-logs .#nixosConfigurations.${{ matrix.configuration }}.config.system.build.toplevel
