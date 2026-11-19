@@ -4,14 +4,14 @@ on:
       - main
 
     paths: &paths
-      - .github/workflows/deploy-dns.yaml
+      - .github/workflows/deploy-tofu.yaml
 
-      - tofu/dns/**
+      - tofu/**
 
       # `_mta-sts` takes its id from the policy
       - hosts/hel0/features/services/mta-sts.txt
 
-      # the provider comes from devenv's `languages.opentofu.package`
+      # the providers come from devenv's `languages.opentofu.package`
       - devenv.nix
       - devenv.lock
 
@@ -27,13 +27,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-dns:
+  collect-targets:
+    outputs:
+      target-configurations: ${{ steps.collect-targets.outputs['target-configurations'] }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - id: collect-targets
+        run: |
+          printf 'target-configurations=%s\n' "$(find tofu -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | jq --raw-input --slurp --compact-output 'split("\n")[:-1] | {include: map({configuration: .})}')" >> $GITHUB_OUTPUT
+
+  deploy-configurations:
+    needs: collect-targets
+
     permissions:
       contents: write # required to commit the state after an apply
 
+    strategy:
+      matrix: ${{ fromJSON(needs.collect-targets.outputs['target-configurations']) }}
+
+      fail-fast: false # don't cancel the matrix if one job fails
+
     concurrency:
-      # one run per pull request number or branch; applies on main never overlap
-      group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+      # one run per configuration and pull request number or branch; applies on main never overlap
+      group: ${{ github.workflow }}-${{ matrix.configuration }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
 
       cancel-in-progress: false
 
@@ -69,19 +89,19 @@ jobs:
 
       - run: printf '%s/bin\n' "$(nix run .#devenv -- build languages.opentofu.package | jq --raw-output '."languages.opentofu.package"')" >> $GITHUB_PATH
 
-      - run: tofu -chdir=tofu/dns init -input=false
+      - run: tofu -chdir=tofu/${{ matrix.configuration }} init -input=false
 
       - if: github.event_name == 'pull_request'
-        run: tofu -chdir=tofu/dns plan -input=false
+        run: tofu -chdir=tofu/${{ matrix.configuration }} plan -input=false
 
       - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         id: apply
-        run: tofu -chdir=tofu/dns apply -input=false -auto-approve
+        run: tofu -chdir=tofu/${{ matrix.configuration }} apply -input=false -auto-approve
 
-      # also after a failed apply; keep the records it created
+      # also after a failed apply; keep the resources it created
       - if: ${{ !cancelled() && steps.apply.outcome != 'skipped' }}
         run: |
-          git add tofu/dns/terraform.tfstate
+          git add tofu/${{ matrix.configuration }}/terraform.tfstate
 
           if git diff --cached --quiet; then
             exit 0
@@ -90,8 +110,8 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          git commit --message 'chore(tofu/dns): update state'
+          git commit --message 'chore(tofu/${{ matrix.configuration }}): update state'
 
-          # only this workflow writes the state; rebase over pushes in the meantime
+          # only this workflow writes the states, each configuration its own; rebase over pushes in the meantime
           git pull --rebase origin main
           git push

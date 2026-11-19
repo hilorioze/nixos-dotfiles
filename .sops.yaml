@@ -25,7 +25,7 @@ keys:
     - &pgp_admin_hilorioze F0C7E37B24106ED3EFFB1CED12C04ED901029563!
 
 creation_rules:
-  - path_regex: ^tofu/dns/secrets\.yaml$
+  - path_regex: ^tofu/cloudflare/secrets\.yaml$
     key_groups:
       - pgp: *pgp_admin_keys
 
