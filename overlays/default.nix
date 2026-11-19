@@ -46,6 +46,7 @@
   (import ./plasma-workspace-media-keys-no-repeat)
   (import ./playwright-mcp-patchright)
   (import ./podman-healthcheck-ignore-result)
+  (import ./pytapo-3-4-31)
   (import ./return-youtube-dislikes-data-collection-no-prompt)
   (import ./silent-sddm-double-scale-fix inputs.silent-sddm)
   (import ./spectacle-copy-save)

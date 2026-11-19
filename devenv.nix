@@ -32,7 +32,9 @@
           aiohttp
           bleak
           dbus-fast
+          firebase-messaging
           plyvel
+          pytapo
           # keep-sorted end
 
           # imported by the scripts in `packages`
