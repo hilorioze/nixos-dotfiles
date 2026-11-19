@@ -32,23 +32,31 @@
     python = {
       enable = true;
 
-      package = pkgs.python3.withPackages (pythonPackages:
-        with pythonPackages; [
-          # keep-sorted start
-          aiohttp
-          bleak
-          dbus-fast
-          firebase-messaging
-          plyvel
-          pytapo
-          # keep-sorted end
+      package =
+        (pkgs.python3.override {
+          packageOverrides = _final: prev: {
+            # flaky on higher core counts, which fails the shell build on ci; drop once https://github.com/NixOS/nixpkgs/pull/584251 reaches unstable
+            bumble = prev.bumble.overridePythonAttrs (oldAttrs: {
+              disabledTests = oldAttrs.disabledTests ++ ["test_resync_fails_when_the_reset_is_not_answered"];
+            });
+          };
+        }).withPackages (pythonPackages:
+          with pythonPackages; [
+            # keep-sorted start
+            aiohttp
+            bleak
+            dbus-fast
+            firebase-messaging
+            plyvel
+            pytapo
+            # keep-sorted end
 
-          # imported by the scripts in `packages`
-          # keep-sorted start
-          (callPackage ./packages/claude-code-quotas {})
-          (callPackage ./packages/cliproxyapi-accounts {})
-          # keep-sorted end
-        ]);
+            # imported by the scripts in `packages`
+            # keep-sorted start
+            (callPackage ./packages/claude-code-quotas {})
+            (callPackage ./packages/cliproxyapi-accounts {})
+            # keep-sorted end
+          ]);
     };
     # keep-sorted end
   };
