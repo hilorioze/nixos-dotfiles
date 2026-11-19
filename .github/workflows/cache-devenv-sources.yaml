@@ -10,9 +10,8 @@ on:
 
       - devenv.lock
 
-      # workflow reads `nixConfig` and uses `--inputs-from .`, so changes to them may affect the result
+      # workflow reads `nixConfig`, so changes to it may affect the result
       - flake.nix
-      - flake.lock
 
   workflow_dispatch:
 
