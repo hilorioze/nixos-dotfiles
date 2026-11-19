@@ -3,7 +3,7 @@ description: 'Push every path the job builds to niks3; requires `id-token: write
 
 inputs:
   server-url:
-    description: niks3 server
+    description: URL of the niks3 server
 
     default: https://niks3.hilorioze.com
 

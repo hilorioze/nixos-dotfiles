@@ -5,8 +5,8 @@ on:
 
     paths:
       - .github/workflows/cache-devenv-sources.yaml
-      - .github/actions/setup-niks3/action.yml
-      - .github/actions/setup-nix/action.yml
+      - .github/actions/setup-niks3/action.yaml
+      - .github/actions/setup-nix/action.yaml
 
       - devenv.lock
 

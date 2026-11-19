@@ -5,7 +5,7 @@ on:
 
     paths: &paths
       - .github/workflows/deploy-tofu.yaml
-      - .github/actions/setup-nix/action.yml
+      - .github/actions/setup-nix/action.yaml
 
       - tofu/**
 

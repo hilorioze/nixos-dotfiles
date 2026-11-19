@@ -5,8 +5,8 @@ on:
 
     paths: &paths
       - .github/workflows/build-nixos.yaml
-      - .github/actions/setup-niks3/action.yml
-      - .github/actions/setup-nix/action.yml
+      - .github/actions/setup-niks3/action.yaml
+      - .github/actions/setup-nix/action.yaml
 
       - "**/*.nix"
       - "!devenv.nix"
