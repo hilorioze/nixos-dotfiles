@@ -356,6 +356,15 @@
           }
 
           {
+            name = "mailserver-mta-sts";
+            group = "platform";
+
+            url = "https://mta-sts.${config.networking.domain}/.well-known/mta-sts.txt";
+
+            conditions = ["[STATUS] == 200"];
+          }
+
+          {
             name = "mailserver-submissions";
             group = "platform";
 

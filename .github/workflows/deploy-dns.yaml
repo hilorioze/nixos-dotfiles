@@ -8,6 +8,9 @@ on:
 
       - tofu/dns/**
 
+      # `_mta-sts` takes its id from the policy
+      - hosts/hel0/features/services/mta-sts.txt
+
       # the provider comes from devenv's `languages.opentofu.package`
       - devenv.nix
       - devenv.lock

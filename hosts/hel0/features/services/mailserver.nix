@@ -151,7 +151,7 @@ in {
   };
 
   security.acme.certs.${imapHost} = {
-    extraDomainNames = ["smtp.${domain}"];
+    extraDomainNames = ["mail.${domain}" "smtp.${domain}"]; # `mail` for the mx; mta-sts checks it against the certificate
 
     dnsProvider = "cloudflare";
 

@@ -4,6 +4,7 @@ resource "cloudflare_dns_record" "mail_service" {
     # keep-sorted start
     "imap",
     "mail",
+    "mta-sts",
     "smtp",
     # keep-sorted end
   ])
@@ -26,6 +27,18 @@ resource "cloudflare_dns_record" "mx" {
 
   content  = "mail.hilorioze.com"
   priority = 10
+
+  ttl = local.automatic_ttl
+}
+
+# id follows the policy in `hosts/hel0/features/services/mta-sts.txt`; senders refetch it on change
+resource "cloudflare_dns_record" "mta_sts" {
+  zone_id = local.zone_id
+
+  name = "_mta-sts.hilorioze.com"
+  type = "TXT"
+
+  content = "\"v=STSv1; id=${substr(filesha256("${path.module}/../../hosts/hel0/features/services/mta-sts.txt"), 0, 32)}\""
 
   ttl = local.automatic_ttl
 }
