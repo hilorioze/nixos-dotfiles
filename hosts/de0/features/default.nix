@@ -5,6 +5,7 @@
     ../../common/features/files/syncthing.nix
     ../../common/features/network/netcat.nix
     ../../common/features/network/openssh.nix
+    ../../common/features/network/sslh.nix
     ../../common/features/network/tailscale/server.nix
     ../../common/features/network/tailscale/tailscale.nix
     ../../common/features/nix/home-manager.nix

@@ -4,6 +4,7 @@
     ../../common/features/desktop/dconf.nix # fixes `ca.desrt.dconf` error (https://github.com/nix-community/home-manager/blob/f384af1bec6423a0d4ba1855917ab948f64e5808/docs/manual/faq/ca-desrt-dconf.md)
     ../../common/features/network/netcat.nix
     ../../common/features/network/openssh.nix
+    ../../common/features/network/sslh.nix
     ../../common/features/network/tailscale/server.nix
     ../../common/features/network/tailscale/tailscale.nix
     ../../common/features/nix/home-manager.nix
