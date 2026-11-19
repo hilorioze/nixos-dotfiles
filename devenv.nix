@@ -74,6 +74,20 @@
         priority = 100;
       };
 
+      biome = {
+        enable = true;
+
+        includes = ["*.js"]; # the json files are generated
+
+        formatCommand = "format"; # `check` also applies lint fixes
+
+        settings.formatter = {
+          useEditorconfig = true; # biome indents with tabs otherwise
+
+          lineWidth = 320; # long lines are intentional, as in `ruff.toml`; biome allows no more
+        };
+      };
+
       deadnix.enable = true;
 
       keep-sorted.enable = true;

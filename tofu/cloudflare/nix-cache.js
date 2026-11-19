@@ -70,15 +70,7 @@ function isValidCachePath(key) {
     return false;
   }
 
-  return (
-    key === "nix-cache-info" ||
-    key === "index.html" ||
-    narinfoRe.test(key) ||
-    narRe.test(key) ||
-    listingRe.test(key) ||
-    logRe.test(key) ||
-    realisationsRe.test(key)
-  );
+  return key === "nix-cache-info" || key === "index.html" || narinfoRe.test(key) || narRe.test(key) || listingRe.test(key) || logRe.test(key) || realisationsRe.test(key);
 }
 
 function isZstdMetadata(key) {
