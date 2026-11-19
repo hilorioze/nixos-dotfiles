@@ -160,6 +160,7 @@
         "jnoortheen.nix-ide"
         "mkhl.direnv"
         "ms-python.python"
+        "opentofu.vscode-opentofu"
         # keep-sorted end
       ];
     };

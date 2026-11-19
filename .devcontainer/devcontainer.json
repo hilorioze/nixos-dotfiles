@@ -5,7 +5,8 @@
         "EditorConfig.EditorConfig",
         "jnoortheen.nix-ide",
         "mkhl.direnv",
-        "ms-python.python"
+        "ms-python.python",
+        "opentofu.vscode-opentofu"
       ]
     },
     "zed": {
