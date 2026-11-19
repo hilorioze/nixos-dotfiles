@@ -49,17 +49,17 @@ resource "cloudflare_dns_record" "imaps" {
   ttl = local.automatic_ttl
 }
 
-resource "cloudflare_dns_record" "submission" {
+resource "cloudflare_dns_record" "submissions" {
   zone_id = local.zone_id
 
-  name = "_submission._tcp.hilorioze.com"
+  name = "_submissions._tcp.hilorioze.com"
   type = "SRV"
 
   data = {
     priority = 0
     weight   = 0
 
-    port   = 587
+    port   = 465
     target = "smtp.hilorioze.com"
   }
 
