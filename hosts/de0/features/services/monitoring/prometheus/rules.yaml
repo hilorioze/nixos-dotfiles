@@ -78,6 +78,18 @@ groups:
           summary: "Node {{ $labels.instance }} is down"
       # keep-sorted end
 
+  - name: router
+    rules:
+      - alert: camera_offline
+
+        expr: router_host_active == 0 and on (mac) tapo_camera
+        for: 10m
+
+        labels:
+          severity: critical
+        annotations:
+          summary: "Camera {{ $labels.name }} left the network"
+
   - name: synology
     rules:
       # keep-sorted start block=yes newline_separated=yes
