@@ -13,6 +13,8 @@ on:
 
   workflow_dispatch:
 
+  workflow_call:
+
 jobs:
   cache-flake-sources:
     permissions:
@@ -29,10 +31,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: ./.github/actions/setup-nix
+      # not `./`: callers check out their own repo
+      - uses: hilorioze/nixos-dotfiles/.github/actions/setup-nix@main
 
       - id: setup-niks3
-        uses: ./.github/actions/setup-niks3
+        uses: hilorioze/nixos-dotfiles/.github/actions/setup-niks3@main
 
       - run: |
           set -o pipefail

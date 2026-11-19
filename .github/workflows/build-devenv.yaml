@@ -23,6 +23,8 @@ on:
 
   workflow_dispatch:
 
+  workflow_call:
+
 jobs:
   build-devenv:
     permissions:
@@ -36,11 +38,16 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      # callers run the devenv of nixos-dotfiles; its own runs take the one of the checked out commit
+      DEVENV: ${{ github.repository == 'hilorioze/nixos-dotfiles' && '.' || 'github:hilorioze/nixos-dotfiles' }}#devenv
+
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: ./.github/actions/setup-nix
+      # not `./`: callers check out their own repo
+      - uses: hilorioze/nixos-dotfiles/.github/actions/setup-nix@main
 
-      - uses: ./.github/actions/setup-niks3
+      - uses: hilorioze/nixos-dotfiles/.github/actions/setup-niks3@main
 
-      - run: nix run .#devenv -- build test
+      - run: nix run $DEVENV -- build test
