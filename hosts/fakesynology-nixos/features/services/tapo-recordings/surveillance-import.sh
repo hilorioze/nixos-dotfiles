@@ -14,15 +14,17 @@ for import in /volume1/surveillance-import/[!@]*/; do
   mac=$(basename $import)
   id=$(awk -v mac=$mac '$2 == mac { print $1 }' <<<$addresses)
 
-  # surveillance station only shows the imported recordings; add a disabled user-defined camera pointing nowhere, under the camera's alias unless another camera has it
+  # add a user-defined camera on its go2rtc stream, under the camera's alias unless another camera has it
   if [[ -z $id ]]; then
     camera=$(<$import.alias)
     if jq --exit-status --arg camera "$camera" '.data.cameras | any(.newName == $camera)' <<<$cameras >/dev/null; then
       camera="$camera ${mac: -4}"
     fi
 
-    id=$(/usr/syno/bin/synowebapi --exec api=SYNO.SurveillanceStation.Camera method=Save version=9 id=0 dsId=0 actFromHost=false newName="$(jq --null-input --arg camera "$camera" '$camera')" vendor='"User"' model='"Define"' firmware='""' videoMode='""' tvStandard=0 channel='"1"' videoCodec=3 audioCodec=6 mountType=0 userName='""' password='""' ip='"127.0.0.1"' port=1 streamingType=1 userDefinePath=\"rtsp://127.0.0.1:1/$mac\" stream1='{"resolution":"1920x1080"}' 2>/dev/null | jq .data.id)
-    /usr/syno/bin/synowebapi --exec api=SYNO.SurveillanceStation.Camera method=Disable version=9 idList=\"$id\" >/dev/null 2>&1
+    id=$(/usr/syno/bin/synowebapi --exec api=SYNO.SurveillanceStation.Camera method=Save version=9 id=0 dsId=0 actFromHost=false newName="$(jq --null-input --arg camera "$camera" '$camera')" vendor='"User"' model='"Define"' firmware='""' videoMode='""' tvStandard=0 channel='"1"' videoCodec=3 audioCodec=6 mountType=0 userName='""' password='""' ip='"fakesynology-nixos.hilorioze.com"' port=8554 streamingType=1 userDefinePath=\"rtsp://fakesynology-nixos.hilorioze.com:8554/$mac\" stream1='{"resolution":"1920x1080"}' recordSchedule=\"$(head --bytes=336 /dev/zero | tr '\0' 0)\" 2>/dev/null | jq .data.id)
+
+    # the imported recordings are the detections; surveillance station's own recording and motion detection would only see the placeholder go2rtc streams while nobody watches
+    /usr/syno/bin/synowebapi --exec api=SYNO.SurveillanceStation.Camera.Event method=MDParamSave version=1 camId=$id source=-1 >/dev/null 2>&1
 
     cameras=$(/usr/syno/bin/synowebapi --exec api=SYNO.SurveillanceStation.Camera method=List version=9 2>/dev/null)
   fi
