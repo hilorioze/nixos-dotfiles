@@ -15,9 +15,9 @@ in {
     wantedBy = ["multi-user.target"];
 
     serviceConfig = {
-      ExecStart = "${lib.getExe pkgs.mud} --host 0.0.0.0 --port ${toString port}";
-
       DynamicUser = true;
+
+      ExecStart = "${lib.getExe pkgs.mud} --host 0.0.0.0 --port ${toString port}";
 
       Restart = "always";
       RestartSec = 2;

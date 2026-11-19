@@ -130,9 +130,9 @@
         environment.CLIPROXYAPI_LOW_PRIORITY_ACCOUNTS = builtins.toJSON {codex = ["valerykiracofercykk@googlemail.com"];}; # keep at priority `0` below dynamically ranked accounts
 
         serviceConfig = {
-          ExecStart = lib.getExe pkgs.cliproxyapi-warmup;
-
           StateDirectory = "cliproxyapi-warmup";
+
+          ExecStart = lib.getExe pkgs.cliproxyapi-warmup;
         };
       }
     ];

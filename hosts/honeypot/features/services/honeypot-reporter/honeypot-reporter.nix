@@ -19,14 +19,14 @@ in {
     environment.TELEGRAM_CHAT_ID = "-1004433146141";
 
     serviceConfig = {
+      DynamicUser = true;
+
+      LoadCredential = ["telegram-bot-token:${config.sops.secrets."services/honeypot-reporter/telegram-bot-token".path}"];
+
       ExecStart = honeypotReporter;
 
       Restart = "on-failure"; # a failed telegram request ends the reporter
       RestartSec = 30;
-
-      DynamicUser = true;
-
-      LoadCredential = ["telegram-bot-token:${config.sops.secrets."services/honeypot-reporter/telegram-bot-token".path}"];
     };
   };
 }

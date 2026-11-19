@@ -74,15 +74,16 @@ in {
       Service = {
         Type = "oneshot";
 
+        RemainAfterExit = true;
+
         Environment = "SSH_AUTH_SOCK=%t/${config.services.ssh-agent.socket}";
+
         ExecStart = [
           # keep-sorted start
           "${lib.getExe' pkgs.openssh "ssh-add"} ${config.sops.secrets."credentials/ssh/agent/private-key".path}"
           "${lib.getExe' pkgs.openssh "ssh-add"} ${config.sops.secrets."credentials/ssh/fido2/private-key".path}"
           # keep-sorted end
         ];
-
-        RemainAfterExit = true;
       };
     };
   };

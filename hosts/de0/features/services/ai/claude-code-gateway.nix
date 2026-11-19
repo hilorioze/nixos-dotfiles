@@ -36,9 +36,8 @@
     };
 
     serviceConfig = {
-      ExecStart = lib.getExe pkgs.claude-code-gateway;
-
       DynamicUser = true;
+
       StateDirectory = "claude-code-gateway";
 
       LoadCredential = [
@@ -46,6 +45,8 @@
 
         "inference-key:${config.sops.secrets."services/cliproxyapi/users/claude-code-gateway/inference-key".path}"
       ];
+
+      ExecStart = lib.getExe pkgs.claude-code-gateway;
 
       Restart = "always";
       RestartSec = 2;

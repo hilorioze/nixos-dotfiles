@@ -247,10 +247,10 @@ in {
 
             RemainAfterExit = "yes";
 
-            ExecStart = "${lib.getExe' pkgs.hilot "hilot-migrate"} upgrade head";
-
             DynamicUser = true;
             User = "hilot";
+
+            ExecStart = "${lib.getExe' pkgs.hilot "hilot-migrate"} upgrade head";
           };
         };
       }
@@ -294,9 +294,9 @@ in {
                 });
 
               serviceConfig = {
-                ExecStart = lib.getExe' pkgs.hilot "hilot-bot";
-
                 LoadCredential = ["SESSION_STRING:${config.sops.secrets."services/hilot/accounts/${name}/session-string".path}"];
+
+                ExecStart = lib.getExe' pkgs.hilot "hilot-bot";
               };
             }
           ]))
@@ -318,8 +318,6 @@ in {
             };
 
             serviceConfig = {
-              ExecStart = lib.getExe' pkgs.hilot "hilot-downloader";
-
               CacheDirectory = "hilot-downloader";
 
               LoadCredential = [
@@ -327,6 +325,8 @@ in {
 
                 "DOWNLOADER__PROXY:${config.sops.templates."services/hilot/proxy-url".path}"
               ];
+
+              ExecStart = lib.getExe' pkgs.hilot "hilot-downloader";
             };
           }
         ];
