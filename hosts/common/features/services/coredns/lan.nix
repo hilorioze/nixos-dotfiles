@@ -57,6 +57,11 @@
             rcode NOERROR
           }
 
+          # keep the fire tv on its current fire os
+          template ANY ANY softwareupdates.amazon.com. {
+            rcode NXDOMAIN
+          }
+
           import upstream
         }
       '';
