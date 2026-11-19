@@ -82,8 +82,11 @@ jobs:
         run: |
           nix run .#devenv -- update
 
-          # auto-generate files (e.g. `.devcontainer/devcontainer.json`) and format code (treefmt & git-hooks) after lock and file updates
-          nix run .#devenv -- test || true
+          # build the shell, generate files (e.g. `.devcontainer/devcontainer.json`) and run treefmt; a broken shell fails the job instead of opening a pull request
+          nix run .#devenv -- shell -- true
+
+          # hooks exit non-zero after fixing files; only a second failure is a real one
+          nix run .#devenv -- tasks run devenv:git-hooks:run || nix run .#devenv -- tasks run devenv:git-hooks:run
 
           body=$RUNNER_TEMP/devenv-lock-body.md
 
