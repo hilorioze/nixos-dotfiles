@@ -1,0 +1,94 @@
+on:
+  push:
+    branches: &branches
+      - main
+
+    paths: &paths
+      - .github/workflows/deploy-dns.yaml
+
+      - tofu/dns/**
+
+      # the provider comes from devenv's `languages.opentofu.package`
+      - devenv.nix
+      - devenv.lock
+
+      # workflow reads `nixConfig` and uses `.#devenv`, so changes to them may affect the result
+      - flake.nix
+      - flake.lock
+
+  pull_request:
+    branches: *branches
+
+    paths: *paths
+
+  workflow_dispatch:
+
+jobs:
+  deploy-dns:
+    permissions:
+      contents: write # required to commit the state after an apply
+
+    concurrency:
+      # one run per pull request number or branch; applies on main never overlap
+      group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+
+      cancel-in-progress: false
+
+    runs-on: ubuntu-latest
+
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      TF_IN_AUTOMATION: true
+
+    steps:
+      # branch head, not the pushed commit; pick up the state committed by an earlier run
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+        with:
+          extra_nix_config: |
+            accept-flake-config = true
+
+            fsync-metadata = false # performance over durability in ci; store is transient
+
+            fallback = true # build from source when a substituter fails mid-download instead of failing the job
+
+      - run: |
+          {
+            printf 'NIX_CONFIG<<EOF\n'
+            printf 'extra-substituters = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
+            printf 'extra-trusted-public-keys = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
+            printf 'EOF\n'
+          } >> $GITHUB_ENV
+
+      - run: printf '%s/bin\n' "$(nix run .#devenv -- build languages.opentofu.package | jq --raw-output '."languages.opentofu.package"')" >> $GITHUB_PATH
+
+      - run: tofu -chdir=tofu/dns init -input=false
+
+      - if: github.event_name == 'pull_request'
+        run: tofu -chdir=tofu/dns plan -input=false
+
+      - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        id: apply
+        run: tofu -chdir=tofu/dns apply -input=false -auto-approve
+
+      # also after a failed apply; keep the records it created
+      - if: ${{ !cancelled() && steps.apply.outcome != 'skipped' }}
+        run: |
+          git add tofu/dns/terraform.tfstate
+
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          git commit --message 'chore(tofu/dns): update state'
+
+          # only this workflow writes the state; rebase over pushes in the meantime
+          git pull --rebase
+          git push
