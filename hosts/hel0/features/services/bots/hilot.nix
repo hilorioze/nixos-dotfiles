@@ -216,7 +216,7 @@ in {
           "S3__SECRET_ACCESS_KEY:${config.sops.secrets."services/hilot/s3-secret-access-key".path}"
         ];
 
-        KillMode = "mixed"; # the default `control-group` kills ffmpeg along with the service; `mixed` lets the service finish its running tasks first
+        KillMode = "mixed"; # the default `control-group` kills `ffmpeg` along with the service; `mixed` lets the service finish its running tasks first
 
         Restart = "always";
         RestartSec = 2;
