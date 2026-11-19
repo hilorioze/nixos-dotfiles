@@ -216,11 +216,15 @@ def list_recordings(tapo: Tapo, day: date) -> list[dict[str, Any]]:
     return [next(iter(entry.values())) for entry in tapo.getRecordings(f"{day:%Y%m%d}")]
 
 
-def download_recording(tapo: Tapo, *, recording: dict[str, Any], clip_path: Path) -> str:
+def download_recording(tapo: Tapo, *, recording: dict[str, Any], clip_path: Path) -> tuple[str, float]:
     downloader: Downloader = Downloader(tapo, recording["startTime"], recording["endTime"], tapo.getTimeCorrection(), f"{clip_path.parent}/", fileName=clip_path.name)
-    status: dict[str, Any] = asyncio.run(downloader.downloadFile())
+    statuses: list[dict[str, Any] | str] = []  # the downloader reports its progress as dicts between the start and finish messages
+    status: dict[str, Any] = asyncio.run(downloader.downloadFile(callbackFunc=statuses.append))
 
-    return status["currentAction"]
+    # the progress is the length of the video the camera has sent so far
+    downloaded_seconds: float = max((progress["progress"] for progress in statuses if isinstance(progress, dict)), default=0)
+
+    return status["currentAction"], downloaded_seconds
 
 
 def grab_frame(clip_path: Path, *, offset: int, scale: str) -> bytes:
@@ -275,13 +279,20 @@ def save_recordings(mac: str) -> None:
             for recording in pending:
                 with tempfile.TemporaryDirectory() as temporary:
                     clip_path: Path = Path(temporary) / "recording.mp4"
-                    action: str = download_recording(tapo, recording=recording, clip_path=clip_path)
+                    action: str
+                    downloaded_seconds: float
+                    action, downloaded_seconds = download_recording(tapo, recording=recording, clip_path=clip_path)
 
                     # the camera still records while the detected motion goes on
                     if action == "Recording in progress":
                         idle_since = time.time()
 
                         continue
+
+                    # the sd card can hold less video than the camera lists for a recording, and the downloader drops a clip that falls short; save the part the camera sends
+                    if action == "Giving up" and downloaded_seconds > 0:
+                        recording = {**recording, "endTime": recording["startTime"] + int(downloaded_seconds) - 1}
+                        action, downloaded_seconds = download_recording(tapo, recording=recording, clip_path=clip_path)
 
                     # the downloader leaves no file when it gives up or finds the camera busy
                     if not clip_path.exists():
