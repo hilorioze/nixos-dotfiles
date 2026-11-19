@@ -20,26 +20,12 @@ jobs:
     outputs:
       target-nodes: ${{ steps.collect-targets.outputs['target-nodes'] }}
 
-      extra-substituters: ${{ steps.collect-targets.outputs['extra-substituters'] }}
-      extra-trusted-public-keys: ${{ steps.collect-targets.outputs['extra-trusted-public-keys'] }}
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-        with:
-          extra_nix_config: &extra_nix_config |
-            accept-flake-config = true
-
-            # resolved by follow-up jobs via `*extra_nix_config`; empty strings are safe here
-            extra-substituters = ${{ needs.collect-targets.outputs['extra-substituters'] }}
-            extra-trusted-public-keys = ${{ needs.collect-targets.outputs['extra-trusted-public-keys'] }}
-
-            fsync-metadata = false # performance over durability in ci; store is transient
-
-            fallback = true # build from source when a substituter fails mid-download instead of failing the job
+      - uses: ./.github/actions/setup-nix
 
       - id: collect-targets
         env:
@@ -74,12 +60,7 @@ jobs:
             include=$(jq --compact-output --argjson target_nodes "$TARGET_NODES" 'map(select(.node | IN($target_nodes[])))' <<<$include)
           fi
 
-          {
-            printf 'target-nodes={"include": %s}\n' "$include"
-
-            printf 'extra-substituters=%s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
-            printf 'extra-trusted-public-keys=%s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
-          } >> $GITHUB_OUTPUT
+          printf 'target-nodes={"include": %s}\n' "$include" >> $GITHUB_OUTPUT
 
   deploy-nodes:
     needs: collect-targets
@@ -103,9 +84,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-        with:
-          extra_nix_config: *extra_nix_config
+      - uses: ./.github/actions/setup-nix
 
       - if: matrix['in-tailnet']
         uses: tailscale/github-action@064b10558093f38325e838ddea35486bdc6b1d5c # v4.4.0
@@ -122,31 +101,6 @@ jobs:
 
           install --mode=600 /dev/stdin ~/.ssh/known_hosts <<<"${{ matrix.hostname }},[${{ matrix.hostname }}]:* $(<hosts/${{ matrix.node }}/ssh_host_ed25519_key.pub)"
 
-      - id: fetch-niks3-bin
-        run: |
-          cat "$(nix build --impure --no-link --print-out-paths --print-build-logs --expr '
-            let
-              flake = builtins.getFlake "github:hilorioze/nixos-dotfiles";
-              system = builtins.currentSystem;
-
-              pkgs = flake.inputs.nixpkgs.legacyPackages.${system};
-
-              niks3 = flake.legacyPackages.${system}.niks3;
-            in
-              pkgs.writeText "niks3-github-output" (pkgs.lib.generators.toKeyValue {} {
-                niks3_root = niks3;
-
-                niks3_bin = pkgs.lib.getExe niks3;
-              })
-          ')" >>$GITHUB_OUTPUT
-
-      - uses: Mic92/niks3-action@01820a2b97ac01531ad9fb859db94af63ffcbd83 # v1.10.0
-        with:
-          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
-
-          server-url: ${{ vars.NIKS3_SERVER }}
-
-      # cache the built `fetch-niks3-bin` output so later runs can reuse it
-      - run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
+      - uses: ./.github/actions/setup-niks3
 
       - run: nix run --inputs-from . --print-build-logs nixpkgs#deploy-rs -- --skip-checks .#${{ matrix.node }}

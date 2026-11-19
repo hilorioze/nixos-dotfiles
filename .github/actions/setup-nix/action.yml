@@ -1,0 +1,25 @@
+name: setup-nix
+description: Install nix with the substituters of the checked out flake
+
+runs:
+  using: composite
+
+  steps:
+    - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      with:
+        extra_nix_config: |
+          accept-flake-config = true
+
+          fsync-metadata = false # performance over durability in ci; store is transient
+
+          fallback = true # build from source when a substituter fails mid-download instead of failing the job
+
+    # `nixConfig` applies only to flake commands; pass it to `--expr` and `--file` calls too
+    - shell: bash
+      run: |
+        {
+          printf 'NIX_CONFIG<<EOF\n'
+          printf 'extra-substituters = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
+          printf 'extra-trusted-public-keys = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
+          printf 'EOF\n'
+        } >> $GITHUB_ENV

@@ -5,6 +5,7 @@ on:
 
     paths: &paths
       - .github/workflows/deploy-tofu.yaml
+      - .github/actions/setup-nix/action.yml
 
       - tofu/**
 
@@ -70,22 +71,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-        with:
-          extra_nix_config: |
-            accept-flake-config = true
-
-            fsync-metadata = false # performance over durability in ci; store is transient
-
-            fallback = true # build from source when a substituter fails mid-download instead of failing the job
-
-      - run: |
-          {
-            printf 'NIX_CONFIG<<EOF\n'
-            printf 'extra-substituters = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
-            printf 'extra-trusted-public-keys = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
-            printf 'EOF\n'
-          } >> $GITHUB_ENV
+      - uses: ./.github/actions/setup-nix
 
       - run: printf '%s/bin\n' "$(nix run .#devenv -- build languages.opentofu.package | jq --raw-output '."languages.opentofu.package"')" >> $GITHUB_PATH
 

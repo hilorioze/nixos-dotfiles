@@ -5,6 +5,8 @@ on:
 
     paths: &paths
       - .github/workflows/build-devenv.yaml
+      - .github/actions/setup-niks3/action.yml
+      - .github/actions/setup-nix/action.yml
 
       - devenv.nix
       - devenv.lock
@@ -37,54 +39,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-        with:
-          extra_nix_config: |
-            accept-flake-config = true
+      - uses: ./.github/actions/setup-nix
 
-            fsync-metadata = false # performance over durability in ci; store is transient
-
-            fallback = true # build from source when a substituter fails mid-download instead of failing the job
-
-      - run: |
-          {
-            printf 'NIX_CONFIG<<EOF\n'
-            printf 'extra-substituters = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-substituters')"
-            printf 'extra-trusted-public-keys = %s\n' "$(nix eval --raw --file flake.nix --apply 'flake: builtins.concatStringsSep " " flake.nixConfig.extra-trusted-public-keys')"
-            printf 'EOF\n'
-          } >> $GITHUB_ENV
-
-      # pull requests into main from the trusted accounts push too, so main substitutes their builds after the merge
-      - if: &push-to-cache >-
-          github.event_name != 'pull_request' ||
-          contains(fromJSON('["hilorioze", "renovate[bot]"]'), github.actor)
-        id: fetch-niks3-bin
-        run: |
-          cat "$(nix build --impure --no-link --print-out-paths --print-build-logs --expr '
-            let
-              flake = builtins.getFlake "github:hilorioze/nixos-dotfiles";
-              system = builtins.currentSystem;
-
-              pkgs = flake.inputs.nixpkgs.legacyPackages.${system};
-
-              niks3 = flake.legacyPackages.${system}.niks3;
-            in
-              pkgs.writeText "niks3-github-output" (pkgs.lib.generators.toKeyValue {} {
-                niks3_root = niks3;
-
-                niks3_bin = pkgs.lib.getExe niks3;
-              })
-          ')" >>$GITHUB_OUTPUT
-
-      - if: *push-to-cache
-        uses: Mic92/niks3-action@01820a2b97ac01531ad9fb859db94af63ffcbd83 # v1.10.0
-        with:
-          niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
-
-          server-url: ${{ vars.NIKS3_SERVER }}
-
-      # cache the built `fetch-niks3-bin` output so later runs can reuse it
-      - if: *push-to-cache
-        run: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} push --server-url ${{ vars.NIKS3_SERVER }} --auth-token-script "node $RUNNER_TEMP/niks3/fetch-oidc-token.mjs" ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
+      - uses: ./.github/actions/setup-niks3
 
       - run: nix run .#devenv -- build test

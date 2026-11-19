@@ -1,0 +1,59 @@
+name: setup-niks3
+description: 'Push every path the job builds to niks3; requires `id-token: write`'
+
+inputs:
+  server-url:
+    description: niks3 server
+
+    default: https://niks3.hilorioze.com
+
+outputs:
+  push:
+    description: Command that pushes the paths given as arguments; empty when the job doesn't push
+
+    value: ${{ steps.push-command.outputs.push }}
+
+runs:
+  using: composite
+
+  steps:
+    # pull requests into main from the trusted accounts push too, so main substitutes their builds after the merge
+    - if: >-
+        github.event_name != 'pull_request' ||
+        contains(fromJSON('["hilorioze", "renovate[bot]"]'), github.actor)
+      id: fetch-niks3-bin
+      shell: bash
+      run: |
+        cat "$(nix build --impure --no-link --print-out-paths --print-build-logs --expr '
+          let
+            flake = builtins.getFlake "github:hilorioze/nixos-dotfiles";
+            system = builtins.currentSystem;
+
+            pkgs = flake.inputs.nixpkgs.legacyPackages.${system};
+
+            niks3 = flake.legacyPackages.${system}.niks3;
+          in
+            pkgs.writeText "niks3-github-output" (pkgs.lib.generators.toKeyValue {} {
+              niks3_root = niks3;
+
+              niks3_bin = pkgs.lib.getExe niks3;
+            })
+        ')" >>$GITHUB_OUTPUT
+
+    - if: steps.fetch-niks3-bin.outputs.niks3_bin
+      id: niks3
+      uses: Mic92/niks3-action@01820a2b97ac01531ad9fb859db94af63ffcbd83 # v1.10.0
+      with:
+        niks3-bin: ${{ steps.fetch-niks3-bin.outputs.niks3_bin }}
+
+        server-url: ${{ inputs.server-url }}
+
+    - if: steps.fetch-niks3-bin.outputs.niks3_bin
+      id: push-command
+      shell: bash
+      run: printf 'push=%s push --server-url %s --auth-token-script "%s"\n' ${{ steps.fetch-niks3-bin.outputs.niks3_bin }} ${{ inputs.server-url }} "${{ steps.niks3.outputs.auth-token-script }}" >> $GITHUB_OUTPUT
+
+    # cache the built niks3 so later runs can reuse it
+    - if: steps.fetch-niks3-bin.outputs.niks3_bin
+      shell: bash
+      run: ${{ steps.push-command.outputs.push }} ${{ steps.fetch-niks3-bin.outputs.niks3_root }}
