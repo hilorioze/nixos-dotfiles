@@ -61,6 +61,7 @@
         ++ (with pkgs.vscode-marketplace; [
           # keep-sorted start
           barsikus007.nix-injection # highlights strings after `/* <language> */` and nvim-treesitter's automatic injections
+          opentofu.vscode-opentofu
           tombi-toml.tombi # formats toml by the project's `tombi.toml`
           # keep-sorted end
         ]);
