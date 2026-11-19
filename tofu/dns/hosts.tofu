@@ -39,33 +39,13 @@ resource "cloudflare_dns_record" "server_ipv6" {
   ttl = local.automatic_ttl
 }
 
-resource "cloudflare_dns_record" "host_alias" {
-  for_each = {
-    cex          = "hel0"
-    fakesynology = "hel0"
-  }
-
-  zone_id = local.zone_id
-
-  name = "${each.key}.hilorioze.com"
-  type = "CNAME"
-
-  content = "${each.value}.hilorioze.com"
-
-  ttl = local.automatic_ttl
-}
-
 # wildcard for `<service>.${config.networking.fqdn}`
 resource "cloudflare_dns_record" "host_services" {
   for_each = toset([
     # keep-sorted start
-    "cex",
     "de0",
-    "fakesynology",
     "fakesynology-nixos",
     "hel0",
-    "hilonix",
-    "lelonix",
     # keep-sorted end
   ])
 
