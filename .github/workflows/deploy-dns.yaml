@@ -93,5 +93,5 @@ jobs:
           git commit --message 'chore(tofu/dns): update state'
 
           # only this workflow writes the state; rebase over pushes in the meantime
-          git pull --rebase
+          git pull --rebase origin main
           git push
