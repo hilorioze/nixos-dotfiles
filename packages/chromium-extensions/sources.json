@@ -7,9 +7,9 @@
   },
   "chromium-extension-playwright": {
     "id": "mmlmfjhmonkocbjadbfplnigmagldckm",
-    "version": "0.5.0",
-    "url": "https://clients2.googleusercontent.com/crx/blobs/ARGaeZIuYdHUb_HJVBZB_VVCuw5XJe3t-P_bbw9xOfm56r7GXUTwBqW3L-1SyLzSPT3a9W8fA8LnC52tcUeEs44eyJjNb5Y7cRakmTUDlv3UpBJOgLmNUi7yS8ZZZI8rKwUAxlKa5bBvgcjPOP-3tsAFqSY-EMXyrRRX/MMLMFJHMONKOCBJADBFPLNIGMAGLDCKM_0_5_0_0.crx",
-    "hash": "sha256-WYUXuofZ8vOzZCSDy2ZivA6gYUAcXTwesYihmEfJKws="
+    "version": "0.6.0",
+    "url": "https://clients2.googleusercontent.com/crx/blobs/ARGaeZIcbYXXT4GCQpkzTlBL28AbGnf6odSOLt7RcAuQ57kO1v_0IVmIOOw21X_4U8xRmAlTpGv1fWXJieimwqJJuLW0Cluj1Up3boEi7Z4_X6qKaMKZ4SC5MERQYHm-NysAxlKa5aeonBkRmDCxYCXVyewjlp7EMznb/MMLMFJHMONKOCBJADBFPLNIGMAGLDCKM_0_6_0_0.crx",
+    "hash": "sha256-hDvmSnTNwMokE4SZq2zpzQKId7y16qV0M8gDZDfPXGw="
   },
   "chromium-extension-synclify": {
     "id": "okdfcljlaacbdacenfeaiekllplonlfm",
