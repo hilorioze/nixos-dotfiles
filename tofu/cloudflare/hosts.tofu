@@ -1,16 +1,6 @@
 locals {
   # lan hosts' A records are handled by `services.cloudflare-ddns`
-  servers = {
-    de0 = {
-      ipv4 = "141.147.30.32"
-      ipv6 = "2603:c020:8026:a700::4"
-    }
-
-    hel0 = {
-      ipv4 = "204.168.182.190"
-      ipv6 = "2a01:4f9:c014:d80d::1"
-    }
-  }
+  servers = jsondecode(file("${path.module}/../../hosts/servers.json")) # the hosts' own configurations read the addresses too
 }
 
 resource "cloudflare_dns_record" "server_ipv4" {

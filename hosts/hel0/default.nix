@@ -1,4 +1,11 @@
-{inputs, ...}: {
+{
+  # keep-sorted start
+  config,
+  inputs,
+  lib,
+  # keep-sorted end
+  ...
+}: {
   imports = [
     inputs.disko.nixosModules.disko
 
@@ -55,7 +62,7 @@
 
     interfaces.eth0.ipv6.addresses = [
       {
-        address = "2a01:4f9:c014:d80d::1";
+        address = (lib.importJSON ../servers.json).${config.networking.hostName}.ipv6;
         prefixLength = 64;
       }
     ];

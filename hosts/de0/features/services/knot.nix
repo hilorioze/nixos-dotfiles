@@ -72,7 +72,7 @@
       # not the wildcard, which podman's aardvark-dns on its bridge would collide with
       server.listen = [
         "10.0.0.229@53" # oci translates the public ipv4 to this private one
-        "2603:c020:8026:a700::4@53"
+        "${(lib.importJSON ../../../servers.json).${config.networking.hostName}.ipv6}@53"
 
         "${config.virtualisation.agentbox.bridge.address}@53" # agentboxes update their zones here
 
