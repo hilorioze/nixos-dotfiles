@@ -15,7 +15,6 @@
     startAt = "minutely";
 
     after = ["network-online.target"];
-
     wants = ["network-online.target"];
 
     serviceConfig = {

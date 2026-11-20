@@ -236,9 +236,8 @@ in {
 
     # shared by the services on the database: postgresql's peer auth takes the role from the user name
     database = {
-      requires = ["hilot-migrate.service"];
-
       after = ["hilot-migrate.service"];
+      requires = ["hilot-migrate.service"];
 
       serviceConfig.User = config.systemd.services.hilot-migrate.serviceConfig.User;
     };
