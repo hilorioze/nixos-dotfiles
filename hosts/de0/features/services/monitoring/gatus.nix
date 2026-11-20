@@ -76,6 +76,44 @@
 
           mailserverHost = hel0Config.mailserver.fqdn;
 
+          mkAgentboxZoneEndpoints = name: zone: [
+            {
+              name = "${name}-dns";
+              group = "agentboxes";
+
+              url = de0Config.virtualisation.agentbox.bridge.address; # knot doesn't listen on the tailnet
+
+              dns = {
+                query-name = zone;
+                query-type = "NS";
+              };
+
+              conditions = [
+                "[DNS_RCODE] == NOERROR"
+
+                "[BODY] == ${de0Host}."
+              ];
+            }
+
+            {
+              name = "${name}-dnssec";
+              group = "agentboxes";
+
+              url = "1.1.1.1"; # a validating resolver answers SERVFAIL once the zone's signatures or its DS in the parent stop matching
+
+              dns = {
+                query-name = zone;
+                query-type = "NS";
+              };
+
+              conditions = [
+                "[DNS_RCODE] == NOERROR"
+
+                "[BODY] == ${de0Host}."
+              ];
+            }
+          ];
+
           mkHilotEndpoint = service: {
             name = service;
             group = "services";
@@ -140,335 +178,356 @@
 
             conditions = ["[STATUS] == 302"];
           };
-        in [
-          # keep-sorted start block=yes newline_separated=yes case=no by_regex=(?:name\s*=\s*"|\(mk)([^"\s]+)
-          {
-            name = "alertmanager";
-            group = "observability";
+        in
+          [
+            # keep-sorted start block=yes newline_separated=yes case=no by_regex=(?:name\s*=\s*"|\(mk)([^"\s]+)
+            {
+              name = "alertmanager";
+              group = "observability";
 
-            url = "http://${de0Host}:${toString de0Config.services.prometheus.alertmanager.port}/-/ready"; # `/-/healthy` only proves the process is up
+              url = "http://${de0Host}:${toString de0Config.services.prometheus.alertmanager.port}/-/ready"; # `/-/healthy` only proves the process is up
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          {
-            name = "authentik";
-            group = "platform";
+            {
+              name = "authentik";
+              group = "platform";
 
-            url = "https://idm.${config.networking.domain}/-/health/ready/";
+              url = "https://idm.${config.networking.domain}/-/health/ready/";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          {
-            name = "authentik-ldap";
-            group = "platform";
+            {
+              name = "authentik-ldap";
+              group = "platform";
 
-            url = "tls://${de0Host}:6636";
+              url = "tls://${de0Host}:6636";
 
-            conditions = ["[CONNECTED] == true"];
-          }
+              conditions = ["[CONNECTED] == true"];
+            }
 
-          {
-            name = "carcass";
-            group = "services";
+            {
+              name = "carcass";
+              group = "services";
 
-            url = "https://carcass.${config.networking.domain}/healthz";
+              url = "https://carcass.${config.networking.domain}/healthz";
 
-            conditions = [
-              "[STATUS] == 200"
+              conditions = [
+                "[STATUS] == 200"
 
-              "[BODY].status == ok"
-            ];
-          }
+                "[BODY].status == ok"
+              ];
+            }
 
-          {
-            name = "claude-code-gateway";
-            group = "services";
+            {
+              name = "claude-code-gateway";
+              group = "services";
 
-            url = "https://claude-code-gateway.${de0Host}/healthz"; # relayed to cliproxyapi, so both have to answer
+              url = "https://claude-code-gateway.${de0Host}/healthz"; # relayed to cliproxyapi, so both have to answer
 
-            conditions = [
-              "[STATUS] == 200"
+              conditions = [
+                "[STATUS] == 200"
 
-              "[BODY].status == ok"
-            ];
-          }
+                "[BODY].status == ok"
+              ];
+            }
 
-          {
-            name = "cliproxyapi";
-            group = "services";
+            {
+              name = "cliproxyapi";
+              group = "services";
 
-            url = "https://cliproxyapi.${de0Host}/healthz";
+              url = "https://cliproxyapi.${de0Host}/healthz";
 
-            conditions = [
-              "[STATUS] == 200"
+              conditions = [
+                "[STATUS] == 200"
 
-              "[BODY].status == ok"
-            ];
-          }
+                "[BODY].status == ok"
+              ];
+            }
 
-          {
-            name = "deadlocked-relay-egress";
-            group = "services";
+            {
+              name = "deadlocked-relay-egress";
+              group = "services";
 
-            url = "https://deadlocked-relay.${fakesynologyNixosConfig.networking.fqdn}/client";
+              url = "https://deadlocked-relay.${fakesynologyNixosConfig.networking.fqdn}/client";
 
-            headers = {
-              Connection = "Upgrade";
-              Upgrade = "websocket";
+              headers = {
+                Connection = "Upgrade";
+                Upgrade = "websocket";
 
-              Sec-WebSocket-Key = "AAAAAAAAAAAAAAAAAAAAAA=="; # rfc 6455 format: 16-byte nonce encoded as rfc 4648 base64
-              Sec-WebSocket-Version = "13";
-            };
+                Sec-WebSocket-Key = "AAAAAAAAAAAAAAAAAAAAAA=="; # rfc 6455 format: 16-byte nonce encoded as rfc 4648 base64
+                Sec-WebSocket-Version = "13";
+              };
 
-            conditions = ["[STATUS] == 101"];
-          }
+              conditions = ["[STATUS] == 101"];
+            }
 
-          {
-            name = "deadlocked-relay-ingest";
-            group = "services";
+            {
+              name = "deadlocked-relay-ingest";
+              group = "services";
 
-            url = "tcp://${fakesynologyNixosConfig.networking.fqdn}:6346";
-            body = "$DEADLOCKED_RELAY_HEALTH_BODY";
+              url = "tcp://${fakesynologyNixosConfig.networking.fqdn}:6346";
+              body = "$DEADLOCKED_RELAY_HEALTH_BODY";
 
-            conditions = [
-              "[CONNECTED] == true"
+              conditions = [
+                "[CONNECTED] == true"
 
-              "[BODY] == 0000000000000000"
-            ];
-          }
+                "[BODY] == 0000000000000000"
+              ];
+            }
 
-          {
-            name = "ftbie";
-            group = "services";
+            {
+              name = "ftbie";
+              group = "services";
 
-            url = "${prometheusBaseUrl}/api/v1/query?query=${lib.escapeURL ''scalar(max(podman_container_health{name="ftbie"}))''}";
+              url = "${prometheusBaseUrl}/api/v1/query?query=${lib.escapeURL ''scalar(max(podman_container_health{name="ftbie"}))''}";
 
-            conditions = [
-              "[STATUS] == 200"
+              conditions = [
+                "[STATUS] == 200"
 
-              "[BODY].status == success"
-              "[BODY].data.result[1] == any(0, 2)" # `healthy` or `starting`
-            ];
-          }
+                "[BODY].status == success"
+                "[BODY].data.result[1] == any(0, 2)" # `healthy` or `starting`
+              ];
+            }
 
-          {
-            name = "gatus";
-            group = "platform";
+            {
+              name = "gatus";
+              group = "platform";
 
-            url = "https://status.${config.networking.domain}/health";
+              url = "https://status.${config.networking.domain}/health";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          {
-            name = "grafana";
-            group = "observability";
+            {
+              name = "grafana";
+              group = "observability";
 
-            url = "${de0Config.services.grafana.settings.server.root_url}/api/health";
+              url = "${de0Config.services.grafana.settings.server.root_url}/api/health";
 
-            conditions = [
-              "[STATUS] == 200"
+              conditions = [
+                "[STATUS] == 200"
 
-              "[BODY].database == ok"
-            ];
-          }
+                "[BODY].database == ok"
+              ];
+            }
 
-          {
-            name = "headscale";
-            group = "platform";
+            {
+              name = "headscale";
+              group = "platform";
 
-            url = "${headscaleBaseUrl}/health";
+              url = "${headscaleBaseUrl}/health";
 
-            conditions = [
-              "[STATUS] == 200"
+              conditions = [
+                "[STATUS] == 200"
 
-              "[BODY].status == pass"
-            ];
-          }
+                "[BODY].status == pass"
+              ];
+            }
 
-          (mkHilotEndpoint "hilot-bot-hilorioze")
+            (mkHilotEndpoint "hilot-bot-hilorioze")
 
-          (mkHilotEndpoint "hilot-bot-qpw")
+            (mkHilotEndpoint "hilot-bot-qpw")
 
-          (mkHilotEndpoint "hilot-downloader")
+            (mkHilotEndpoint "hilot-downloader")
 
-          (mkHilotEndpoint "hilot-transcoder")
+            (mkHilotEndpoint "hilot-transcoder")
 
-          {
-            name = "lampac";
-            group = "services";
+            {
+              name = "lampac";
+              group = "services";
 
-            url = "${lampacBaseUrl}/api/myip"; # simplest health check endpoint
+              url = "${lampacBaseUrl}/api/myip"; # simplest health check endpoint
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          {
-            name = "lampac-torrserver";
-            group = "services";
+            {
+              name = "lampac-torrserver";
+              group = "services";
 
-            url = "${lampacBaseUrl}/ts/echo";
+              url = "${lampacBaseUrl}/ts/echo";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          (mkLanDnsEndpoint cexNixosConfig)
+            (mkLanDnsEndpoint cexNixosConfig)
 
-          (mkLanDnsEndpoint fakesynologyNixosConfig)
+            (mkLanDnsEndpoint fakesynologyNixosConfig)
 
-          {
-            name = "loki";
-            group = "observability";
+            {
+              name = "loki";
+              group = "observability";
 
-            url = "http://${de0Host}:3100/ready";
+              url = "http://${de0Host}:3100/ready";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          {
-            name = "mailserver-imaps";
-            group = "platform";
+            {
+              name = "mailserver-imaps";
+              group = "platform";
 
-            url = "tls://${mailserverHost}:${toString hel0Config.services.dovecot2.settings."service imap-login"."inet_listener imaps".port}";
-            body = "A001 CAPABILITY\r\n";
+              url = "tls://${mailserverHost}:${toString hel0Config.services.dovecot2.settings."service imap-login"."inet_listener imaps".port}";
+              body = "A001 CAPABILITY\r\n";
 
-            conditions = [
-              "[CONNECTED] == true"
+              conditions = [
+                "[CONNECTED] == true"
 
-              "[BODY] == pat(* OK *IMAP4rev1*)"
-            ];
-          }
+                "[BODY] == pat(* OK *IMAP4rev1*)"
+              ];
+            }
 
-          {
-            name = "mailserver-managesieve";
-            group = "platform";
+            {
+              name = "mailserver-managesieve";
+              group = "platform";
 
-            url = "tcp://${mailserverHost}:4190";
-            body = "NOOP\r\n";
+              url = "tcp://${mailserverHost}:4190";
+              body = "NOOP\r\n";
 
-            conditions = [
-              "[CONNECTED] == true"
+              conditions = [
+                "[CONNECTED] == true"
 
-              "[BODY] == pat(*\"IMPLEMENTATION\" *\"SIEVE\" *\"VERSION\" \"1.0\"*OK*)"
-            ];
-          }
+                "[BODY] == pat(*\"IMPLEMENTATION\" *\"SIEVE\" *\"VERSION\" \"1.0\"*OK*)"
+              ];
+            }
 
-          {
-            name = "mailserver-mta-sts";
-            group = "platform";
+            {
+              name = "mailserver-mta-sts";
+              group = "platform";
 
-            url = "https://mta-sts.${config.networking.domain}/.well-known/mta-sts.txt";
+              url = "https://mta-sts.${config.networking.domain}/.well-known/mta-sts.txt";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          {
-            name = "mailserver-submissions";
-            group = "platform";
+            {
+              name = "mailserver-submissions";
+              group = "platform";
 
-            url = "tls://${mailserverHost}:465";
-            body = "QUIT\r\n";
+              url = "tls://${mailserverHost}:465";
+              body = "QUIT\r\n";
 
-            conditions = [
-              "[CONNECTED] == true"
+              conditions = [
+                "[CONNECTED] == true"
 
-              "[BODY] == pat(220 ${mailserverHost} ESMTP*)"
-            ];
-          }
+                "[BODY] == pat(220 ${mailserverHost} ESMTP*)"
+              ];
+            }
 
-          {
-            name = "mud";
-            group = "services";
+            {
+              name = "mud";
+              group = "services";
 
-            url = "tcp://mud.${config.networking.domain}:4000";
-            body = "\r\n"; # gatus reads a reply only after sending a body
+              url = "tcp://mud.${config.networking.domain}:4000";
+              body = "\r\n"; # gatus reads a reply only after sending a body
 
-            conditions = [
-              "[CONNECTED] == true"
+              conditions = [
+                "[CONNECTED] == true"
 
-              "[BODY] == pat(Welcome!*)"
-            ];
-          }
+                "[BODY] == pat(Welcome!*)"
+              ];
+            }
 
-          {
-            name = "niks3";
-            group = "platform";
+            {
+              name = "niks3";
+              group = "platform";
 
-            url = "https://niks3.${config.networking.domain}/health";
+              url = "https://niks3.${config.networking.domain}/health";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          {
-            name = "nix-cache";
-            group = "platform";
+            {
+              name = "nix-cache";
+              group = "platform";
 
-            url = "https://nix-cache.${config.networking.domain}/nix-cache-info";
+              url = "https://nix-cache.${config.networking.domain}/nix-cache-info";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          (mkNodeExporterEndpoint cexNixosConfig)
+            (mkNodeExporterEndpoint cexNixosConfig)
 
-          (mkNodeExporterEndpoint de0Config)
+            (mkNodeExporterEndpoint de0Config)
 
-          (mkNodeExporterEndpoint fakesynologyNixosConfig)
+            (mkNodeExporterEndpoint fakesynologyNixosConfig)
 
-          (mkNodeExporterEndpoint hel0Config)
+            (mkNodeExporterEndpoint hel0Config)
 
-          {
-            name = "podman-exporter-de0";
-            group = "telemetry";
+            {
+              name = "podman-exporter-de0";
+              group = "telemetry";
 
-            url = "http://${de0Host}:9882/";
+              url = "http://${de0Host}:9882/";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          {
-            name = "prometheus";
-            group = "observability";
+            {
+              name = "prometheus";
+              group = "observability";
 
-            url = "${prometheusBaseUrl}/-/ready"; # `/-/healthy` only proves the process is up
+              url = "${prometheusBaseUrl}/-/ready"; # `/-/healthy` only proves the process is up
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          (mkSnmpExporterEndpoint "cex")
+            (mkSnmpExporterEndpoint "cex")
 
-          (mkSnmpExporterEndpoint "fakesynology")
+            (mkSnmpExporterEndpoint "fakesynology")
 
-          {
-            name = "syncthing-de0";
-            group = "platform";
+            {
+              name = "syncthing-de0";
+              group = "platform";
 
-            url = "http://${de0Host}:8384/rest/noauth/health";
+              url = "http://${de0Host}:8384/rest/noauth/health";
 
-            conditions = [
-              "[STATUS] == 200"
+              conditions = [
+                "[STATUS] == 200"
 
-              "[BODY].status == OK"
-            ];
-          }
+                "[BODY].status == OK"
+              ];
+            }
 
-          {
-            name = "tailnet-derp-hel0";
-            group = "platform";
+            {
+              name = "tailnet-derp-hel0";
+              group = "platform";
 
-            url = "${headscaleBaseUrl}/derp/probe";
+              url = "${headscaleBaseUrl}/derp/probe";
 
-            conditions = ["[STATUS] == 200"];
-          }
+              conditions = ["[STATUS] == 200"];
+            }
 
-          (mkTraefikDashboardEndpoint de0Config)
+            (mkTraefikDashboardEndpoint de0Config)
 
-          (mkTraefikDashboardEndpoint fakesynologyNixosConfig)
+            (mkTraefikDashboardEndpoint fakesynologyNixosConfig)
 
-          (mkTraefikDashboardEndpoint hel0Config)
-          # keep-sorted end
-        ];
+            (mkTraefikDashboardEndpoint hel0Config)
+            # keep-sorted end
+          ]
+          ++ mkAgentboxZoneEndpoints "agentbox" de0Config.virtualisation.agentbox.domain
+          ++ lib.concatLists (lib.mapAttrsToList (name: _machine: let
+              zone = "${name}.${de0Config.virtualisation.agentbox.domain}";
+            in
+              mkAgentboxZoneEndpoints "agentbox-${name}" zone
+              ++ [
+                {
+                  name = "agentbox-${name}-https";
+                  group = "agentboxes";
+
+                  url = "https://traefik.${zone}/ping"; # through de0's traefik, which passes it through to the agentbox's
+
+                  conditions = [
+                    "[STATUS] == 200"
+
+                    "[CERTIFICATE_EXPIRATION] > 168h" # the agentbox renews its own certificate through knot
+                  ];
+                }
+              ])
+            de0Config.virtualisation.agentbox.machines);
       };
     };
   };
