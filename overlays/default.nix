@@ -37,6 +37,7 @@
   (import ./gpu-screen-recorder-ui-unused-gpu-fix)
   (import ./konsole-wayland-tab-dnd-fix)
   (import ./looking-glass-client-idd)
+  (import ./miniupnpd-delete-range-ownership)
   (import ./niks3-upstream-cache-filter)
   (import ./nix-update-read-write-mode)
   (import ./nix-update-script-flake-mode)

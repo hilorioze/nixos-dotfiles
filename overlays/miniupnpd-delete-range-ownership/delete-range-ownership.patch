@@ -1,0 +1,31 @@
+diff --git a/upnpsoap.c b/upnpsoap.c
+index b5aa6f5..eab2b74 100644
+--- a/upnpsoap.c
++++ b/upnpsoap.c
+@@ -1038,6 +1038,26 @@ DeletePortMappingRange(struct upnphttp * h, const char * action, const char * ns
+ 
+ 	for(i = 0; i < number; i++)
+ 	{
++		/* if in secure mode, only delete the redirections
++		 * of the client, as DeletePortMapping does */
++		if(GETFLAG(SECUREMODEMASK))
++		{
++			char int_ip[32];
++			struct in_addr int_ip_addr;
++			unsigned short iport;
++			unsigned int leaseduration = 0;
++			r = upnp_get_redirection_infos(port_list[i], protocol, &iport,
++			                               int_ip, sizeof(int_ip),
++			                               NULL, 0, NULL, 0,
++			                               &leaseduration);
++			if(r >= 0 && inet_pton(AF_INET, int_ip, &int_ip_addr) > 0
++			   && h->clientaddr.s_addr != int_ip_addr.s_addr)
++			{
++				syslog(LOG_INFO, "%s: skipping external port: %hu, protocol: %s: belongs to %s",
++				       action, port_list[i], protocol, int_ip);
++				continue;
++			}
++		}
+ 		r = upnp_delete_redirection(port_list[i], protocol);
+ 		syslog(LOG_INFO, "%s: deleting external port: %hu, protocol: %s: %s",
+ 		       action, port_list[i], protocol, r < 0 ? "failed" : "ok");
