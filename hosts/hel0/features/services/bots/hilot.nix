@@ -72,6 +72,17 @@ in {
     };
   };
 
+  # postgresql's peer auth looks the connecting user up by id; a dynamic one resolves only through nscd, which openresolv restarts on every dns change
+  users = {
+    users.hilot = {
+      isSystemUser = true;
+
+      group = config.users.groups.hilot.name;
+    };
+
+    groups.hilot = {};
+  };
+
   services = {
     postgresql = {
       authRules = ["local hilot hilot peer"];
@@ -248,7 +259,7 @@ in {
             RemainAfterExit = "yes";
 
             DynamicUser = true;
-            User = "hilot";
+            User = config.users.users.hilot.name; # systemd takes the static user of the name instead of allocating one
 
             ExecStart = "${lib.getExe' pkgs.hilot "hilot-migrate"} upgrade head";
           };
