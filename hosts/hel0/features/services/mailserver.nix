@@ -4,6 +4,7 @@
   inputs,
   lib,
   outputs,
+  pkgs,
   # keep-sorted end
   ...
 }: let
@@ -135,6 +136,17 @@ in {
         oauth2_active_attribute = "mail_access";
         oauth2_active_value = "true";
       };
+
+      # replace nixos-mailserver's junk filter to also flag the spam it files
+      "sieve_script spamfilter".path = lib.mkForce (pkgs.writeText "after.sieve" ''
+        require ["fileinto", "imap4flags"];
+
+        # thunderbird takes the `Junk` keyword as its junk mark; `\Seen` keeps `Junk` from showing an unread count
+        if header :is "X-Spam" "Yes" {
+            fileinto :flags ["\\Seen", "Junk"] "Junk";
+            stop;
+        }
+      '');
     };
 
     postfix = let
@@ -151,6 +163,19 @@ in {
 
     rspamd.locals = {
       "actions.conf".text = "reject = null;"; # file all spam into `Junk` instead of rejecting it
+
+      # mark spam with the spamassassin header thunderbird trusts; it doesn't know rspamd's `X-Spam`
+      # ucl appends this `use` to the one nixos-mailserver sets
+      "milter_headers.conf".text = ''
+        use = ["spam-header"];
+
+        routines {
+          spam-header {
+            header = "X-Spam-Flag";
+            value = "YES";
+          }
+        }
+      '';
 
       # learn obvious spam and clear ham on its own; spam that reached the mailbox never scored below -1
       "classifier-bayes.conf".text = ''

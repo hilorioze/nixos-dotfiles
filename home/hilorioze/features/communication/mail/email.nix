@@ -29,7 +29,13 @@
       userName = address; # login credential passed to imap/smtp servers (`mail.server.server_*.userName`); distinct from `address`
       # `passwordCommand` is useless here because thunderbird uses its own internal password store
 
-      thunderbird.enable = true;
+      thunderbird = {
+        enable = true;
+
+        settings = id: {
+          "mail.server.server_${id}.useServerFilter" = true; # trust rspamd's `X-Spam-Flag`
+        };
+      };
     };
 
     "hilorioze@gmail.com" = {
