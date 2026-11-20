@@ -26,12 +26,21 @@
       internalInterfaces = ["agentbox"];
 
       externalInterface = "enp0s3";
+    };
 
-      # keep agentboxes off the host's private networks, the tailnet, cloud metadata and each other; only the internet stays reachable
-      extraCommands = ''
-        iptables --wait --table filter --insert nixos-filter-forward --in-interface agentbox --destination 10.0.0.0/8,100.64.0.0/10,169.254.0.0/16,172.16.0.0/12,192.168.0.0/16 --jump DROP
+    # keep agentboxes off the host's private networks, the tailnet, cloud metadata and each other; only the internet stays reachable
+    # only drops: a drop is final for the packet, while an accept would end just this chain and leave the verdict to podman's and tailscale's own tables
+    nftables.tables.agentbox = {
+      family = "inet";
 
-        iptables --wait --table filter --append nixos-filter-forward --in-interface agentbox --jump DROP
+      content = ''
+        chain forward {
+          type filter hook forward priority filter; policy accept;
+
+          iifname "agentbox" ip daddr { 10.0.0.0/8, 100.64.0.0/10, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16 } drop
+
+          iifname "agentbox" oifname != "${config.networking.nat.externalInterface}" ct state != { established, related } drop
+        }
       '';
     };
   };

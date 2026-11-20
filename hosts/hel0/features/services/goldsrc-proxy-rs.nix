@@ -65,20 +65,29 @@
 in {
   sops.secrets."credentials/ghcr/hilorioze/pull/token" = {};
 
-  networking.firewall = {
-    allowedUDPPorts = map (proxy: proxy.downstreamPort) proxies;
+  networking = {
+    firewall.allowedUDPPorts = map (proxy: proxy.downstreamPort) proxies;
 
-    extraCommands = lib.mkAfter (lib.concatMapStringsSep "\n\n" (proxy: ''
-        iptables --table raw --append PREROUTING --protocol udp --dport ${toString proxy.downstreamPort} --jump NOTRACK
-        iptables --table raw --append OUTPUT --protocol udp --sport ${toString proxy.downstreamPort} --jump NOTRACK
-      '')
-      proxies);
+    # players failed to connect through the proxies while conntrack tracked their traffic
+    nftables.tables.goldsrc-proxy-rs = let
+      downstreamPorts = "{ ${lib.concatMapStringsSep ", " (proxy: toString proxy.downstreamPort) proxies} }";
+    in {
+      family = "inet";
 
-    extraStopCommands = lib.mkAfter (lib.concatMapStringsSep "\n\n" (proxy: ''
-        iptables --table raw --delete PREROUTING --protocol udp --dport ${toString proxy.downstreamPort} --jump NOTRACK 2>/dev/null || true
-        iptables --table raw --delete OUTPUT --protocol udp --sport ${toString proxy.downstreamPort} --jump NOTRACK 2>/dev/null || true
-      '')
-      proxies);
+      content = ''
+        chain prerouting {
+          type filter hook prerouting priority raw; policy accept;
+
+          udp dport ${downstreamPorts} notrack
+        }
+
+        chain output {
+          type filter hook output priority raw; policy accept;
+
+          udp sport ${downstreamPorts} notrack
+        }
+      '';
+    };
   };
 
   virtualisation.oci-containers.containers = lib.attrsets.mergeAttrsList containersList;
