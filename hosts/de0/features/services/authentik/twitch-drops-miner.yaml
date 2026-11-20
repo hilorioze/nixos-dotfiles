@@ -1,5 +1,15 @@
 version: 1
 
+# blueprints pass `context` to `!Context`; here it also holds what every miner shares
+context:
+  provider: &provider
+    authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+    invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+    mode: forward_single
+
+    skip_path_regex: ^/health$ # gatus checks it
+
 entries:
   dependencies:
     - model: authentik_blueprints.metaapplyblueprint
@@ -24,10 +34,8 @@ entries:
       identifiers:
         name: twitch-drops-miner-caligula
       attrs:
-        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+        <<: *provider
 
-        mode: forward_single
         external_host: https://twitch-drops-miner-caligula.de0.@domain@
 
     - model: authentik_core.application
@@ -57,10 +65,8 @@ entries:
       identifiers:
         name: twitch-drops-miner-hilorioze
       attrs:
-        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+        <<: *provider
 
-        mode: forward_single
         external_host: https://twitch-drops-miner-hilorioze.de0.@domain@
 
     - model: authentik_core.application
@@ -90,10 +96,8 @@ entries:
       identifiers:
         name: twitch-drops-miner-zikkk
       attrs:
-        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+        <<: *provider
 
-        mode: forward_single
         external_host: https://twitch-drops-miner-zikkk.de0.@domain@
 
     - model: authentik_core.application

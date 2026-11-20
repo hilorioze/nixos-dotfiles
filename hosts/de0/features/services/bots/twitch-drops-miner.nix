@@ -90,13 +90,12 @@ in {
       name = "twitch-drops-miner-${name}";
       group = "services";
 
-      url = "http://127.0.0.1:${toString config.services.prometheus.port}/api/v1/query?query=${lib.escapeURL ''scalar(max(podman_container_health{name="twitch-drops-miner-${name}"} and on(id) podman_container_state == 2))''}";
+      url = "https://twitch-drops-miner-${name}.${config.networking.fqdn}/health";
 
       conditions = [
         "[STATUS] == 200"
 
-        "[BODY].status == success"
-        "[BODY].data.result[1] == 0" # `healthy`
+        "[BODY].status == ok"
       ];
     })
     users;
