@@ -146,7 +146,11 @@
 
     flake-checker.enable = true;
 
-    pre-commit-hook-ensure-sops.enable = true;
+    pre-commit-hook-ensure-sops = {
+      enable = true;
+
+      files = "(^|/)secrets\\.yaml$"; # the default `^secrets` matches only the repo root
+    };
 
     pyright.enable = true;
 
