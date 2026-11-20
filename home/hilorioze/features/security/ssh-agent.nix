@@ -54,14 +54,13 @@ in {
       Install.WantedBy = ["ssh-agent.service"];
 
       Unit = {
-        Wants = [
+        After = [
           # keep-sorted start
           "sops-nix.service"
           "ssh-agent.service"
           # keep-sorted end
         ];
-
-        After = [
+        Wants = [
           # keep-sorted start
           "sops-nix.service"
           "ssh-agent.service"

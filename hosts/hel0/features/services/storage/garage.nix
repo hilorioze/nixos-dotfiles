@@ -45,8 +45,8 @@
     garage-setup = {
       wantedBy = ["multi-user.target"];
 
-      requires = ["garage.service"];
       after = ["garage.service"];
+      requires = ["garage.service"];
 
       path = [config.services.garage.package];
 

@@ -200,14 +200,13 @@ in {
     shared = {
       wantedBy = ["multi-user.target"];
 
-      requires = [
+      after = [
         # keep-sorted start
         "garage-setup.service"
         "nats.service"
         # keep-sorted end
       ];
-
-      after = [
+      requires = [
         # keep-sorted start
         "garage-setup.service"
         "nats.service"
@@ -236,9 +235,8 @@ in {
 
     # shared by the services on the database: postgresql's peer auth takes the role from the user name
     database = {
-      requires = ["hilot-migrate.service"];
-
       after = ["hilot-migrate.service"];
+      requires = ["hilot-migrate.service"];
 
       serviceConfig.User = config.systemd.services.hilot-migrate.serviceConfig.User;
     };
@@ -248,8 +246,8 @@ in {
         hilot-migrate = {
           description = "hilot database migrations";
 
-          requires = ["postgresql.target"];
           after = ["postgresql.target"];
+          requires = ["postgresql.target"];
 
           environment.XDG_CONFIG_HOME = sharedConfigHome;
 

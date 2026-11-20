@@ -6,7 +6,6 @@
       "traefik.service"
       # keep-sorted end
     ];
-
     wants = [
       # keep-sorted start
       "headscale.service"

@@ -454,18 +454,17 @@ in {
     # wait for tailnet addresses before binding coredns
     coredns = {
       after = ["tailscaled-autoconnect.service"];
-
       wants = ["tailscaled-autoconnect.service"];
     };
 
     headscale = {
       after = ["sops-nix.service"];
-
       wants = ["sops-nix.service"];
     };
 
     headscale-setup = {
       wantedBy = ["multi-user.target"];
+
       after = [
         # keep-sorted start
         "headscale.service"
