@@ -1,6 +1,7 @@
 {
   imports = [
     # keep-sorted start
+    ./network/nftables.nix
     ./nix/gc.nix
     ./security/sudo.nix
     ./shell/zsh.nix

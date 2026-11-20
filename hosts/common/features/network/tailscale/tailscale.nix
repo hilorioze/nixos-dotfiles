@@ -7,6 +7,8 @@
 }: {
   sops.secrets."credentials/tailscale/auth-key" = {};
 
+  networking.firewall.trustedInterfaces = [config.services.tailscale.interfaceName]; # the tailnet acl decides what reaches the host; tailscaled accepts the interface in a table of its own, which doesn't end the firewall's input chain
+
   services.tailscale = {
     enable = true;
 

@@ -30,7 +30,7 @@ in {
   };
 
   # go2rtc serves the cameras without a login; open its rtsp to surveillance station only
-  networking.firewall.extraCommands = "iptables --append nixos-fw --protocol tcp --source ${surveillanceStationAddress} --destination-port ${lib.removePrefix ":" config.services.go2rtc.settings.rtsp.listen} --jump nixos-fw-accept";
+  networking.firewall.extraInputRules = "ip saddr ${surveillanceStationAddress} tcp dport ${lib.removePrefix ":" config.services.go2rtc.settings.rtsp.listen} accept";
 
   services = {
     prometheus.exporters.node.extraFlags = ["--collector.textfile.directory=/run/${config.systemd.services.tapo-recordings.serviceConfig.RuntimeDirectory}"];
