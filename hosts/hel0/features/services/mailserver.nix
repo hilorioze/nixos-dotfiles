@@ -149,7 +149,21 @@ in {
       };
     };
 
-    rspamd.locals."actions.conf".text = "reject = null;"; # file all spam into `Junk` instead of rejecting it
+    rspamd.locals = {
+      "actions.conf".text = "reject = null;"; # file all spam into `Junk` instead of rejecting it
+
+      # learn obvious spam and clear ham on its own; spam that reached the mailbox never scored below -1
+      "classifier-bayes.conf".text = ''
+        autolearn {
+          # without `reject` every spam verdict is junk; rspamd checks `junk_threshold` only when `spam_threshold` is set too
+          spam_threshold = 15;
+          junk_threshold = 15;
+          ham_threshold = -3;
+
+          check_balance = true;
+        }
+      '';
+    };
   };
 
   security.acme.certs.${imapHost} = {
