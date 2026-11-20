@@ -104,7 +104,7 @@
       };
 
       certificatesResolvers.cloudflare.acme = {
-        email = "hilorioze@hilorioze.com";
+        email = "hostmaster@hilorioze.com";
 
         dnsChallenge = {
           provider = "cloudflare";
