@@ -56,6 +56,9 @@ in {
           # omit `User-Agent` from outgoing messages because it might be stripped in transit and invalidate the openpgp signature
           "mailnews.headers.sendUserAgent" = false;
 
+          # move messages marked as junk by hand into the account's `Junk`; on hilorioze.com the move trains rspamd
+          "mail.spam.manualMark" = true;
+
           # suppress thunderbird's "Know your rights" first-run notification
           "mail.rights.override" = true;
 

@@ -33,6 +33,9 @@
         enable = true;
 
         settings = id: {
+          # move junk the adaptive filter finds into `Junk` before the new mail notification; the move trains rspamd
+          "mail.server.server_${id}.moveOnSpam" = true;
+
           "mail.server.server_${id}.useServerFilter" = true; # trust rspamd's `X-Spam-Flag`
         };
       };
