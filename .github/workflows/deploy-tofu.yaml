@@ -9,6 +9,9 @@ on:
 
       - tofu/**
 
+      # the servers' records take their addresses from it
+      - hosts/servers.json
+
       # `_mta-sts` takes its id from the policy
       - hosts/hel0/features/services/mta-sts.txt
 
