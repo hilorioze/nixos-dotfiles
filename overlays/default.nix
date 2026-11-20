@@ -31,6 +31,7 @@
   (import ./clearurls-prototype-provider-fix)
   (import ./cliproxyapi-antigravity-web-search)
   (import ./cliproxyapi-response-model-prefix)
+  (import ./cliproxyapi-system-instruction-as-user)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
   (import ./gpu-screen-recorder-drm-master-fix)
