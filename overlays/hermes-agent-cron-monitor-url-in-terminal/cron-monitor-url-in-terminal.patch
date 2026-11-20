@@ -1,0 +1,50 @@
+diff --git a/cron/monitor.py b/cron/monitor.py
+index b5bafca..00fe346 100644
+--- a/cron/monitor.py
++++ b/cron/monitor.py
+@@ -129,6 +129,34 @@ def _fetch_monitor_url(url: str) -> tuple[bool, str]:
+         return False, f"monitor_url fetch failed: {exc}"
+ 
+ 
++def _fetch_monitor_url_in_terminal(url: str) -> tuple[bool, str]:
++    """Bounded GET of a monitor URL where the terminal tool runs its commands, so a remote backend
++    keeps the request off the gateway host and inside the network the agent's other tools see.
++    Same limits as :func:`_fetch_monitor_url`; a body cut at ``MAX_URL_BYTES`` closes curl's pipe
++    (exit 23), which is not a failure."""
++    import shlex
++
++    if not str(url).lower().startswith(("http://", "https://")):
++        return False, f"monitor_url must be http(s): {url!r}"
++    command = (
++        f"curl --fail --silent --show-error --location --max-redirs {MAX_URL_REDIRECTS} "
++        f"--max-time {URL_TIMEOUT_SECONDS} --proto =http,https --proto-redir =http,https "
++        f"--user-agent hermes-cron-monitor -- {shlex.quote(str(url))} | head --bytes={MAX_URL_BYTES}; "
++        'rc=${PIPESTATUS[0]}; [ "$rc" = 23 ] && rc=0; exit "$rc"'
++    )
++    try:
++        from tools.code_execution_tool import _get_or_create_env
++
++        env, _ = _get_or_create_env("cron-script")
++        result = env.execute(command, timeout=URL_TIMEOUT_SECONDS + 10)
++    except Exception as exc:
++        return False, f"monitor_url fetch failed: {exc}"
++    output = result.get("output") or ""
++    if int(result.get("returncode") or 0) != 0:
++        return False, f"monitor_url fetch failed: {output.strip()}"
++    return True, output
++
++
+ def _field(job: dict, key: str) -> str:
+     return (job.get(key) or "").strip()
+ 
+@@ -144,6 +172,10 @@ def _run_monitor_source(job: dict) -> tuple[bool, str]:
+                                interpreter=job.get("interpreter"))
+     monitor_url = _field(job, "monitor_url")
+     if monitor_url:
++        from tools.terminal_tool import _get_env_config
++
++        if _get_env_config()["env_type"] != "local":
++            return _fetch_monitor_url_in_terminal(monitor_url)
+         return _fetch_monitor_url(monitor_url)
+     return False, "monitor job has neither monitor_script nor monitor_url"
+ 

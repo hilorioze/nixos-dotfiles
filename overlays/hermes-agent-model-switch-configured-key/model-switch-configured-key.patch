@@ -1,0 +1,13 @@
+diff --git a/gateway/slash_commands_model.py b/gateway/slash_commands_model.py
+index 69d43281..0d06abea 100644
+--- a/gateway/slash_commands_model.py
++++ b/gateway/slash_commands_model.py
+@@ -103,6 +103,8 @@ class _ModelSwitchContext:
+                 self.current_provider = model_cfg.get("provider", self.current_provider)
+                 self.route_provider = model_cfg.get("provider")
+                 self.current_base_url = model_cfg.get("base_url", "")
++                from hermes_cli.runtime_provider_custom import _key_env_secret
++                self.current_api_key = str(model_cfg.get("api_key") or "").strip() or _key_env_secret(model_cfg, "model")
+             self.user_provs = cfg.get("providers")
+             try:
+                 from hermes_cli.config import get_compatible_custom_providers

@@ -1,0 +1,192 @@
+diff --git a/tools/environments/remote_common.py b/tools/environments/remote_common.py
+index ad21b098..cbc131a0 100644
+--- a/tools/environments/remote_common.py
++++ b/tools/environments/remote_common.py
+@@ -2,14 +2,20 @@
+ 
+ from __future__ import annotations
+ 
++import contextlib
++import logging
+ import os
+ import shlex
+ import subprocess
++import threading
++import time
+ from typing import Callable, Iterable
+ 
+ from tools.environments.base_session_env import _SHELL_ENV_NAME_RE
+ from tools.environments.local_env_policy import _is_hermes_internal_secret, _is_provider_env_blocklisted
+ 
++logger = logging.getLogger(__name__)
++
+ 
+ def load_hermes_env_vars() -> dict[str, str]:
+     """``~/.hermes/.env`` values, or ``{}`` — a broken .env must not fail command execution."""
+@@ -88,6 +94,83 @@ def bash_argv(cmd_string: str, login: bool = False) -> list[str]:
+     return ["bash", "-l", "-c", cmd_string] if login else ["bash", "-c", cmd_string]
+ 
+ 
++# Killing the local client of a spawn-per-call backend (``ssh``) does not signal the command it
++# started on the other side, so a timed-out or interrupted command kept running there. The remote
++# shell records its PID; the kill runs remotely over a separate connection against that shell's
++# process group (``ps`` resolves the group when the shell is not its leader; without ``ps`` the
++# PID's own group, then the PID alone). TERM, up to 1s grace, then KILL (the local backend's shape).
++# The script runs in a subshell so the record is removed even when it sets its own EXIT trap or
++# ``exec``s; a killed group leaves the removal to the kill.
++# A kill can land before the shell has recorded its PID (the session is still starting). The kill
++# first leaves a ``.stop`` marker, then reads the PID; the shell first records its PID, then checks
++# the marker. Whichever runs second sees the other's write, so either the kill finds the PID or the
++# shell exits before running the command.
++def record_exec_group(cmd_string: str, pidfile: str) -> str:
++    """``cmd_string`` wrapped to record its shell's PID in ``pidfile`` for :func:`exec_group_kill_script`."""
++    q = shlex.quote(pidfile)
++    return (f"{{ echo $$ > {q}; }} 2>/dev/null\n"
++            f"if [ -e {q}.stop ]; then rm -f {q} {q}.stop; exit 130; fi\n(\n{cmd_string}\n)\n"
++            f"__hermes_exec_rc=$?\nrm -f {q}\nexit $__hermes_exec_rc")
++
++
++def exec_group_kill_script(pidfile: str, *, force: bool = False) -> str:
++    """Bash script that kills the process group :func:`record_exec_group` recorded in ``pidfile``:
++    TERM, up to 1s grace, then KILL; ``force`` (a host about to hard-exit) sends KILL at once."""
++    q = shlex.quote(pidfile)
++    target = (f': 2>/dev/null > {q}.stop; p=$(cat {q} 2>/dev/null); [ -n "$p" ] || exit 0; rm -f {q} {q}.stop; '
++              'g=$(ps -o pgid= -p "$p" 2>/dev/null | tr -d " "); t=-${g:-$p}; ')
++    if force:
++        return target + 'kill -KILL -- "$t" 2>/dev/null || kill -KILL "$p" 2>/dev/null; exit 0'
++    return target + (
++        'kill -TERM -- "$t" 2>/dev/null || { t=$p; kill -TERM "$t" 2>/dev/null; } || exit 0; '
++        'for _ in 1 2 3 4 5 6 7 8 9 10; do kill -0 -- "$t" 2>/dev/null || exit 0; sleep 0.1; done; '
++        'kill -KILL -- "$t" 2>/dev/null; exit 0')
++
++
++# Bound on one remote kill round trip (the script's own TERM grace is 1s). Enforced by a reaper,
++# never by the caller: see launch_remote_kill.
++REMOTE_KILL_TIMEOUT_S = 5.0
++
++
++def launch_remote_kill(argv: list[str], *, timeout: float = REMOTE_KILL_TIMEOUT_S,
++                       label: str = "remote-kill") -> subprocess.Popen | None:
++    """Start ``argv`` (a kill that runs on the far side: ``ssh … bash -c``, ``docker exec …``) and
++    return at once. ``_kill_process`` runs inside the timeout path of ``_wait_for_process``, under
++    the ``run_bounded_sync`` backstop that allows only ``_EXECUTE_WAIT_BOUND_GRACE_S`` past the
++    command's timeout, and ``kill_live_foreground_processes`` calls it once per live command on exit
++    paths, so a kill that waited for its round trip made timeouts late and serialized shutdown.
++    A daemon thread reaps the client and kills it after ``timeout`` so a dead link cannot leave it
++    behind; its own session lets it finish if this host exits first."""
++    try:
++        proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
++                                stderr=subprocess.DEVNULL, start_new_session=True)
++    except (OSError, subprocess.SubprocessError) as e:
++        logger.debug("%s could not start: %s", label, e)
++        return None
++
++    def _reap() -> None:
++        try:
++            proc.wait(timeout=timeout)
++        except subprocess.TimeoutExpired:
++            logger.debug("%s did not finish within %.1fs; abandoning it", label, timeout)
++            with contextlib.suppress(OSError):
++                proc.kill()
++            with contextlib.suppress(OSError, subprocess.SubprocessError):
++                proc.wait(timeout=1)
++
++    threading.Thread(target=_reap, name=f"hermes-{label}", daemon=True).start()
++    return proc
++
++
++def wait_remote_kills(procs: Iterable[subprocess.Popen], budget: float = REMOTE_KILL_TIMEOUT_S) -> None:
++    """Wait, at most ``budget`` seconds in total, for kills from :func:`launch_remote_kill` to end.
++    For a teardown that is about to close the transport those kills travel over (ssh ``-O exit``)."""
++    deadline = time.monotonic() + budget
++    for proc in procs:
++        with contextlib.suppress(subprocess.TimeoutExpired):
++            proc.wait(timeout=max(0.0, deadline - time.monotonic()))
++
++
+ def ensure_lazy_dep(extra: str) -> None:
+     """Lazy-install an optional SDK's pm extra (idempotent). Install failures
+     surface as ``ImportError``."""
+diff --git a/tools/environments/ssh.py b/tools/environments/ssh.py
+index 5fbf4f03..e311536e 100644
+--- a/tools/environments/ssh.py
++++ b/tools/environments/ssh.py
+@@ -9,6 +9,7 @@ import shutil
+ import stat
+ import subprocess
+ import tempfile
++import uuid
+ from pathlib import Path
+ from typing import Iterable
+ 
+@@ -18,7 +19,8 @@ from tools.environments.base_output import _popen_bash
+ from tools.environments.file_sync import (
+     FileSyncManager, iter_sync_files, quoted_mkdir_command, quoted_rm_command, unique_parent_dirs)
+ from tools.environments.remote_common import (
+-    bash_argv, client_env_with, load_hermes_env_vars, prepend_unset, resolve_passthrough_env, run_capture)
++    REMOTE_KILL_TIMEOUT_S, bash_argv, client_env_with, exec_group_kill_script, launch_remote_kill,
++    load_hermes_env_vars, prepend_unset, record_exec_group, resolve_passthrough_env, run_capture, wait_remote_kills)
+ from tools.spill_safety import ensure_owned_private_dir
+ 
+ logger = logging.getLogger(__name__)
+@@ -28,6 +30,9 @@ logger = logging.getLogger(__name__)
+ # Skip multiplexing there; each command pays a fresh connection but the backend works. See #73927.
+ _SSH_MULTIPLEX = os.name != "nt"
+ 
++# Bound on the remote kill (its own TERM grace is 1s) so a dead link cannot leave its client behind.
++_REMOTE_KILL_TIMEOUT = REMOTE_KILL_TIMEOUT_S
++
+ 
+ def _ensure_ssh_available() -> None:
+     """Fail fast with a clear error when the SSH client is unavailable."""
+@@ -340,9 +345,37 @@ class SSHEnvironment(BaseEnvironment):
+         remote sshd must ``AcceptEnv`` them (#14091). Profile-scoped names missing from the active
+         scope are unset remotely so a shared host cannot serve another profile's value."""
+         values, unset_names = resolve_passthrough_env(hermes_env_loader=load_hermes_env_vars)
+-        cmd = self._build_ssh_command(send_env=values) + bash_argv(shlex.quote(prepend_unset(cmd_string, unset_names)), login)
++        pidfile = f"{self.get_temp_dir().rstrip('/')}/.hermes-exec-{uuid.uuid4().hex}.pid"
++        script = record_exec_group(prepend_unset(cmd_string, unset_names), pidfile)
++        cmd = self._build_ssh_command(send_env=values) + bash_argv(shlex.quote(script), login)
+         client_env = client_env_with(values)
+-        return _popen_bash(cmd, stdin_data, env=client_env) if client_env is not None else _popen_bash(cmd, stdin_data)
++        proc = _popen_bash(cmd, stdin_data, env=client_env) if client_env is not None else _popen_bash(cmd, stdin_data)
++        proc._hermes_exec_pidfile = pidfile
++        return proc
++
++    def _kill_remote_group(self, proc, *, force: bool) -> None:
++        """Kill ``proc``'s remote command over a separate ssh (the ControlMaster when one is up).
++        Killing the local ``ssh`` client only closes the channel: sshd does not signal a session
++        without a pty, so the command kept running on the host. Never waits for the round trip:
++        this runs on the timeout path under the ``run_bounded_sync`` backstop and once per command
++        on shutdown (``launch_remote_kill``). ``force`` (the host is about to hard-exit) skips the
++        TERM grace."""
++        pidfile = getattr(proc, "_hermes_exec_pidfile", None)
++        if not pidfile:
++            return
++        argv = self._build_ssh_command() + [shlex.join(bash_argv(exec_group_kill_script(pidfile, force=force)))]
++        killer = launch_remote_kill(argv, timeout=_REMOTE_KILL_TIMEOUT, label="ssh-remote-kill")
++        if killer is not None:
++            pending = [p for p in getattr(self, "_pending_remote_kills", ()) if p.poll() is None]
++            self._pending_remote_kills = [*pending, killer]
++
++    def _kill_process(self, proc):
++        self._kill_remote_group(proc, force=False)
++        super()._kill_process(proc)
++
++    def _force_kill_process(self, proc):
++        self._kill_remote_group(proc, force=True)
++        super()._kill_process(proc)
+ 
+     def __del__(self):
+         # The fallback dir goes only after the LAST cleanup() (a poller still reconnects through a
+@@ -357,6 +390,10 @@ class SSHEnvironment(BaseEnvironment):
+         if self._sync_manager:
+             logger.info("SSH: syncing files from sandbox...")
+             self._sync_manager.sync_back()
++        # Kills still in flight may ride the ControlMaster ``-O exit`` closes below: let them land
++        # first (bounded once for all of them; they were launched concurrently).
++        wait_remote_kills(getattr(self, "_pending_remote_kills", ()), budget=_REMOTE_KILL_TIMEOUT)
++        self._pending_remote_kills = []
+         for socket in self._control_sockets():
+             if not socket.exists():
+                 continue
