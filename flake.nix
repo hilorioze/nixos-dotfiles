@@ -80,6 +80,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # keep upstream's tested nixpkgs pin; `main` takes dozens of commits a day
+    hermes-agent.url = "github:NousResearch/hermes-agent/v0.23.3";
+
     hilot.url = "github:hilorioze/hilot"; # keep their inputs for binary cache
 
     mud.url = "github:hilorioze/mud"; # keep their inputs for binary cache

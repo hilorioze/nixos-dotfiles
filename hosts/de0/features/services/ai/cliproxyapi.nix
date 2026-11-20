@@ -13,20 +13,22 @@
 
   sops.secrets = let
     inferenceKey.restartUnits = ["cliproxyapi.service"];
-  in {
-    "services/cliproxyapi/management-key".restartUnits = [
-      # keep-sorted start
-      "cliproxyapi-cooldown-reset.service"
-      "cliproxyapi-warmup.service"
-      "cliproxyapi.service"
-      # keep-sorted end
-    ];
+  in
+    {
+      "services/cliproxyapi/management-key".restartUnits = [
+        # keep-sorted start
+        "cliproxyapi-cooldown-reset.service"
+        "cliproxyapi-warmup.service"
+        "cliproxyapi.service"
+        # keep-sorted end
+      ];
 
-    # keep-sorted start
-    "services/cliproxyapi/users/claude-code-gateway/inference-key" = inferenceKey;
-    "services/cliproxyapi/users/danil/inference-key" = inferenceKey;
-    # keep-sorted end
-  };
+      # keep-sorted start
+      "services/cliproxyapi/users/claude-code-gateway/inference-key" = inferenceKey;
+      "services/cliproxyapi/users/danil/inference-key" = inferenceKey;
+      # keep-sorted end
+    }
+    // lib.mapAttrs' (name: _machine: lib.nameValuePair "services/cliproxyapi/users/hermes-${name}/inference-key" inferenceKey) config.virtualisation.agentbox.machines;
 
   services = {
     traefik.dynamicConfigOptions.http = {
@@ -52,12 +54,14 @@
           commercial-mode = true; # with `request-log` off, failed requests still get written to disk with their prompts
         };
 
-        access.api-keys = [
-          # keep-sorted start
-          {_secret = config.sops.secrets."services/cliproxyapi/users/claude-code-gateway/inference-key".path;}
-          {_secret = config.sops.secrets."services/cliproxyapi/users/danil/inference-key".path;}
-          # keep-sorted end
-        ];
+        access.api-keys =
+          [
+            # keep-sorted start
+            {_secret = config.sops.secrets."services/cliproxyapi/users/claude-code-gateway/inference-key".path;}
+            {_secret = config.sops.secrets."services/cliproxyapi/users/danil/inference-key".path;}
+            # keep-sorted end
+          ]
+          ++ lib.mapAttrsToList (name: _machine: {_secret = config.sops.secrets."services/cliproxyapi/users/hermes-${name}/inference-key".path;}) config.virtualisation.agentbox.machines;
 
         management = {
           secret-key._secret = config.sops.secrets."services/cliproxyapi/management-key".path;

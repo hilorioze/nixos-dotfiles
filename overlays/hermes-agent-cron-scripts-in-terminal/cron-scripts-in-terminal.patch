@@ -1,0 +1,63 @@
+diff --git a/cron/scheduler_script.py b/cron/scheduler_script.py
+index 82ca6447..b5afb504 100644
+--- a/cron/scheduler_script.py
++++ b/cron/scheduler_script.py
+@@ -12,6 +12,7 @@ import contextlib
+ import contextvars
+ import logging
+ import os
++import shlex
+ import shutil
+ import signal
+ import stat
+@@ -465,6 +466,9 @@ def _run_job_script(
+     if path is None:
+         return False, err
+     script_timeout = _get_script_timeout()
++    from tools.terminal_tool import _get_env_config
++    if _get_env_config()["env_type"] != "local":
++        return _run_job_script_in_terminal(path, workdir, script_timeout, interpreter)
+     try:
+         argv, env_overlay, err = _script_argv(path, interpreter)
+         if argv is None:
+@@ -555,6 +559,40 @@ def _run_job_script(
+         return False, f"Script execution failed: {exc}"
+ 
+ 
++def _run_job_script_in_terminal(
++    path: Path, workdir: Optional[str], script_timeout: int, interpreter: Optional[str] = None,
++) -> tuple[bool, str]:
++    """Run a validated script where the terminal tool runs its commands, so a remote backend (ssh,
++    docker, ...) keeps cron scripts off the gateway host too. The body goes over stdin: the backend
++    has no HERMES_HOME/scripts of its own. ``interpreter`` names a Python on the backend."""
++    try:
++        from tools.code_execution_tool import _get_or_create_env
++        env, _ = _get_or_create_env("cron-script")
++        if path.suffix.lower() in {".sh", ".bash"}:
++            command = "bash -s"
++        elif isinstance(interpreter, str) and interpreter.strip():
++            command = f"{shlex.quote(interpreter.strip())} -"
++        else:
++            command = "python3 -"
++        result = env.execute(command, cwd=workdir or "", timeout=script_timeout, stdin_data=path.read_text())
++        output = (result.get("output") or "").strip()
++        try:
++            from agent.redact import redact_sensitive_text
++            output = redact_sensitive_text(output)
++        except Exception as e:
++            logger.warning("Failed to redact sensitive text from output: %s", e)
++            output = "[REDACTED - redaction failed]"
++        returncode = int(result.get("returncode") or 0)
++        if returncode != 0:
++            parts = [f"Script exited with code {returncode}"]
++            if output:
++                parts.append(f"output:\n{output}")
++            return False, "\n".join(parts)
++        return True, output
++    except Exception as exc:
++        return False, f"Script execution failed: {exc}"
++
++
+ def _start_heartbeat_thread(loop_fn, name: str, fail_log) -> Optional[threading.Thread]:
+     """Start ``loop_fn`` on a daemon thread inside a copy of the current context (multiplexed
+     profile ContextVars). On failure calls ``fail_log()`` inside the except (traceback intact) and
