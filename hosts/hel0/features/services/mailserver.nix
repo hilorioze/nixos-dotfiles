@@ -148,6 +148,8 @@ in {
         smtpd_sender_login_maps = lib.mkForce postfixLdapMap;
       };
     };
+
+    rspamd.locals."actions.conf".text = "reject = null;"; # file all spam into `Junk` instead of rejecting it
   };
 
   security.acme.certs.${imapHost} = {
