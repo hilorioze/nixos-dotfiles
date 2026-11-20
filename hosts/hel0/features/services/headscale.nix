@@ -2,11 +2,16 @@
   # keep-sorted start
   config,
   lib,
+  outputs,
   pkgs,
   # keep-sorted end
   ...
 }: let
   cfg = config.services.headscale;
+
+  agentboxes = outputs.nixosConfigurations.de0.config.virtualisation.agentbox;
+
+  agentboxTags = lib.mapAttrsToList (name: _machine: "tag:agentbox-${name}") agentboxes.machines;
 
   headscaleFqdn = lib.removePrefix "https://" cfg.settings.server_url;
 
@@ -23,35 +28,37 @@ in {
     };
 
     preauthKeySecret.restartUnits = ["headscale-setup.service"];
-  in {
-    # to generate preauth-key:
-    #
-    # prefix=$(head -c 12 /dev/urandom | base64 -w0 | tr '+/' '-_' | tr -d '=' | head -c 12)
-    # secret=$(head -c 64 /dev/urandom | base64 -w0 | tr '+/' '-_' | tr -d '=' | head -c 64)
-    #
-    # hash=$(, htpasswd -bnBC 10 "" "$secret" | cut -d: -f2)
-    #
-    # printf 'hskey-auth-%s-%s\n' "$prefix" "$secret"
-    # printf 'prefix (`headscale-setup`): %s\nbcrypt-hash (sops): %s\n' "$prefix" "$hash"
+  in
+    {
+      # to generate preauth-key:
+      #
+      # prefix=$(head -c 12 /dev/urandom | base64 -w0 | tr '+/' '-_' | tr -d '=' | head -c 12)
+      # secret=$(head -c 64 /dev/urandom | base64 -w0 | tr '+/' '-_' | tr -d '=' | head -c 64)
+      #
+      # hash=$(, htpasswd -bnBC 10 "" "$secret" | cut -d: -f2)
+      #
+      # printf 'hskey-auth-%s-%s\n' "$prefix" "$secret"
+      # printf 'prefix (`headscale-setup`): %s\nbcrypt-hash (sops): %s\n' "$prefix" "$hash"
 
-    # keep-sorted start
-    "services/headscale/control-plane/private-key" = headscaleSecret;
-    "services/headscale/derp/private-key" = headscaleSecret;
-    "services/headscale/preauth-keys/alex/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/cex-nixos/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/cex/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/de0/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/deployer/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/fakesynology-nixos/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/fakesynology/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/guests/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/hel0/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/hilonix/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/lelonix/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/philone/bcrypt-hash" = preauthKeySecret;
-    "services/headscale/preauth-keys/puest/bcrypt-hash" = preauthKeySecret;
-    # keep-sorted end
-  };
+      # keep-sorted start
+      "services/headscale/control-plane/private-key" = headscaleSecret;
+      "services/headscale/derp/private-key" = headscaleSecret;
+      "services/headscale/preauth-keys/alex/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/cex-nixos/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/cex/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/de0/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/deployer/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/fakesynology-nixos/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/fakesynology/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/guests/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/hel0/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/hilonix/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/lelonix/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/philone/bcrypt-hash" = preauthKeySecret;
+      "services/headscale/preauth-keys/puest/bcrypt-hash" = preauthKeySecret;
+      # keep-sorted end
+    }
+    // lib.mapAttrs' (name: _machine: lib.nameValuePair "services/headscale/preauth-keys/agentbox-${name}/bcrypt-hash" preauthKeySecret) agentboxes.machines;
 
   networking.firewall.allowedUDPPorts = [3478]; # DERP's STUN
 
@@ -132,19 +139,21 @@ in {
             # keep-sorted end
           };
 
-          tagOwners = {
-            # keep-sorted start
-            "tag:cex" = [];
-            "tag:cex-nixos" = [];
-            "tag:de0" = [];
-            "tag:deployer" = [];
-            "tag:fakesynology" = [];
-            "tag:fakesynology-nixos" = [];
-            "tag:hel0" = [];
-            "tag:hilonix" = [];
-            "tag:lelonix" = [];
-            # keep-sorted end
-          };
+          tagOwners =
+            {
+              # keep-sorted start
+              "tag:cex" = [];
+              "tag:cex-nixos" = [];
+              "tag:de0" = [];
+              "tag:deployer" = [];
+              "tag:fakesynology" = [];
+              "tag:fakesynology-nixos" = [];
+              "tag:hel0" = [];
+              "tag:hilonix" = [];
+              "tag:lelonix" = [];
+              # keep-sorted end
+            }
+            // lib.genAttrs agentboxTags (_: []);
 
           acls = [
             # all clients can reach hel0 on port 53 for split dns
@@ -309,6 +318,15 @@ in {
               ];
 
               dst = ["tag:de0:9443"];
+            }
+
+            # agentboxes reach each other through the tailnet; de0's bridge keeps them apart
+            {
+              action = "accept";
+
+              src = agentboxTags;
+
+              dst = map (tag: "${tag}:*") agentboxTags;
             }
 
             # home devices can reach all nodes and internet via exit nodes
@@ -485,6 +503,7 @@ in {
         }
 
         # keep-sorted start
+        agentboxes_id=$(ensure_user agentboxes)
         deployer_id=$(ensure_user deployer)
         guests_id=$(ensure_user guests)
         home_id=$(ensure_user home)
@@ -643,6 +662,19 @@ in {
         set_node_tags_by_node_id "$hilonix_node_id" tag:hilonix
         set_node_tags_by_node_id "$lelonix_node_id" tag:lelonix
         # keep-sorted end
+
+        # every agentbox of de0, tagged by its name
+        ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: machine: ''
+            agentbox_key_id=$(reconcile_preauth_key $agentboxes_id \
+              ${machine.preauthKeyPrefix} \
+              ${config.sops.secrets."services/headscale/preauth-keys/agentbox-${name}/bcrypt-hash".path} \
+              '["tag:agentbox-${name}"]')
+
+            ensure_preauth_key_used $agentbox_key_id
+
+            set_node_tags_by_node_id "$(get_node_id_by_key_id $agentbox_key_id)" tag:agentbox-${name}
+          '')
+          agentboxes.machines)}
 
         rename_node_by_node_id() {
           local node_id=$1
