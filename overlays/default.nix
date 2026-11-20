@@ -53,6 +53,7 @@
   (import ./spectacle-ocr-clipboard-fix)
   (import ./spectacle-ocr-save)
   (import ./spectacle-region-select-all)
+  (import ./traefik-skip-unused-cert-renewal)
   (import ./trayscale-operator-no-warning)
   (import ./wivrn-26-9)
   (import ./xdg-desktop-portal-sandbox-tests-fix)
