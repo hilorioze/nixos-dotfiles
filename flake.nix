@@ -246,43 +246,37 @@
 
         overlays.default = lib.composeManyExtensions (import ./overlays {inherit inputs;});
 
-        nixosConfigurations = {
+        nixosConfigurations = lib.listToAttrs (map (host: let
+          nixosConfiguration = mkNixosSystem [host];
+        in
+          lib.nameValuePair nixosConfiguration.config.networking.hostName nixosConfiguration) [
           # keep-sorted start
-          cex-nixos = mkNixosSystem [./hosts/cex-nixos];
-          de0 = mkNixosSystem [./hosts/de0];
-          fakesynology-nixos = mkNixosSystem [./hosts/fakesynology-nixos];
-          hel0 = mkNixosSystem [./hosts/hel0];
-          hilonix = mkNixosSystem [./hosts/hilonix];
-          hisonix = mkNixosSystem [./hosts/hisonix];
-          honeypot = mkNixosSystem [./hosts/honeypot];
-          lelonix = mkNixosSystem [./hosts/lelonix];
+          ./hosts/cex-nixos
+          ./hosts/de0
+          ./hosts/fakesynology-nixos
+          ./hosts/hel0
+          ./hosts/hilonix
+          ./hosts/hisonix
+          ./hosts/honeypot
+          ./hosts/lelonix
           # keep-sorted end
-        };
+        ]);
 
-        deploy.nodes = {
-          # keep-sorted start
-          cex-nixos = mkDeployNode config.nixosConfigurations.cex-nixos;
-          de0 = mkDeployNode config.nixosConfigurations.de0;
-          fakesynology-nixos = mkDeployNode config.nixosConfigurations.fakesynology-nixos;
-          hel0 = mkDeployNode config.nixosConfigurations.hel0;
-          hilonix = mkDeployNode config.nixosConfigurations.hilonix;
-          lelonix = mkDeployNode config.nixosConfigurations.lelonix;
-          # keep-sorted end
+        deploy.nodes = let
+          deployNodes = lib.mapAttrs (_name: mkDeployNode) (lib.filterAttrs (_name: nixosConfiguration: !(nixosConfiguration.config.system.build ? isoImage)) config.nixosConfigurations); # skip the iso
+        in
+          deployNodes
+          // {
+            honeypot =
+              deployNodes.honeypot
+              // {
+                hostname = "185.68.185.206"; # the host has no fqdn
 
-          honeypot = let
-            inherit (config.nixosConfigurations) honeypot;
+                sshUser = config.nixosConfigurations.honeypot.config.users.users.root.name; # the host has no `deployer` user
 
-            deployNode = mkDeployNode honeypot;
-          in
-            deployNode
-            // {
-              hostname = "185.68.185.206"; # the host has no fqdn
-
-              sshUser = honeypot.config.users.users.root.name; # the host has no `deployer` user
-
-              sshOpts = deployNode.sshOpts ++ ["-p" (toString (builtins.head honeypot.config.services.openssh.ports))];
-            };
-        };
+                sshOpts = deployNodes.honeypot.sshOpts ++ ["-p" (toString (builtins.head config.nixosConfigurations.honeypot.config.services.openssh.ports))];
+              };
+          };
       };
     };
 }
