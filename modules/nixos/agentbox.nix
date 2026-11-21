@@ -34,6 +34,10 @@
             sshHostKey = mkOption {
               type = str;
             };
+
+            flake = mkOption {
+              type = str;
+            };
           };
         });
 
