@@ -12,6 +12,7 @@
   claude-code-with-node = pkgs.callPackage ./claude-code-with-node {};
   cliproxyapi-accounts = pkgs.python3Packages.callPackage ./cliproxyapi-accounts {};
   cliproxyapi-cooldown-reset = pkgs.callPackage ./cliproxyapi-cooldown-reset {};
+  cliproxyapi-models-sync = pkgs.callPackage ./cliproxyapi-models-sync {};
   cliproxyapi-warmup = pkgs.callPackage ./cliproxyapi-warmup {};
   cs16-client = pkgs.callPackage ./cs16-client {};
   csldr = pkgs.callPackage ./csldr {};
