@@ -40,16 +40,16 @@ FRAMING_HEADERS: set[str] = {"connection", "content-length", "host", "transfer-e
 
 CLASSIFIER_PROMPT: str = "You are a security monitor for autonomous AI coding agents."  # auto mode's local check, sent when the api gives no verdict of its own
 
-# what each agent checks its actions with: codex the auto-review model of its catalog, antigravity the flash tier (the tier's own `gemini-3.8-flash-tiered` is missing from cliproxyapi)
+# what each agent checks its actions with: codex the auto-review model of its catalog, antigravity the model of the flash tier, which agy's own monitors pick by tier
 REVIEWERS: dict[str, str] = {
     "codex": "codex/codex-auto-review",
-    "antigravity": "antigravity/gemini-3.8-flash-high",
+    "antigravity": "antigravity/gemini-3.8-flash-tiered",
 }
 
 # what each provider runs auxiliary tasks (web fetch extraction, session naming) with
 HELPERS: dict[str, str] = {
     "codex": "codex/gpt-5.6-luna",
-    "antigravity": "antigravity/gemini-3.8-flash-high",
+    "antigravity": "antigravity/gemini-3.8-flash-tiered",
 }
 
 QUOTA_MIN_AGE: float = 30  # the status line renders many times per turn
