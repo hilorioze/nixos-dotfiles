@@ -2,15 +2,23 @@
   # keep-sorted start
   config,
   lib,
+  pkgs,
   # keep-sorted end
   ...
 }: {
-  sops.secrets =
-    lib.mapAttrs' (name: _machine:
-      lib.nameValuePair "services/agentbox/machines/${name}/age-key" {
-        restartUnits = ["systemd-nspawn@agentbox-${name}.service"];
-      })
-    config.virtualisation.agentbox.machines;
+  sops = {
+    secrets =
+      {
+        "services/agentbox/github/access-token" = {}; # `agentbox-bootstrap@nixos-dotfiles`, a fine-grained token that reads the contents of every agentbox repository
+      }
+      // lib.mapAttrs' (name: _machine:
+        lib.nameValuePair "services/agentbox/machines/${name}/age-key" {
+          restartUnits = ["systemd-nspawn@agentbox-${name}.service"];
+        })
+      config.virtualisation.agentbox.machines;
+
+    templates."agentbox-bootstrap/nix.conf".content = "access-tokens = github.com=${config.sops.placeholder."services/agentbox/github/access-token"}";
+  };
 
   services.resolved.enable = false; # networkd turns it on, yet the host keeps resolving through openresolv and tailscale
 
@@ -61,6 +69,8 @@
       preauthKeyPrefix = "2xgElYczG_s3";
 
       sshHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIETRRMTdO+dBh6RG00O60lVd/z36yBAbWB82ppxgyo6O";
+
+      flake = "github:hilorioze/agentbox-hilorioze#agentbox-hilorioze";
     };
   };
 
@@ -123,7 +133,48 @@
       config.virtualisation.agentbox.machines;
 
     services =
-      lib.mapAttrs' (name: _machine:
+      lib.mapAttrs' (name: machine:
+        lib.nameValuePair "agentbox-${name}-bootstrap" rec {
+          description = "Install the first system of the ${name} agentbox";
+
+          requiredBy = ["systemd-nspawn@agentbox-${name}.service"];
+          before = requiredBy;
+
+          after = ["network-online.target"];
+          wants = ["network-online.target"];
+
+          unitConfig.ConditionPathExists = "!/var/lib/machines/agentbox-${name}/nix/var/nix/profiles/system"; # from then on the agentbox manages its own generations, which no host deploy or reboot replaces
+
+          path = [
+            # keep-sorted start
+            config.nix.package
+            pkgs.nixos-install
+            # keep-sorted end
+          ];
+
+          environment = {
+            NIX_CONFIG = "store = /run/agentbox-bootstrap"; # `nixos-install` resolves the flake without `--store`, which would put the private source into the host's world-readable store
+
+            NIX_USER_CONF_FILES = "%d/nix.conf";
+
+            HOME = "/tmp"; # nix caches the fetched source under `~`, which the private tmp throws away
+          };
+
+          serviceConfig = {
+            Type = "oneshot";
+
+            LoadCredential = ["nix.conf:${config.sops.templates."agentbox-bootstrap/nix.conf".path}"];
+
+            PrivateTmp = true;
+
+            StateDirectory = "machines/agentbox-${name}";
+            BindPaths = ["%S/machines/agentbox-${name}:/run/agentbox-bootstrap"]; # `nixos-install` wants every parent of its root world-readable, while `/var/lib/machines` keeps the agentboxes' files, owned by host ids, from the host's users
+          };
+
+          script = "nixos-install --root /run/agentbox-bootstrap --flake ${machine.flake} --no-root-passwd --no-channel-copy";
+        })
+      config.virtualisation.agentbox.machines
+      // lib.mapAttrs' (name: _machine:
         lib.nameValuePair "systemd-nspawn@agentbox-${name}" {
           overrideStrategy = "asDropin";
 
