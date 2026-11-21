@@ -291,6 +291,20 @@ in {
               dst = ["tag:fakesynology-nixos:3128"];
             }
 
+            # agentbox browsers go out through the socks proxies at home
+            {
+              action = "accept";
+
+              src = agentboxTags;
+
+              dst = [
+                # keep-sorted start
+                "tag:cex-nixos:1080"
+                "tag:fakesynology-nixos:1080"
+                # keep-sorted end
+              ];
+            }
+
             # fluent-bit on all monitored hosts pushes logs to loki on de0
             {
               action = "accept";
