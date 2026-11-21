@@ -12,23 +12,30 @@
   documentation.nixos.enable = false; # the module's manual chapter has redirect ids that 26.05 doesn't know
 
   sops.secrets = let
-    inferenceKey.restartUnits = ["cliproxyapi.service"];
+    cliproxyapiSecret.restartUnits = ["cliproxyapi.service"];
   in
     {
       "services/cliproxyapi/management-key".restartUnits = [
         # keep-sorted start
         "cliproxyapi-cooldown-reset.service"
+        "cliproxyapi-models-sync.service"
         "cliproxyapi-warmup.service"
         "cliproxyapi.service"
         # keep-sorted end
       ];
 
       # keep-sorted start
-      "services/cliproxyapi/users/claude-code-gateway/inference-key" = inferenceKey;
-      "services/cliproxyapi/users/danil/inference-key" = inferenceKey;
+      "services/cliproxyapi/users/claude-code-gateway/inference-key" = cliproxyapiSecret;
+      "services/cliproxyapi/users/danil/inference-key" = cliproxyapiSecret;
+      # keep-sorted end
+
+      # keep-sorted start
+      "credentials/kilo/api-key" = cliproxyapiSecret;
+      "credentials/nvidia/api-key" = cliproxyapiSecret;
+      "credentials/openrouter/api-key" = cliproxyapiSecret;
       # keep-sorted end
     }
-    // lib.mapAttrs' (name: _machine: lib.nameValuePair "services/cliproxyapi/users/hermes-${name}/inference-key" inferenceKey) config.virtualisation.agentbox.machines;
+    // lib.mapAttrs' (name: _machine: lib.nameValuePair "services/cliproxyapi/users/hermes-${name}/inference-key" cliproxyapiSecret) config.virtualisation.agentbox.machines;
 
   services = {
     traefik.dynamicConfigOptions.http = {
@@ -78,12 +85,47 @@
         multimedia.disable-image-generation = "chat"; # cliproxyapi adds an image tool to codex requests; claude drops the images, the quota is spent anyway
 
         oauth.providers.antigravity.system-instruction-as-user = true; # google answers phrases of claude's and hermes' system prompts with `RESOURCE_EXHAUSTED`, but not the same phrases in a user turn; the cooldown that follows fails every other session on the account too
+
+        # `cliproxyapi-models-sync` fills in each provider's models from its catalog
+        api-keys.openai-compatibility = [
+          # keep-sorted start block=yes newline_separated=yes
+          {
+            name = "kilo";
+
+            prefix = "kilo";
+
+            base-url = "https://api.kilo.ai/api/gateway";
+
+            keys = [{api-key._secret = config.sops.secrets."credentials/kilo/api-key".path;}];
+          }
+
+          {
+            name = "nvidia";
+
+            prefix = "nvidia";
+
+            base-url = "https://integrate.api.nvidia.com/v1";
+
+            keys = [{api-key._secret = config.sops.secrets."credentials/nvidia/api-key".path;}];
+          }
+
+          {
+            name = "openrouter";
+
+            prefix = "openrouter";
+
+            base-url = "https://openrouter.ai/api/v1";
+
+            keys = [{api-key._secret = config.sops.secrets."credentials/openrouter/api-key".path;}]; # the key's credit limit is $0, so a paid model fails instead of spending the account's credits
+          }
+          # keep-sorted end
+        ];
       };
     };
   };
 
   systemd.services = let
-    # shared by services that poll provider quotas through the management api
+    # shared by services that poll providers through the management api
     shared = {
       wantedBy = ["multi-user.target"];
 
@@ -123,6 +165,12 @@
       shared
 
       {serviceConfig.ExecStart = lib.getExe pkgs.cliproxyapi-cooldown-reset;}
+    ];
+
+    cliproxyapi-models-sync = lib.mkMerge [
+      shared
+
+      {serviceConfig.ExecStart = lib.getExe pkgs.cliproxyapi-models-sync;}
     ];
 
     # starts 5h windows when the learned demand gets the most out of them, longer ones once the 5h one runs; routes to the account whose 5h window resets soonest
