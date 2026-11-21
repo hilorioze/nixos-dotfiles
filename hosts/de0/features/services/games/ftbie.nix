@@ -31,6 +31,8 @@
 
       # startup takes about 3 minutes; delay health check failures until it finishes
       "--health-start-period=4m"
+
+      "--stop-timeout=90" # the image waits up to 60s for the world to save after `stop`; podman's default 10s kills it mid-save and loses `level.dat`
     ];
   };
 }
