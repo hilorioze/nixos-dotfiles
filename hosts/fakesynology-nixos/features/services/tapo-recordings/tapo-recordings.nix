@@ -71,8 +71,6 @@ in {
     services = {
       # save camera recordings on their detections from the tapo pushes and the cloud history
       tapo-recordings = {
-        description = "Tapo camera recordings";
-
         wantedBy = ["multi-user.target"];
 
         after = ["network-online.target"];
@@ -107,8 +105,6 @@ in {
 
       # a live view stream for surveillance station per camera tapo-recordings knows, named by its mac address
       go2rtc-streams = {
-        description = "go2rtc camera streams";
-
         before = ["go2rtc.service"];
 
         serviceConfig = {

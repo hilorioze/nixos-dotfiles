@@ -80,8 +80,6 @@ in {
     coolercontrold.restartTriggers = [coolercontrolConfig];
 
     case-lighting = {
-      description = "Case lighting";
-
       wantedBy = ["displays-on.target"];
 
       after = ["coolercontrold.service"];
@@ -94,8 +92,6 @@ in {
     };
 
     case-lighting-off = {
-      description = "Case lighting off";
-
       wantedBy = ["displays-off.target"];
 
       after = ["coolercontrold.service"];

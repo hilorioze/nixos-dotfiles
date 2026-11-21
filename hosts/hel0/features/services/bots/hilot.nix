@@ -245,8 +245,6 @@ in {
     lib.mkMerge [
       {
         hilot-migrate = {
-          description = "hilot database migrations";
-
           requires = ["postgresql.target"];
           after = ["postgresql.target"];
 
@@ -319,8 +317,6 @@ in {
           database
 
           {
-            description = "hilot media downloader";
-
             environment = {
               XDG_CONFIG_HOME = sharedConfigHome;
 
@@ -345,8 +341,6 @@ in {
           shared
 
           {
-            description = "hilot media transcoder";
-
             environment.XDG_CONFIG_HOME = sharedConfigHome;
 
             serviceConfig.ExecStart = lib.getExe' pkgs.hilot "hilot-transcoder";

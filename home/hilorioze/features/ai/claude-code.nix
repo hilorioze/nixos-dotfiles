@@ -354,11 +354,7 @@ in {
       claude-gateway-daemon = {
         Install.WantedBy = ["default.target"]; # otherwise the first gateway client spawns a transient daemon in its terminal's cgroup
 
-        Unit = {
-          Description = "Claude gateway daemon";
-
-          After = ["sops-nix.service"];
-        };
+        Unit.After = ["sops-nix.service"];
 
         Service = lib.mkMerge [
           daemonService
