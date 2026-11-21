@@ -48,6 +48,9 @@ jobs:
           NIX_PATH=nixpkgs=$(nix eval --raw --inputs-from . nixpkgs#legacyPackages.x86_64-linux.path)
           export NIX_PATH
 
+          # updating only fetches sources and hashes them, so packages for the other architecture update on this runner too
+          export NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1
+
           nix eval --raw .#packages --apply 'packages: builtins.concatStringsSep "\n" (builtins.attrNames (builtins.zipAttrsWith (_: values: builtins.head values) (builtins.attrValues packages))) + "\n"' |
             while read package; do
               nix run --print-build-logs .#nix-update -- \
