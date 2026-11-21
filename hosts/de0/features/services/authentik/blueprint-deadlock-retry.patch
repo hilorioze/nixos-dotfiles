@@ -1,0 +1,22 @@
+diff --git a/authentik/blueprints/v1/tasks.py b/authentik/blueprints/v1/tasks.py
+index 2b4e8ba..a28e5aa 100644
+--- a/authentik/blueprints/v1/tasks.py
++++ b/authentik/blueprints/v1/tasks.py
+@@ -14,6 +14,7 @@ from django.utils.timezone import now
+ from django.utils.translation import gettext_lazy as _
+ from dramatiq.actor import actor
+ from dramatiq.middleware import Middleware
++from psycopg.errors import DeadlockDetected
+ from structlog.stdlib import get_logger
+ from watchdog.events import (
+     FileCreatedEvent,
+@@ -233,6 +234,9 @@ def apply_blueprint(instance_pk: UUID):
+         if instance:
+             instance.status = BlueprintInstanceStatus.ERROR
+         self.error(exc)
++        # a parallel apply holds rows this one needs; postgres aborted only one of them, so a retry in a new transaction succeeds
++        if isinstance(exc.__cause__, DeadlockDetected):
++            raise
+     finally:
+         if instance:
+             instance.save()
