@@ -12,6 +12,7 @@
     ./shell/fastfetch.nix
     ./shell/jq.nix
     ./shell/ripgrep.nix
+    ./shell/yq.nix
     ./shell/zsh/zsh.nix
     # keep-sorted end
   ];
