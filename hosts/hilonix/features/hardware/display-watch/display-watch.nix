@@ -13,18 +13,12 @@
 in {
   systemd = {
     targets = {
-      displays-on = lib.mkMerge [
-        displaysTarget
-
-        {description = "Displays on";}
-      ];
+      displays-on = displaysTarget;
 
       displays-off = lib.mkMerge [
         displaysTarget
 
         {
-          description = "Displays off";
-
           wantedBy = ["sleep.target"]; # powerdevil turns the displays off only right before sleep, too late for the watcher
 
           before = ["sleep.target"];
@@ -37,8 +31,6 @@ in {
 
     services = {
       display-watch = {
-        description = "Display state watcher";
-
         wantedBy = ["multi-user.target"];
 
         serviceConfig = {

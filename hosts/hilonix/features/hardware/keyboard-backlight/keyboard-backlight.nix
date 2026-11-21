@@ -18,8 +18,6 @@ in {
   systemd = {
     # after a resume the keyboard keeps a new effect dark until it has been up for a while, and nothing tells when; set it once more a bit later
     timers.keyboard-backlight = {
-      description = "Keyboard backlight repeat";
-
       wantedBy = ["displays-on.target"];
 
       partOf = ["displays-on.target"]; # displays turned off in the meantime cancel the repeat
@@ -33,8 +31,6 @@ in {
 
     services = {
       keyboard-backlight = {
-        description = "Keyboard backlight";
-
         wantedBy = ["displays-on.target"];
 
         serviceConfig = {
@@ -45,8 +41,6 @@ in {
       };
 
       keyboard-backlight-off = {
-        description = "Keyboard backlight off";
-
         wantedBy = ["displays-off.target"];
 
         serviceConfig = {
