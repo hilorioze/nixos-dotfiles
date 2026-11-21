@@ -22,7 +22,7 @@
       ${mkKnownHostLine outputs.nixosConfigurations.fakesynology-nixos ../../../../hosts/fakesynology-nixos/ssh_host_ed25519_key.pub}
       ${mkKnownHostLine outputs.nixosConfigurations.de0 ../../../../hosts/de0/ssh_host_ed25519_key.pub}
       ${mkKnownHostLine outputs.nixosConfigurations.hel0 ../../../../hosts/hel0/ssh_host_ed25519_key.pub}
-      ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: machine: "agentbox-${name}.${outputs.nixosConfigurations.hel0.config.services.headscale.settings.dns.base_domain} ${machine.sshHostKey}") outputs.nixosConfigurations.de0.config.virtualisation.agentbox.machines)}
+      ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: machine: "${name}.${outputs.nixosConfigurations.de0.config.virtualisation.agentbox.domain} ${machine.sshHostKey}") outputs.nixosConfigurations.de0.config.virtualisation.agentbox.machines)}
       [${outputs.deploy.nodes.honeypot.hostname}]:${toString (builtins.head outputs.nixosConfigurations.honeypot.config.services.openssh.ports)} ${builtins.readFile ../../../../hosts/honeypot/ssh_host_ed25519_key.pub}
 
       node0.rayttage.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXciAYeEmJZU2PwXBXamfoa/BGDJhry9elTZWOaEsNl
