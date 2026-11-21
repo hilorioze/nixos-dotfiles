@@ -24,7 +24,5 @@ fetchzip (finalAttrs: {
     homepage = "https://github.com/Kaliiiiiiiiii-Vinyzu/patchright";
 
     license = lib.licenses.asl20;
-
-    platforms = ["x86_64-linux"];
   };
 })
