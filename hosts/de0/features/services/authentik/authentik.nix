@@ -28,6 +28,22 @@
   # bootstrap-only throwaway hash
   bootstrapPasswordHash = "pbkdf2_sha256$1000000$VtonnTnTF8QFxmNWSgCcf2$gUd6YTti7U4tXhh9LUJ5QWCKroJe3anKm5B47dhqWLk=";
 
+  # authentik-nix's own scope keeps its binary cache for everything but the patched python sources, which every authentik process runs from
+  authentikScope = inputs.authentik-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system}.authentikComponents.overrideScope (_: prev: {
+    authentikComponents =
+      prev.authentikComponents
+      // {
+        staticWorkdirDeps = prev.authentikComponents.staticWorkdirDeps.override {
+          patches =
+            prev.patches
+            ++ [
+              ./blueprint-deadlock-retry.patch # parallel applies of a deploy update the same rows of their shared dependency blueprints, and postgres aborts one of them; retry it instead of leaving it failed until the hourly discovery
+              ./outpost-permissions.patch # backports goauthentik/authentik#26928, in main but not in 2026.8: every save of a provider rewrote all permissions of its outpost; drop with the release that has it
+            ];
+        };
+      };
+  });
+
   # reapply `!File` values when the secret's sops source changes
   ldapOutpostBlueprint = pkgs.writeText "ldap-outpost.yaml" ''
     ${builtins.readFile ./ldap-outpost.yaml}
@@ -107,6 +123,8 @@ in {
 
     authentik = {
       enable = true;
+
+      inherit (authentikScope) authentikComponents;
 
       environmentFile = config.sops.templates."services/authentik/secret-key.env".path;
 
