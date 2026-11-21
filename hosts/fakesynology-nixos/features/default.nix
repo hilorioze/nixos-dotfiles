@@ -10,7 +10,7 @@
     ../../common/features/network/tailscale/tailscale.nix
     ../../common/features/nix/home-manager.nix
     ../../common/features/nix/nix.nix
-    ../../common/features/services/3proxy-agentboxes.nix
+    ../../common/features/services/3proxy.nix
     ../../common/features/services/coredns/lan.nix
     ../../common/features/services/monitoring/fluent-bit.nix
     ../../common/features/services/monitoring/node-exporter.nix
