@@ -100,6 +100,12 @@ in {
           )
           tailnetServerNodeNames}
 
+          # `hilorioze.${agentboxes.domain}` -> `agentbox-hilorioze.${tailnetDomain}`
+          ${lib.concatMapStringsSep "\n" (
+            name: "rewrite stop name exact ${name}.${agentboxes.domain}. agentbox-${name}.${tailnetDomain}."
+          )
+          (lib.attrNames agentboxes.machines)}
+
           # `grafana.${domain}` -> CNAME (public dns) `de0.${domain}` -> `de0.${tailnetDomain}`
           ${lib.concatMapStringsSep "\n" (
             hostName: "rewrite continue cname exact ${hostName}.${domain}. ${hostName}.${tailnetDomain}."
