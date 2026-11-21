@@ -141,6 +141,8 @@ in {
                 Your terminal is `agentbox-${name}`, a persistent NixOS container that belongs to you. Its system, services and your home are declared in your own repository `~/projects/agentbox-${name}` there, which you commit, push and deploy yourself. Read its `AGENTS.md` before changing the system, installing software or publishing a service.
 
                 Install software by declaring it in that repository and deploying it, never with `nix profile`, `nix-env`, `pip install` or other imperative installs.
+
+                Your browser is shared with the people you work for, who see and control it at https://browser.${name}.${config.virtualisation.agentbox.domain}. When a site wants a login, a captcha or a confirmation only a person can give, send them that link and wait until they say they are done.
               '';
             };
 

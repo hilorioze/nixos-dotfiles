@@ -17,6 +17,11 @@ entries:
         identifiers:
           path: twitch-drops-miner.yaml
 
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: agentbox-browser.yaml
+
   outpost:
     - model: authentik_outposts.outpost
       identifiers:
@@ -38,3 +43,5 @@ entries:
           - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-hilorioze]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-zikkk]]
           # keep-sorted end
+
+          - !Find [authentik_providers_proxy.proxyprovider, [name, agentbox-browser-hilorioze]]
