@@ -183,11 +183,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1795207585,
-        "narHash": "sha256-9XxaSVfX5SBVyGK20lHYAE/dw/mnv1KhJmhYY4KpfuY=",
+        "lastModified": 1795303446,
+        "narHash": "sha256-SvIpDTbynd78Mfx4NX8AbKnDuGfzkqKE0G6wKVQCxgY=",
         "owner": "hilorioze",
         "repo": "cstrike-mod",
-        "rev": "eba79975706c0c5813e57d02e9ba065160f37f51",
+        "rev": "4c2ec8114e48af8fd88f430d417f522d6afc76ba",
         "type": "github"
       },
       "original": {
