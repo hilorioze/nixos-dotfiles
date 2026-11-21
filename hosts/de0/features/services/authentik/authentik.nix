@@ -64,6 +64,8 @@
 
     install --mode 0644 ${pkgs.replaceVars ./twitch-drops-miner.yaml {inherit domain;}} $out/twitch-drops-miner.yaml
 
+    install --mode 0644 ${pkgs.replaceVars ./agentbox-browser.yaml {inherit domain;}} $out/agentbox-browser.yaml
+
     install --mode 0644 ${./embedded-outpost.yaml} $out/embedded-outpost.yaml
   '';
 in {

@@ -526,6 +526,19 @@
                     "[CERTIFICATE_EXPIRATION] > 168h" # the agentbox renews its own certificate through knot
                   ];
                 }
+
+                {
+                  name = "agentbox-${name}-browser";
+                  group = "services";
+
+                  url = "https://browser.${zone}/health"; # the agentbox's traefik serves novnc's viewer here without authentik
+
+                  conditions = [
+                    "[STATUS] == 200"
+
+                    "[BODY] == pat(*noVNC*)"
+                  ];
+                }
               ])
             de0Config.virtualisation.agentbox.machines);
       };
