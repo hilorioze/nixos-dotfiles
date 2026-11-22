@@ -22,14 +22,14 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "xash3d-fwgs";
 
-  version = "0-unstable-2026-11-21";
+  version = "0-unstable-2026-11-22";
 
   src = fetchFromGitHub {
     owner = "FWGS";
     repo = "xash3d-fwgs";
 
-    rev = "f86ac073668d9d889dc07e25e3428b572f7a8a32";
-    hash = "sha256-HaXRcaSjXLxrVax37d28h6zMtywEAHvD9JS7rB9mnis=";
+    rev = "0119ead19d61f1064b996f26d17d2f3e1c075fd2";
+    hash = "sha256-YPJ35oQXm63ZSsK6P8lWKln+LnSFmw9kc/8AS5NnNCI=";
 
     fetchSubmodules = true;
   };
