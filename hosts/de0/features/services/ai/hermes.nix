@@ -97,16 +97,28 @@
 
         # hermes writes `config.yaml` itself, so the settings here are merged into it instead of replacing it
         preStart = let
+          cliproxyapi = {
+            base_url = "http://127.0.0.1:${toString config.services.cliproxyapi.settings.server.port}/v1";
+
+            key_env = "CLIPROXYAPI_API_KEY";
+          };
+
           settings = {
             # cliproxyapi serves every model; `/model` and `/reasoning` switch the model and its effort for the chat's session
-            model = {
-              provider = "custom";
+            model =
+              cliproxyapi
+              // {
+                provider = "custom";
 
-              base_url = "http://127.0.0.1:${toString config.services.cliproxyapi.settings.server.port}/v1";
+                default = "antigravity/claude-sonnet-4-6";
+              };
 
-              key_env = "CLIPROXYAPI_API_KEY";
+            # hermes draws through openrouter's chat protocol, which cliproxyapi speaks too; antigravity's quota, unlike codex's, isn't needed for anything else
+            providers.openrouter = cliproxyapi;
+            image_gen = {
+              provider = "openrouter";
 
-              default = "antigravity/claude-sonnet-4-6";
+              openrouter.model = "antigravity/gemini-3.1-flash-image";
             };
 
             # the gateway reads its terminal settings only from `config.yaml` and `.env` in `HERMES_HOME`, never from its own environment
