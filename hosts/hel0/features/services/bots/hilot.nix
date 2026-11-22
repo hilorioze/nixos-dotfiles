@@ -66,7 +66,7 @@ in {
     templates."services/hilot/proxy-url" = let
       proxyHostConfig = outputs.nixosConfigurations.fakesynology-nixos.config;
     in {
-      content = "http://hilot:${config.sops.placeholder."services/hilot/proxy-password"}@${proxyHostConfig.networking.fqdn}:${toString (lib.findFirst (service: service.type == "proxy") null proxyHostConfig.services._3proxy.services).bindPort}";
+      content = "http://hilot:${config.sops.placeholder."services/hilot/proxy-password"}@${proxyHostConfig.networking.fqdn}:${toString proxyHostConfig.services._3proxy.namedServices.hilot.bindPort}";
 
       restartUnits = ["hilot-downloader.service"];
     };
