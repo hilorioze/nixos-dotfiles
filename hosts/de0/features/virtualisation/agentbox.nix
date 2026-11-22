@@ -168,21 +168,23 @@
 
     services =
       lib.mapAttrs' (name: machine:
-        lib.nameValuePair "agentbox-${name}-bootstrap" rec {
+        lib.nameValuePair "agentbox-${name}-bootstrap" {
           description = "Install the first system of the ${name} agentbox";
 
-          requiredBy = ["systemd-nspawn@agentbox-${name}.service"];
-          before = requiredBy;
+          wantedBy = ["machines.target"];
 
           after = ["network-online.target"];
           wants = ["network-online.target"];
 
           unitConfig.ConditionPathExists = "!/var/lib/machines/agentbox-${name}/nix/var/nix/profiles/system"; # from then on the agentbox manages its own generations, which no host deploy or reboot replaces
 
+          restartIfChanged = false; # a deploy during the install would start it over
+
           path = [
             # keep-sorted start
             config.nix.package
             pkgs.nixos-install
+            pkgs.util-linux
             # keep-sorted end
           ];
 
@@ -195,7 +197,7 @@
           };
 
           serviceConfig = {
-            Type = "oneshot";
+            Type = "exec"; # the activation waits for the start of every new unit, and an install outlasts deploy-rs' confirmation timeout
 
             PrivateTmp = true;
 
@@ -205,7 +207,13 @@
             LoadCredential = ["nix.conf:${config.sops.templates."services/agentbox/nix.conf".path}"];
           };
 
-          script = "nixos-install --root /run/agentbox-bootstrap --flake ${machine.flake} --no-root-passwd --no-channel-copy";
+          script = ''
+            # one install at a time: several at once exhaust de0's memory and cpu
+            flock /run/lock/agentbox-bootstrap \
+              nixos-install --root /run/agentbox-bootstrap --flake ${machine.flake} --no-root-passwd --no-channel-copy
+
+            systemctl start --no-block systemd-nspawn@agentbox-${name}.service
+          '';
         })
       config.virtualisation.agentbox.machines
       // lib.mapAttrs' (name: _machine:
@@ -213,6 +221,8 @@
           overrideStrategy = "asDropin";
 
           wantedBy = ["machines.target"];
+
+          unitConfig.ConditionPathExists = "/var/lib/machines/agentbox-${name}/nix/var/nix/profiles/system"; # until then its bootstrap installs the system and starts it
 
           # `.nspawn` files can't pass credentials, and sops-nix's ramfs can't be idmapped for a bind mount
           serviceConfig = {
