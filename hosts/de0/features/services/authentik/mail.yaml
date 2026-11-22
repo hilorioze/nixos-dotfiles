@@ -87,7 +87,8 @@ entries:
         user: !Find [authentik_core.user, [username, mail-directory]]
         intent: app_password
 
-        key: !File /run/credentials/authentik-worker.service/ldap-bind-password
+        key: |-
+          @password@
 
         expiring: false
 

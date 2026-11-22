@@ -46,20 +46,6 @@
       };
   });
 
-  # reapply `!File` values when the secret's sops source changes
-  ldapOutpostBlueprint = pkgs.writeText "ldap-outpost.yaml" ''
-    ${builtins.readFile ./ldap-outpost.yaml}
-
-    # sops-trigger: ${config.sops.secrets."services/authentik/ldap/outposts/mail-directory/token".sopsFileHash}
-  '';
-
-  # reapply `!File` values when the secret's sops source changes
-  mailBlueprint = pkgs.writeText "mail.yaml" ''
-    ${builtins.readFile ./mail.yaml}
-
-    # sops-trigger: ${config.sops.secrets."services/authentik/ldap/users/mail-directory/password".sopsFileHash}
-  '';
-
   blueprints = pkgs.runCommand "authentik-blueprints" {} ''
     mkdir --parents $out
 
@@ -72,9 +58,9 @@
     install --mode 0644 ${./authentication.yaml} $out/authentication.yaml
 
     install --mode 0644 ${./ldap.yaml} $out/ldap.yaml
-    install --mode 0644 ${ldapOutpostBlueprint} $out/ldap-outpost.yaml
-
-    install --mode 0644 ${mailBlueprint} $out/mail.yaml
+    # the worker's copies of the rendered sops templates: authentik reapplies a blueprint only when its file changes, so each changes with its own secret alone
+    ln --symbolic /run/credentials/authentik-worker.service/ldap-outpost-blueprint $out/ldap-outpost.yaml
+    ln --symbolic /run/credentials/authentik-worker.service/mail-blueprint $out/mail.yaml
 
     install --mode 0644 ${pkgs.replaceVars ./traefik.yaml {inherit domain;}} $out/traefik.yaml
 
@@ -107,6 +93,20 @@ in {
     templates = {
       "services/authentik/secret-key.env".content = "AUTHENTIK_SECRET_KEY=${config.sops.placeholder."services/authentik/secret-key"}";
 
+      # keep-sorted start block=yes newline_separated=yes
+      "services/authentik/blueprints/ldap-outpost.yaml" = {
+        content = builtins.replaceStrings ["@token@"] [config.sops.placeholder."services/authentik/ldap/outposts/mail-directory/token"] (builtins.readFile ./ldap-outpost.yaml);
+
+        restartUnits = ["authentik-worker.service"]; # the worker loads it as a credential at start
+      };
+
+      "services/authentik/blueprints/mail.yaml" = {
+        content = builtins.replaceStrings ["@password@"] [config.sops.placeholder."services/authentik/ldap/users/mail-directory/password"] (builtins.readFile ./mail.yaml);
+
+        restartUnits = ["authentik-worker.service"]; # the worker loads it as a credential at start
+      };
+      # keep-sorted end
+
       "services/authentik-ldap/outpost.env".content = ''
         AUTHENTIK_HOST=http://${authentikHttpAddress}
 
@@ -133,7 +133,7 @@ in {
       environmentFile = config.sops.templates."services/authentik/secret-key.env".path;
 
       settings = {
-        blueprints_dir = blueprints;
+        blueprints_dir = "/run/authentik/rendered-blueprints"; # in the worker's runtime directory: only the worker reads blueprints, and fills this at its start
 
         listen = {
           http = ["127.0.0.1:9000"];
@@ -233,6 +233,8 @@ in {
     authentik-ldap.restartTriggers = [config.environment.etc."authentik/config.yml".source]; # the module restarts only the server and worker on a config change, leaving the outpost on its old listeners
 
     authentik-worker = {
+      preStart = "cp --recursive --dereference ${blueprints} ${config.services.authentik.settings.blueprints_dir}"; # real files: authentik refuses a blueprint whose resolved path leaves `blueprints_dir`, such as a link to a credential
+
       environment = {
         AUTHENTIK_BOOTSTRAP_PASSWORD_HASH = bootstrapPasswordHash;
 
@@ -245,8 +247,8 @@ in {
         map mkInitialPasswordLoadCredential users
         ++ [
           # keep-sorted start
-          "ldap-bind-password:${config.sops.secrets."services/authentik/ldap/users/mail-directory/password".path}"
-          "ldap-outpost-token:${config.sops.secrets."services/authentik/ldap/outposts/mail-directory/token".path}"
+          "ldap-outpost-blueprint:${config.sops.templates."services/authentik/blueprints/ldap-outpost.yaml".path}"
+          "mail-blueprint:${config.sops.templates."services/authentik/blueprints/mail.yaml".path}"
           # keep-sorted end
         ];
     };
