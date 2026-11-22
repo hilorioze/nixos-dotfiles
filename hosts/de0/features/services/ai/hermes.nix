@@ -138,11 +138,13 @@ in {
 
               # hermes reads context files such as `AGENTS.md` only from its own host, so the agent learns about its agentbox's repo from here
               environment_hint = ''
-                Your terminal is `agentbox-${name}`, a persistent NixOS container that belongs to you. Its system, services and your home are declared in your own repository `~/projects/agentbox-${name}` there, which you commit, push and deploy yourself. Read its `AGENTS.md` before changing the system, installing software or publishing a service.
+                Your terminal is `agentbox-${name}`, a persistent NixOS container that belongs to you. Its system, services and your home are declared in your own repository `~/projects/agentbox-${name}` there, which you commit, push and deploy yourself. It starts as an empty `git init` with the remotes `origin` and `upstream` and nothing checked out, where `git pull` has no branch to track; run `git fetch origin` and `git switch main` there once. Then read its `AGENTS.md` before changing the system, installing software or publishing a service.
 
                 Install software by declaring it in that repository and deploying it, never with `nix profile`, `nix-env`, `pip install` or other imperative installs.
 
                 Your browser is shared with the people you work for, who see and control it at https://browser.${name}.${config.virtualisation.agentbox.domain}. When a site wants a login, a captcha or a confirmation only a person can give, send them that link and wait until they say they are done.
+
+                yt-dlp and gallery-dl already go out through a home proxy, since YouTube asks de0's address to sign in, and already use the shared logins of the cookie browser at home, which reach `~/.local/share/cookies.txt` every five minutes. When a site still wants an account, ask the people you work for to log in to it there; for a login only your own browser has, pass `--cookies-from-browser chromium+basictext:~/.local/share/chromium/Default` to yt-dlp.
               '';
             };
 
@@ -151,9 +153,9 @@ in {
             streaming.enabled = true; # stream replies as they're written; a group gets edits of one message, a dm telegram's native drafts
 
             display.platforms.telegram = {
-              tool_progress = "all"; # telegram hides tool calls by default; show each one in a message the bot edits as it works
+              tool_progress = "verbose"; # telegram hides tool calls by default; show each one as it runs, with a terminal command whole, while "all" cuts it to one line
 
-              tool_preview_length = 0; # telegram cuts commands to 40 characters by default
+              tool_preview_length = 500; # caps only the arguments of the other tools, such as a whole file being written
             };
           };
         in "${import "${inputs.hermes-agent}/nix/configMergeScript.nix" {inherit pkgs;}} ${pkgs.writeText "hermes-${name}-settings.json" (builtins.toJSON settings)} $HERMES_HOME/config.yaml";
