@@ -63,14 +63,48 @@
 
     mcpProxy.port = 8080; # each agentbox's mcpproxy listens on its address here for the agent runner
 
-    machines.hilorioze = {
-      address = "10.233.0.2";
+    machines = {
+      # keep-sorted start block=yes newline_separated=yes
+      alex = {
+        address = "10.233.0.3";
 
-      preauthKeyPrefix = "2xgElYczG_s3";
+        preauthKeyPrefix = "d-xw9h_sSiBz";
 
-      sshHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIETRRMTdO+dBh6RG00O60lVd/z36yBAbWB82ppxgyo6O";
+        sshHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIuf9c4YZ3ymWuEyT3FLGi2x/s2D3pdwfGvxHvzxgvoR";
 
-      flake = "github:hilorioze/agentbox-hilorioze#agentbox-hilorioze";
+        flake = "github:hilorioze/agentbox-alex#agentbox-alex";
+      };
+
+      hilorioze = {
+        address = "10.233.0.2";
+
+        preauthKeyPrefix = "2xgElYczG_s3";
+
+        sshHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIETRRMTdO+dBh6RG00O60lVd/z36yBAbWB82ppxgyo6O";
+
+        flake = "github:hilorioze/agentbox-hilorioze#agentbox-hilorioze";
+      };
+
+      shared = {
+        address = "10.233.0.4";
+
+        preauthKeyPrefix = "L_m4KhXohfF3";
+
+        sshHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEw8SKk/R3BtflYV1p0iB4BtX5V0wg2BzbKv4TRHQpYl";
+
+        flake = "github:hilorioze/agentbox-shared#agentbox-shared";
+      };
+
+      zikkk = {
+        address = "10.233.0.5";
+
+        preauthKeyPrefix = "wcS666VS4BCa";
+
+        sshHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAsCUk89FxVkMhz695oX5FgXwpQ92g9M6QahTanphJeS";
+
+        flake = "github:hilorioze/agentbox-zikkk#agentbox-zikkk";
+      };
+      # keep-sorted end
     };
   };
 
