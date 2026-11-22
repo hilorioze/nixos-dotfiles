@@ -23,6 +23,16 @@ entries:
         name: mail-users
 
   # keep-sorted start block=yes newline_separated=yes
+  alex:
+    - model: authentik_core.user
+      state: created
+      identifiers:
+        username: alex
+      attrs:
+        name: alex
+
+        password: !File /run/credentials/authentik-worker.service/initial-password-alex
+
   caligula:
     - model: authentik_core.user
       state: created
@@ -32,6 +42,16 @@ entries:
         name: caligula
 
         password: !File /run/credentials/authentik-worker.service/initial-password-caligula
+
+  danil:
+    - model: authentik_core.user
+      state: created
+      identifiers:
+        username: danil
+      attrs:
+        name: danil
+
+        password: !File /run/credentials/authentik-worker.service/initial-password-danil
 
   hilorioze:
     - model: authentik_core.user

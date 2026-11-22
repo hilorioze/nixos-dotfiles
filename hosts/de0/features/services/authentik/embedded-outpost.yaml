@@ -44,4 +44,9 @@ entries:
           - !Find [authentik_providers_proxy.proxyprovider, [name, twitch-drops-miner-zikkk]]
           # keep-sorted end
 
+          # keep-sorted start
+          - !Find [authentik_providers_proxy.proxyprovider, [name, agentbox-browser-alex]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, agentbox-browser-hilorioze]]
+          - !Find [authentik_providers_proxy.proxyprovider, [name, agentbox-browser-shared]]
+          - !Find [authentik_providers_proxy.proxyprovider, [name, agentbox-browser-zikkk]]
+          # keep-sorted end

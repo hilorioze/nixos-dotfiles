@@ -26,6 +26,37 @@ entries:
           name: Default - Provider invalidation flow
 
   # keep-sorted start block=yes newline_separated=yes
+  alex:
+    - model: authentik_providers_proxy.proxyprovider
+      id: agentbox-browser-alex-provider
+      identifiers:
+        name: agentbox-browser-alex
+      attrs:
+        <<: *provider
+
+        external_host: https://browser.alex.agentbox.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: agentbox-browser-alex
+      attrs:
+        name: Agentbox browser (alex)
+        provider: !KeyOf agentbox-browser-alex-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, agentbox-browser-alex]]
+        user: !Find [authentik_core.user, [username, alex]]
+      attrs:
+        order: 0
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, agentbox-browser-alex]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 1
+
   hilorioze:
     - model: authentik_providers_proxy.proxyprovider
       id: agentbox-browser-hilorioze-provider
@@ -53,6 +84,68 @@ entries:
     - model: authentik_policies.policybinding
       identifiers:
         target: !Find [authentik_core.application, [slug, agentbox-browser-hilorioze]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 1
+
+  shared:
+    - model: authentik_providers_proxy.proxyprovider
+      id: agentbox-browser-shared-provider
+      identifiers:
+        name: agentbox-browser-shared
+      attrs:
+        <<: *provider
+
+        external_host: https://browser.shared.agentbox.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: agentbox-browser-shared
+      attrs:
+        name: Agentbox browser (shared)
+        provider: !KeyOf agentbox-browser-shared-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, agentbox-browser-shared]]
+        user: !Find [authentik_core.user, [username, danil]]
+      attrs:
+        order: 0
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, agentbox-browser-shared]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 1
+
+  zikkk:
+    - model: authentik_providers_proxy.proxyprovider
+      id: agentbox-browser-zikkk-provider
+      identifiers:
+        name: agentbox-browser-zikkk
+      attrs:
+        <<: *provider
+
+        external_host: https://browser.zikkk.agentbox.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: agentbox-browser-zikkk
+      attrs:
+        name: Agentbox browser (zikkk)
+        provider: !KeyOf agentbox-browser-zikkk-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, agentbox-browser-zikkk]]
+        user: !Find [authentik_core.user, [username, zikkk]]
+      attrs:
+        order: 0
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, agentbox-browser-zikkk]]
         group: !Find [authentik_core.group, [name, authentik Admins]]
       attrs:
         order: 1

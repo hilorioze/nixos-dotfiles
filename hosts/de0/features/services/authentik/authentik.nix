@@ -18,7 +18,9 @@
   # each also needs its block in `authentik/users.yaml`
   users = [
     # keep-sorted start
+    "alex"
     "caligula"
+    "danil"
     "hilorioze"
     "zikkk"
     # keep-sorted end
