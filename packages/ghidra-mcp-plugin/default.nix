@@ -8,14 +8,14 @@
 ghidra.buildGhidraExtension (finalAttrs: {
   pname = "ghidra-mcp-plugin";
 
-  version = "7.0.0";
+  version = "7.1.0";
 
   src = fetchFromGitHub {
     owner = "bethington";
     repo = "ghidra-mcp";
 
     tag = "v${finalAttrs.version}";
-    hash = "sha256-0RWq1bX3fHY2DR0HQ75ylNCWQbKczvsk8m8/8eSW/Sk=";
+    hash = "sha256-4xWLBpdkktFCf2yI4bHDqpE+jXqZ8k8QdPM9Nh0Yf1w=";
   };
 
   # `build.gradle` writes the extension zip to `build/distributions/` instead of `dist/`
