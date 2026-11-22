@@ -114,6 +114,28 @@
             }
           ];
 
+          mkCookieBrowserEndpoint = nixosConfig: {
+            name = "cookie-browser-${nixosConfig.networking.hostName}";
+            group = "services";
+
+            url = "https://cookie-browser.${nixosConfig.networking.fqdn}/health"; # traefik serves novnc's viewer here without authentik
+
+            conditions = [
+              "[STATUS] == 200"
+
+              "[BODY] == pat(*noVNC*)"
+            ];
+          };
+
+          mkCookiesEndpoint = nixosConfig: {
+            name = "cookies-${nixosConfig.networking.hostName}";
+            group = "services";
+
+            url = "https://cookies.${nixosConfig.networking.fqdn}/health"; # reads the browser's cookies without giving them out
+
+            conditions = ["[STATUS] == 200"];
+          };
+
           mkHilotEndpoint = service: {
             name = service;
             group = "services";
@@ -246,6 +268,14 @@
                 "[BODY].status == ok"
               ];
             }
+
+            (mkCookieBrowserEndpoint cexNixosConfig)
+
+            (mkCookieBrowserEndpoint fakesynologyNixosConfig)
+
+            (mkCookiesEndpoint cexNixosConfig)
+
+            (mkCookiesEndpoint fakesynologyNixosConfig)
 
             {
               name = "deadlocked-relay-egress";

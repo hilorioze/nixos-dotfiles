@@ -1,0 +1,71 @@
+version: 1
+
+# blueprints pass `context` to `!Context`; here it also holds what every browser shares
+context:
+  provider: &provider
+    authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+    invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+    mode: forward_single
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider authorization flow (implicit consent)
+
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider invalidation flow
+
+  # keep-sorted start block=yes newline_separated=yes
+  cex-nixos:
+    - model: authentik_providers_proxy.proxyprovider
+      id: cookie-browser-cex-nixos-provider
+      identifiers:
+        name: cookie-browser-cex-nixos
+      attrs:
+        <<: *provider
+
+        external_host: https://cookie-browser.cex-nixos.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: cookie-browser-cex-nixos
+      attrs:
+        name: Cookie browser (cex-nixos)
+        provider: !KeyOf cookie-browser-cex-nixos-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, cookie-browser-cex-nixos]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 0
+
+  fakesynology-nixos:
+    - model: authentik_providers_proxy.proxyprovider
+      id: cookie-browser-fakesynology-nixos-provider
+      identifiers:
+        name: cookie-browser-fakesynology-nixos
+      attrs:
+        <<: *provider
+
+        external_host: https://cookie-browser.fakesynology-nixos.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: cookie-browser-fakesynology-nixos
+      attrs:
+        name: Cookie browser (fakesynology-nixos)
+        provider: !KeyOf cookie-browser-fakesynology-nixos-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, cookie-browser-fakesynology-nixos]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 0
+  # keep-sorted end

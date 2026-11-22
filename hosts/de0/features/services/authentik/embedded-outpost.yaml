@@ -22,6 +22,11 @@ entries:
         identifiers:
           path: agentbox-browser.yaml
 
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: cookie-browser.yaml
+
   outpost:
     - model: authentik_outposts.outpost
       identifiers:
@@ -50,4 +55,9 @@ entries:
           - !Find [authentik_providers_proxy.proxyprovider, [name, agentbox-browser-hilorioze]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, agentbox-browser-shared]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, agentbox-browser-zikkk]]
+          # keep-sorted end
+
+          # keep-sorted start
+          - !Find [authentik_providers_proxy.proxyprovider, [name, cookie-browser-cex-nixos]]
+          - !Find [authentik_providers_proxy.proxyprovider, [name, cookie-browser-fakesynology-nixos]]
           # keep-sorted end

@@ -312,6 +312,20 @@ in {
               ];
             }
 
+            # agentboxes take the cookies of the shared logins from the cookie browsers at home
+            {
+              action = "accept";
+
+              src = agentboxTags;
+
+              dst = [
+                # keep-sorted start
+                "tag:cex-nixos:443"
+                "tag:fakesynology-nixos:443"
+                # keep-sorted end
+              ];
+            }
+
             # fluent-bit on all monitored hosts pushes logs to loki on de0
             {
               action = "accept";
