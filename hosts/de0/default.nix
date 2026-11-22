@@ -59,6 +59,8 @@
     };
   };
 
+  zramSwap.enable = true; # a nix evaluation of a system, such as an agentbox's install or deploy, takes over 2 GiB on top of the services, and its heap compresses well
+
   networking = {
     hostName = "de0";
     domain = "hilorioze.com";
