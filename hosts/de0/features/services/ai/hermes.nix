@@ -168,6 +168,8 @@
 
             group_sessions_per_user = false; # everyone in the chat shares one session
 
+            approvals.destructive_slash_confirm = false; # `/new`, `/reset` and `/undo` act at once instead of asking to confirm first
+
             streaming.enabled = true; # stream replies as they're written; a group gets edits of one message, a dm telegram's native drafts
 
             telegram.gateway_restart_notification = false; # every deploy restarts the gateway; drop its "shutting down" and "gateway online" messages from the chat
