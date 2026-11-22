@@ -4,6 +4,7 @@
   fetchurl,
   lib,
   mcp,
+  nix-update-script,
   pydantic,
   # keep-sorted end
 }:
@@ -29,6 +30,11 @@ buildPythonPackage (finalAttrs: {
 
   # nixpkgs ships mcp 1.26.0, but upstream requires >=1.28.1
   pythonRelaxDeps = ["mcp"];
+
+  # upstream tags versions it never publishes as a release, such as `v7.1.0`, so a tag can have no wheel; follow published releases
+  passthru.updateScript.command = nix-update-script {
+    extraArgs = ["--use-github-releases"];
+  };
 
   meta = {
     description = "MCP bridge exposing Ghidra reverse engineering tools to AI clients";
