@@ -32,11 +32,10 @@ CLOAK_PREFIX: str = "claude-fable-5-dd-"  # cliproxyapi's disguise for foreign i
 
 BEHAVES_AS: str = "claude-opus-5-5"  # claude knows a foreign model only through a catalog one: set the most capable one claude doesn't gate behind usage credits
 
-TIER_SEPARATOR: str = "@"  # a picker id `codex/gpt-6.1-sol@priority` is the model asked in that service tier; not `:`, openrouter and kilo end their variants with `:free` or `:batch`
-
 EFFORT_LEVELS: tuple[str, ...] = ("low", "medium", "high", "xhigh", "max")
 
 FREE_SUFFIX: str = ":free"  # openrouter and kilo mark their free variants by it
+FREE_PROVIDERS: set[str] = {"nvidia"}  # build.nvidia.com serves its whole catalog free, under a rate limit
 
 FRAMING_HEADERS: set[str] = {"connection", "content-length", "host", "transfer-encoding"}  # aiohttp frames both directions itself
 
@@ -218,7 +217,7 @@ def uncloak_model(model_id: str) -> str:
 
 
 def normalize_model(model_id: str) -> str:
-    return uncloak_model(model_id).partition(TIER_SEPARATOR)[0].removesuffix("[1m]")
+    return uncloak_model(model_id).removesuffix("[1m]")
 
 
 def split_model(model_id: str) -> tuple[str, str]:
@@ -245,9 +244,11 @@ async def read_catalog() -> list[dict[str, Any]]:
 
     compatibility: list[dict[str, Any]] = (await call_management(method="GET", path="/openai-compatibility"))["openai-compatibility"]
 
-    # api key providers list hundreds of models each, mostly paid; keep their free ones
     api_key_providers: set[str] = {provider["prefix"] for provider in compatibility}
-    models: list[dict[str, Any]] = [model for model in catalog["data"] if split_model(model["id"])[0] not in api_key_providers or uncloak_model(model["id"]).endswith(FREE_SUFFIX)]
+
+    # api key providers list hundreds of models each, mostly paid; keep their free ones
+    paid_providers: set[str] = api_key_providers - FREE_PROVIDERS
+    models: list[dict[str, Any]] = [model for model in catalog["data"] if split_model(model["id"])[0] not in paid_providers or uncloak_model(model["id"]).endswith(FREE_SUFFIX)]
 
     subscription_providers: list[str] = sorted({split_model(model["id"])[0] for model in models} - api_key_providers)
 
@@ -268,19 +269,6 @@ async def read_catalog() -> list[dict[str, Any]]:
                 limits[provider, model[key]] = levels[-1]
 
     return [{**model, "max_effort_level": limits.get(split_model(model["id"]))} for model in models]
-
-
-async def read_service_tiers() -> dict[str, list[dict[str, str]]]:
-    headers: dict[str, str] = {"Authorization": f"Bearer {read_key('inference-key')}"}
-
-    # the catalog cliproxyapi gives codex; the claude one doesn't tell which models have a faster tier
-    async with (
-        aiohttp.ClientSession(timeout=CLIPROXYAPI_TIMEOUT) as client,
-        client.get(f"{CLIPROXYAPI_URL}/v1/models", params={"client_version": ""}, headers=headers) as answer,
-    ):
-        catalog: dict[str, Any] = await answer.json()
-
-    return {model["slug"]: model["service_tiers"] for model in catalog["models"]}
 
 
 async def read_claude_lineup() -> list[str] | None:
@@ -318,23 +306,10 @@ def order_models(catalog: list[dict[str, Any]], lineup: list[str] | None) -> lis
     return claude + others
 
 
-def label_model(model: dict[str, Any], tier: dict[str, str] | None) -> str:
+def label_model(model: dict[str, Any]) -> str:
     provider, _ = split_model(model["id"])
 
-    label: str = model["display_name"] if provider == "claude" else f"{provider.capitalize()} · {model['display_name']}"
-
-    return label if tier is None else f"{label} {tier['name']}"
-
-
-def apply_tier(body: bytes) -> bytes:
-    payload: dict[str, Any] = json.loads(body)
-
-    model, separator, tier = payload["model"].partition(TIER_SEPARATOR)
-    if not separator:
-        return body
-
-    # effort stays whatever claude asked, the tier only buys speed
-    return json.dumps({**payload, "model": model, "service_tier": tier}).encode()
+    return model["display_name"] if provider == "claude" else f"{provider.capitalize()} · {model['display_name']}"
 
 
 def resolve_helper(provider: str, model: str) -> str | None:
@@ -389,8 +364,6 @@ async def relay(request: web.Request) -> web.StreamResponse:
         raise web.HTTPUnauthorized
 
     body: bytes = await request.read()
-    if request.path in {"/v1/messages", "/v1/messages/count_tokens"}:
-        body = apply_tier(body)
     if request.path == "/v1/messages":
         # subagents share the session id but may use another provider
         session: str = request.headers["X-Claude-Code-Session-Id"]
@@ -429,7 +402,7 @@ async def serve_quotas(request: web.Request) -> web.Response:
 
     quotas: dict[str, list[dict[str, Any]]] = await read_quotas(STATUS_LINE_QUOTA_TIMEOUT)
 
-    # picker options append tier and context window suffixes to the model id
+    # picker options append a context window suffix to the model id
     model_id: str = normalize_model(request.query["model"])
 
     provider, model = split_model(model_id)
@@ -450,26 +423,20 @@ async def serve_model_picker(request: web.Request) -> web.Response:
     if request.headers.get("Authorization") != f"Bearer {read_key('inference-key')}":
         raise web.HTTPUnauthorized
 
-    models, tiers, quotas, lineup = await asyncio.gather(read_catalog(), read_service_tiers(), read_quotas(PICKER_QUOTA_TIMEOUT), read_claude_lineup())
+    models, quotas, lineup = await asyncio.gather(read_catalog(), read_quotas(PICKER_QUOTA_TIMEOUT), read_claude_lineup())
 
     catalog: list[dict[str, Any]] = order_models(models, lineup)
 
-    # a faster tier is picked like a model, per session; its rows follow all the plain ones
-    rows: list[tuple[dict[str, Any], dict[str, str] | None]] = [
-        *((model, None) for model in catalog),
-        *((model, tier) for model in catalog for tier in tiers.get(uncloak_model(model["id"]), [])),
-    ]
-
     account_labels: set[str] = collect_labels(quotas)
 
-    labels: list[str] = [label_model(model, tier) for model, tier in rows]
+    labels: list[str] = [label_model(model) for model in catalog]
 
     # a row is the padding, pointer, index, the longest label, the current model's checkmark and the gaps between them; claude puts its "Default (recommended)" row on top of these
-    width: int = int(request.query["width"]) - max(map(len, labels)) - len(f"{len(rows) + 1}.") - 12
+    width: int = int(request.query["width"]) - max(map(len, labels)) - len(f"{len(catalog) + 1}.") - 12
 
     options: list[dict[str, str]] = []
     settings: dict[str, dict[str, str]] = {}
-    for (model, tier), label in zip(rows, labels, strict=True):
+    for model, label in zip(catalog, labels, strict=True):
         provider, name = split_model(model["id"])
 
         # under its own id a foreign model gets its own effort in `modelSettings`, not the one of the disguise
@@ -480,7 +447,7 @@ async def serve_model_picker(request: web.Request) -> web.Response:
             model_id = f"{model_id}[1m]"
 
         option: dict[str, str] = {
-            "model": model_id if tier is None else f"{model_id}{TIER_SEPARATOR}{tier['id']}",
+            "model": model_id,
             "label": label,
             "description": describe_quota(name, quotas.get(provider, []), account_labels, width),
         }
