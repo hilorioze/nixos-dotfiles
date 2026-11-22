@@ -176,7 +176,7 @@
           after = ["network-online.target"];
           wants = ["network-online.target"];
 
-          unitConfig.ConditionPathExists = "!/var/lib/machines/agentbox-${name}/nix/var/nix/profiles/system"; # from then on the agentbox manages its own generations, which no host deploy or reboot replaces
+          unitConfig.ConditionPathIsSymbolicLink = "!/var/lib/machines/agentbox-${name}/nix/var/nix/profiles/system"; # a link into the agentbox's own store, which dangles on the host; from then on the agentbox manages its own generations, which no host deploy or reboot replaces
 
           restartIfChanged = false; # a deploy during the install would start it over
 
@@ -222,7 +222,7 @@
 
           wantedBy = ["machines.target"];
 
-          unitConfig.ConditionPathExists = "/var/lib/machines/agentbox-${name}/nix/var/nix/profiles/system"; # until then its bootstrap installs the system and starts it
+          unitConfig.ConditionPathIsSymbolicLink = "/var/lib/machines/agentbox-${name}/nix/var/nix/profiles/system"; # until then its bootstrap installs the system and starts it
 
           # `.nspawn` files can't pass credentials, and sops-nix's ramfs can't be idmapped for a bind mount
           serviceConfig = {
