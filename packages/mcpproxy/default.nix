@@ -8,11 +8,11 @@
 fetchzip (finalAttrs: {
   pname = "mcpproxy";
 
-  version = "0.74.0";
+  version = "0.75.0";
 
   url = "https://github.com/smart-mcp-proxy/mcpproxy-go/releases/download/v${finalAttrs.version}/mcpproxy-${finalAttrs.version}-linux-arm64.tar.gz";
 
-  hash = "sha256-P+nmpt05Pud5ukZytx/oKi5oI9Pui7eIZ3C56rgwH6Y=";
+  hash = "sha256-KbEgp/tbiAOpOGab/C1I1KsNG7hDjtxU3MVxSpbft6I=";
 
   # the archive holds only the static binary
   stripRoot = false;
