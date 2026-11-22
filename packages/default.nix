@@ -14,6 +14,7 @@
   cliproxyapi-cooldown-reset = pkgs.callPackage ./cliproxyapi-cooldown-reset {};
   cliproxyapi-models-sync = pkgs.callPackage ./cliproxyapi-models-sync {};
   cliproxyapi-warmup = pkgs.callPackage ./cliproxyapi-warmup {};
+  cookie-browser-fetch = pkgs.callPackage ./cookie-browser-fetch {};
   cs16-client = pkgs.callPackage ./cs16-client {};
   csldr = pkgs.callPackage ./csldr {};
   deadlocked = pkgs.callPackage ./deadlocked {};
