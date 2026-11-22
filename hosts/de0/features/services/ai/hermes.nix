@@ -86,6 +86,8 @@
         after = ["network-online.target"];
         wants = ["network-online.target"];
 
+        reloadIfChanged = true; # a deploy waits for the running turns to finish instead of cutting them off
+
         path = with pkgs; [
           # keep-sorted start
           gnutar # the terminal uploads files to the agentbox as a local `tar` piped into ssh
@@ -166,6 +168,8 @@
 
             streaming.enabled = true; # stream replies as they're written; a group gets edits of one message, a dm telegram's native drafts
 
+            telegram.gateway_restart_notification = false; # every deploy restarts the gateway; drop its "shutting down" and "gateway online" messages from the chat
+
             display.platforms.telegram = {
               tool_progress = "verbose"; # telegram hides tool calls by default; show each one as it runs, with a terminal command whole, while "all" cuts it to one line
 
@@ -204,6 +208,7 @@
           ProcSubset = "pid";
 
           ExecStart = "${lib.getExe' package "hermes"} gateway run";
+          ExecReload = "${lib.getExe' pkgs.coreutils "kill"} -USR1 $MAINPID"; # hermes restarts itself once no turn is running; sigterm interrupts them
           ExecStop = "-${package.hermesVenv}/bin/python3 -m gateway.systemd_stop_mark"; # without the mark hermes takes systemd's sigterm for an unexpected kill and exits 1
 
           Restart = "on-failure";
