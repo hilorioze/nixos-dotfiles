@@ -9,11 +9,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795054342,
-        "narHash": "sha256-3CEvYXQgpPxM3G9MbuTMwOM7r7AxByi3eu3f9gxycHM=",
+        "lastModified": 1795233589,
+        "narHash": "sha256-JTeJI5aDGWruvadJ99zyw2YncZymtwNhpjtAxJfr/L4=",
         "owner": "kamadorueda",
         "repo": "alejandra",
-        "rev": "05dce2f4f025966d5000ee0eeffd11def13a7a3b",
+        "rev": "cfbad8a7664010851841f70da2cdf70798f1cb37",
         "type": "github"
       },
       "original": {
@@ -25,11 +25,11 @@
     "devenv": {
       "locked": {
         "dir": "src/modules",
-        "lastModified": 1794919186,
-        "narHash": "sha256-28wJt3wsO/UqPMKI3plQtQF4TkBFTbRgxF2Vkj22a6M=",
+        "lastModified": 1795229503,
+        "narHash": "sha256-FTGzSZYleBgDbPCyeYAnhL5tltIMqxGDxvyEfkw+uXU=",
         "owner": "cachix",
         "repo": "devenv",
-        "rev": "8efcb88c3fc5d110b0f1c499e01156cab23011d1",
+        "rev": "ba35fb7169f0a768075e91efab82dce0db31b536",
         "type": "github"
       },
       "original": {
@@ -183,11 +183,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795017206,
-        "narHash": "sha256-WSBJcYjPRxGetDNxVzKnRPs1TQasQQlAC25W/S4W6YE=",
+        "lastModified": 1795173499,
+        "narHash": "sha256-J8IYl3oEdctyvBgWr+/L01MY5Xm0TU4WXwZDccN5jjk=",
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "rev": "0ba5d67225c3f5c88eb134e1a665a379bfd3bea9",
+        "rev": "a0a97e31a897a3537eea5c49df4f8adaa83b3b37",
         "type": "github"
       },
       "original": {
