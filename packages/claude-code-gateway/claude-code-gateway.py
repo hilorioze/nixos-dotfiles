@@ -32,9 +32,11 @@ CLOAK_PREFIX: str = "claude-fable-5-dd-"  # cliproxyapi's disguise for foreign i
 
 BEHAVES_AS: str = "claude-opus-5-5"  # claude knows a foreign model only through a catalog one: set the most capable one claude doesn't gate behind usage credits
 
-TIER_SEPARATOR: str = ":"  # a picker id `codex/gpt-6.1-sol:priority` is the model asked in that service tier
+TIER_SEPARATOR: str = "@"  # a picker id `codex/gpt-6.1-sol@priority` is the model asked in that service tier; not `:`, openrouter and kilo end their variants with `:free` or `:batch`
 
 EFFORT_LEVELS: tuple[str, ...] = ("low", "medium", "high", "xhigh", "max")
+
+FREE_SUFFIX: str = ":free"  # openrouter and kilo mark their free variants by it
 
 FRAMING_HEADERS: set[str] = {"connection", "content-length", "host", "transfer-encoding"}  # aiohttp frames both directions itself
 
@@ -241,19 +243,31 @@ async def read_catalog() -> list[dict[str, Any]]:
     ):
         catalog: dict[str, Any] = await answer.json()
 
-    providers: list[str] = sorted({split_model(model["id"])[0] for model in catalog["data"]})
+    compatibility: list[dict[str, Any]] = (await call_management(method="GET", path="/openai-compatibility"))["openai-compatibility"]
+
+    # api key providers list hundreds of models each, mostly paid; keep their free ones
+    api_key_providers: set[str] = {provider["prefix"] for provider in compatibility}
+    models: list[dict[str, Any]] = [model for model in catalog["data"] if split_model(model["id"])[0] not in api_key_providers or uncloak_model(model["id"]).endswith(FREE_SUFFIX)]
+
+    subscription_providers: list[str] = sorted({split_model(model["id"])[0] for model in models} - api_key_providers)
 
     # cliproxyapi's claude model list omits thinking support; read its full definitions
-    definitions: list[dict[str, Any]] = await asyncio.gather(*(call_management(method="GET", path=f"/model-definitions/{provider}") for provider in providers))
+    definitions: list[dict[str, Any]] = await asyncio.gather(*(call_management(method="GET", path=f"/model-definitions/{provider}") for provider in subscription_providers))
+
+    # an api key provider has no definitions; its models carry their levels in the config
+    sources: list[tuple[str, str, list[dict[str, Any]]]] = [
+        *((provider, "id", definition["models"]) for provider, definition in zip(subscription_providers, definitions, strict=True)),
+        *((provider["prefix"], "alias", provider.get("models", [])) for provider in compatibility),
+    ]
 
     limits: dict[tuple[str, str], str] = {}
-    for provider, definition in zip(providers, definitions, strict=True):
-        for model in definition["models"]:
+    for provider, key, entries in sources:
+        for model in entries:
             levels: list[str] = [level for level in EFFORT_LEVELS if level in model.get("thinking", {}).get("levels", [])]
             if levels:
-                limits[provider, model["id"]] = levels[-1]
+                limits[provider, model[key]] = levels[-1]
 
-    return [{**model, "max_effort_level": limits.get(split_model(model["id"]))} for model in catalog["data"]]
+    return [{**model, "max_effort_level": limits.get(split_model(model["id"]))} for model in models]
 
 
 async def read_service_tiers() -> dict[str, list[dict[str, str]]]:
