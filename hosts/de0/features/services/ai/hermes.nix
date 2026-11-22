@@ -112,7 +112,7 @@
               // {
                 provider = "custom";
 
-                default = "antigravity/claude-sonnet-4-6";
+                default = "antigravity/gemini-3.8-flash-high";
               };
 
             # hermes draws through openrouter's chat protocol, which cliproxyapi speaks too; antigravity's quota, unlike codex's, isn't needed for anything else
