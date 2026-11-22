@@ -12,7 +12,7 @@
   exportPort = 6090;
 in {
   sops = let
-    consumers = map (name: "agentbox-${name}") (lib.attrNames outputs.nixosConfigurations.de0.config.virtualisation.agentbox.machines);
+    consumers = map (name: "agentbox-${name}") (lib.attrNames outputs.nixosConfigurations.de0.config.virtualisation.agentbox.machines) ++ ["hilot"];
   in {
     secrets = lib.genAttrs (map (consumer: "services/cookie-browser/users/${consumer}/hashed-password") consumers) (_: {});
 

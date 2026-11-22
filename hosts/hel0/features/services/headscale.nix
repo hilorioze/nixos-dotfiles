@@ -289,13 +289,18 @@ in {
               dst = ["tag:hel0:9101-9104"];
             }
 
-            # hilot on hel0 downloads through the proxy on fakesynology-nixos
+            # hilot on hel0 downloads through the proxies at home
             {
               action = "accept";
 
               src = ["tag:hel0"];
 
-              dst = ["tag:fakesynology-nixos:3128"];
+              dst = [
+                # keep-sorted start
+                "tag:cex-nixos:3128"
+                "tag:fakesynology-nixos:3128"
+                # keep-sorted end
+              ];
             }
 
             # agentbox browsers go out through the socks proxies at home
@@ -312,11 +317,11 @@ in {
               ];
             }
 
-            # agentboxes take the cookies of the shared logins from the cookie browsers at home
+            # agentboxes and hilot on hel0 take the cookies of the shared logins from the cookie browsers at home
             {
               action = "accept";
 
-              src = agentboxTags;
+              src = agentboxTags ++ ["tag:hel0"];
 
               dst = [
                 # keep-sorted start
