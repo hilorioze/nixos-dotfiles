@@ -6,16 +6,7 @@
   pkgs,
   # keep-sorted end
   ...
-}: let
-  package = pkgs.hermes-agent.override {
-    defaultDependencyGroups = [
-      # keep-sorted start
-      "mcp" # for each agentbox's mcp proxy
-      "messaging"
-      # keep-sorted end
-    ];
-  };
-in {
+}: {
   sops = {
     secrets = lib.mkMerge (lib.mapAttrsToList (name: _machine: let
         agentSecret.restartUnits = ["hermes-${name}.service"];
@@ -76,7 +67,16 @@ in {
     config.virtualisation.agentbox.machines);
 
   # every agentbox's agent is a hermes gateway here and runs its commands in its agentbox
-  systemd.services =
+  systemd.services = let
+    package = pkgs.hermes-agent.override {
+      defaultDependencyGroups = [
+        # keep-sorted start
+        "mcp" # for each agentbox's mcp proxy
+        "messaging"
+        # keep-sorted end
+      ];
+    };
+  in
     lib.mapAttrs' (name: machine:
       lib.nameValuePair "hermes-${name}" rec {
         description = "Hermes gateway of the ${name} agentbox";
