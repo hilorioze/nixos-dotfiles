@@ -184,7 +184,13 @@
           pkgs = pkgs';
         };
 
-        legacyPackages.niks3 = pkgs'.unstablePkgs.niks3; # expose nixpkgs' niks3 client to the workflows
+        # nixpkgs packages as the overlays leave them
+        legacyPackages = {
+          # keep-sorted start
+          niks3 = pkgs'.unstablePkgs.niks3; # nixpkgs' niks3 client for the workflows
+          playwright-mcp = pkgs'.unstablePkgs.playwright-mcp; # the patchright build for the agentboxes' mcpproxy
+          # keep-sorted end
+        };
       };
 
       flake = {config, ...}: let
