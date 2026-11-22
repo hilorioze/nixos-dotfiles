@@ -15,7 +15,7 @@ in {
     tapoRecordingsSecret = {restartUnits = ["tapo-recordings.service"];};
   in {
     "credentials/tapo/terminal-uuid" = tapoRecordingsSecret;
-    "credentials/tapo/token" = tapoRecordingsSecret;
+    "credentials/tapo/cloud-username" = tapoRecordingsSecret;
 
     "credentials/tapo/push/android-id" = tapoRecordingsSecret;
     "credentials/tapo/push/security-token" = tapoRecordingsSecret;
@@ -87,7 +87,7 @@ in {
 
           LoadCredential = [
             "terminal-uuid:${config.sops.secrets."credentials/tapo/terminal-uuid".path}"
-            "token:${config.sops.secrets."credentials/tapo/token".path}"
+            "cloud-username:${config.sops.secrets."credentials/tapo/cloud-username".path}"
 
             "android-id:${config.sops.secrets."credentials/tapo/push/android-id".path}"
             "security-token:${config.sops.secrets."credentials/tapo/push/security-token".path}"

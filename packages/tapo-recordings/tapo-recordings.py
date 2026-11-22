@@ -34,7 +34,7 @@ SIGNING_KEY: bytes = b"6ed7d97f3e73467f8a5bab90b577ba4c"
 SIGNED_TIMESTAMP: str = "9999999999"  # the app signs every request with this fixed timestamp
 PUSH_CONFIG: FcmRegisterConfig = FcmRegisterConfig(project_id="tapo-android", app_id="1:53827594216:android:e95bca87d0bc49bc", api_key="", messaging_sender_id="53827594216")
 
-# the app on the phone the token comes from
+# the app on the phone, which the daemon passes for
 CLIENT_QUERY: dict[str, str] = {
     "appName": "TP-Link_Tapo_Android",
     "appVer": "3.22.105",
@@ -54,6 +54,8 @@ HISTORY_MS: int = 12 * 3600 * 1000  # a longer window drops recent events from t
 OVERLAP_MS: int = 3600 * 1000  # re-read the last hour so events stored out of order aren't missed
 HISTORY_SECONDS: int = 60
 
+EXPIRED_TOKEN_ERROR: int = -20651  # a token lasts about 30 days
+
 UNREGISTERED_TOKEN_ERROR: int = -23001  # `APP_NO_SUCH_APP` in the app; the cloud keeps one push registration per account, and the app on a phone takes it on start at most once a day
 REGISTRATION_SECONDS: int = 10  # how long a phone can keep the pushes after taking the registration
 
@@ -67,11 +69,11 @@ PREVIEW_SCALE: str = "320:180"
 PREVIEW_SECONDS: int = 20
 
 CREDENTIALS_PATH: Path = Path(os.environ["CREDENTIALS_DIRECTORY"])
-TOKEN: str = (CREDENTIALS_PATH / "token").read_text()
 TERMINAL_UUID: str = (CREDENTIALS_PATH / "terminal-uuid").read_text()
 ANDROID_ID: str = (CREDENTIALS_PATH / "android-id").read_text()
 SECURITY_TOKEN: str = (CREDENTIALS_PATH / "security-token").read_text()
 REGISTRATION_TOKEN: str = (CREDENTIALS_PATH / "registration-token").read_text()
+USERNAME: str = (CREDENTIALS_PATH / "cloud-username").read_text()
 PASSWORD: str = (CREDENTIALS_PATH / "cloud-password").read_text()
 
 IMPORT_PATH: Path = Path(sys.argv[1])  # a folder per camera named by its mac address, holding its alias and its recordings for surveillance station
@@ -85,6 +87,7 @@ METRICS_PATH: Path = Path(os.environ["RUNTIME_DIRECTORY"]) / "tapo-cameras.prom"
 
 seen: dict[str, int] = json.loads(DETECTIONS_PATH.read_text()) if DETECTIONS_PATH.exists() else {}
 cameras: dict[str, str] = {}  # the mac address of every camera by its device id
+token: str = ""  # the cloud's session of this terminal
 
 # by the camera's mac address
 latest: dict[str, dict[str, Any]] = json.loads(LATEST_PATH.read_text()) if LATEST_PATH.exists() else {}  # its alias and the time of its latest detection
@@ -92,17 +95,15 @@ last_detected_at: dict[str, float] = {}  # when a new detection or a restart las
 savers: dict[str, threading.Thread] = {}  # the thread saving its recordings
 
 
-def request_cloud(*, method: str, parameters: dict[str, Any]) -> dict[str, Any]:
-    path: str = f"/api/v2/common/{method}"
+def post_cloud(*, path: str, parameters: dict[str, Any], query: dict[str, str]) -> dict[str, Any]:
     body: bytes = json.dumps(parameters, separators=(",", ":")).encode()
     digest: str = base64.b64encode(hashlib.md5(body).digest()).decode()
 
     nonce: str = str(uuid.uuid4())
     signature: str = hmac.new(SIGNING_KEY, f"{digest}\n{SIGNED_TIMESTAMP}\n{nonce}\n{path}".encode(), hashlib.sha1).hexdigest()
 
-    query: str = urllib.parse.urlencode({**CLIENT_QUERY, "termID": TERMINAL_UUID, "token": TOKEN})
     request: urllib.request.Request = urllib.request.Request(
-        f"{CLOUD_URL}{path}?{query}",
+        f"{CLOUD_URL}{path}?{urllib.parse.urlencode({**CLIENT_QUERY, 'termID': TERMINAL_UUID, **query})}",
         data=body,
         headers={
             "Content-Type": "application/json;charset=UTF-8",
@@ -112,6 +113,44 @@ def request_cloud(*, method: str, parameters: dict[str, Any]) -> dict[str, Any]:
     )
     with urllib.request.urlopen(request, context=CLOUD_CONTEXT, timeout=30) as response:
         return json.load(response)
+
+
+def log_in() -> None:
+    global token
+
+    reply: dict[str, Any] = post_cloud(
+        path="/api/v2/account/login",
+        parameters={
+            "appType": CLIENT_QUERY["appName"],
+            "appVersion": CLIENT_QUERY["appVer"],
+            "cloudUserName": USERNAME,
+            "cloudPassword": PASSWORD,
+            "platform": CLIENT_QUERY["ospf"],
+            "refreshTokenNeeded": False,
+            "terminalMeta": CLIENT_QUERY["termMeta"],
+            "terminalName": CLIENT_QUERY["termName"],
+            "terminalUUID": TERMINAL_UUID,
+        },
+        query={},
+    )
+
+    # a refused login, such as one waiting for an mfa code, carries its reason in the result, next to the account's email
+    result: dict[str, Any] = reply.get("result", {})
+    if "token" not in result:
+        sys.exit(f"login: {reply['error_code']} {result.get('errorMsg', reply.get('msg'))}")
+
+    token = result["token"]
+
+
+def request_cloud(*, method: str, parameters: dict[str, Any]) -> dict[str, Any]:
+    reply: dict[str, Any] = post_cloud(path=f"/api/v2/common/{method}", parameters=parameters, query={"token": token})
+
+    if reply["error_code"] != EXPIRED_TOKEN_ERROR:
+        return reply
+
+    log_in()
+
+    return post_cloud(path=f"/api/v2/common/{method}", parameters=parameters, query={"token": token})
 
 
 def call_cloud(*, method: str, parameters: dict[str, Any]) -> dict[str, Any]:
@@ -366,6 +405,7 @@ async def read_history() -> None:
 
 
 async def watch_detections() -> None:
+    await asyncio.to_thread(log_in)
     cameras.update(await asyncio.to_thread(fetch_cameras))
     export_cameras()
     await asyncio.to_thread(register_push)
