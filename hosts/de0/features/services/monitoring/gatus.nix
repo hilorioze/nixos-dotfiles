@@ -279,20 +279,6 @@
             }
 
             {
-              name = "ftbie";
-              group = "services";
-
-              url = "${prometheusBaseUrl}/api/v1/query?query=${lib.escapeURL ''scalar(max(podman_container_health{name="ftbie"}))''}";
-
-              conditions = [
-                "[STATUS] == 200"
-
-                "[BODY].status == success"
-                "[BODY].data.result[1] == any(0, 2)" # `healthy` or `starting`
-              ];
-            }
-
-            {
               name = "gatus";
               group = "platform";
 
