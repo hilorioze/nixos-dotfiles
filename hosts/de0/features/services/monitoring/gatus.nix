@@ -487,6 +487,8 @@
               conditions = ["[STATUS] == 200"];
             }
 
+            (mkTraefikDashboardEndpoint cexNixosConfig)
+
             (mkTraefikDashboardEndpoint de0Config)
 
             (mkTraefikDashboardEndpoint fakesynologyNixosConfig)

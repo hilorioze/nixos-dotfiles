@@ -18,6 +18,32 @@ entries:
           name: Default - Provider invalidation flow
 
   # keep-sorted start block=yes newline_separated=yes
+  cex-nixos:
+    - model: authentik_providers_proxy.proxyprovider
+      id: traefik-cex-nixos-provider
+      identifiers:
+        name: traefik-cex-nixos
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://traefik.cex-nixos.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: traefik-cex-nixos
+      attrs:
+        name: Traefik (cex-nixos)
+        provider: !KeyOf traefik-cex-nixos-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, traefik-cex-nixos]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 0
+
   de0:
     - model: authentik_providers_proxy.proxyprovider
       id: traefik-de0-provider

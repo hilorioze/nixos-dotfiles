@@ -31,6 +31,7 @@ entries:
 
         providers:
           # keep-sorted start
+          - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-cex-nixos]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-de0]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-fakesynology-nixos]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, traefik-hel0]]

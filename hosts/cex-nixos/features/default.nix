@@ -14,6 +14,7 @@
     ../../common/features/services/coredns/lan.nix
     ../../common/features/services/monitoring/fluent-bit.nix
     ../../common/features/services/monitoring/node-exporter.nix
+    ../../common/features/services/web/traefik/traefik.nix
     ../../common/features/system/boot/systemd-boot.nix
     ../../common/features/system/locale/time.nix
     # keep-sorted end

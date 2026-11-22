@@ -33,6 +33,7 @@ resource "cloudflare_dns_record" "server_ipv6" {
 resource "cloudflare_dns_record" "host_services" {
   for_each = toset([
     # keep-sorted start
+    "cex-nixos",
     "de0",
     "fakesynology-nixos",
     "hel0",

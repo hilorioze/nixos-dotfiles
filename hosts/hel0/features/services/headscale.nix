@@ -265,7 +265,7 @@ in {
               ];
             }
 
-            # de0 (gatus) checks the deadlocked relay on fakesynology-nixos
+            # de0 (gatus) checks the services at home
             {
               action = "accept";
 
@@ -273,6 +273,7 @@ in {
 
               dst = [
                 # keep-sorted start numeric=yes
+                "tag:cex-nixos:443"
                 "tag:fakesynology-nixos:443"
                 "tag:fakesynology-nixos:6346"
                 # keep-sorted end
@@ -332,6 +333,7 @@ in {
 
               src = [
                 # keep-sorted start
+                "tag:cex-nixos"
                 "tag:fakesynology-nixos"
                 "tag:hel0"
                 # keep-sorted end
