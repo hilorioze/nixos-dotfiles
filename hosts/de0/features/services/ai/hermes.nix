@@ -1,7 +1,6 @@
 {
   # keep-sorted start
   config,
-  inputs,
   lib,
   pkgs,
   # keep-sorted end
@@ -97,7 +96,7 @@
 
         environment.HERMES_HOME = "%S/${serviceConfig.StateDirectory}";
 
-        # hermes writes `config.yaml` itself, so the settings here are merged into it instead of replacing it
+        # hermes writes `config.yaml` itself, but only to record which hints it has shown; everything else is replaced by the settings here on every start
         preStart = let
           cliproxyapi = {
             base_url = "http://127.0.0.1:${toString config.services.cliproxyapi.settings.server.port}/v1";
@@ -185,7 +184,16 @@
               tool_preview_length = 0; # telegram cuts the arguments of the other tools to 40 characters by default; 0 shows them whole, split over as many messages as needed
             };
           };
-        in "${import "${inputs.hermes-agent}/nix/configMergeScript.nix" {inherit pkgs;}} ${pkgs.writeText "hermes-${name}-settings.json" (builtins.toJSON settings)} $HERMES_HOME/config.yaml";
+        in ''
+          config_file=$HERMES_HOME/config.yaml
+          settings_file=${pkgs.writeText "hermes-${name}-settings.json" (builtins.toJSON settings)}
+
+          if [[ -s $config_file ]]; then
+            ${lib.getExe pkgs.yq-go} eval-all --inplace '((select(fileIndex == 0) | pick(["onboarding"])) * select(fileIndex == 1)) | (.. | select(tag == "!!map" or tag == "!!seq")) style=""' $config_file $settings_file
+          else
+            ${lib.getExe pkgs.yq-go} --output-format=yaml $settings_file >$config_file
+          fi
+        '';
 
         serviceConfig = {
           User = config.users.users."hermes-${name}".name;
