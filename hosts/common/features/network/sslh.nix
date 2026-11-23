@@ -53,6 +53,31 @@ in {
     };
   };
 
-  # `sslh-ev` hits `EMFILE` past the default 1024 file descriptors
-  systemd.services.sslh.serviceConfig.LimitNOFILE = 4096;
+  # a static user, since a dynamic one no longer resolves in the module's `postStop`; its `iptables --uid-owner sslh` fails there and leaves the `ip rule` behind
+  users = {
+    users.sslh = {
+      isSystemUser = true;
+
+      group = "sslh";
+    };
+
+    groups.sslh = {};
+  };
+
+  systemd.services.sslh = {
+    serviceConfig = {
+      DynamicUser = lib.mkForce false;
+
+      LimitNOFILE = 4096; # `sslh-ev` hits `EMFILE` past the default 1024 file descriptors
+    };
+
+    # clear the routing an earlier failed stop left, as the module already does for its iptables rules; its `ip rule add` fails on a leftover
+    preStart = lib.mkBefore ''
+      while ip rule del fwmark 0x2 lookup 100 2>/dev/null; do :; done
+      while ip route del local 0.0.0.0/0 dev lo table 100 2>/dev/null; do :; done
+
+      while ip -6 rule del fwmark 0x2 lookup 100 2>/dev/null; do :; done
+      while ip -6 route del local ::/0 dev lo table 100 2>/dev/null; do :; done
+    '';
+  };
 }
