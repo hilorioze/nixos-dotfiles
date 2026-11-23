@@ -1,7 +1,7 @@
 hermes-agent: final: _prev: {
   # the recipe builds from the tree it sits in, so `.override` can't patch it; call it from the patched tree instead
   hermes-agent = let
-    upstreamPkgs = hermes-agent.inputs.nixpkgs.legacyPackages.${final.stdenv.hostPlatform.system}; # the nixpkgs upstream builds and tests against
+    upstreamPkgs = hermes-agent.inputs.nixpkgs.legacyPackages.${final.stdenv.hostPlatform.system}; # `nixpkgs-unstable` without our overlays
 
     src = final.applyPatches {
       name = "hermes-agent-source";

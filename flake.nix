@@ -80,8 +80,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # keep upstream's tested nixpkgs pin; `main` takes dozens of commits a day
-    hermes-agent.url = "github:NousResearch/hermes-agent/v0.23.3";
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent/v0.23.3"; # a release tag; `main` takes dozens of commits a day
+
+      inputs.nixpkgs.follows = "nixpkgs-unstable"; # node of upstream's own nixpkgs pin segfaults building the tui on aarch64
+    };
 
     hilot.url = "github:hilorioze/hilot"; # keep their inputs for binary cache
 
