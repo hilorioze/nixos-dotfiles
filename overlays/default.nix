@@ -43,6 +43,7 @@
   (import ./hermes-agent-model-switch-configured-key)
   (import ./hermes-agent-openai-native-web-search-chat)
   (import ./hermes-agent-ssh-remote-kill)
+  (import ./hermes-agent-sync-back-skip-runtime-cache)
   (import ./konsole-wayland-tab-dnd-fix)
   (import ./looking-glass-client-idd)
   (import ./miniupnpd-delete-range-ownership)
