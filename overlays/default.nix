@@ -28,8 +28,10 @@
   # keep-sorted start
   (import ./chiaki-ng-aia-default-trust-store)
   (import ./claude-code-alsa-rpath)
+  (import ./cliproxyapi-antigravity-web-search)
   (import ./cliproxyapi-claude-chat-web-search)
   (import ./cliproxyapi-response-model-prefix)
+  (import ./cliproxyapi-system-instruction-as-user)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
   (import ./gpu-screen-recorder-drm-master-fix)

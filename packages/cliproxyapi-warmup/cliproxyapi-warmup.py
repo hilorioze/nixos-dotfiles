@@ -26,7 +26,7 @@ LOW_PRIORITY_ACCOUNTS: dict[str, list[str]] = json.loads(os.environ["CLIPROXYAPI
 
 POLL_INTERVAL: float = 300  # banked and early resets come unannounced
 
-RESET_TOLERANCE: float = 60  # claude reports the same reset up to a second apart between polls
+RESET_TOLERANCE: float = 60  # antigravity replicas disagree slightly on a window's reset
 RESET_DELAY: float = 5  # a window read right at its reset may still show the old one
 
 SLOT_LENGTH: int = 900
@@ -37,6 +37,11 @@ PLAN_HORIZON: int = 86400
 
 DEMAND_PATH: Path = Path(os.environ["STATE_DIRECTORY"]) / "demand.json"
 BUDGET_PATH: Path = DEMAND_PATH.with_name("budgets.json")
+
+ANTIGRAVITY_WARMUP_MODELS: dict[str | None, str] = {
+    "Gemini Models": "gemini-3.8-flash-tiered",  # older gemini models are not metered and never start the window
+    "Claude and GPT models": "gpt-oss-120b-medium",
+}
 
 
 def write_state(path: Path, *, state: dict[str, Any]) -> None:
@@ -70,10 +75,25 @@ async def warm_codex(account: dict[str, Any], *, pool: str | None) -> None:
     )
 
 
+async def warm_antigravity(account: dict[str, Any], *, pool: str | None) -> None:
+    await send_provider_request(
+        account,
+        method="POST",
+        url="https://daily-cloudcode-pa.googleapis.com/v1internal:generateContent",
+        headers={"Content-Type": "application/json", "User-Agent": "antigravity"},
+        data=json.dumps({
+            "project": account["project_id"],
+            "model": ANTIGRAVITY_WARMUP_MODELS[pool],
+            "request": {"contents": [{"role": "user", "parts": [{"text": "hi"}]}], "generationConfig": {"maxOutputTokens": 1}},
+        }),
+    )
+
+
 # one minimal request starts every window of the pool it is spent from
 WARMERS: dict[str, Callable[..., Coroutine[Any, Any, None]]] = {
     "claude": warm_claude,
     "codex": warm_codex,
+    "antigravity": warm_antigravity,
 }
 
 
@@ -428,7 +448,7 @@ def simulate_serving(*, simulation: Simulation, plans: tuple[tuple[float, ...], 
 
             advance_pool(pool=simulation.pools[index], state=states[index], at=at, warm=cursors[index] > cursor)
 
-        # priorities belong to accounts, so every pool of an account must see the same cold-binding order
+        # priorities belong to accounts, so both antigravity pools must see the same cold-binding order
         accounts: list[list[int]] = sorted(simulation.accounts, key=lambda account: rank_simulated_spending(account, states=states))
         order: dict[int, int] = {index: position for position, account in enumerate(accounts) for index in account}
 
