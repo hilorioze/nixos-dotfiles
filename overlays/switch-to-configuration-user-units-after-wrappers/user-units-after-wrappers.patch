@@ -1,0 +1,63 @@
+diff --git a/src/main.rs b/src/main.rs
+index 557319f001b3..19e7827d77f0 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -2382,7 +2382,29 @@ won't take effect until you reboot the system.
+         .remove_match(reloading_token)
+         .context("Failed to cleanup systemd Reloading match")?;
+ 
+-    // Reload user units
++    // Restart sysinit-reactivation.target. This target only exists to restart services ordered
++    // before sysinit.target. We cannot use X-StopOnReconfiguration to restart sysinit.target
++    // because then ALL services of the system would be restarted since all normal services have a
++    // default dependency on sysinit.target. sysinit-reactivation.target ensures that services
++    // ordered BEFORE sysinit.target get re-started in the correct order. Ordering between these
++    // services is respected.
++    eprintln!("restarting {SYSINIT_REACTIVATION_TARGET}");
++    match systemd.restart_unit(SYSINIT_REACTIVATION_TARGET, "replace") {
++        Ok(job_path) => {
++            let mut jobs = submitted_jobs.borrow_mut();
++            jobs.insert(job_path, Job::Restart);
++        }
++        Err(err) => {
++            eprintln!("Failed to restart {SYSINIT_REACTIVATION_TARGET}: {err}");
++            exit_code = 4;
++        }
++    }
++
++    // Wait for the restart job of sysinit-reactivation.service to finish
++    block_on_jobs(&dbus_conn, &submitted_jobs)?;
++
++    // Reload user units after sysinit-reactivation.target, so that units restarted here run the
++    // new security wrappers from /run/wrappers instead of the previous generation's.
+     match logind.list_users() {
+         Err(err) => {
+             eprintln!("Unable to list users with logind: {err}");
+@@ -2430,27 +2452,6 @@ won't take effect until you reboot the system.
+         }
+     }
+ 
+-    // Restart sysinit-reactivation.target. This target only exists to restart services ordered
+-    // before sysinit.target. We cannot use X-StopOnReconfiguration to restart sysinit.target
+-    // because then ALL services of the system would be restarted since all normal services have a
+-    // default dependency on sysinit.target. sysinit-reactivation.target ensures that services
+-    // ordered BEFORE sysinit.target get re-started in the correct order. Ordering between these
+-    // services is respected.
+-    eprintln!("restarting {SYSINIT_REACTIVATION_TARGET}");
+-    match systemd.restart_unit(SYSINIT_REACTIVATION_TARGET, "replace") {
+-        Ok(job_path) => {
+-            let mut jobs = submitted_jobs.borrow_mut();
+-            jobs.insert(job_path, Job::Restart);
+-        }
+-        Err(err) => {
+-            eprintln!("Failed to restart {SYSINIT_REACTIVATION_TARGET}: {err}");
+-            exit_code = 4;
+-        }
+-    }
+-
+-    // Wait for the restart job of sysinit-reactivation.service to finish
+-    block_on_jobs(&dbus_conn, &submitted_jobs)?;
+-
+     // Before reloading we need to ensure that the units are still active. They may have been
+     // deactivated because one of their requirements got stopped. If they are inactive but should
+     // have been reloaded, the user probably expects them to be started.
