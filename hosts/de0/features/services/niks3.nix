@@ -111,6 +111,7 @@
 
               actor = [
                 # keep-sorted start
+                "dependabot[bot]"
                 "hilorioze"
                 "renovate[bot]"
                 # keep-sorted end

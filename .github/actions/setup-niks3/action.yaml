@@ -20,7 +20,7 @@ runs:
     # pull requests into main from the trusted accounts push too, so main substitutes their builds after the merge
     - if: >-
         github.event_name != 'pull_request' ||
-        contains(fromJSON('["hilorioze", "renovate[bot]"]'), github.actor)
+        contains(fromJSON('["dependabot[bot]", "hilorioze", "renovate[bot]"]'), github.actor)
       id: fetch-niks3-bin
       shell: bash
       run: |
