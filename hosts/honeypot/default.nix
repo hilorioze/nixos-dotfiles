@@ -45,7 +45,11 @@
 
   networking.hostName = "honeypot";
 
-  hardware.facter.reportPath = ./facter.json;
+  hardware.facter = {
+    reportPath = ./facter.json;
+
+    detected.graphics.enable = false; # the vm's virtual display pulls in mesa and llvm, a gigabyte the small disk can't spare
+  };
 
   system.stateVersion = "26.05";
 
