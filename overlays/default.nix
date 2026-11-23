@@ -36,6 +36,7 @@
   (import ./hermes-agent inputs.hermes-agent)
   (import ./hermes-agent-cron-monitor-url-in-terminal)
   (import ./hermes-agent-cron-scripts-in-terminal)
+  (import ./hermes-agent-image-cache-model-path)
   (import ./hermes-agent-model-switch-configured-key)
   (import ./hermes-agent-ssh-remote-kill)
   (import ./konsole-wayland-tab-dnd-fix)
