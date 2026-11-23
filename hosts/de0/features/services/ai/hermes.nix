@@ -113,6 +113,8 @@
                 provider = "custom";
 
                 default = "codex/gpt-6.2-sol";
+
+                supports_vision = true; # hermes looks vision up in models.dev, which doesn't know the prefixed ids, and would describe a picture with a separate call instead of attaching it
               };
 
             # codex serves its image models only on `/v1/images/generations` and `/v1/images/edits`, which the openai provider calls
