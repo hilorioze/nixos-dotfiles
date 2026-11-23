@@ -180,7 +180,7 @@
             display.platforms.telegram = {
               tool_progress = "verbose"; # telegram hides tool calls by default; show each one as it runs, with a terminal command whole, while "all" cuts it to one line
 
-              tool_preview_length = 500; # caps only the arguments of the other tools, such as a whole file being written
+              tool_preview_length = 0; # telegram cuts the arguments of the other tools to 40 characters by default; 0 shows them whole, split over as many messages as needed
             };
           };
         in "${import "${inputs.hermes-agent}/nix/configMergeScript.nix" {inherit pkgs;}} ${pkgs.writeText "hermes-${name}-settings.json" (builtins.toJSON settings)} $HERMES_HOME/config.yaml";
