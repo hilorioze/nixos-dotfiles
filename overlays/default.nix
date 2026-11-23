@@ -63,6 +63,7 @@
   (import ./spectacle-ocr-clipboard-fix)
   (import ./spectacle-ocr-save)
   (import ./spectacle-region-select-all)
+  (import ./switch-to-configuration-user-units-after-wrappers)
   (import ./traefik-skip-unused-cert-renewal)
   (import ./trayscale-operator-no-warning)
   (import ./wivrn-26-9)
