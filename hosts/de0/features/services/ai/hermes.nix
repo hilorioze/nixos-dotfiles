@@ -112,15 +112,14 @@
               // {
                 provider = "custom";
 
-                default = "antigravity/gemini-3.8-flash-high";
+                default = "codex/gpt-6.2-sol";
               };
 
-            # hermes draws through openrouter's chat protocol, which cliproxyapi speaks too; antigravity's quota, unlike codex's, isn't needed for anything else
-            providers.openrouter = cliproxyapi;
+            # codex serves its image models only on `/v1/images/generations` and `/v1/images/edits`, which the openai provider calls
             image_gen = {
-              provider = "openrouter";
+              provider = "openai";
 
-              openrouter.model = "antigravity/gemini-3.1-flash-image";
+              openai = cliproxyapi // {model = "codex/gpt-image-2.6";}; # through chatgpt, flare, sunburst and 2.5 come out the same as 2.6: same size, tokens and time
             };
 
             # the gateway reads its terminal settings only from `config.yaml` and `.env` in `HERMES_HOME`, never from its own environment
