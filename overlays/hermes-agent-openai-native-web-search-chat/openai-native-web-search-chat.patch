@@ -1,0 +1,35 @@
+diff --git a/agent/chat_completion_helpers.py b/agent/chat_completion_helpers.py
+index 0806bfaedd..6dd541e500 100644
+--- a/agent/chat_completion_helpers.py
++++ b/agent/chat_completion_helpers.py
+@@ -1363,6 +1363,22 @@ def _alias_tool_search_bridge_for_xai(agent, transport, tools_for_api):
+     return tools_for_api
+ 
+ 
++def _native_web_search_for_openai_chat(agent, tools_for_api):
++    """OpenAI-compatible proxies (CLIProxyAPI) accept the Responses ``{"type": "web_search"}``
++    built-in on chat completions and run the upstream provider's own server-side search. With
++    ``web.search_backend: openai-native``, swap the client ``web_search`` function for it 1:1,
++    as the Codex Responses transport does."""
++    def is_client_web_search(t):
++        return isinstance(t, dict) and (t.get("function") or {}).get("name") == "web_search"
++
++    if not (tools_for_api and any(is_client_web_search(t) for t in tools_for_api)):
++        return tools_for_api
++    from agent.transports.codex import _openai_prefers_native_web_search
++    if not _openai_prefers_native_web_search():
++        return tools_for_api
++    return [t for t in tools_for_api if not is_client_web_search(t)] + [{"type": "web_search"}]
++
++
+ def _consume_ephemeral_max_output(agent):
+     """Pop the one-shot ephemeral output cap; whichever path builds the request consumes it."""
+     ephemeral_out = getattr(agent, "_ephemeral_max_output_tokens", None)
+@@ -1433,6 +1449,7 @@ def _build_codex_kwargs(agent, api_messages, tools_for_api, reasoning_config, re
+ def _build_chat_completions_kwargs(agent, api_messages, tools_for_api, reasoning_config, request_overrides, cache_scope_id):
+     transport = agent._get_transport()
+     tools_for_api = _alias_tool_search_bridge_for_xai(agent, transport, tools_for_api)
++    tools_for_api = _native_web_search_for_openai_chat(agent, tools_for_api)
+ 
+     _is_qwen = agent._is_qwen_portal()
+     _is_or = agent._is_openrouter_url()

@@ -1,0 +1,31 @@
+diff --git a/internal/translator/claude/openai/chat-completions/claude_openai_request.go b/internal/translator/claude/openai/chat-completions/claude_openai_request.go
+index 997485bf..06c5777f 100644
+--- a/internal/translator/claude/openai/chat-completions/claude_openai_request.go
++++ b/internal/translator/claude/openai/chat-completions/claude_openai_request.go
+@@ -389,6 +389,11 @@ func convertOpenAIRequestToClaude(modelName string, inputRawJSON []byte, stream,
+ 	var anthropicTools [][]byte
+ 	if tools := root.Get("tools"); tools.Exists() && tools.IsArray() && len(tools.Array()) > 0 {
+ 		tools.ForEach(func(_, tool ojson.Result) bool {
++			// Special handling: map OpenAI web_search built-in tool to Claude web search
++			if tool.Get("type").String() == "web_search" {
++				anthropicTools = append(anthropicTools, convertOpenAIWebSearchToolToClaude(tool))
++				return true
++			}
+ 			if tool.Get("type").String() == "function" {
+ 				function := tool.Get("function")
+ 				fnName := function.Get("name").String()
+@@ -648,3 +653,14 @@ func firstExisting(values ...ojson.Result) ojson.Result {
+ 	}
+ 	return ojson.Result{}
+ }
++
++func convertOpenAIWebSearchToolToClaude(tool ojson.Result) []byte {
++	outDoc := ojson.NewDocString(`{"type":"web_search_20250305","name":"web_search"}`)
++	if allowedDomains := tool.Get("filters.allowed_domains"); allowedDomains.Exists() && allowedDomains.IsArray() {
++		_ = outDoc.SetRawBytes("allowed_domains", []byte(allowedDomains.Raw))
++	}
++	if userLocation := tool.Get("user_location"); userLocation.Exists() && userLocation.IsObject() {
++		_ = outDoc.SetRawBytes("user_location", []byte(userLocation.Raw))
++	}
++	return outDoc.Bytes()
++}

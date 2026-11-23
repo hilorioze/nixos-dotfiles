@@ -28,6 +28,7 @@
   # keep-sorted start
   (import ./chiaki-ng-aia-default-trust-store)
   (import ./claude-code-alsa-rpath)
+  (import ./cliproxyapi-claude-chat-web-search)
   (import ./cliproxyapi-response-model-prefix)
   (import ./devenv-unstable)
   (import ./gnupg-pcsc-shared-reselect-fix)
@@ -38,6 +39,7 @@
   (import ./hermes-agent-cron-scripts-in-terminal)
   (import ./hermes-agent-image-cache-model-path)
   (import ./hermes-agent-model-switch-configured-key)
+  (import ./hermes-agent-openai-native-web-search-chat)
   (import ./hermes-agent-ssh-remote-kill)
   (import ./konsole-wayland-tab-dnd-fix)
   (import ./looking-glass-client-idd)
