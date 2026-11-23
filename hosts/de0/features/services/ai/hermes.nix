@@ -134,7 +134,11 @@
               language = ""; # detect it; hermes assumes english otherwise
             };
 
-            web.search_backend = "openai-native"; # send the built-in `web_search`; cliproxyapi runs each provider's own search
+            web = {
+              search_backend = "openai-native"; # send the built-in `web_search`; cliproxyapi runs each provider's own search
+
+              keyless_rescue = false; # a failed search reaches the agent as an error instead of quietly coming from the keyless search engines
+            };
 
             # the gateway reads its terminal settings only from `config.yaml` and `.env` in `HERMES_HOME`, never from its own environment
             terminal = {
