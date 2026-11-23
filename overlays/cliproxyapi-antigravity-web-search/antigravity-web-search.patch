@@ -1,0 +1,14 @@
+diff --git a/internal/registry/model_definitions.go b/internal/registry/model_definitions.go
+index 3d988b8..34607fe 100644
+--- a/internal/registry/model_definitions.go
++++ b/internal/registry/model_definitions.go
+@@ -229,7 +229,8 @@ func AntigravityWebSearchModelFor(modelID string) string {
+ 		if currentModelID == "" {
+ 			continue
+ 		}
+-		if currentModelID == modelID {
++		metadataModelID := normalizeAntigravityCapabilityModelID(model.MetadataModelID)
++		if currentModelID == modelID || metadataModelID == modelID {
+ 			if model.SupportsWebSearch {
+ 				return currentModelID
+ 			}
