@@ -20,6 +20,8 @@
         "services/cliproxyapi/users/hermes-${name}/inference-key" = agentSecret;
 
         "services/hermes/agents/${name}/mcpproxy/api-key" = agentSecret;
+
+        "credentials/groq/api-key" = agentSecret;
       })
       config.virtualisation.agentbox.machines);
 
@@ -37,6 +39,8 @@
             CLIPROXYAPI_API_KEY=${config.sops.placeholder."services/cliproxyapi/users/hermes-${name}/inference-key"}
 
             MCPPROXY_API_KEY=${config.sops.placeholder."services/hermes/agents/${name}/mcpproxy/api-key"}
+
+            GROQ_API_KEY=${config.sops.placeholder."credentials/groq/api-key"}
           '';
         })
       config.virtualisation.agentbox.machines;
@@ -121,6 +125,13 @@
               provider = "openai";
 
               openai = cliproxyapi // {model = "codex/gpt-image-2.6";}; # through chatgpt, flare, sunburst and 2.5 come out the same as 2.6: same size, tokens and time
+            };
+
+            # chatgpt's transcription isn't reachable through cliproxyapi; groq runs whisper for free
+            stt = {
+              provider = "groq";
+
+              language = ""; # detect it; hermes assumes english otherwise
             };
 
             # the gateway reads its terminal settings only from `config.yaml` and `.env` in `HERMES_HOME`, never from its own environment
