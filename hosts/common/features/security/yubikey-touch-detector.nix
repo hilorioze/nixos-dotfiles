@@ -5,4 +5,7 @@
 
     libnotify = true;
   };
+
+  # its socket only hands out events, it never starts the detector; a switch that restarts only the socket leaves the detector stopped
+  systemd.user.services.yubikey-touch-detector.notSocketActivated = true;
 }
