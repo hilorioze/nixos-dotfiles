@@ -33,3 +33,56 @@ index 0806bfaedd..6dd541e500 100644
  
      _is_qwen = agent._is_qwen_portal()
      _is_or = agent._is_openrouter_url()
+diff --git a/plugins/web/openai_native/provider.py b/plugins/web/openai_native/provider.py
+index f1b36e005e..1a430c0a17 100644
+--- a/plugins/web/openai_native/provider.py
++++ b/plugins/web/openai_native/provider.py
+@@ -19,7 +19,7 @@ from __future__ import annotations
+ import json
+ from typing import Any, Dict
+ 
+-from plugins.web._common import BaseWebSearchProvider, search_fail
++from plugins.web._common import BaseWebSearchProvider, search_fail, search_ok, web_hit
+ 
+ _UNSUPPORTED_MSG = (
+     "openai-native declares OpenAI's server-side web_search tool; it cannot run as a "
+@@ -72,10 +72,35 @@ class OpenAINativeWebSearchProvider(BaseWebSearchProvider):
+         return has_codex_credentials()
+ 
+     def search(self, query: str, limit: int = 5) -> dict[str, Any]:
+-        """Never called on a successful native turn — the transport replaces the tool
+-        before the request goes out. Reached only when the active transport cannot host
+-        the built-in, so fail loudly instead of returning an empty result set."""
+-        return search_fail(_UNSUPPORTED_MSG)
++        """The transport declares the built-in in place of the client ``web_search`` function, so a
++        search reaches here only as a function call: from a provider that can't run the built-in
++        beside function tools and returns it as one (Antigravity through CLIProxyAPI), or from code
++        in ``execute_code``. Run it as a search-only Responses request with the turn's own model,
++        which the provider answers with its own server-side search. Without a running turn there is
++        no model to ask, so fail loudly instead of returning an empty result set."""
++        from agent.subagent_lifecycle import get_active_subagent_parent
++
++        agent = get_active_subagent_parent()
++        if agent is None:
++            return search_fail(_UNSUPPORTED_MSG)
++
++        response = agent._create_request_openai_client(reason="native_web_search").responses.create(
++            model=agent.model, input=query, tools=[{"type": "web_search"}],
++        )
++        answer: list[str] = []
++        titles: dict[str, str] = {}
++        for item in response.model_dump()["output"]:
++            if item.get("type") == "web_search_call":
++                for source in (item.get("action") or {}).get("sources") or []:
++                    titles.setdefault(source["url"], "")
++            for part in item.get("content") or []:
++                answer.append(part.get("text") or "")
++                for annotation in part.get("annotations") or []:
++                    if annotation.get("type") == "url_citation":
++                        titles[annotation["url"]] = annotation.get("title") or titles.get(annotation["url"], "")
++        result = search_ok([web_hit(url, title, "", position) for position, (url, title) in enumerate(titles.items(), 1)])
++        result["data"]["answer"] = "".join(answer)
++        return result
+ 
+     def get_setup_schema(self) -> dict[str, Any]:
+         from plugins.web._common import setup_schema
