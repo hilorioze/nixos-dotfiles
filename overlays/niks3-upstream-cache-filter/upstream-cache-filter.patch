@@ -15,7 +15,7 @@ index e799552..c8b106a 100644
  	Pushes bool `json:"pushes,omitempty"`
  }
 diff --git a/client/upload.go b/client/upload.go
-index c3dbf0e..abca5c3 100644
+index bb68e31..b7cac44 100644
 --- a/client/upload.go
 +++ b/client/upload.go
 @@ -10,6 +10,7 @@ import (
@@ -38,7 +38,7 @@ index c3dbf0e..abca5c3 100644
  			refHash, err := GetStorePathHash(ref)
  			if err != nil {
  				return nil, fmt.Errorf("getting reference hash: %w", err)
-@@ -375,6 +381,56 @@ nextClosure:
+@@ -345,6 +351,56 @@ nextClosure:
  	return kept, prunedInfos, skipped
  }
  
@@ -95,35 +95,23 @@ index c3dbf0e..abca5c3 100644
  // createPending registers the closures with the server and returns the route
  // to sign and complete them on, plus the pending objects keyed by pending ID.
  // The server only signs narinfos that are pending for that specific ID, so
-@@ -606,13 +662,24 @@ func (c *Client) PushPaths(ctx context.Context, paths []string) ([]string, error
+@@ -619,6 +675,16 @@ func (c *Client) pushPathsOnce(ctx context.Context, paths []string) ([]string, m
  		closurePaths = append(closurePaths, storePath)
  	}
  
--	// Skip closures containing paths larger than the server's max NAR size.
--	var maxNarSize uint64
-+	// Skip paths served by upstream caches, then closures containing paths
-+	// larger than the server's max NAR size.
-+	var (
-+		maxNarSize            uint64
-+		upstreamCacheKeyNames []string
-+	)
- 
- 	if cfg, err := c.GetCacheConfig(ctx); err != nil {
--		slog.Warn("Failed to fetch cache config, uploading without size limit", "error", err)
-+		slog.Warn("Failed to fetch cache config, uploading without size limit or upstream filter", "error", err)
- 	} else {
--		maxNarSize = cfg.MaxNarSize
-+		maxNarSize, upstreamCacheKeyNames = cfg.MaxNarSize, cfg.UpstreamCacheKeyNames
++	// Skip paths served by upstream caches.
++	if cfg, err := c.GetCacheConfig(ctx); err == nil {
++		resolvedPaths, pathInfos = filterUpstreamPaths(resolvedPaths, pathInfos, cfg.UpstreamCacheKeyNames)
++		if len(resolvedPaths) == 0 {
++			slog.Info("All paths are available from upstream caches, nothing to upload")
++
++			return closurePaths, report(), nil
++		}
 +	}
 +
-+	resolvedPaths, pathInfos = filterUpstreamPaths(resolvedPaths, pathInfos, upstreamCacheKeyNames)
-+	if len(resolvedPaths) == 0 {
-+		slog.Info("All paths are available from upstream caches, nothing to upload")
-+
-+		return closurePaths, nil
- 	}
+ 	// Skip closures containing paths larger than the server's max NAR size.
+ 	var maxNarSize uint64
  
- 	var skipped skippedUploads
 diff --git a/server/cache_config.go b/server/cache_config.go
 index 4c4d4c0..1b17b4e 100644
 --- a/server/cache_config.go
@@ -167,7 +155,7 @@ index fce2495..28b95a9 100644
  	flag.BoolVar(&opts.Debug, "debug", getEnvOrDefaultBool("NIKS3_DEBUG", false),
  		"Enable debug logging (may leak sensitive information)")
 diff --git a/server/server.go b/server/server.go
-index 640b39d..a714572 100644
+index 11f949d..8967928 100644
 --- a/server/server.go
 +++ b/server/server.go
 @@ -61,6 +61,10 @@ type options struct {
@@ -191,7 +179,7 @@ index 640b39d..a714572 100644
  	// CachePriority is written to nix-cache-info. 0 means defaultCachePriority.
  	CachePriority int
  
-@@ -262,6 +269,7 @@ func runServer(opts *options) error {
+@@ -251,6 +258,7 @@ func runServer(opts *options) error {
  		CacheURL:                   opts.CacheURL,
  		ServerURL:                  opts.ServerURL,
  		MaxNarSize:                 opts.MaxNarSize,
