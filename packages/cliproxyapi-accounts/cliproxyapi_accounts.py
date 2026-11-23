@@ -1,5 +1,4 @@
 import datetime
-import email.utils
 import json
 import os
 import sys
@@ -13,15 +12,11 @@ CLIPROXYAPI_URL: str = os.environ["CLIPROXYAPI_URL"]
 
 CODEX_HEADERS: dict[str, str] = json.loads(Path(os.environ["CLIPROXYAPI_CODEX_HEADERS"]).read_text())
 
-ANTIGRAVITY_USER_AGENT: str = os.environ["CLIPROXYAPI_ANTIGRAVITY_USER_AGENT"]
-
 CLIPROXYAPI_TIMEOUT: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10)
 
 ACCOUNT_ERRORS: tuple[type[Exception], ...] = (aiohttp.ClientError, OSError, RuntimeError, LookupError, TypeError, ValueError)  # one failing account must not stop the others
 
 WINDOW_LENGTHS: dict[str, int] = {"5h": 18000, "7d": 604800}
-
-ANTIGRAVITY_CLOCK_TOLERANCE: float = 1  # `Date` and `resetTime` both drop the fraction of a second
 
 
 def read_key(name: str) -> str:
@@ -122,45 +117,7 @@ async def fetch_codex_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
     return [{"name": None, "windows": windows}]
 
 
-def read_antigravity_bucket(bucket: dict[str, Any], *, answered_at: float) -> dict[str, Any]:
-    label: str = bucket["bucketId"].rsplit("-", 1)[-1].replace("weekly", "7d")  # `gemini-5h`, `3p-weekly`
-    resets_at: float | None = parse_time(bucket.get("resetTime"))
-
-    # an unstarted window counts its whole length from the server's now
-    if resets_at is not None and abs(resets_at - answered_at - WINDOW_LENGTHS[label]) <= ANTIGRAVITY_CLOCK_TOLERANCE:
-        resets_at = None
-
-    return {"label": label, "length": WINDOW_LENGTHS[label], "remaining": bucket["remainingFraction"] * 100, "resets_at": resets_at}
-
-
-async def fetch_antigravity_quota(account: dict[str, Any]) -> list[dict[str, Any]]:
-    response: dict[str, Any] = await send_provider_request(
-        account,
-        method="POST",
-        url="https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary",
-        headers={"Content-Type": "application/json", "User-Agent": ANTIGRAVITY_USER_AGENT},
-        data=json.dumps({"project": account["project_id"]}),
-    )
-
-    summary: dict[str, Any] = json.loads(response["body"])
-    answered_at: float = email.utils.parsedate_to_datetime(response["header"]["Date"][0]).timestamp()
-
-    # gemini and the third-party models are separate pools
-    return [
-        {
-            "name": group["displayName"],
-            "windows": [
-                read_antigravity_bucket(bucket, answered_at=answered_at)
-                for bucket in reversed(group["buckets"])  # listed longest first
-                if "remainingFraction" in bucket
-            ],
-        }
-        for group in summary["groups"]
-    ]
-
-
 FETCHERS: dict[str, Callable[[dict[str, Any]], Coroutine[Any, Any, list[dict[str, Any]]]]] = {
     "claude": fetch_claude_quota,
     "codex": fetch_codex_quota,
-    "antigravity": fetch_antigravity_quota,
 }

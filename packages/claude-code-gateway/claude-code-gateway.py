@@ -34,23 +34,18 @@ BEHAVES_AS: str = "claude-opus-5-5"  # claude knows a foreign model only through
 
 EFFORT_LEVELS: tuple[str, ...] = ("low", "medium", "high", "xhigh", "max")
 
-FREE_SUFFIX: str = ":free"  # openrouter and kilo mark their free variants by it
-FREE_PROVIDERS: set[str] = {"nvidia"}  # build.nvidia.com serves its whole catalog free, under a rate limit
-
 FRAMING_HEADERS: set[str] = {"connection", "content-length", "host", "transfer-encoding"}  # aiohttp frames both directions itself
 
 CLASSIFIER_PROMPT: str = "You are a security monitor for autonomous AI coding agents."  # auto mode's local check, sent when the api gives no verdict of its own
 
-# what each agent checks its actions with: codex the auto-review model of its catalog, antigravity the model of the flash tier, which agy's own monitors pick by tier
+# what each agent checks its actions with: codex the auto-review model of its catalog
 REVIEWERS: dict[str, str] = {
     "codex": "codex/codex-auto-review",
-    "antigravity": "antigravity/gemini-3.8-flash-tiered",
 }
 
 # what each provider runs auxiliary tasks (web fetch extraction, session naming) with
 HELPERS: dict[str, str] = {
     "codex": "codex/gpt-5.6-luna",
-    "antigravity": "antigravity/gemini-3.8-flash-tiered",
 }
 
 QUOTA_MIN_AGE: float = 30  # the status line renders many times per turn
@@ -125,7 +120,7 @@ def read_codex_quota(quota: dict[str, Any]) -> list[dict[str, Any]]:
     return windows
 
 
-# rate limit headers of an account's last answer; cliproxyapi keeps none for antigravity
+# rate limit headers of an account's last answer
 OBSERVERS: dict[str, Callable[[dict[str, Any]], list[dict[str, Any]]]] = {
     "claude": read_claude_quota,
     "codex": read_codex_quota,
@@ -242,31 +237,19 @@ async def read_catalog() -> list[dict[str, Any]]:
     ):
         catalog: dict[str, Any] = await answer.json()
 
-    compatibility: list[dict[str, Any]] = (await call_management(method="GET", path="/openai-compatibility"))["openai-compatibility"]
+    models: list[dict[str, Any]] = catalog["data"]
 
-    api_key_providers: set[str] = {provider["prefix"] for provider in compatibility}
-
-    # api key providers list hundreds of models each, mostly paid; keep their free ones
-    paid_providers: set[str] = api_key_providers - FREE_PROVIDERS
-    models: list[dict[str, Any]] = [model for model in catalog["data"] if split_model(model["id"])[0] not in paid_providers or uncloak_model(model["id"]).endswith(FREE_SUFFIX)]
-
-    subscription_providers: list[str] = sorted({split_model(model["id"])[0] for model in models} - api_key_providers)
+    providers: list[str] = sorted({split_model(model["id"])[0] for model in models})
 
     # cliproxyapi's claude model list omits thinking support; read its full definitions
-    definitions: list[dict[str, Any]] = await asyncio.gather(*(call_management(method="GET", path=f"/model-definitions/{provider}") for provider in subscription_providers))
-
-    # an api key provider has no definitions; its models carry their levels in the config
-    sources: list[tuple[str, str, list[dict[str, Any]]]] = [
-        *((provider, "id", definition["models"]) for provider, definition in zip(subscription_providers, definitions, strict=True)),
-        *((provider["prefix"], "alias", provider.get("models", [])) for provider in compatibility),
-    ]
+    definitions: list[dict[str, Any]] = await asyncio.gather(*(call_management(method="GET", path=f"/model-definitions/{provider}") for provider in providers))
 
     limits: dict[tuple[str, str], str] = {}
-    for provider, key, entries in sources:
-        for model in entries:
+    for provider, definition in zip(providers, definitions, strict=True):
+        for model in definition["models"]:
             levels: list[str] = [level for level in EFFORT_LEVELS if level in model.get("thinking", {}).get("levels", [])]
             if levels:
-                limits[provider, model[key]] = levels[-1]
+                limits[provider, model["id"]] = levels[-1]
 
     return [{**model, "max_effort_level": limits.get(split_model(model["id"]))} for model in models]
 
@@ -441,10 +424,6 @@ async def serve_model_picker(request: web.Request) -> web.Response:
 
         # under its own id a foreign model gets its own effort in `modelSettings`, not the one of the disguise
         model_id: str = uncloak_model(model["id"])
-
-        # let claude use antigravity gemini's 1M context only where the catalog advertises it; claude strips `[1m]` before sending the api request
-        if provider == "antigravity" and name.startswith("gemini-") and model["max_input_tokens"] >= 1000000:
-            model_id = f"{model_id}[1m]"
 
         option: dict[str, str] = {
             "model": model_id,
