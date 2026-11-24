@@ -76,8 +76,6 @@
         };
 
         multimedia.disable-image-generation = "chat"; # cliproxyapi adds an image tool to codex requests; claude drops the images, the quota is spent anyway
-
-        oauth.providers.antigravity.system-instruction-as-user = true; # google answers phrases of claude's and hermes' system prompts with `RESOURCE_EXHAUSTED`, but not the same phrases in a user turn; the cooldown that follows fails every other session on the account too
       };
     };
   };
@@ -103,9 +101,6 @@
 
           jq --null-input --arg user_agent "$user_agent" --arg originator "$originator" '{"User-Agent": $user_agent, Originator: $originator}' >$out
         '';
-
-        # let antigravity quota requests pass as agy: daily-cloudcode-pa lists the gemini group only for a recent `antigravity/cli/<version>`
-        CLIPROXYAPI_ANTIGRAVITY_USER_AGENT = "antigravity/cli/${pkgs.unstablePkgs.antigravity-cli.version}";
       };
 
       serviceConfig = {
