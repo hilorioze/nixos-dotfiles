@@ -123,6 +123,7 @@ in {
         switchModelsOnFlag = true; # switch to the fallback model without asking when the safeguards flag a session
 
         feedbackDrafts = "off"; # disable the "✻ Bug report drafted" card and the `SendFeedback` tool
+        env.CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1"; # disable the "How is Claude doing this session?" survey
 
         verbose = true; # show full tool output
 
