@@ -21,6 +21,7 @@
     ../../../features/3d/bambu-studio.nix
     ../../../features/3d/blender.nix
     ../../../features/ai/claude-code.nix
+    ../../../features/ai/k1tty-tools.nix
     ../../../features/ai/mcp.nix
     ../../../features/android/adb.nix
     ../../../features/android/quickshare.nix
