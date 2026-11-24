@@ -343,9 +343,24 @@
               ];
             }
 
+            {
+              name = "hilot-browser";
+              group = "services";
+
+              url = "https://hilot-browser.${hel0Host}/health"; # traefik serves novnc's viewer here without authentik
+
+              conditions = [
+                "[STATUS] == 200"
+
+                "[BODY] == pat(*noVNC*)"
+              ];
+            }
+
             (mkHilotEndpoint "hilot-bot-hilorioze")
 
             (mkHilotEndpoint "hilot-bot-qpw")
+
+            (mkHilotEndpoint "hilot-detector")
 
             (mkHilotEndpoint "hilot-downloader")
 

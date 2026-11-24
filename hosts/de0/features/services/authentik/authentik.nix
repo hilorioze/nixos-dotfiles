@@ -72,6 +72,8 @@
 
     install --mode 0644 ${pkgs.replaceVars ./cookie-browser.yaml {inherit domain;}} $out/cookie-browser.yaml
 
+    install --mode 0644 ${pkgs.replaceVars ./hilot-browser.yaml {inherit domain;}} $out/hilot-browser.yaml
+
     install --mode 0644 ${./embedded-outpost.yaml} $out/embedded-outpost.yaml
   '';
 in {

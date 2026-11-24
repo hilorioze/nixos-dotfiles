@@ -21,12 +21,24 @@
     lib.mapAttrs' (name: port: lib.nameValuePair "hilot-bot-${name}" port) botPorts
     // {
       # keep-sorted start
+      hilot-detector = 9105;
       hilot-downloader = 9102;
       hilot-transcoder = 9103;
       # keep-sorted end
     };
 
   proxyPort = 3128; # haproxy's port in front of the home proxies
+
+  browserProxyPort = 3129; # 3proxy's port in front of haproxy's, which signs in for chrome
+
+  browserPort = 9222; # the devtools port of `hilot-browser`
+
+  novncPort = 6080;
+
+  wayvncConfig = pkgs.writeText "wayvnc-config" ''
+    address=127.0.0.1
+    port=5900
+  '';
 
   # the proxies and cookie browsers at home, cex-nixos first as the steadier one
   homeHosts = with outputs.nixosConfigurations; [
@@ -42,12 +54,18 @@ in {
       lib.mkMerge [
         {
           # printf '["%s"]\n' $(, openssl rand -base64 32 | tr '+/' '-_')
-          "services/hilot/cookie-keys".restartUnits = ["hilot-downloader.service"];
+          "services/hilot/encryption-keys".restartUnits = [
+            # keep-sorted start
+            "hilot-detector.service"
+            "hilot-downloader.service"
+            # keep-sorted end
+          ];
 
           # token=$(, openssl rand -hex 32); printf 'token: %s\nhashed-token: %s\n' $token $(, mkpasswd --method=bcrypt --rounds=10 $token)
           "services/hilot/nats-token".restartUnits = lib.mkMerge [
             [
               # keep-sorted start
+              "hilot-detector.service"
               "hilot-downloader.service"
               "hilot-transcoder.service"
               # keep-sorted end
@@ -60,7 +78,7 @@ in {
           "services/nats/tokens/hilot/hashed-token" = {};
 
           # password=$(, openssl rand -hex 32); printf 'password: %s\nhashed-password: %s\n' $password $(, openssl passwd -1 $password)
-          "services/hilot/proxy-password" = {};
+          "services/hilot/proxy-password".restartUnits = ["3proxy.service"];
 
           # password=$(, openssl rand -hex 32); printf 'password: %s\nhashed-password: %s\n' $password $(, htpasswd -inBC 10 "" <<<$password | cut --delimiter=: --fields=2)
           "services/hilot/cookie-browser-password" = {};
@@ -84,6 +102,21 @@ in {
       "services/cookie-browser/curlrc".content = "user = \"hilot:${config.sops.placeholder."services/hilot/cookie-browser-password"}\"";
     };
   };
+
+  # a desktop's usual fonts for `hilot-browser`; a browser that finds a single font looks like a bot
+  fonts = {
+    enableDefaultPackages = true;
+
+    packages = with pkgs; [
+      # keep-sorted start
+      noto-fonts
+      noto-fonts-cjk-sans
+      # keep-sorted end
+    ];
+  };
+
+  # mesa's software renderer, for the webgl of `hilot-browser`
+  hardware.graphics.enable = true;
 
   # postgresql's peer auth looks the connecting user up by id; a dynamic one resolves only through nscd, which openresolv restarts on every dns change
   users = {
@@ -134,20 +167,83 @@ in {
       '';
     };
 
+    # chrome takes a proxy without its credentials, so this one passes its connections on to haproxy's with them
+    _3proxy = {
+      enable = true;
+
+      namedServices.hilot-browser = {
+        type = "proxy";
+
+        bindAddress = "127.0.0.1";
+        bindPort = browserProxyPort;
+
+        auth = ["iponly"]; # with `none` 3proxy skips every acl, including the `allow` that `parent` belongs to
+
+        acl = [{rule = "allow";}];
+
+        extraConfig = ''parent 1000 connect 127.0.0.1 ${toString proxyPort} hilot $"/run/credentials/3proxy.service/proxy-password"'';
+      };
+    };
+
     nats.settings.authorization.token = config.sops.placeholder."services/nats/tokens/hilot/hashed-token";
 
-    # gatus checks those, so only `/healthz` goes public; prometheus scrapes `/metrics` over the tailnet
     traefik.dynamicConfigOptions.http = {
-      routers =
-        lib.mapAttrs (name: _: {
-          entryPoints = ["https"];
-          rule = "Host(`${name}.${config.networking.fqdn}`) && Path(`/healthz`)";
+      routers = lib.mkMerge [
+        # gatus checks those, so only `/healthz` goes public; prometheus scrapes `/metrics` over the tailnet
+        (lib.mapAttrs (name: _: {
+            entryPoints = ["https"];
+            rule = "Host(`${name}.${config.networking.fqdn}`) && Path(`/healthz`)";
 
-          service = name;
-        })
-        httpPorts;
+            service = name;
+          })
+          httpPorts)
 
-      services = lib.mapAttrs (_: port: {loadBalancer.servers = [{url = "http://127.0.0.1:${toString port}";}];}) httpPorts;
+        # novnc shows the browser, where the synthid.com accounts of `hilot-detector` are signed in
+        {
+          hilot-browser-http = {
+            entryPoints = ["http"];
+            rule = "Host(`hilot-browser.${config.networking.fqdn}`)";
+
+            middlewares = ["redirect-to-https"];
+
+            service = "noop@internal";
+          };
+
+          hilot-browser = {
+            entryPoints = ["https"];
+            rule = "Host(`hilot-browser.${config.networking.fqdn}`)";
+
+            # authentik first, so not even the redirect answers without a session
+            middlewares = [
+              "oidc-login"
+              "novnc-viewer"
+            ];
+
+            service = "hilot-browser";
+          };
+
+          # de0's gatus checks that the viewer is served, without an authentik session
+          hilot-browser-health = {
+            entryPoints = ["https"];
+            rule = "Host(`hilot-browser.${config.networking.fqdn}`) && Path(`/health`)";
+
+            middlewares = [
+              # keep-sorted start
+              "no-upgrade"
+              "novnc-health"
+              # keep-sorted end
+            ];
+
+            service = "hilot-browser";
+          };
+        }
+      ];
+
+      services = lib.mkMerge [
+        (lib.mapAttrs (_: port: {loadBalancer.servers = [{url = "http://127.0.0.1:${toString port}";}];}) httpPorts)
+
+        {hilot-browser.loadBalancer.servers = [{url = "http://127.0.0.1:${toString novncPort}";}];}
+      ];
     };
   };
 
@@ -199,6 +295,14 @@ in {
           concurrency = 1;
 
           http = mkHttp httpPorts.hilot-transcoder;
+        };
+
+        detector = {
+          concurrency = 2;
+
+          http = mkHttp httpPorts.hilot-detector;
+
+          browser_url = "http://127.0.0.1:${toString browserPort}";
         };
       };
 
@@ -351,7 +455,7 @@ in {
                 CacheDirectory = "hilot-downloader";
 
                 LoadCredential = [
-                  "COOKIES__KEYS:${config.sops.secrets."services/hilot/cookie-keys".path}"
+                  "ENCRYPTION__KEYS:${config.sops.secrets."services/hilot/encryption-keys".path}"
 
                   "DOWNLOADER__PROXY:${config.sops.templates."services/hilot/proxy-url".path}"
                 ];
@@ -373,6 +477,94 @@ in {
             }
           ];
 
+          # a chrome on a headless wayland output, whose synthid.com page attests the checks of `hilot-detector`, and where its accounts are signed in
+          hilot-browser = {
+            wantedBy = ["multi-user.target"];
+
+            # the browser goes out from the home address, as a desktop would
+            after = ["3proxy.service"];
+            requires = ["3proxy.service"];
+
+            environment = {
+              WLR_BACKENDS = "headless";
+              WLR_RENDERER = "pixman"; # the vm has no gpu
+
+              XDG_RUNTIME_DIR = "%t/hilot-browser";
+
+              TZ = "Europe/Dublin"; # the zone of the home proxy's address, which the page sees
+            };
+
+            serviceConfig = {
+              DynamicUser = true;
+
+              RuntimeDirectory = "hilot-browser";
+              CacheDirectory = "hilot-browser";
+
+              # labwc ends with the browser, so both restart together
+              ExecStart = lib.escapeShellArgs [
+                (lib.getExe pkgs.labwc)
+                "--startup"
+                "${lib.getExe pkgs.wayvnc} --config=${wayvncConfig}" # shows the output to novnc; without a config file of its own wayvnc won't start
+                "--session"
+                (lib.escapeShellArgs [
+                  (lib.getExe pkgs.google-chrome) # a plain chromium is rare enough to stand out
+                  "--ozone-platform=wayland" # labwc runs without xwayland
+                  "--start-maximized"
+                  "--ignore-gpu-blocklist" # chrome keeps webgl off on mesa's software renderer; a browser without webgl looks like a bot
+                  "--proxy-server=http://127.0.0.1:${toString browserProxyPort}"
+                  "--remote-debugging-port=${toString browserPort}"
+                  "--user-data-dir=%C/hilot-browser"
+                  "--no-first-run"
+                  "--no-default-browser-check"
+                ])
+              ];
+
+              Restart = "always";
+              RestartSec = 2;
+            };
+          };
+
+          # serves the novnc viewer and passes its websocket on to wayvnc
+          hilot-browser-novnc = {
+            wantedBy = ["multi-user.target"];
+
+            serviceConfig = {
+              DynamicUser = true;
+
+              ExecStart = lib.escapeShellArgs [
+                (lib.getExe pkgs.python3Packages.websockify)
+                "--web=${pkgs.novnc}/share/webapps/novnc"
+                "--file-only"
+                "127.0.0.1:${toString novncPort}"
+                "127.0.0.1:5900" # wayvnc's port in `wayvncConfig`
+              ];
+
+              Restart = "on-failure";
+            };
+          };
+
+          hilot-detector = lib.mkMerge [
+            credentials
+
+            shared
+
+            database
+
+            {
+              # the detector stays connected to the browser, so a restarted browser restarts it too
+              after = ["hilot-browser.service"];
+              bindsTo = ["hilot-browser.service"];
+
+              environment.XDG_CONFIG_HOME = sharedConfigHome;
+
+              serviceConfig = {
+                LoadCredential = ["ENCRYPTION__KEYS:${config.sops.secrets."services/hilot/encryption-keys".path}"];
+
+                ExecStart = lib.getExe' pkgs.hilot "hilot-detector";
+              };
+            }
+          ];
+
           # take the logins of the cookie browsers at home
           hilot-cookies-sync = lib.mkMerge [
             credentials
@@ -388,7 +580,7 @@ in {
                 RuntimeDirectory = "hilot-cookies-sync";
 
                 LoadCredential = [
-                  "COOKIES__KEYS:${config.sops.secrets."services/hilot/cookie-keys".path}"
+                  "ENCRYPTION__KEYS:${config.sops.secrets."services/hilot/encryption-keys".path}"
 
                   "curlrc:${config.sops.templates."services/cookie-browser/curlrc".path}"
                 ];
@@ -400,6 +592,8 @@ in {
               };
             }
           ];
+
+          "3proxy".serviceConfig.LoadCredential = ["proxy-password:${config.sops.secrets."services/hilot/proxy-password".path}"]; # the dynamic user can't read the file where sops puts it
 
           garage-setup.script = lib.mkAfter ''
             access_key_id=$(<${config.sops.secrets."services/hilot/s3-access-key-id".path})

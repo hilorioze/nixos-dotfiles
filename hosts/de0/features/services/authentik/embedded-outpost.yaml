@@ -27,6 +27,11 @@ entries:
         identifiers:
           path: cookie-browser.yaml
 
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          path: hilot-browser.yaml
+
   outpost:
     - model: authentik_outposts.outpost
       identifiers:
@@ -61,3 +66,5 @@ entries:
           - !Find [authentik_providers_proxy.proxyprovider, [name, cookie-browser-cex-nixos]]
           - !Find [authentik_providers_proxy.proxyprovider, [name, cookie-browser-fakesynology-nixos]]
           # keep-sorted end
+
+          - !Find [authentik_providers_proxy.proxyprovider, [name, hilot-browser]]
