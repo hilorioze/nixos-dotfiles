@@ -15,6 +15,16 @@ groups:
   - name: hilot
     rules:
       # keep-sorted start block=yes newline_separated=yes
+      # most links of a site failing means its extractor broke, a few dead links don't
+      - alert: hilot_extractor_failing
+
+        expr: increase(hilot_media_unavailable_total[1h]) >= 3 and increase(hilot_media_unavailable_total[1h]) / increase(hilot_extractions_total[1h]) >= 0.5
+
+        labels:
+          severity: warning
+        annotations:
+          summary: "hilot fails to download from {{ $labels.extractor }}"
+
       - alert: hilot_login_required
 
         expr: increase(hilot_login_required_total[10m]) > 0
