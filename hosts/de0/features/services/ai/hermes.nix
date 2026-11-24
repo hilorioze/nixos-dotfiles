@@ -167,8 +167,6 @@
                 # keep-sorted end
               ];
 
-              reasoning_overrides."antigravity/gemini-3.8-flash-high" = "high"; # hermes sends `medium` when nothing is set, which cliproxyapi turns into the model's thinking level and so lowers the model its id names
-
               # hermes reads context files such as `AGENTS.md` only from its own host, so the agent learns about its agentbox's repo from here
               environment_hint = ''
                 Your terminal is `agentbox-${name}`, a persistent NixOS container that belongs to you. Its system, services and your home are declared in your own repository `~/projects/agentbox-${name}` there, which you commit, push and deploy yourself. It starts as an empty `git init` with the remotes `origin` and `upstream` and nothing checked out, where `git pull` has no branch to track; run `git fetch origin` and `git switch main` there once. Then read its `AGENTS.md` before changing the system, installing software or publishing a service.

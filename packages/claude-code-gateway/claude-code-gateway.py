@@ -38,16 +38,14 @@ FRAMING_HEADERS: set[str] = {"connection", "content-length", "host", "transfer-e
 
 CLASSIFIER_PROMPT: str = "You are a security monitor for autonomous AI coding agents."  # auto mode's local check, sent when the api gives no verdict of its own
 
-# what each agent checks its actions with: codex the auto-review model of its catalog, antigravity the model of the flash tier, which agy's own monitors pick by tier
+# what each agent checks its actions with: codex the auto-review model of its catalog
 REVIEWERS: dict[str, str] = {
     "codex": "codex/codex-auto-review",
-    "antigravity": "antigravity/gemini-3.8-flash-tiered",
 }
 
 # what each provider runs auxiliary tasks (web fetch extraction, session naming) with
 HELPERS: dict[str, str] = {
     "codex": "codex/gpt-5.6-luna",
-    "antigravity": "antigravity/gemini-3.8-flash-tiered",
 }
 
 QUOTA_MIN_AGE: float = 30  # the status line renders many times per turn
@@ -122,7 +120,7 @@ def read_codex_quota(quota: dict[str, Any]) -> list[dict[str, Any]]:
     return windows
 
 
-# rate limit headers of an account's last answer; cliproxyapi keeps none for antigravity
+# rate limit headers of an account's last answer
 OBSERVERS: dict[str, Callable[[dict[str, Any]], list[dict[str, Any]]]] = {
     "claude": read_claude_quota,
     "codex": read_codex_quota,
@@ -426,10 +424,6 @@ async def serve_model_picker(request: web.Request) -> web.Response:
 
         # under its own id a foreign model gets its own effort in `modelSettings`, not the one of the disguise
         model_id: str = uncloak_model(model["id"])
-
-        # let claude use antigravity gemini's 1M context only where the catalog advertises it; claude strips `[1m]` before sending the api request
-        if provider == "antigravity" and name.startswith("gemini-") and model["max_input_tokens"] >= 1000000:
-            model_id = f"{model_id}[1m]"
 
         option: dict[str, str] = {
             "model": model_id,
