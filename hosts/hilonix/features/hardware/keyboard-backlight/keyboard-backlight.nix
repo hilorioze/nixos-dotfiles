@@ -8,46 +8,36 @@
 
   keyboardBacklightColor = "00ffff";
   keyboardBacklightBrightness = 122; # 0..255
-
-  keyboardBacklightControlCommand = "${keyboardBacklightControl} --color ${keyboardBacklightColor}";
 in {
   services.udev.extraRules = ''
-    SUBSYSTEM=="hidraw", ENV{ID_VENDOR_ID}=="${keyboardVendorId}", ENV{ID_MODEL_ID}=="${keyboardProductId}", ENV{ID_USB_INTERFACE_NUM}=="02", TAG+="systemd", ENV{SYSTEMD_WANTS}+="keyboard-backlight.service"
+    SUBSYSTEM=="hidraw", ENV{ID_VENDOR_ID}=="${keyboardVendorId}", ENV{ID_MODEL_ID}=="${keyboardProductId}", ENV{ID_USB_INTERFACE_NUM}=="02", TAG+="systemd", ENV{SYSTEMD_WANTS}+="keyboard-backlight-store.service"
   '';
 
-  systemd = {
-    # after a resume the keyboard keeps a new effect dark until it has been up for a while, and nothing tells when; set it once more a bit later
-    timers.keyboard-backlight = {
-      wantedBy = ["displays-on.target"];
+  systemd.services = {
+    # the keyboard keeps the static effect and the brightness in its own memory and starts with them; set them once per connection
+    keyboard-backlight-store.serviceConfig = {
+      Type = "oneshot";
 
-      partOf = ["displays-on.target"]; # displays turned off in the meantime cancel the repeat
-
-      timerConfig = {
-        OnActiveSec = "3s";
-
-        RemainAfterElapse = false; # the next turn-on starts it again
-      };
+      ExecStart = "${keyboardBacklightControl} store --color ${keyboardBacklightColor} --brightness ${toString keyboardBacklightBrightness}";
     };
 
-    services = {
-      keyboard-backlight = {
-        wantedBy = ["displays-on.target"];
+    keyboard-backlight = {
+      wantedBy = ["displays-on.target"];
 
-        serviceConfig = {
-          Type = "oneshot";
+      partOf = ["displays-on.target"]; # displays turning off stop the frames
 
-          ExecStart = "${keyboardBacklightControlCommand} --brightness ${toString keyboardBacklightBrightness}";
-        };
-      };
+      serviceConfig.ExecStart = "${keyboardBacklightControl} show --color ${keyboardBacklightColor} --repeat-interval 1"; # custom frames stay in the keyboard's ram, so repeating them doesn't wear its flash
+    };
 
-      keyboard-backlight-off = {
-        wantedBy = ["displays-off.target"];
+    keyboard-backlight-off = {
+      wantedBy = ["displays-off.target"];
 
-        serviceConfig = {
-          Type = "oneshot";
+      after = ["keyboard-backlight.service"]; # the frames stop before the black one, so the keyboard ends up dark
 
-          ExecStart = "${keyboardBacklightControlCommand} --brightness 0";
-        };
+      serviceConfig = {
+        Type = "oneshot";
+
+        ExecStart = "${keyboardBacklightControl} show --color 000000";
       };
     };
   };
