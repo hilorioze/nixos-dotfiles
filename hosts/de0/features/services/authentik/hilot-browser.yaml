@@ -1,0 +1,39 @@
+version: 1
+
+entries:
+  dependencies:
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider authorization flow (implicit consent)
+
+    - model: authentik_blueprints.metaapplyblueprint
+      attrs:
+        identifiers:
+          name: Default - Provider invalidation flow
+
+  hilot-browser:
+    - model: authentik_providers_proxy.proxyprovider
+      id: hilot-browser-provider
+      identifiers:
+        name: hilot-browser
+      attrs:
+        authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+        invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+        mode: forward_single
+        external_host: https://hilot-browser.hel0.@domain@
+
+    - model: authentik_core.application
+      identifiers:
+        slug: hilot-browser
+      attrs:
+        name: hilot browser
+        provider: !KeyOf hilot-browser-provider
+
+    - model: authentik_policies.policybinding
+      identifiers:
+        target: !Find [authentik_core.application, [slug, hilot-browser]]
+        group: !Find [authentik_core.group, [name, authentik Admins]]
+      attrs:
+        order: 0

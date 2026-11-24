@@ -14,6 +14,7 @@
     ../../common/features/services/databases/postgresql.nix
     ../../common/features/services/monitoring/fluent-bit.nix
     ../../common/features/services/monitoring/node-exporter.nix
+    ../../common/features/services/web/traefik/novnc.nix
     ../../common/features/services/web/traefik/podman.nix
     ../../common/features/services/web/traefik/traefik.nix
     ../../common/features/services/web/whoami.nix

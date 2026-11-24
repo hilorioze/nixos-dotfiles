@@ -37,6 +37,7 @@
               "${hel0Host}:9102"
               "${hel0Host}:9103"
               "${hel0Host}:9104"
+              "${hel0Host}:9105"
               # keep-sorted end
             ];
           }
