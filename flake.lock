@@ -713,11 +713,11 @@
         "uv2nix": "uv2nix_3"
       },
       "locked": {
-        "lastModified": 1795371293,
-        "narHash": "sha256-oGIxTBhPzKwoLitV3ET7sZFH4okhlm77sfI9U8sJB/A=",
+        "lastModified": 1795547165,
+        "narHash": "sha256-OioTDxFf2IOiGdEvHcEYenWVoaEgwFVL8Ju91W3sPAE=",
         "owner": "hilorioze",
         "repo": "hilot",
-        "rev": "467238026e9b31e995ff7e01c95dd62d6d19006e",
+        "rev": "9c4177fb3d8b5c6e2bea0005e489ab67623cf652",
         "type": "github"
       },
       "original": {
