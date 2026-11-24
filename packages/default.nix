@@ -21,6 +21,7 @@
   ghidra-mcp = pkgs.python3Packages.callPackage ./ghidra-mcp {};
   ghidra-mcp-plugin = pkgs.callPackage ./ghidra-mcp-plugin {};
   half-life-asset-manager = pkgs.callPackage ./half-life-asset-manager {};
+  k1tty-tools = pkgs.callPackage ./k1tty-tools {};
   mcp-for-blender = pkgs.python3Packages.callPackage ./mcp-for-blender {};
   mcpproxy = pkgs.callPackage ./mcpproxy {};
   openskp = pkgs.python3Packages.callPackage ./openskp {};
