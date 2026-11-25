@@ -32,6 +32,7 @@
   quickshare = pkgs.callPackage ./quickshare {};
   steam-broker = pkgs.callPackage ./steam-broker {};
   tapo-recordings = pkgs.callPackage ./tapo-recordings {};
+  telegram-bot-api = pkgs.callPackage ./telegram-bot-api {};
   thermalmonitor = pkgs.callPackage ./thermalmonitor {};
   xash3d-fwgs = pkgs.callPackage ./xash3d-fwgs {};
   yaas = pkgs.callPackage ./yaas {inherit (pkgs.unstablePkgs) flutter347;};
