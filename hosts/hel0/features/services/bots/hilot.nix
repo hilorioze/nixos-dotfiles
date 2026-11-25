@@ -553,10 +553,10 @@ in {
             database
 
             {
-              # the detector stays connected to the browser: stop it with the browser and start it again once the browser is back
+              # the detector stays connected to the browser: stop it with the browser and start it with each start of the browser, a restart of the browser's own included; `upheldBy` would also start it while a switch stops it
               after = ["hilot-browser.service"];
               bindsTo = ["hilot-browser.service"];
-              upheldBy = ["hilot-browser.service"];
+              wantedBy = ["hilot-browser.service"];
 
               environment.XDG_CONFIG_HOME = sharedConfigHome;
 
