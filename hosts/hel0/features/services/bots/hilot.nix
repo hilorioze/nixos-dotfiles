@@ -82,6 +82,9 @@ in {
           # the key of de0's hermes, from https://console.groq.com/keys
           "credentials/groq/api-key".restartUnits = ["hilot-transcriber.service"];
 
+          # the bot of hilorioze's hermes on de0, from @BotFather
+          "credentials/telegram/bots/hilorioze_agentbot/token".restartUnits = lib.mapAttrsToList (name: _: "hilot-bot-${name}.service") botPorts;
+
           # password=$(, openssl rand -hex 32); printf 'password: %s\nhashed-password: %s\n' $password $(, openssl passwd -1 $password)
           "services/hilot/proxy-password".restartUnits = ["3proxy.service"];
 
@@ -413,6 +416,13 @@ in {
                   // {
                     inherit (lib.importTOML "${inputs.hilot}/hilot.toml") telegram; # the same app and device as `hilot-login`, which creates the session string from the repository
 
+                    # the bot of hilorioze's hermes through the bot api server here, which takes files of up to 2000 MB, see `telegram-bot-api.nix`
+                    inline_bot = {
+                      api_url = "http://127.0.0.1:8081"; # telegram-bot-api's default port
+
+                      local_mode = true;
+                    };
+
                     bot = {
                       # a link waits for its preview in a slot, up to 30 seconds
                       concurrency = 4;
@@ -440,7 +450,11 @@ in {
                   });
 
                 serviceConfig = {
-                  LoadCredential = ["SESSION_STRING:${config.sops.secrets."services/hilot/accounts/${name}/session-string".path}"];
+                  LoadCredential = [
+                    "SESSION_STRING:${config.sops.secrets."services/hilot/accounts/${name}/session-string".path}"
+
+                    "INLINE_BOT__TOKEN:${config.sops.secrets."credentials/telegram/bots/hilorioze_agentbot/token".path}"
+                  ];
 
                   ExecStart = lib.getExe' pkgs.hilot "hilot-bot";
                 };
