@@ -314,6 +314,8 @@ in {
         # brings the inhibitor up and goes down with it, whatever stops it
         BindsTo = ["claude-inhibit@%i.service"];
         After = ["claude-inhibit@%i.service"]; # with the ordering the lease is never active without the inhibitor
+
+        StartLimitIntervalSec = 0; # parallel tool calls restart the lease faster than the default 5 starts per 10s allow, failing the hook
       };
 
       Timer = {
