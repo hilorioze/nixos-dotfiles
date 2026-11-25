@@ -1,0 +1,11 @@
+diff --git a/lookandfeel/components/VirtualKeyboard_wayland.qml b/lookandfeel/components/VirtualKeyboard_wayland.qml
+index 5dec27f..bb6e5b5 100644
+--- a/lookandfeel/components/VirtualKeyboard_wayland.qml
++++ b/lookandfeel/components/VirtualKeyboard_wayland.qml
+@@ -21,5 +21,6 @@ Item {
+ 
+     onActivatedChanged: if (activated) {
+         Keyboards.KWinVirtualKeyboard.enabled = true
++        Keyboards.KWinVirtualKeyboard.forceActivate()
+     }
+ }
