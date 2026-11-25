@@ -59,7 +59,7 @@ EXPIRED_TOKEN_ERROR: int = -20651  # a token lasts about 30 days
 UNREGISTERED_TOKEN_ERROR: int = -23001  # `APP_NO_SUCH_APP` in the app; the cloud keeps one push registration per account, and the app on a phone takes it on start at most once a day
 REGISTRATION_SECONDS: int = 10  # how long a phone can keep the pushes after taking the registration
 
-IDLE_SECONDS: int = 120  # keep waiting for the recording of the latest detection
+IDLE_SECONDS: int = 120  # keep looking for the recording of the latest detection and retrying a failed download
 RESUME_MS: int = 3600 * 1000  # on start, resume saving the recordings of the cameras with a detection this recent
 POLL_SECONDS: int = 5
 
@@ -93,6 +93,7 @@ token: str = ""  # the cloud's session of this terminal
 latest: dict[str, dict[str, Any]] = json.loads(LATEST_PATH.read_text()) if LATEST_PATH.exists() else {}  # its alias and the time of its latest detection
 last_detected_at: dict[str, float] = {}  # when a new detection or a restart last asked its saving thread to keep going
 savers: dict[str, threading.Thread] = {}  # the thread saving its recordings
+savers_lock: threading.Lock = threading.Lock()  # a detection either reaches a running saver or starts a new one, never one that is quitting
 
 
 def post_cloud(*, path: str, parameters: dict[str, Any], query: dict[str, str]) -> dict[str, Any]:
@@ -311,22 +312,32 @@ def save_recordings(mac: str) -> None:
     tapo.getUserID()  # the downloader reads it inside its event loop, where pytapo can't request it; cache it first
 
     idle_since: float = time.time()
-    while time.time() - max(idle_since, last_detected_at[mac]) < IDLE_SECONDS:
+    while True:
+        listed_at: float = time.time()
+        detected_at: int = latest[mac]["detectedAt"] // 1000  # the recordings' times are in seconds
+        recorded: bool = False  # the camera lists a recording of the latest detection
+        failed: bool = False
+        fresh_until: float = 0  # when the downloader takes the newest unsaved recording
+
         # the camera downloads only from the day it listed last, so save each day's recordings right after listing them
         for day in [date.today() - timedelta(days=1), date.today()]:
-            pending: list[dict[str, Any]] = [recording for recording in list_recordings(tapo, day) if not (saved_path / str(recording["startTime"])).exists()]
+            recordings: list[dict[str, Any]] = list_recordings(tapo, day)
+            recorded |= any(recording["endTime"] >= detected_at for recording in recordings)
+
+            pending: list[dict[str, Any]] = [recording for recording in recordings if not (saved_path / str(recording["startTime"])).exists()]
             for recording in pending:
+                # the downloader refuses a recording changed within its fresh time, which the camera may still be writing
+                recording_fresh_until: float = recording["endTime"] + tapo.getTimeCorrection() + Downloader.FRESH_RECORDING_TIME_SECONDS
+                if recording_fresh_until > time.time():
+                    fresh_until = max(fresh_until, recording_fresh_until)
+
+                    continue
+
                 with tempfile.TemporaryDirectory() as temporary:
                     clip_path: Path = Path(temporary) / "recording.mp4"
                     action: str
                     downloaded_seconds: float
                     action, downloaded_seconds = download_recording(tapo, recording=recording, clip_path=clip_path)
-
-                    # the camera still records while the detected motion goes on
-                    if action == "Recording in progress":
-                        idle_since = time.time()
-
-                        continue
 
                     # the sd card can hold less video than the camera lists for a recording, and the downloader drops a clip that falls short; save the part the camera sends
                     if action == "Giving up" and downloaded_seconds > 0:
@@ -336,6 +347,7 @@ def save_recordings(mac: str) -> None:
                     # the downloader leaves no file when it gives up or finds the camera busy
                     if not clip_path.exists():
                         print(f"no clip for the {latest[mac]['alias']} recording at {datetime.fromtimestamp(recording['startTime'])} ({action}), retrying on the next poll", flush=True)  # journald gets a pipe, which python buffers until the run ends
+                        failed = True
 
                         continue
 
@@ -346,16 +358,33 @@ def save_recordings(mac: str) -> None:
 
                 idle_since = time.time()
 
-        time.sleep(POLL_SECONDS)
+        # a battery camera stays awake while anything talks to it; come back once the recordings are done instead of polling it
+        if fresh_until:
+            time.sleep(max(fresh_until - time.time(), 0))
+
+            continue
+
+        if (failed or not recorded) and time.time() - max(idle_since, last_detected_at[mac]) < IDLE_SECONDS:
+            time.sleep(POLL_SECONDS)
+
+            continue
+
+        # a detection during the listing may have a recording the listing missed
+        with savers_lock:
+            if last_detected_at[mac] < listed_at:
+                del savers[mac]
+
+                return
 
 
 def start_saving(mac: str) -> None:
-    last_detected_at[mac] = time.time()
-
     # save the camera's recordings from its sd card once it detects something, without waking a battery camera up otherwise; an unreachable camera fails only its thread, and its next detection starts another
-    if mac not in savers or not savers[mac].is_alive():
-        savers[mac] = threading.Thread(target=save_recordings, args=(mac,), daemon=True)  # a daemon, so that a failed cloud request still ends the process
-        savers[mac].start()
+    with savers_lock:
+        last_detected_at[mac] = time.time()
+
+        if mac not in savers or not savers[mac].is_alive():
+            savers[mac] = threading.Thread(target=save_recordings, args=(mac,), daemon=True)  # a daemon, so that a failed cloud request still ends the process
+            savers[mac].start()
 
 
 def format_detection(*, camera: dict[str, Any], title: str) -> str:
