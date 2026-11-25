@@ -50,6 +50,7 @@
     ../../../features/development/git/nixos-dotfiles-lazy-git-repo.nix
     ../../../features/development/goldsrc/bspguy.nix
     ../../../features/development/goldsrc/half-life-asset-manager.nix
+    ../../../features/development/hilot.nix
     ../../../features/development/wakatime.nix
     ../../../features/files/ark.nix
     ../../../features/files/dolphin.nix
