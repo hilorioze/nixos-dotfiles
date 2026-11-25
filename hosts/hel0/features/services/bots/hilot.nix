@@ -590,7 +590,7 @@ in {
 
                 ExecStart = [
                   "${lib.getExe pkgs.cookie-browser-fetch} %t/hilot-cookies-sync/cookies.txt %d/curlrc ${lib.concatMapStringsSep " " (host: host.config.networking.fqdn) homeHosts}"
-                  "${lib.getExe' pkgs.hilot "hilot-cookies"} %t/hilot-cookies-sync/cookies.txt"
+                  "${lib.getExe' pkgs.hilot "hilot-cookies"} --whole-browser %t/hilot-cookies-sync/cookies.txt"
                 ];
               };
             }
