@@ -366,6 +366,8 @@
 
             (mkHilotEndpoint "hilot-transcoder")
 
+            (mkHilotEndpoint "hilot-transcriber")
+
             {
               name = "lampac";
               group = "services";
