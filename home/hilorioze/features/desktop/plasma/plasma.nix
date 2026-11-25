@@ -77,6 +77,14 @@
       effects.wobblyWindows.enable = true;
     };
 
+    # keep media keys and headphone taps working while shift is held
+    shortcuts.mediacontrol = {
+      playpausemedia = ["Media Play" "Shift+Media Play"];
+      pausemedia = ["Media Pause" "Shift+Media Pause"];
+      nextmedia = ["Media Next" "Shift+Media Next"];
+      previousmedia = ["Media Previous" "Shift+Media Previous"];
+    };
+
     kscreenlocker.appearance.showMediaControls = false;
 
     session.sessionRestore.restoreOpenApplicationsOnLogin = "startWithEmptySession";
