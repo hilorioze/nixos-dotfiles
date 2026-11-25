@@ -403,7 +403,8 @@ in {
                     inherit (lib.importTOML "${inputs.hilot}/hilot.toml") telegram; # the same app and device as `hilot-login`, which creates the session string from the repository
 
                     bot = {
-                      concurrency = 2;
+                      # a link waits for its preview in a slot, up to 30 seconds
+                      concurrency = 4;
 
                       max_message_age = "0:30:00";
 
