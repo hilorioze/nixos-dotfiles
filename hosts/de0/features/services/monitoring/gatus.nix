@@ -534,6 +534,29 @@
               conditions = ["[STATUS] == 200"];
             }
 
+            # the server answers a path without a token with a json error
+            {
+              name = "telegram-bot-api";
+              group = "services";
+
+              url = "https://telegram-bot-api.${config.networking.domain}/";
+
+              conditions = [
+                "[STATUS] == 404"
+
+                "[BODY].ok == false"
+              ];
+            }
+
+            {
+              name = "telegram-bot-api-files";
+              group = "services";
+
+              url = "https://telegram-bot-api.${config.networking.domain}/health";
+
+              conditions = ["[STATUS] == 200"];
+            }
+
             (mkTraefikDashboardEndpoint cexNixosConfig)
 
             (mkTraefikDashboardEndpoint de0Config)

@@ -193,6 +193,16 @@
 
             streaming.enabled = true; # stream replies as they're written; a group gets edits of one message, a dm telegram's native drafts
 
+            # the bot that goes through hel0's bot api server and takes files of up to 2 GB, see `hosts/hel0/features/services/bots/telegram-bot-api.nix`
+            platforms.telegram.extra = let
+              apiUrl = "https://telegram-bot-api.${config.networking.domain}";
+            in
+              lib.optionalAttrs (name == "hilorioze") {
+                base_url = apiUrl;
+
+                base_file_url = apiUrl;
+              };
+
             telegram.gateway_restart_notification = false; # every deploy restarts the gateway; drop its "shutting down" and "gateway online" messages from the chat
 
             display.platforms.telegram = {
