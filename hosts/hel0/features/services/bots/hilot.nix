@@ -470,6 +470,8 @@ in {
 
             shared
 
+            database
+
             {
               environment.XDG_CONFIG_HOME = sharedConfigHome;
 
