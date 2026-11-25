@@ -24,14 +24,15 @@ resource "cloudflare_dns_record" "website_www" {
 resource "cloudflare_dns_record" "service" {
   for_each = {
     # keep-sorted start
-    carcass   = { host = "de0" }
-    dashboard = { host = "de0", proxied = true }
-    grafana   = { host = "de0" }
-    hs        = { host = "hel0" }
-    idm       = { host = "de0" }
-    mud       = { host = "de0" }
-    niks3     = { host = "de0" }
-    status    = { host = "de0", proxied = true }
+    carcass          = { host = "de0" }
+    dashboard        = { host = "de0", proxied = true }
+    grafana          = { host = "de0" }
+    hs               = { host = "hel0" }
+    idm              = { host = "de0" }
+    mud              = { host = "de0" }
+    niks3            = { host = "de0" }
+    status           = { host = "de0", proxied = true }
+    telegram-bot-api = { host = "hel0" }
     # keep-sorted end
   }
 

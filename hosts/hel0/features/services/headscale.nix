@@ -241,7 +241,7 @@ in {
               dst = ["tag:de0:6636"];
             }
 
-            # de0 (gatus) checks headscale health via https
+            # de0 reaches the https services of hel0: gatus checks them, hermes goes through the bot api server
             {
               action = "accept";
 
