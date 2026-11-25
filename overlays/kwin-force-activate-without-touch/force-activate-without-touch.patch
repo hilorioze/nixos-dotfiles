@@ -1,0 +1,14 @@
+diff --git a/src/inputmethod.cpp b/src/inputmethod.cpp
+index 4ce5459..b50d7df 100644
+--- a/src/inputmethod.cpp
++++ b/src/inputmethod.cpp
+@@ -1096,6 +1096,9 @@ bool InputMethod::activeClientSupportsTextInput() const
+ void InputMethod::forceActivate()
+ {
+     setActive(true);
++    if (m_panel) {
++        m_panel->allow();
++    }
+     show();
+ }
+ 
