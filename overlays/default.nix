@@ -52,6 +52,7 @@
   (import ./nix-update-skip-package-environment)
   (import ./nix-update-skip-update)
   (import ./plasma-pa-volume-step-snap)
+  (import ./plasma-workspace-lock-screen-virtual-keyboard)
   (import ./plasma-workspace-media-keys-no-repeat)
   (import ./playwright-mcp-patchright)
   (import ./podman-healthcheck-ignore-result)
