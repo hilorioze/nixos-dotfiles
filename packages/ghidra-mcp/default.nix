@@ -11,12 +11,12 @@
 buildPythonPackage (finalAttrs: {
   pname = "ghidra-mcp";
 
-  version = "7.0.0";
+  version = "7.1.0";
 
   src = fetchurl {
     url = "https://github.com/bethington/ghidra-mcp/releases/download/v${finalAttrs.version}/ghidra_mcp_bridge-${finalAttrs.version}-py3-none-any.whl";
 
-    hash = "sha256-p1BQBh0NFRTUsR5iiOp1dcCathJaE5TDP+NJ+3ZYu64=";
+    hash = "sha256-y+7o4DmDj22F8ukZOSN2XWt7/rcduKNdF2N3EZhCSGs=";
   };
 
   format = "wheel";
