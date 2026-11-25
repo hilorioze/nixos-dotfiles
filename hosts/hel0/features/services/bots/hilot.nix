@@ -24,6 +24,7 @@
       hilot-detector = 9105;
       hilot-downloader = 9102;
       hilot-transcoder = 9103;
+      hilot-transcriber = 9106;
       # keep-sorted end
     };
 
@@ -68,6 +69,7 @@ in {
               "hilot-detector.service"
               "hilot-downloader.service"
               "hilot-transcoder.service"
+              "hilot-transcriber.service"
               # keep-sorted end
             ]
 
@@ -76,6 +78,9 @@ in {
 
           # , mkpasswd --method=bcrypt --rounds=10
           "services/nats/tokens/hilot/hashed-token" = {};
+
+          # the key of de0's hermes, from https://console.groq.com/keys
+          "credentials/groq/api-key".restartUnits = ["hilot-transcriber.service"];
 
           # password=$(, openssl rand -hex 32); printf 'password: %s\nhashed-password: %s\n' $password $(, openssl passwd -1 $password)
           "services/hilot/proxy-password".restartUnits = ["3proxy.service"];
@@ -297,6 +302,12 @@ in {
           http = mkHttp httpPorts.hilot-transcoder;
         };
 
+        transcriber = {
+          concurrency = 4;
+
+          http = mkHttp httpPorts.hilot-transcriber;
+        };
+
         detector = {
           concurrency = 2;
 
@@ -477,6 +488,23 @@ in {
               environment.XDG_CONFIG_HOME = sharedConfigHome;
 
               serviceConfig.ExecStart = lib.getExe' pkgs.hilot "hilot-transcoder";
+            }
+          ];
+
+          # speaks to groq only, so it needs no database
+          hilot-transcriber = lib.mkMerge [
+            credentials
+
+            shared
+
+            {
+              environment.XDG_CONFIG_HOME = sharedConfigHome;
+
+              serviceConfig = {
+                LoadCredential = ["GROQ__API_KEY:${config.sops.secrets."credentials/groq/api-key".path}"];
+
+                ExecStart = lib.getExe' pkgs.hilot "hilot-transcriber";
+              };
             }
           ];
 
