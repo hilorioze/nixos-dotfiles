@@ -553,9 +553,10 @@ in {
             database
 
             {
-              # the detector stays connected to the browser, so a restarted browser restarts it too
+              # the detector stays connected to the browser: stop it with the browser and start it again once the browser is back
               after = ["hilot-browser.service"];
               bindsTo = ["hilot-browser.service"];
+              upheldBy = ["hilot-browser.service"];
 
               environment.XDG_CONFIG_HOME = sharedConfigHome;
 
