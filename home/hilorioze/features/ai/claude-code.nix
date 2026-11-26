@@ -99,7 +99,7 @@ in {
       };
 
       settings = {
-        autoCompactWindow = 230000; # actually triggers at 197k (reserves 20k output + 13k buffer); below 200000 claude stops preparing the summary in the background
+        autoCompactWindow = 280000; # actually triggers at 247k (reserves 20k output + 13k buffer); below 200000 claude stops preparing the summary in the background
         idleCompaction = false; # disable the extra summary request before an idle chat's prompt cache expires
 
         autoMemoryDirectory = "${config.services.syncthing.settings.folders.claude.path}/memory"; # global memory; shared between hosts
