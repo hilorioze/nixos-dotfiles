@@ -10,12 +10,12 @@
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "blender-openskp";
 
-  version = "0.3.0";
+  version = "0.4.0";
 
   src = fetchurl {
     url = "https://github.com/iamahsanmehmood/blender-openskp/releases/download/v${finalAttrs.version}/blender-openskp-v${finalAttrs.version}.zip";
 
-    hash = "sha256-b3c8GdYkAcFZQlU6ke/+dYgA6FVNJAKxO/4mhwblK1k=";
+    hash = "sha256-MBcrihmB7C1bdA+ME0Xr7+BKOzSJU30n6GxFvzrIzeY=";
   };
 
   dontUnpack = true;
