@@ -39,6 +39,25 @@
 
           # the engine plays 22050 hz, and the default resampler of pipewire-pulse cuts it from 9.6 khz instead of 11 khz, which sounds muffled
           PULSE_PROP = "resample.quality=14";
+
+          # the html engine of the motd packs a font's file id and face index into `fileid << 4 | index`, and the index of a variable font's named instance (`instance << 16 | face`) overflows into the file id, so measuring text in one, as fingerprinting motds do, dereferences a missing font
+          FONTCONFIG_FILE = pkgs.writeText "cstrike-fonts.conf" ''
+            <?xml version="1.0"?>
+            <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+            <fontconfig>
+              <include>/etc/fonts/fonts.conf</include>
+
+              <selectfont>
+                <rejectfont>
+                  <pattern>
+                    <patelt name="namedinstance">
+                      <bool>true</bool>
+                    </patelt>
+                  </pattern>
+                </rejectfont>
+              </selectfont>
+            </fontconfig>
+          '';
         };
 
         preHook = ''
