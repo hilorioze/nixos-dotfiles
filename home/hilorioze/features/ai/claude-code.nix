@@ -163,11 +163,17 @@ in {
           ];
         };
 
-        # subagents aren't worth the quota they consume
         permissions.deny = [
+          # subagents aren't worth the quota they consume
           # keep-sorted start
           "Agent"
           "Workflow"
+          # keep-sorted end
+
+          # rarely needed tools whose definitions go into every request; `Artifact` alone is ~12k tokens
+          # keep-sorted start
+          "Artifact"
+          "ReportFindings"
           # keep-sorted end
         ];
 
