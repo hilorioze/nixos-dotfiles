@@ -55,11 +55,15 @@ in {
       lib.mkMerge [
         {
           # printf '["%s"]\n' $(, openssl rand -base64 32 | tr '+/' '-_')
-          "services/hilot/encryption-keys".restartUnits = [
-            # keep-sorted start
-            "hilot-detector.service"
-            "hilot-downloader.service"
-            # keep-sorted end
+          "services/hilot/encryption-keys".restartUnits = lib.mkMerge [
+            [
+              # keep-sorted start
+              "hilot-detector.service"
+              "hilot-downloader.service"
+              # keep-sorted end
+            ]
+
+            (lib.mapAttrsToList (name: _: "hilot-bot-${name}.service") botPorts)
           ];
 
           # token=$(, openssl rand -hex 32); printf 'token: %s\nhashed-token: %s\n' $token $(, mkpasswd --method=bcrypt --rounds=10 $token)
@@ -425,7 +429,7 @@ in {
                   // {
                     inherit (lib.importTOML "${inputs.hilot}/hilot.toml") telegram; # the same app and device as `hilot-login`, which creates the session string from the repository
 
-                    # the bot of hilorioze's hermes through the bot api server here, which takes files of up to 2000 MB, see `telegram-bot-api.nix`
+                    # the bot of hilorioze's hermes through the bot api server here, which takes files of up to 2 GB, see `telegram-bot-api.nix`
                     inline_bot = {
                       api_url = "http://127.0.0.1:8081"; # telegram-bot-api's default port
 
@@ -461,6 +465,8 @@ in {
                 serviceConfig = {
                   LoadCredential = [
                     "SESSION_STRING:${config.sops.secrets."services/hilot/accounts/${name}/session-string".path}"
+
+                    "ENCRYPTION__KEYS:${config.sops.secrets."services/hilot/encryption-keys".path}"
 
                     "INLINE_BOT__TOKEN:${config.sops.secrets."credentials/telegram/bots/hilorioze_agentbot/token".path}"
                   ];
