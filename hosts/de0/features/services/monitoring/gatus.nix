@@ -548,13 +548,18 @@
               ];
             }
 
+            # a missing file of the bot in the url hermes builds, with the colon percent-encoded: the files server answers it with its html page, a path traefik refuses gets traefik's plain text
             {
               name = "telegram-bot-api-files";
               group = "services";
 
-              url = "https://telegram-bot-api.${config.networking.domain}/health";
+              url = "https://telegram-bot-api.${config.networking.domain}/file/bot8658908506%3Ax/var/lib/telegram-bot-api/8658908506:x/documents/none";
 
-              conditions = ["[STATUS] == 200"];
+              conditions = [
+                "[STATUS] == 404"
+
+                "[BODY] == pat(*<h1>404 Not Found</h1>*)"
+              ];
             }
 
             (mkTraefikDashboardEndpoint cexNixosConfig)
