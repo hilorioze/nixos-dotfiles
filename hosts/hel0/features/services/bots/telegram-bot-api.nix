@@ -63,7 +63,8 @@ in {
     dynamicConfigOptions.http = let
       host = "telegram-bot-api.${config.networking.domain}";
 
-      botPaths = prefix: "PathRegexp(`^${prefix}/bot(${lib.concatMapStringsSep "|" toString botIds}):`)";
+      # python-telegram-bot percent-encodes the colon of the token in the url of a file
+      botPaths = prefix: "PathRegexp(`^${prefix}/bot(${lib.concatMapStringsSep "|" toString botIds})(:|%3A)`)";
     in {
       routers = {
         # the root answers with a json error, for gatus
