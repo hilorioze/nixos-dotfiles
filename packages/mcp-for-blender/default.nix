@@ -15,13 +15,13 @@ in
   buildPythonPackage (finalAttrs: {
     pname = "mcp-for-blender";
 
-    version = "2.3.1";
+    version = "2.3.3";
 
     src = fetchPypi {
       pname = pypiName;
 
       inherit (finalAttrs) version;
-      hash = "sha256-QJTkJiNvId/W/7+XwuatcHzm86q5xS31gVqk1tnXj7g=";
+      hash = "sha256-yga2vkU0hZZIlwmGtJ9T2KUGNV2Hca2577p+zPufqGk=";
 
       format = "wheel";
 
