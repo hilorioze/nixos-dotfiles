@@ -256,6 +256,15 @@ in {
   };
 
   systemd = {
+    timers.hilot-cleanup = {
+      wantedBy = ["timers.target"];
+
+      timerConfig = {
+        OnCalendar = "daily";
+        Persistent = true; # a day the host was off is caught up after its boot
+      };
+    };
+
     timers.hilot-cookies-sync = {
       wantedBy = ["timers.target"];
 
@@ -283,10 +292,10 @@ in {
           region = config.services.garage.settings.s3_api.s3_region;
 
           bucket = "hilot";
-
-          # the bucket expires the files a day after their upload, see `garage-setup`
-          reuse_period = "12:00:00";
         };
+
+        # the bucket expires the files a day after their upload, see `garage-setup`
+        stored_file.reuse_period = "12:00:00";
 
         disk = {
           min_free_space = "2 GiB";
@@ -607,6 +616,23 @@ in {
                 LoadCredential = ["ENCRYPTION__KEYS:${config.sops.secrets."services/hilot/encryption-keys".path}"];
 
                 ExecStart = lib.getExe' pkgs.hilot "hilot-detector";
+              };
+            }
+          ];
+
+          # delete the cached data that has expired
+          hilot-cleanup = lib.mkMerge [
+            database
+
+            {
+              environment.XDG_CONFIG_HOME = sharedConfigHome;
+
+              serviceConfig = {
+                Type = "oneshot";
+
+                DynamicUser = true;
+
+                ExecStart = lib.getExe' pkgs.hilot "hilot-cleanup";
               };
             }
           ];
