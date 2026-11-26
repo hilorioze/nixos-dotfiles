@@ -125,7 +125,13 @@
       shared
 
       {
-        environment.CLIPROXYAPI_LOW_PRIORITY_ACCOUNTS = builtins.toJSON {codex = ["valerykiracofercykk@googlemail.com"];}; # keep at priority `0` below dynamically ranked accounts
+        environment.CLIPROXYAPI_LOW_PRIORITY_ACCOUNTS = builtins.toJSON {
+          # in spending order, from priority `0` down, below dynamically ranked accounts
+          codex = [
+            "valerykiracofercykk@googlemail.com"
+            "montonoraadelle.sia@gmail.com"
+          ];
+        };
 
         serviceConfig = {
           StateDirectory = "cliproxyapi-warmup";
