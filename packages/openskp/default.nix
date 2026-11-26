@@ -17,13 +17,13 @@ in
   buildPythonPackage (finalAttrs: {
     pname = "openskp";
 
-    version = "1.6.0";
+    version = "1.7.0";
 
     src = fetchPypi {
       pname = pypiName;
 
       inherit (finalAttrs) version;
-      hash = "sha256-+qAIHcKZg68U6CGE1+bHiMyosKaj7dEXp1zLeP8m9Yo=";
+      hash = "sha256-2iotiNCWxiomszJ17OGX3pa7ZugwE1OKgKzZo1Vji7A=";
 
       format = "wheel";
 
