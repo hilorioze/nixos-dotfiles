@@ -174,32 +174,34 @@ in {
         # keep unused skills out of the listing every session sends to the model
         skillOverrides = {
           # keep-sorted start by_regex=\w.*
+          "anthropic-skills:artifact-emulator" = "off"; # works only in cloud sessions
           "anthropic-skills:built-in-browser" = "off";
           "anthropic-skills:chrome-browser" = "off";
           "anthropic-skills:computer-use" = "off";
           "anthropic-skills:deep-research" = "off";
           "anthropic-skills:docs" = "off";
+          "anthropic-skills:docx" = "off";
           "anthropic-skills:google-workspace" = "off";
+          "anthropic-skills:pdf" = "off";
+          "anthropic-skills:pptx" = "off";
+          "anthropic-skills:xlsx" = "off";
           artifact-capabilities = "off";
           artifact-design = "off";
           artifact-diagramming = "off";
           auto-mode-setup = "off"; # disable the prompt to teach auto mode about the environment
+          claude-api = "off"; # triggers on any mention of claude models or limits and leaves ~27k tokens of api docs in the context
           claude-in-chrome = "off"; # the browser is driven through playwright
+          code-review = "off";
           dataviz = "off";
           fewer-permission-prompts = "off";
+          init = "off";
           keybindings-help = "off";
           plugin-authoring = "off";
           run = "off";
           schedule = "off";
           security-review = "off";
+          simplify = "off";
           update-config = "off"; # claude settings come from this file, `settings.json` is overwritten on activation
-          # keep-sorted end
-
-          # still typable as `/name`
-          # keep-sorted start
-          code-review = "user-invocable-only";
-          init = "user-invocable-only";
-          simplify = "user-invocable-only";
           # keep-sorted end
         };
       };
