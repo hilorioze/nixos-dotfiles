@@ -78,6 +78,10 @@
           "-console"
           "-dev"
           # keep-sorted end
+
+          # the default 40 mb hunk holds the whole map file while loading it, so maps over ~35 mb fail with `Hunk_Alloc: failed`; take the 128 mb maximum, given in kb
+          "-heapsize"
+          "131072"
         ];
       };
 
