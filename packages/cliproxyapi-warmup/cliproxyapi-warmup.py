@@ -549,8 +549,10 @@ async def route_spending(*, entries: list[dict[str, Any]], priorities: dict[str,
     for name, account_entries in accounts.items():
         account: dict[str, Any] = account_entries[0]["account"]
 
-        if account["email"] in LOW_PRIORITY_ACCOUNTS.get(account["provider"], []):
-            next_priorities[name] = 0
+        low_priority_accounts: list[str] = LOW_PRIORITY_ACCOUNTS.get(account["provider"], [])
+
+        if account["email"] in low_priority_accounts:
+            next_priorities[name] = -low_priority_accounts.index(account["email"])  # each one is spent only after the one before it
         else:
             providers[account["provider"]].append(name)
 
