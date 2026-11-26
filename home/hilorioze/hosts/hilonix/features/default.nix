@@ -37,6 +37,7 @@
     ../../../features/desktop/fontconfig.nix
     ../../../features/desktop/plasma/disable-krunner.nix
     ../../../features/desktop/plasma/plasma.nix
+    ../../../features/desktop/prune-desktop-entries/prune-desktop-entries.nix
     ../../../features/desktop/wl-clipboard.nix
     ../../../features/desktop/xdg-mime-apps.nix
     ../../../features/development/a2s.nix
