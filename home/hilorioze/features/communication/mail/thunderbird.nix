@@ -62,6 +62,9 @@ in {
           # suppress thunderbird's "Know your rights" first-run notification
           "mail.rights.override" = true;
 
+          # thunderbird checks the default client against its unwrapped binary, so it never matches and each accepted prompt leaves a new `userapp-*.desktop`
+          "mail.shell.checkDefaultClient" = false;
+
           # disable telemetry data submission; this also prevents the first-run privacy policy tab, making `dataSubmissionPolicyBypassNotification` unnecessary
           "datareporting.policy.dataSubmissionEnabled" = false;
         };
