@@ -29,8 +29,6 @@
       port = filesPort;
 
       root = directory;
-
-      health = true; # `/health`, for gatus
     };
 
     # each segment matches apart, so a path can't leave the storage, and the token of the request picks the directory, so a bot reads only its own files;
@@ -79,7 +77,7 @@ in {
 
         telegram-bot-api-files = {
           entryPoints = ["https"];
-          rule = "Host(`${host}`) && (Path(`/health`) || ${botPaths "/file"})";
+          rule = "Host(`${host}`) && ${botPaths "/file"}";
 
           observability.accessLogs = false; # the paths carry the token
 
