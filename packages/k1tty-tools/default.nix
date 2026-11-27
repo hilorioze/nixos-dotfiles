@@ -14,12 +14,12 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "k1tty-tools";
 
-  version = "2.0.0";
+  version = "2.1.1";
 
   src = fetchurl {
     url = "https://github.com/quesada-lab/k1tty-tools/releases/download/v${finalAttrs.version}/K1tty.Tools_${finalAttrs.version}_amd64.deb";
 
-    hash = "sha256-O3mMi4jPKMrxDb6iwoVfFtyB+gipDls8aw9+mIY2NJY=";
+    hash = "sha256-8nvvxhJCS67VAmgC/zcvc14jPXFzFbk/HrDHzSdH55c=";
   };
 
   strictDeps = true;
