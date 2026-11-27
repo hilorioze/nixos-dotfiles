@@ -11,6 +11,13 @@
 
     servers = {
       # keep-sorted start block=yes newline_separated=yes
+      airbnb = {
+        command = lib.getExe pkgs.mcp-server-airbnb;
+
+        # airbnb's robots.txt disallows the search pages, which the server refuses to fetch by default
+        args = ["--ignore-robots-txt"];
+      };
+
       fli.command = lib.getExe pkgs.fli;
 
       ghidra.command = lib.getExe pkgs.ghidra-mcp;
