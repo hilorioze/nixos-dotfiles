@@ -44,6 +44,7 @@
   (import ./hermes-agent-sync-back-skip-runtime-cache)
   (import ./konsole-wayland-tab-dnd-fix)
   (import ./kwin-force-activate-without-touch)
+  (import ./kwin-placement-restore-work-area)
   (import ./looking-glass-client-idd)
   (import ./miniupnpd-delete-range-ownership)
   (import ./niks3-upstream-cache-filter)

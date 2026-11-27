@@ -1,0 +1,13 @@
+diff --git a/src/placementtracker.cpp b/src/placementtracker.cpp
+index 4ce2d0c..48d3ce6 100644
+--- a/src/placementtracker.cpp
++++ b/src/placementtracker.cpp
+@@ -128,6 +128,8 @@ void PlacementTracker::restore(const QString &key)
+                 window->setMaximize(newData.maximize & MaximizeMode::MaximizeVertical, newData.maximize & MaximizeMode::MaximizeHorizontal);
+                 window->setFullScreen(newData.fullscreen);
+                 window->moveResize(newData.geometry);
++                // the saved geometry may predate the current struts, e.g. if a panel was gone together with its output
++                window->checkWorkspacePosition();
+                 window->setGeometryRestore(newData.geometryRestore);
+                 window->setFullscreenGeometryRestore(newData.fullscreenGeometryRestore);
+                 m_lastRestoreData[window] = dataForWindow(window);
