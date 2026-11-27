@@ -11,7 +11,11 @@
 
     servers = {
       # keep-sorted start block=yes newline_separated=yes
+      fli.command = lib.getExe pkgs.fli;
+
       ghidra.command = lib.getExe pkgs.ghidra-mcp;
+
+      kiwi.url = "https://mcp.kiwi.com";
 
       playwright = {
         command = lib.getExe pkgs.playwright-mcp-with-extension-token;
