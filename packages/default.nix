@@ -24,6 +24,7 @@
   half-life-asset-manager = pkgs.callPackage ./half-life-asset-manager {};
   k1tty-tools = pkgs.callPackage ./k1tty-tools {};
   mcp-for-blender = pkgs.python3Packages.callPackage ./mcp-for-blender {};
+  mcp-server-airbnb = pkgs.callPackage ./mcp-server-airbnb {};
   mcpproxy = pkgs.callPackage ./mcpproxy {};
   openskp = pkgs.python3Packages.callPackage ./openskp {};
   patchright-core = pkgs.callPackage ./patchright-core {};
